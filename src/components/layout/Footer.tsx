@@ -38,30 +38,30 @@ const Footer = () => {
           <div className="col-span-1">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Company</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">About</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Careers</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Blog</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Press</a></li>
+              <li><a href="/about" className="text-gray-600 hover:text-brandguardian-600">About</a></li>
+              <li><a href="/careers" className="text-gray-600 hover:text-brandguardian-600">Careers</a></li>
+              <li><a href="/blog" className="text-gray-600 hover:text-brandguardian-600">Blog</a></li>
+              <li><a href="/press" className="text-gray-600 hover:text-brandguardian-600">Press</a></li>
             </ul>
           </div>
           
           <div className="col-span-1">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Resources</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Documentation</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Help Center</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Guides</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">API Status</a></li>
+              <li><a href="/documentation" className="text-gray-600 hover:text-brandguardian-600">Documentation</a></li>
+              <li><a href="/help" className="text-gray-600 hover:text-brandguardian-600">Help Center</a></li>
+              <li><a href="/guides" className="text-gray-600 hover:text-brandguardian-600">Guides</a></li>
+              <li><a href="/status" className="text-gray-600 hover:text-brandguardian-600">API Status</a></li>
             </ul>
           </div>
           
           <div className="col-span-1">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Legal</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Terms of Service</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Cookie Policy</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brandguardian-600">Contact Us</a></li>
+              <li><a href="/privacy" className="text-gray-600 hover:text-brandguardian-600">Privacy Policy</a></li>
+              <li><a href="/terms" className="text-gray-600 hover:text-brandguardian-600">Terms of Service</a></li>
+              <li><a href="/cookies" className="text-gray-600 hover:text-brandguardian-600">Cookie Policy</a></li>
+              <li><a href="#contact" className="text-gray-600 hover:text-brandguardian-600">Contact Us</a></li>
             </ul>
           </div>
         </div>

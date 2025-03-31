@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 
@@ -22,12 +21,11 @@ const HeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="lg" className="group">
-                Protect Your Brand Now
-                <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button size="lg" variant="outline">
-                Schedule Demo
+              <Button size="lg" className="group" asChild>
+                <a href="#contact">
+                  Protect Your Brand Now
+                  <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </a>
               </Button>
             </div>
             

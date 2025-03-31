@@ -19,6 +19,8 @@ const Header = () => {
             <a href="#features" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Features</a>
             <a href="#testimonials" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Testimonials</a>
             <a href="#pricing" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Pricing</a>
+            <a href="/about" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">About</a>
+            <a href="/blog" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Blog</a>
           </nav>
           <Button asChild>
             <a href="#contact">Contact Us</a>
@@ -69,6 +71,20 @@ const Header = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Pricing
+            </a>
+            <a 
+              href="/about" 
+              className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About
+            </a>
+            <a 
+              href="/blog" 
+              className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Blog
             </a>
             <Button asChild>
               <a 
