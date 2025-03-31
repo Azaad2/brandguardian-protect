@@ -7,12 +7,12 @@ const PainPointsSection = () => {
     {
       icon: <ShieldAlert className="h-8 w-8 text-brandguardian-600" />,
       title: "Counterfeit Products",
-      description: "76% of brands report unauthorized sellers offering counterfeit versions of their products. BrandGuardian verifies authentic resellers to protect your customers and reputation."
+      description: "76% of brands report unauthorized sellers offering counterfeit versions of their products. BndBox verifies authentic resellers to protect your customers and reputation."
     },
     {
       icon: <AlertTriangle className="h-8 w-8 text-brandguardian-600" />,
       title: "Unauthorized Sellers",
-      description: "Like CeraVe, are you forced to tell customers to only buy from Amazon.com? Our platform lets you expand sales channels while maintaining control."
+      description: "Like Brands, are you forced to tell customers to only buy from Amazon.com? Our platform lets you expand sales channels while maintaining control."
     },
     {
       icon: <Gauge className="h-8 w-8 text-brandguardian-600" />,
@@ -35,7 +35,7 @@ const PainPointsSection = () => {
           </h2>
           <p className="text-lg text-gray-600">
             Most brands face critical challenges that impact their revenue and reputation on Amazon.
-            BrandGuardian provides the solutions you need.
+            BndBox provides the solutions you need.
           </p>
         </div>
         

@@ -49,7 +49,7 @@ const HeroSection = () => {
                   {/* Header with brand dashboard */}
                   <div className="bg-gray-100 p-3 border-b border-gray-200">
                     <div className="flex justify-between items-center">
-                      <div className="font-semibold text-sm">BrandGuardian Dashboard</div>
+                      <div className="font-semibold text-sm">BndBox Dashboard</div>
                       <div className="text-xs text-green-600 font-medium">6 Unauthorized Sellers Detected</div>
                     </div>
                   </div>
@@ -117,7 +117,7 @@ const HeroSection = () => {
                   
                   {/* Action bar at bottom */}
                   <div className="bg-gray-50 p-3 border-t border-gray-200 flex justify-between items-center">
-                    <div className="text-xs text-gray-600">BrandGuardian: Actively protecting 28 ASINs</div>
+                    <div className="text-xs text-gray-600">BndBox: Actively protecting 28 ASINs</div>
                     <div className="text-xs font-medium text-brandguardian-600">View detailed report →</div>
                   </div>
                 </div>

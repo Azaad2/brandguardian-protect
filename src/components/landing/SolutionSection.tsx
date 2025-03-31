@@ -42,7 +42,7 @@ const SolutionSection = () => {
       <div className="container mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-900">
-            Introducing BrandGuardian: Your Complete Reseller Management Solution
+            Introducing BndBox: Your Complete Reseller Management Solution
           </h2>
           <p className="text-lg text-gray-600">
             Our comprehensive platform helps you maintain control of your brand on Amazon

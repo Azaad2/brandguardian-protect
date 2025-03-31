@@ -11,7 +11,7 @@ const Header = () => {
       <div className="container mx-auto flex items-center justify-between py-4">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-8 w-8 text-brandguardian-600" />
-          <span className="text-xl font-bold text-gray-900">BrandGuardian</span>
+          <span className="text-xl font-bold text-gray-900">BndBox</span>
         </div>
         
         <div className="hidden md:flex items-center gap-8">

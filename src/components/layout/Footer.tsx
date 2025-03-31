@@ -1,4 +1,3 @@
-
 import { ShieldCheck } from "lucide-react";
 
 const Footer = () => {
@@ -11,7 +10,7 @@ const Footer = () => {
           <div className="col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <ShieldCheck className="h-6 w-6 text-brandguardian-600" />
-              <span className="text-lg font-bold text-gray-900">BrandGuardian</span>
+              <span className="text-lg font-bold text-gray-900">BndBox</span>
             </div>
             <p className="text-gray-600 mb-6">
               Protecting your brand on Amazon from unauthorized sellers and counterfeits.
@@ -68,7 +67,7 @@ const Footer = () => {
         
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-gray-500 text-sm text-center">
-            &copy; {currentYear} BrandGuardian. All rights reserved.
+            &copy; {currentYear} BndBox. All rights reserved.
           </p>
         </div>
       </div>
