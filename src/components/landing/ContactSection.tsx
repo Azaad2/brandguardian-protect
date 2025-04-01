@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,18 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle2 } from "lucide-react";
+
+// Define a type for form submissions
+export type ContactSubmission = {
+  id: string;
+  timestamp: string;
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  productCount: string;
+  primaryConcern: string;
+};
 
 const ContactSection = () => {
   const { toast } = useToast();
@@ -38,23 +50,41 @@ const ContactSection = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "Request Submitted!",
-        description: "We'll be in touch shortly to discuss how we can protect your brand.",
-        duration: 5000,
-      });
-      setIsSubmitting(false);
-      setFormData({
-        companyName: '',
-        contactPerson: '',
-        email: '',
-        phone: '',
-        productCount: '',
-        primaryConcern: ''
-      });
-    }, 1500);
+    // Create a new submission object
+    const newSubmission: ContactSubmission = {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      ...formData
+    };
+    
+    // Get existing submissions from localStorage
+    const existingSubmissionsJson = localStorage.getItem('contactSubmissions');
+    const existingSubmissions: ContactSubmission[] = existingSubmissionsJson 
+      ? JSON.parse(existingSubmissionsJson) 
+      : [];
+    
+    // Add the new submission
+    const updatedSubmissions = [newSubmission, ...existingSubmissions];
+    
+    // Save back to localStorage
+    localStorage.setItem('contactSubmissions', JSON.stringify(updatedSubmissions));
+    
+    // Show success toast
+    toast({
+      title: "Request Submitted!",
+      description: "We'll be in touch shortly to discuss how we can protect your brand.",
+      duration: 5000,
+    });
+    
+    setIsSubmitting(false);
+    setFormData({
+      companyName: '',
+      contactPerson: '',
+      email: '',
+      phone: '',
+      productCount: '',
+      primaryConcern: ''
+    });
   };
 
   return (
@@ -224,3 +254,4 @@ const ContactSection = () => {
 };
 
 export default ContactSection;
+
