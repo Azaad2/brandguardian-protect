@@ -1,12 +1,12 @@
 
-// Define a type for form submissions
-export type ContactSubmission = {
-  id: string;
-  timestamp: string;
-  companyName: string;
-  contactPerson: string;
+export type ContactFormData = {
+  name: string;
   email: string;
-  phone: string;
-  productCount: string;
-  primaryConcern: string;
+  company: string;
+  message: string;
+};
+
+export type ContactSubmission = ContactFormData & {
+  id: string;
+  date: string;
 };
