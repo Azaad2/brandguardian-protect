@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,18 +10,18 @@ const Header = () => {
   return (
     <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
       <div className="container mx-auto flex items-center justify-between py-4">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <ShieldCheck className="h-8 w-8 text-brandguardian-600" />
           <span className="text-xl font-bold text-gray-900">BndBox</span>
-        </div>
+        </Link>
         
         <div className="hidden md:flex items-center gap-8">
           <nav className="flex gap-6">
             <a href="#features" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Features</a>
             <a href="#testimonials" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Testimonials</a>
             <a href="#pricing" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Pricing</a>
-            <a href="/about" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">About</a>
-            <a href="/blog" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Blog</a>
+            <Link to="/about" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">About</Link>
+            <Link to="/blog" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Blog</Link>
           </nav>
           <Button asChild>
             <a href="#contact">Contact Us</a>
@@ -72,20 +73,20 @@ const Header = () => {
             >
               Pricing
             </a>
-            <a 
-              href="/about" 
+            <Link 
+              to="/about" 
               className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               About
-            </a>
-            <a 
-              href="/blog" 
+            </Link>
+            <Link 
+              to="/blog" 
               className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Blog
-            </a>
+            </Link>
             <Button asChild>
               <a 
                 href="#contact"
