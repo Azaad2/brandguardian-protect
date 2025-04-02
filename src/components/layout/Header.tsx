@@ -11,17 +11,16 @@ const Header = () => {
     <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
       <div className="container mx-auto flex items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-2">
-          <ShieldCheck className="h-8 w-8 text-brandguardian-600" />
+          <ShieldCheck className="h-8 w-8 text-bndbox-600" />
           <span className="text-xl font-bold text-gray-900">BndBox</span>
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
           <nav className="flex gap-6">
-            <a href="#features" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Features</a>
-            <a href="#testimonials" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Testimonials</a>
-            <a href="#pricing" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Pricing</a>
-            <Link to="/about" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">About</Link>
-            <Link to="/blog" className="text-gray-700 hover:text-brandguardian-600 transition-colors font-medium">Blog</Link>
+            <a href="#features" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Features</a>
+            <a href="#testimonials" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Testimonials</a>
+            <Link to="/about" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">About</Link>
+            <Link to="/blog" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Blog</Link>
           </nav>
           <Button asChild>
             <a href="#contact">Contact Us</a>
@@ -54,35 +53,28 @@ const Header = () => {
           <div className="container mx-auto py-4 flex flex-col gap-4">
             <a 
               href="#features" 
-              className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
+              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Features
             </a>
             <a 
               href="#testimonials" 
-              className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
+              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Testimonials
             </a>
-            <a 
-              href="#pricing" 
-              className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Pricing
-            </a>
             <Link 
               to="/about" 
-              className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
+              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link 
               to="/blog" 
-              className="text-gray-700 hover:text-brandguardian-600 py-2 transition-colors"
+              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Blog
