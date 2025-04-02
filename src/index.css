@@ -25,17 +25,17 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
-    --brandguardian-50: 217, 90%, 95%;
-    --brandguardian-100: 217, 90%, 90%;
-    --brandguardian-200: 217, 87%, 80%;
-    --brandguardian-300: 217, 74%, 70%;
-    --brandguardian-400: 217, 67%, 60%;
-    --brandguardian-500: 217, 62%, 51%;
-    --brandguardian-600: 217, 64%, 41%;
-    --brandguardian-700: 217, 69%, 31%;
-    --brandguardian-800: 217, 77%, 21%;
-    --brandguardian-900: 217, 80%, 11%;
-    --brandguardian-950: 222, 80%, 6%;
+    --bndbox-50: 217, 90%, 95%;
+    --bndbox-100: 217, 90%, 90%;
+    --bndbox-200: 217, 87%, 80%;
+    --bndbox-300: 217, 74%, 70%;
+    --bndbox-400: 217, 67%, 60%;
+    --bndbox-500: 217, 62%, 51%;
+    --bndbox-600: 217, 64%, 41%;
+    --bndbox-700: 217, 69%, 31%;
+    --bndbox-800: 217, 77%, 21%;
+    --bndbox-900: 217, 80%, 11%;
+    --bndbox-950: 222, 80%, 6%;
   }
  
   .dark {
