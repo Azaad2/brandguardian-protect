@@ -1,12 +1,14 @@
 
 export type ContactFormData = {
-  name: string;
+  companyName: string;
+  contactPerson: string;
   email: string;
-  company: string;
-  message: string;
+  phone: string;
+  productCount: string;
+  primaryConcern: string;
 };
 
 export type ContactSubmission = ContactFormData & {
   id: string;
-  date: string;
+  timestamp: string;
 };

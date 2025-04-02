@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet";
-import { ContactSubmission } from "@/components/landing/ContactSection";
+import type { ContactSubmission } from "@/types/contact";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";

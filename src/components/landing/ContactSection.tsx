@@ -1,7 +1,7 @@
 
 import { ContactForm } from './contact/ContactForm';
 import { InfoPanel } from './contact/InfoPanel';
-import { ContactSubmission } from '@/types/contact';
+import type { ContactSubmission } from '@/types/contact';
 
 const ContactSection = () => {
   const handleSubmission = (submission: ContactSubmission) => {
@@ -26,5 +26,5 @@ const ContactSection = () => {
   );
 };
 
-export { ContactSubmission };
+export type { ContactSubmission };
 export default ContactSection;
