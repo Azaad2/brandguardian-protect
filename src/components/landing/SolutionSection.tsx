@@ -1,5 +1,5 @@
 
-import { ShieldCheck, Search, FileCheck, Users } from "lucide-react";
+import { ShieldCheck, BarChart3, FileCheck, Users } from "lucide-react";
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => {
   return (
@@ -16,24 +16,24 @@ const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, titl
 const SolutionSection = () => {
   const features = [
     {
-      icon: <ShieldCheck className="h-6 w-6 text-white" />,
-      title: "Reseller Vetting & Authentication",
-      description: "Our proprietary algorithm thoroughly screens potential resellers, verifying business credentials, sales history, and compliance record."
+      icon: <Users className="h-6 w-6 text-white" />,
+      title: "Reseller Marketplace",
+      description: "Browse pre-vetted resellers specializing in Amazon, Walmart, or eBay with proven track records."
     },
     {
-      icon: <Search className="h-6 w-6 text-white" />,
-      title: "Real-Time Monitoring",
-      description: "24/7 surveillance of your Amazon listings detects unauthorized sellers and counterfeits instantly."
+      icon: <BarChart3 className="h-6 w-6 text-white" />,
+      title: "Cross-Platform Monitoring",
+      description: "Track your brand's presence on all major marketplaces in one comprehensive dashboard."
     },
     {
       icon: <FileCheck className="h-6 w-6 text-white" />,
-      title: "Compliance Enforcement",
-      description: "Automated tools enforce your MAP policies and brand guidelines across all authorized resellers."
+      title: "Automated Compliance",
+      description: "Enforce MAP policies and branding guidelines automatically across all marketplaces."
     },
     {
-      icon: <Users className="h-6 w-6 text-white" />,
-      title: "Authorized Reseller Network",
-      description: "Connect with pre-vetted, high-performing resellers who respect your brand values."
+      icon: <ShieldCheck className="h-6 w-6 text-white" />,
+      title: "Collaboration Hub",
+      description: "Share approved product content and sales strategies with your trusted reseller network."
     }
   ];
 
@@ -42,11 +42,11 @@ const SolutionSection = () => {
       <div className="container mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-900">
-            Introducing BndBox: Your Complete Reseller Management Solution
+            ResellerConnect: Your Gateway to Trusted E-Commerce Partnerships
           </h2>
           <p className="text-lg text-gray-600">
-            Our comprehensive platform helps you maintain control of your brand on Amazon
-            through advanced monitoring and protection tools.
+            Our comprehensive platform helps you expand your reach across multiple marketplaces
+            while maintaining control of your brand.
           </p>
         </div>
         

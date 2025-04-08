@@ -26,10 +26,23 @@ const TestimonialCard = ({ quote, author, company }: { quote: string, author: st
   );
 };
 
-const CompanyLogo = ({ name }: { name: string }) => {
+const CompanyLogo = ({ name, platform }: { name: string, platform?: string }) => {
+  const getBgColor = () => {
+    switch (platform) {
+      case 'amazon':
+        return 'border-blue-200 bg-blue-50';
+      case 'walmart':
+        return 'border-blue-200 bg-blue-50';
+      case 'ebay':
+        return 'border-yellow-200 bg-yellow-50';
+      default:
+        return 'border-gray-100 bg-white';
+    }
+  };
+  
   return (
-    <div className="py-3 px-6 bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center h-14">
-      <span className="text-gray-400 font-medium">{name}</span>
+    <div className={`py-3 px-6 rounded-lg shadow-sm flex items-center justify-center h-14 border ${getBgColor()}`}>
+      <span className="text-gray-600 font-medium">{name}</span>
     </div>
   );
 };
@@ -37,25 +50,31 @@ const CompanyLogo = ({ name }: { name: string }) => {
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      quote: "After implementing BrandGuardian, unauthorized listings dropped by 80% and our authentic reseller sales increased by 35%. We finally have control over our brand on Amazon.",
+      quote: "We expanded to Walmart and eBay without worrying about unauthorized sellers. ResellerConnect gave us control and peace of mind.",
       author: "Sarah Johnson",
-      company: "Brand Protection Manager, BeautyTech Inc."
+      company: "E-commerce Director, Home & Kitchen Brand"
     },
     {
-      quote: "BrandGuardian's automated monitoring saved us countless hours and significantly reduced counterfeit versions of our products. Customer satisfaction has never been higher.",
+      quote: "The reseller vetting process saved us from countless compliance headaches. Our sales are up 42% across all marketplaces.",
       author: "Mark Reynolds",
-      company: "Director of E-commerce, GadgetWorld"
+      company: "VP of Sales, Consumer Electronics"
     },
     {
-      quote: "The reseller vetting process has been a game-changer. We now work with trusted partners who maintain our pricing standards and brand image.",
+      quote: "Finding quality resellers used to take months. Now we can expand to new platforms with confidence in just weeks.",
       author: "Jennifer Chen",
-      company: "VP of Sales, NatureCare Products"
+      company: "Brand Manager, Fitness Equipment"
     }
   ];
   
   const companies = [
-    "NatureCare", "TechNova", "FitLife", "HomeEssentials", 
-    "PetJoy", "UrbanStyle", "GourmetBasics", "OutdoorPro"
+    { name: "HomeEssentials", platform: "amazon" },
+    { name: "TechWorld", platform: "walmart" },
+    { name: "FitGear", platform: "ebay" },
+    { name: "PetJoy", platform: "amazon" },
+    { name: "KitchenPro", platform: "walmart" },
+    { name: "OutdoorLiving", platform: "ebay" },
+    { name: "BeautyBrand", platform: "amazon" },
+    { name: "GardenTools", platform: "walmart" }
   ];
 
   return (
@@ -63,11 +82,11 @@ const TestimonialsSection = () => {
       <div className="container mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-900">
-            Trusted by Leading Brands
+            Brands Growing Safely with ResellerConnect
           </h2>
           <p className="text-lg text-gray-600">
-            Join hundreds of brands who have regained control of their Amazon presence
-            and increased authentic sales.
+            See how brands are expanding their presence across multiple marketplaces
+            while protecting their reputation.
           </p>
         </div>
         
@@ -85,7 +104,7 @@ const TestimonialsSection = () => {
         <div className="pt-8 border-t border-gray-100">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {companies.map((company, index) => (
-              <CompanyLogo key={index} name={company} />
+              <CompanyLogo key={index} name={company.name} platform={company.platform} />
             ))}
           </div>
         </div>

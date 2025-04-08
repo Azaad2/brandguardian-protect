@@ -1,186 +1,184 @@
 
-import { useState } from 'react';
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
-import { ContactSubmission } from '@/types/contact';
-import { sendEmail } from '@/utils/email';
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { ContactSubmission } from "@/types/contact";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface ContactFormProps {
-  onSubmit: (submission: ContactSubmission) => void;
-}
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  company: z.string().min(1, {
+    message: "Please enter your company name.",
+  }),
+  marketplaces: z.string().min(1, {
+    message: "Please select at least one marketplace.",
+  }),
+  message: z.string().optional(),
+});
 
-export const ContactForm = ({ onSubmit }: ContactFormProps) => {
-  const { toast } = useToast();
+type FormValues = z.infer<typeof formSchema>;
+
+export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    companyName: '',
-    contactPerson: '',
-    email: '',
-    phone: '',
-    productCount: '',
-    primaryConcern: ''
+  const { toast } = useToast();
+  
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      company: "",
+      marketplaces: "",
+      message: "",
+    },
   });
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleSelectChange = (value: string) => {
-    setFormData(prev => ({ ...prev, primaryConcern: value }));
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     
-    // Create a new submission object
-    const newSubmission: ContactSubmission = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-      ...formData
-    };
-    
-    // Get existing submissions from localStorage
-    const existingSubmissionsJson = localStorage.getItem('contactSubmissions');
-    const existingSubmissions: ContactSubmission[] = existingSubmissionsJson 
-      ? JSON.parse(existingSubmissionsJson) 
-      : [];
-    
-    // Add the new submission
-    const updatedSubmissions = [newSubmission, ...existingSubmissions];
-    
-    // Save back to localStorage
-    localStorage.setItem('contactSubmissions', JSON.stringify(updatedSubmissions));
-    
-    // Send email
-    const emailSent = await sendEmail(newSubmission);
-    
-    // Show success toast
-    toast({
-      title: "Request Submitted!",
-      description: emailSent 
-        ? "We'll be in touch shortly to discuss how we can protect your brand. A copy has been sent to our team."
-        : "We'll be in touch shortly to discuss how we can protect your brand.",
-      duration: 5000,
-    });
-    
-    setIsSubmitting(false);
-    setFormData({
-      companyName: '',
-      contactPerson: '',
-      email: '',
-      phone: '',
-      productCount: '',
-      primaryConcern: ''
-    });
-    
-    onSubmit(newSubmission);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const submission: ContactSubmission = {
+        id: `INQUIRY-${Date.now()}`,
+        ...values,
+        createdAt: new Date().toISOString(),
+      };
+      
+      onSubmit(submission);
+      
+      toast({
+        title: "Form submitted!",
+        description: "We'll be in touch with you shortly.",
+      });
+      
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Something went wrong.",
+        description: "Your form was not submitted. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="companyName">Company Name</Label>
-        <Input 
-          id="companyName"
-          name="companyName"
-          placeholder="Your company name"
-          value={formData.companyName}
-          onChange={handleChange}
-          required
-        />
-      </div>
+    <div className="h-full flex flex-col">
+      <h3 className="text-2xl font-bold mb-6">Get Started Free</h3>
       
-      <div className="space-y-2">
-        <Label htmlFor="contactPerson">Contact Person</Label>
-        <Input 
-          id="contactPerson"
-          name="contactPerson"
-          placeholder="Full name"
-          value={formData.contactPerson}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="email">Email Address</Label>
-        <Input 
-          id="email"
-          name="email"
-          type="email"
-          placeholder="you@company.com"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number</Label>
-        <Input 
-          id="phone"
-          name="phone"
-          placeholder="Your phone number"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="productCount">Number of Products on Amazon</Label>
-        <Input 
-          id="productCount"
-          name="productCount"
-          placeholder="Approximate number"
-          value={formData.productCount}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="primaryConcern">Primary Concern</Label>
-        <Select 
-          onValueChange={handleSelectChange} 
-          value={formData.primaryConcern}
-          required
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select your primary concern" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="unauthorizedSellers">Unauthorized Sellers</SelectItem>
-            <SelectItem value="counterfeitProducts">Counterfeit Products</SelectItem>
-            <SelectItem value="mapViolations">MAP Violations</SelectItem>
-            <SelectItem value="brandInconsistency">Brand Inconsistency</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      <div className="pt-4">
-        <Button 
-          type="submit" 
-          className="w-full"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Submitting..." : "Request Early Access"}
-        </Button>
-        <p className="text-xs text-gray-500 mt-3 text-center">
-          Limited spots available for our beta program. Join leading brands already seeing results.
-        </p>
-      </div>
-    </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 flex-1 flex flex-col">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John Smith" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="you@company.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="company"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Your Brand, Inc." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="marketplaces"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Marketplace(s) You Sell On</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select marketplace(s)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="amazon">Amazon</SelectItem>
+                    <SelectItem value="walmart">Walmart</SelectItem>
+                    <SelectItem value="ebay">eBay</SelectItem>
+                    <SelectItem value="amazon_walmart">Amazon & Walmart</SelectItem>
+                    <SelectItem value="amazon_ebay">Amazon & eBay</SelectItem>
+                    <SelectItem value="walmart_ebay">Walmart & eBay</SelectItem>
+                    <SelectItem value="all">All Marketplaces</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="message"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Additional Details (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Tell us more about your reseller needs..."
+                    className="resize-none flex-1"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Processing..." : "Get Started Free"}
+          </Button>
+          
+          <p className="text-xs text-center text-gray-500 mt-4">
+            By submitting this form, you agree to our privacy policy and terms of service.
+          </p>
+        </form>
+      </Form>
+    </div>
   );
 };

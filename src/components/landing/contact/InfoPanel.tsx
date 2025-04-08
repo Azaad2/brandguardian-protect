@@ -1,17 +1,44 @@
 
-import { ContactSectionFeatures } from './ContactSectionFeatures';
-import { ContactSectionTestimonial } from './ContactSectionTestimonial';
+import { ShieldCheck, Users, Mail, MapPin } from "lucide-react";
 
 export const InfoPanel = () => {
   return (
-    <div className="p-8 md:p-12 bg-gray-50">
-      <h2 className="text-3xl font-bold mb-6 text-gray-900">Ready to Protect Your Brand?</h2>
-      <p className="text-gray-600 mb-8">
-        Join our exclusive beta program and be among the first to experience comprehensive brand protection on Amazon.
+    <div className="gradient-bg text-white p-8 md:p-12">
+      <div className="flex items-center gap-3 mb-6">
+        <ShieldCheck className="h-8 w-8" />
+        <div className="text-xl font-bold">BndBox ResellerConnect</div>
+      </div>
+      <h2 className="text-2xl md:text-3xl font-bold mb-6">Ready to Grow Your Sales with Confidence?</h2>
+      <p className="mb-8 text-white/90">
+        Join 500+ brands already scaling safely with our trusted reseller network across Amazon, Walmart, and eBay.
       </p>
       
-      <ContactSectionFeatures />
-      <ContactSectionTestimonial />
+      <div className="space-y-6">
+        <div className="flex gap-4 items-start">
+          <Users className="h-5 w-5 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="font-medium text-lg">Trusted Resellers</h3>
+            <p className="text-white/80">Connect with pre-vetted partners who respect your brand guidelines and pricing policies.</p>
+          </div>
+        </div>
+        
+        <div className="flex gap-4 items-start">
+          <Mail className="h-5 w-5 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="font-medium text-lg">Contact Us</h3>
+            <p className="text-white/80">support@bndbox.com</p>
+            <p className="text-white/80">+1 (800) 555-1234</p>
+          </div>
+        </div>
+        
+        <div className="flex gap-4 items-start">
+          <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
+          <div>
+            <h3 className="font-medium text-lg">Our Office</h3>
+            <p className="text-white/80">123 E-Commerce Way<br />Seattle, WA 98101</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
