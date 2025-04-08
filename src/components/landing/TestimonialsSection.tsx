@@ -50,7 +50,7 @@ const CompanyLogo = ({ name, platform }: { name: string, platform?: string }) =>
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      quote: "We expanded to Walmart and eBay without worrying about unauthorized sellers. ResellerConnect gave us control and peace of mind.",
+      quote: "We expanded to Walmart and eBay without worrying about unauthorized sellers. BndBox gave us control and peace of mind.",
       author: "Sarah Johnson",
       company: "E-commerce Director, Home & Kitchen Brand"
     },
@@ -82,7 +82,7 @@ const TestimonialsSection = () => {
       <div className="container mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-900">
-            Brands Growing Safely with ResellerConnect
+            Brands Growing Safely with BndBox
           </h2>
           <p className="text-lg text-gray-600">
             See how brands are expanding their presence across multiple marketplaces

@@ -1,5 +1,5 @@
 
-import { ShieldCheck, BarChart3, FileCheck, Users } from "lucide-react";
+import { ShieldCheck, BarChart3, FileCheck, Users, Zap } from "lucide-react";
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => {
   return (
@@ -21,6 +21,11 @@ const SolutionSection = () => {
       description: "Browse pre-vetted resellers specializing in Amazon, Walmart, or eBay with proven track records."
     },
     {
+      icon: <Zap className="h-6 w-6 text-white" />,
+      title: "AI-Powered Seller Removal",
+      description: "Remove unauthorized sellers with a single click using our advanced AI detection technology."
+    },
+    {
       icon: <BarChart3 className="h-6 w-6 text-white" />,
       title: "Cross-Platform Monitoring",
       description: "Track your brand's presence on all major marketplaces in one comprehensive dashboard."
@@ -29,11 +34,6 @@ const SolutionSection = () => {
       icon: <FileCheck className="h-6 w-6 text-white" />,
       title: "Automated Compliance",
       description: "Enforce MAP policies and branding guidelines automatically across all marketplaces."
-    },
-    {
-      icon: <ShieldCheck className="h-6 w-6 text-white" />,
-      title: "Collaboration Hub",
-      description: "Share approved product content and sales strategies with your trusted reseller network."
     }
   ];
 
@@ -42,7 +42,7 @@ const SolutionSection = () => {
       <div className="container mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-900">
-            ResellerConnect: Your Gateway to Trusted E-Commerce Partnerships
+            BndBox: Your Gateway to Trusted E-Commerce Partnerships
           </h2>
           <p className="text-lg text-gray-600">
             Our comprehensive platform helps you expand your reach across multiple marketplaces
