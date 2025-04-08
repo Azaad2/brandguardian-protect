@@ -6,7 +6,7 @@ export const InfoPanel = () => {
     <div className="gradient-bg text-white p-8 md:p-12">
       <div className="flex items-center gap-3 mb-6">
         <ShieldCheck className="h-8 w-8" />
-        <div className="text-xl font-bold">BndBox ResellerConnect</div>
+        <div className="text-xl font-bold">BndBox</div>
       </div>
       <h2 className="text-2xl md:text-3xl font-bold mb-6">Ready to Grow Your Sales with Confidence?</h2>
       <p className="mb-8 text-white/90">

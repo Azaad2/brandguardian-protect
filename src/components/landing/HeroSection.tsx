@@ -1,8 +1,24 @@
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ShieldCheck, ShoppingBag } from "lucide-react";
 
 const HeroSection = () => {
+  const [currentMarketplace, setCurrentMarketplace] = useState("Amazon");
+  const marketplaces = ["Amazon", "Walmart", "eBay"];
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentMarketplace(prevMarketplace => {
+        const currentIndex = marketplaces.indexOf(prevMarketplace);
+        const nextIndex = (currentIndex + 1) % marketplaces.length;
+        return marketplaces[nextIndex];
+      });
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <section className="pt-32 pb-20 px-4 sm:px-6 md:pt-40 md:pb-32 relative overflow-hidden bg-grid">
       <div className="container mx-auto">
@@ -14,7 +30,7 @@ const HeroSection = () => {
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-              Expand Your Brand's Reach Across <span className="text-gradient">Amazon, Walmart & eBay</span> – Safely.
+              Expand Your Brand's Reach On <span className="text-gradient">{currentMarketplace}</span> – Safely.
             </h1>
             
             <p className="text-xl text-gray-600 max-w-2xl">
@@ -51,9 +67,9 @@ const HeroSection = () => {
                   <div className="bg-gray-100 p-3 border-b border-gray-200">
                     <div className="flex justify-between items-center">
                       <div className="flex gap-3">
-                        <div className="text-sm font-semibold bg-blue-500 text-white px-3 py-1 rounded-full">Amazon</div>
-                        <div className="text-sm font-medium text-gray-600 px-3 py-1 rounded-full">Walmart</div>
-                        <div className="text-sm font-medium text-gray-600 px-3 py-1 rounded-full">eBay</div>
+                        <div className={`text-sm font-semibold px-3 py-1 rounded-full ${currentMarketplace === "Amazon" ? "bg-blue-500 text-white" : "text-gray-600"}`}>Amazon</div>
+                        <div className={`text-sm font-semibold px-3 py-1 rounded-full ${currentMarketplace === "Walmart" ? "bg-blue-500 text-white" : "text-gray-600"}`}>Walmart</div>
+                        <div className={`text-sm font-semibold px-3 py-1 rounded-full ${currentMarketplace === "eBay" ? "bg-blue-500 text-white" : "text-gray-600"}`}>eBay</div>
                       </div>
                       <div className="text-xs text-green-600 font-medium">12 Verified Resellers</div>
                     </div>
@@ -123,7 +139,7 @@ const HeroSection = () => {
                   
                   {/* Action bar at bottom */}
                   <div className="bg-gray-50 p-3 border-t border-gray-200 flex justify-between items-center">
-                    <div className="text-xs text-gray-600">ResellerConnect: Managing 37 resellers across 3 marketplaces</div>
+                    <div className="text-xs text-gray-600">BndBox: Managing 37 resellers across 3 marketplaces</div>
                     <div className="text-xs font-medium text-bndbox-600">View reseller performance →</div>
                   </div>
                 </div>
