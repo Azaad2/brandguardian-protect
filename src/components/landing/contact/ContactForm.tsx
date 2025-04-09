@@ -51,10 +51,21 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      const timestamp = new Date().toISOString();
+      
       const submission: ContactSubmission = {
         id: `INQUIRY-${Date.now()}`,
-        ...values,
-        createdAt: new Date().toISOString(),
+        name: values.name,
+        email: values.email,
+        company: values.company,
+        companyName: values.company, // For Admin.tsx compatibility
+        marketplaces: values.marketplaces,
+        message: values.message,
+        createdAt: timestamp,
+        timestamp: timestamp, // For Admin.tsx compatibility
+        contactPerson: values.name, // For Admin.tsx compatibility
+        primaryConcern: values.marketplaces, // Using marketplaces as primaryConcern
+        productCount: "N/A" // Default value for Admin.tsx compatibility
       };
       
       onSubmit(submission);

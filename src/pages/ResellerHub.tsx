@@ -47,8 +47,8 @@ const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().min(1, 'Phone number is required'),
   linkedIn: z.string().optional(),
-  termsAgreement: z.literal(true, {
-    errorMap: () => ({ message: 'You must agree to the terms and conditions' }),
+  termsAgreement: z.boolean().refine(val => val === true, {
+    message: 'You must agree to the terms and conditions',
   }),
 });
 
