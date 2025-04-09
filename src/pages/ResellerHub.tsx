@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Check, ShoppingBag, ShoppingCart, Award, CheckCheck, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -26,6 +27,8 @@ import { ResellerFormData, BusinessType, ProductCategory, SalesVolume } from '@/
 import Footer from '@/components/layout/Footer';
 import { Link } from 'react-router-dom';
 import BndBoxLogo from '@/components/branding/BndBoxLogo';
+import { sendEmail } from '@/utils/email';
+import { ResellerSubmission } from '@/types/resellerSubmission';
 
 const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
@@ -83,10 +86,23 @@ const ResellerHub = () => {
     setIsSubmitting(true);
     
     try {
-      console.log('Form submission: ', values);
+      console.log('Form submission values:', values);
       console.log('Document file:', documentFile);
       
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create submission object
+      const submission: ResellerSubmission = {
+        ...values,
+        id: `RESELLER-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+      };
+      
+      // Send email to help@bndbox.com
+      const emailSent = await sendEmail(submission);
+      
+      if (!emailSent) {
+        console.error('Email failed to send');
+        throw new Error("Failed to send email");
+      }
       
       toast({
         title: "Application submitted!",
@@ -97,10 +113,11 @@ const ResellerHub = () => {
       setSelectedCategories([]);
       setDocumentFile(null);
     } catch (error) {
+      console.error('Error in form submission:', error);
       toast({
         variant: "destructive",
         title: "Submission failed",
-        description: "There was a problem with your submission.",
+        description: "There was a problem with your submission. Please try again or contact us directly at help@bndbox.com.",
       });
     } finally {
       setIsSubmitting(false);
