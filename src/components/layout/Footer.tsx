@@ -1,4 +1,5 @@
-import { ShieldCheck } from "lucide-react";
+
+import BndBoxLogo from "@/components/branding/BndBoxLogo";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -8,9 +9,8 @@ const Footer = () => {
       <div className="container mx-auto py-12 px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <ShieldCheck className="h-6 w-6 text-brandguardian-600" />
-              <span className="text-lg font-bold text-gray-900">BndBox</span>
+            <div className="mb-4">
+              <BndBoxLogo variant="full" size="sm" className="h-10" />
             </div>
             <p className="text-gray-600 mb-6">
               A marketplace where brands meet resellers.

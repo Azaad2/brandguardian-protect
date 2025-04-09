@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
+import BndBoxLogo from "@/components/branding/BndBoxLogo";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,8 +10,7 @@ const Header = () => {
     <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
       <div className="container mx-auto flex items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-2">
-          <ShieldCheck className="h-8 w-8 text-bndbox-600" />
-          <span className="text-xl font-bold text-gray-900">BndBox</span>
+          <BndBoxLogo variant="full" size="sm" className="h-8" />
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
