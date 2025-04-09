@@ -1,18 +1,10 @@
 
-export type ContactFormData = {
-  name: string;
-  email: string;
-  company: string;
-  marketplaces: string;
-  message?: string;
-};
-
-export type ContactSubmission = {
+export interface ContactSubmission {
   id: string;
+  createdAt: string;
   name: string;
-  email: string;
   company: string;
+  email: string;
   marketplaces: string;
   message?: string;
-  createdAt: string;
-};
+}

@@ -13,7 +13,7 @@ const Footer = () => {
               <span className="text-lg font-bold text-gray-900">BndBox</span>
             </div>
             <p className="text-gray-600 mb-6">
-              Protecting your brand on Amazon from unauthorized sellers and counterfeits.
+              A marketplace where brands meet resellers.
             </p>
             <div className="flex gap-4">
               <a href="#" className="text-gray-600 hover:text-brandguardian-600">

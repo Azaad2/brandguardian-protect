@@ -1,510 +1,514 @@
 
-import React from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Amazon, Store, Badge } from "lucide-react";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import React, { useState } from 'react';
+import { Check, ShoppingBag, ShoppingCart, Award, CheckCheck } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { 
+  Form, FormControl, FormField, FormItem, 
+  FormLabel, FormMessage 
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { 
+  Select, SelectContent, SelectItem, 
+  SelectTrigger, SelectValue 
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { toast } from "sonner";
-import { BusinessType, ProductCategory, SalesVolume } from "@/types/reseller";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useToast } from '@/hooks/use-toast';
+import { ResellerFormData, BusinessType, ProductCategory, SalesVolume } from '@/types/reseller';
 
+// Define the form schema using zod
 const formSchema = z.object({
-  // Business Information
-  companyName: z.string().min(2, { message: "Company name must be at least 2 characters." }),
-  businessType: z.enum(["individual", "corporation", "partnership", "llc", "other"]),
-  businessLicense: z.string().min(3, { message: "Business license number is required." }),
-  taxId: z.string().min(3, { message: "Tax ID is required." }),
-  
-  // Marketplace Profiles
+  companyName: z.string().min(1, 'Company name is required'),
+  businessType: z.enum(['individual', 'corporation', 'partnership', 'llc', 'other'] as const),
+  businessLicense: z.string().min(1, 'Business license is required'),
+  taxId: z.string().min(1, 'Tax ID is required'),
   amazonSellerId: z.string().optional(),
   walmartSellerId: z.string().optional(),
   ebaySellerId: z.string().optional(),
-  
-  // Product Categories
-  productCategories: z.array(z.enum([
-    "electronics", "beauty", "home_goods", "fashion", "toys", 
-    "sports", "automotive", "health", "grocery", "books", "other"
-  ])).min(1, { message: "Please select at least one product category." }),
-  
-  // Sales Performance
+  productCategories: z.array(
+    z.enum([
+      'electronics', 'beauty', 'home_goods', 'fashion', 'toys',
+      'sports', 'automotive', 'health', 'grocery', 'books', 'other'
+    ] as const)
+  ).min(1, 'Select at least one product category'),
   salesVolume: z.enum([
-    "under_10k", "10k_50k", "50k_100k", "100k_500k", "500k_1m", "over_1m"
-  ]),
+    'under_10k', '10k_50k', '50k_100k', '100k_500k', '500k_1m', 'over_1m'
+  ] as const),
   feedbackScore: z.string().optional(),
-  
-  // Contact Information
-  email: z.string().email({ message: "Please enter a valid email." }),
-  phone: z.string().min(10, { message: "Please enter a valid phone number." }),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(1, 'Phone number is required'),
   linkedIn: z.string().optional(),
-  
-  // Agreement
   termsAgreement: z.literal(true, {
-    errorMap: () => ({ message: "You must agree to the terms and conditions." }),
+    errorMap: () => ({ message: 'You must agree to the terms and conditions' }),
   }),
 });
 
-const salesVolumeLabels: Record<SalesVolume, string> = {
-  "under_10k": "Under $10,000",
-  "10k_50k": "$10,000 - $50,000",
-  "50k_100k": "$50,000 - $100,000",
-  "100k_500k": "$100,000 - $500,000",
-  "500k_1m": "$500,000 - $1,000,000",
-  "over_1m": "Over $1,000,000"
-};
-
-const businessTypeLabels: Record<BusinessType, string> = {
-  "individual": "Individual / Sole Proprietor",
-  "corporation": "Corporation",
-  "partnership": "Partnership",
-  "llc": "Limited Liability Company (LLC)",
-  "other": "Other"
-};
-
-const productCategoryLabels: Record<ProductCategory, string> = {
-  "electronics": "Electronics",
-  "beauty": "Beauty & Personal Care",
-  "home_goods": "Home & Kitchen",
-  "fashion": "Clothing & Accessories",
-  "toys": "Toys & Games",
-  "sports": "Sports & Outdoors",
-  "automotive": "Automotive",
-  "health": "Health & Wellness",
-  "grocery": "Grocery & Gourmet Food",
-  "books": "Books & Media",
-  "other": "Other"
-};
-
 const ResellerHub = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      businessType: "individual",
-      productCategories: [],
-      salesVolume: "under_10k",
+      companyName: '',
+      businessType: 'individual' as BusinessType,
+      businessLicense: '',
+      taxId: '',
+      amazonSellerId: '',
+      walmartSellerId: '',
+      ebaySellerId: '',
+      productCategories: [] as ProductCategory[],
+      salesVolume: 'under_10k' as SalesVolume,
+      feedbackScore: '',
+      email: '',
+      phone: '',
+      linkedIn: '',
       termsAgreement: false,
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("Form submitted:", values);
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
     
-    toast.success("Application submitted successfully", {
-      description: "We will review your application and get back to you within 3-5 business days.",
-    });
-    
-    form.reset();
+    try {
+      // Here we would normally send the data to an API
+      console.log('Form submission: ', values);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Application submitted!",
+        description: "We'll review your information and contact you soon.",
+      });
+      
+      form.reset();
+      setSelectedCategories([]);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Submission failed",
+        description: "There was a problem with your submission.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
+  const toggleCategory = (category: ProductCategory) => {
+    setSelectedCategories(prev => {
+      const newSelection = prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category];
       
-      <main className="flex-grow pt-28 pb-20">
-        <section className="bg-gradient-to-b from-white to-gray-50 py-16">
-          <div className="container mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Reseller Hub</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join Our Network of Trusted Resellers
-            </p>
-          </div>
-        </section>
+      form.setValue('productCategories', newSelection);
+      return newSelection;
+    });
+  };
 
-        <section className="py-12 container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="col-span-2">
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-2xl">Become a Verified Reseller with BndBox</CardTitle>
-                  <CardDescription className="text-base">
-                    Partner with top brands and expand your sales channels on Amazon, Walmart, and eBay.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                      <div className="space-y-6">
-                        <h3 className="text-lg font-medium border-b pb-2">Business Information</h3>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <FormField
-                            control={form.control}
-                            name="companyName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Company Name</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Your company name" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+  const productCategories: ProductCategory[] = [
+    'electronics', 'beauty', 'home_goods', 'fashion', 'toys',
+    'sports', 'automotive', 'health', 'grocery', 'books', 'other'
+  ];
 
-                          <FormField
-                            control={form.control}
-                            name="businessType"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel>Business Type</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    {Object.entries(businessTypeLabels).map(([value, label]) => (
-                                      <FormItem key={value} className="flex items-center space-x-3 space-y-0">
-                                        <FormControl>
-                                          <RadioGroupItem value={value} />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">{label}</FormLabel>
-                                      </FormItem>
-                                    ))}
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <FormField
-                            control={form.control}
-                            name="businessLicense"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Business License Number</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Business license number" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="taxId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Tax ID Number</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Tax ID number" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <h3 className="text-lg font-medium border-b pb-2 pt-4">Marketplace Profiles</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <FormField
-                            control={form.control}
-                            name="amazonSellerId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Amazon Seller ID</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Amazon seller ID" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="walmartSellerId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Walmart Marketplace ID</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Walmart seller ID" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="ebaySellerId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>eBay Seller ID</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="eBay seller ID" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <h3 className="text-lg font-medium border-b pb-2 pt-4">Product Categories</h3>
-                        <FormField
-                          control={form.control}
-                          name="productCategories"
-                          render={() => (
-                            <FormItem>
-                              <div className="mb-4">
-                                <FormLabel>Select categories you specialize in</FormLabel>
-                                <FormDescription>
-                                  Select all that apply
-                                </FormDescription>
-                              </div>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                {Object.entries(productCategoryLabels).map(([value, label]) => (
-                                  <FormField
-                                    key={value}
-                                    control={form.control}
-                                    name="productCategories"
-                                    render={({ field }) => {
-                                      return (
-                                        <FormItem
-                                          key={value}
-                                          className="flex flex-row items-start space-x-3 space-y-0"
-                                        >
-                                          <FormControl>
-                                            <Checkbox
-                                              checked={field.value?.includes(value as ProductCategory)}
-                                              onCheckedChange={(checked) => {
-                                                const currentValues = Array.isArray(field.value) ? field.value : [];
-                                                return checked
-                                                  ? field.onChange([...currentValues, value as ProductCategory])
-                                                  : field.onChange(
-                                                      currentValues.filter((v) => v !== value)
-                                                    )
-                                              }}
-                                            />
-                                          </FormControl>
-                                          <FormLabel className="font-normal">
-                                            {label}
-                                          </FormLabel>
-                                        </FormItem>
-                                      )
-                                    }}
-                                  />
-                                ))}
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <h3 className="text-lg font-medium border-b pb-2 pt-4">Sales Performance</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <FormField
-                            control={form.control}
-                            name="salesVolume"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Average Monthly Sales Volume</FormLabel>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex flex-col space-y-1"
-                                  >
-                                    {Object.entries(salesVolumeLabels).map(([value, label]) => (
-                                      <FormItem key={value} className="flex items-center space-x-3 space-y-0">
-                                        <FormControl>
-                                          <RadioGroupItem value={value} />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">{label}</FormLabel>
-                                      </FormItem>
-                                    ))}
-                                  </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="feedbackScore"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Customer Feedback Score</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="e.g., 98%" />
-                                </FormControl>
-                                <FormDescription>
-                                  If applicable, provide your average feedback score
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <h3 className="text-lg font-medium border-b pb-2 pt-4">Contact Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Email Address</FormLabel>
-                                <FormControl>
-                                  <Input {...field} type="email" placeholder="your@email.com" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Phone Number</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="Phone number" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="linkedIn"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>LinkedIn Profile (Optional)</FormLabel>
-                                <FormControl>
-                                  <Input {...field} placeholder="LinkedIn URL" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <h3 className="text-lg font-medium border-b pb-2 pt-4">Agreement</h3>
-                        <FormField
-                          control={form.control}
-                          name="termsAgreement"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel>
-                                  I agree to the terms and conditions, including compliance with brand guidelines.
-                                </FormLabel>
-                                <FormDescription>
-                                  By checking this box, you agree to abide by our reseller policies and brand protection guidelines.
-                                </FormDescription>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <h4 className="font-medium text-gray-900 mb-2">Verification Process</h4>
-                        <p className="text-gray-600">
-                          Once you submit your application, our team will review your credentials and verify your business. 
-                          This process typically takes 3-5 business days. Upon approval, you will gain access to our 
-                          network of brands seeking trusted resellers.
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Join Our Network of Trusted Resellers</h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Partner with top brands and expand your sales channels across major marketplaces.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          {/* Benefits Cards */}
+          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingBag className="h-5 w-5 text-brandguardian-600" />
+                Access to Top Brands
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-gray-600">
+                Partner with reputable brands looking for trusted resellers and gain access to exclusive product lines.
+              </CardDescription>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-brandguardian-600" />
+                Compliance Support
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-gray-600">
+                Get the tools and support you need to ensure MAP compliance and brand guideline adherence.
+              </CardDescription>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5 text-brandguardian-600" />
+                Performance Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-gray-600">
+                Track your sales performance across multiple marketplaces and optimize your listings for better results.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow-md p-8 mb-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Become a Verified Reseller with BndBox</h2>
+          <p className="text-gray-600 mb-8">
+            Partner with top brands and expand your sales channels on Amazon, Walmart, and eBay.
+          </p>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+              {/* Business Information Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900">Business Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your Company Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="businessType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Business Type</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select business type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="individual">Individual</SelectItem>
+                            <SelectItem value="corporation">Corporation</SelectItem>
+                            <SelectItem value="partnership">Partnership</SelectItem>
+                            <SelectItem value="llc">LLC</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="businessLicense"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Business License Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="License Number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="taxId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax ID Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Tax ID" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              
+              {/* Marketplace Profiles Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900">Marketplace Profiles</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="amazonSellerId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amazon Seller ID</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your Amazon Seller ID" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="walmartSellerId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Walmart Marketplace ID (optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your Walmart ID" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="ebaySellerId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>eBay Seller ID (optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your eBay ID" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              
+              {/* Product Categories Section */}
+              <div className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="productCategories"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-4">
+                        <FormLabel className="text-lg font-semibold text-gray-900">
+                          Product Categories
+                        </FormLabel>
+                        <p className="text-sm text-gray-500">
+                          Select the categories you specialize in
                         </p>
                       </div>
-
-                      <Button type="submit" className="w-full">Submit Your Application Now</Button>
-                    </form>
-                  </Form>
-                </CardContent>
-                <CardFooter className="flex justify-center border-t pt-6">
-                  <p className="text-sm text-gray-500">
-                    Join our network today and start growing your sales with trusted brands.
-                  </p>
-                </CardFooter>
-              </Card>
-            </div>
-
-            <div className="col-span-1">
-              <div className="sticky top-32">
-                <Card className="border-0 shadow-lg overflow-hidden">
-                  <div className="bg-gradient-to-r from-bndbox-600 to-bndbox-800 p-6 text-white">
-                    <h3 className="text-xl font-bold mb-2">Why Partner with Us?</h3>
-                    <p className="text-sm opacity-90">
-                      Join our network of trusted resellers and grow your business
-                    </p>
-                  </div>
-                  <CardContent className="pt-6">
-                    <ul className="space-y-4">
-                      <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Access to Top Brands</h4>
-                          <p className="text-sm text-gray-600">Partner with reputable brands looking for trusted resellers</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Exclusive Product Access</h4>
-                          <p className="text-sm text-gray-600">Get early access to new products and promotions</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Compliance Support</h4>
-                          <p className="text-sm text-gray-600">Tools to ensure MAP compliance and brand guideline adherence</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Performance Insights</h4>
-                          <p className="text-sm text-gray-600">Track your sales performance across multiple marketplaces</p>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {productCategories.map((category) => {
+                          const displayName = category
+                            .split('_')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+                          
+                          return (
+                            <div 
+                              key={category}
+                              className={`
+                                flex items-center p-3 border rounded-md cursor-pointer
+                                ${selectedCategories.includes(category) 
+                                  ? 'bg-brandguardian-50 border-brandguardian-300' 
+                                  : 'border-gray-200 hover:bg-gray-50'
+                                }
+                              `}
+                              onClick={() => toggleCategory(category)}
+                            >
+                              <div className={`
+                                flex-shrink-0 h-5 w-5 border rounded-sm mr-2
+                                ${selectedCategories.includes(category) 
+                                  ? 'bg-brandguardian-600 border-brandguardian-600' 
+                                  : 'border-gray-300'
+                                }
+                                flex items-center justify-center
+                              `}>
+                                {selectedCategories.includes(category) && (
+                                  <CheckCheck className="h-3 w-3 text-white" />
+                                )}
+                              </div>
+                              <span className="text-sm">{displayName}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            </div>
-          </div>
-        </section>
-      </main>
-      
-      <Footer />
+              
+              {/* Sales Performance Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900">Sales Performance</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="salesVolume"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Average Monthly Sales Volume</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select sales volume" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="under_10k">Under $10,000</SelectItem>
+                            <SelectItem value="10k_50k">$10,000 - $50,000</SelectItem>
+                            <SelectItem value="50k_100k">$50,000 - $100,000</SelectItem>
+                            <SelectItem value="100k_500k">$100,000 - $500,000</SelectItem>
+                            <SelectItem value="500k_1m">$500,000 - $1 million</SelectItem>
+                            <SelectItem value="over_1m">Over $1 million</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="feedbackScore"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Customer Feedback Score (optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., 98% positive" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              
+              {/* Contact Information Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="you@company.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your phone number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="linkedIn"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>LinkedIn Profile (optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://linkedin.com/in/..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              
+              {/* Agreement Section */}
+              <FormField
+                control={form.control}
+                name="termsAgreement"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        I agree to the terms and conditions, including compliance with brand guidelines
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="bg-gray-50 p-6 rounded-md">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Verification Process</h3>
+                <p className="text-gray-600 mb-0">
+                  Once you submit your application, our team will review your credentials and verify your business. 
+                  This process typically takes 3-5 business days. Upon approval, you will gain access to our network 
+                  of brands seeking trusted resellers.
+                </p>
+              </div>
+              
+              <div className="pt-4">
+                <Button 
+                  type="submit" 
+                  className="w-full md:w-auto"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Your Application Now"}
+                </Button>
+                <p className="text-sm text-gray-500 mt-4">
+                  Join our network today and start growing your sales with trusted brands.
+                </p>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </div>
     </div>
   );
 };
