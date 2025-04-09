@@ -89,11 +89,12 @@ const ResellerHub = () => {
       console.log('Form submission values:', values);
       console.log('Document file:', documentFile);
       
-      // Create submission object
+      // Create submission object with all required fields
       const submission: ResellerSubmission = {
         ...values,
         id: `RESELLER-${Date.now()}`,
         createdAt: new Date().toISOString(),
+        status: 'pending'
       };
       
       // Send email to help@bndbox.com

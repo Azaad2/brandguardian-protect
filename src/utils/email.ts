@@ -52,6 +52,7 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
         Phone: ${submission.phone}
         LinkedIn: ${submission.linkedIn || 'N/A'}
         
+        Status: ${submission.status}
         Timestamp: ${new Date(submission.createdAt).toLocaleString()}
       `;
       subject = `New Reseller Application from ${submission.companyName}`;
