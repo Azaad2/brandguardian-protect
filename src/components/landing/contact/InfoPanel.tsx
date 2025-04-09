@@ -26,8 +26,8 @@ export const InfoPanel = () => {
           <Mail className="h-5 w-5 mt-1 flex-shrink-0" />
           <div>
             <h3 className="font-medium text-lg">Contact Us</h3>
-            <p className="text-white/80">support@bndbox.com</p>
-            <p className="text-white/80">+1 (800) 555-1234</p>
+            <p className="text-white/80">help@bndbox.com</p>
+            <p className="text-white/80">408-627-9875</p>
           </div>
         </div>
         
@@ -35,7 +35,7 @@ export const InfoPanel = () => {
           <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
           <div>
             <h3 className="font-medium text-lg">Our Office</h3>
-            <p className="text-white/80">123 E-Commerce Way<br />Seattle, WA 98101</p>
+            <p className="text-white/80">1742 FANWOOD CT<br />SAN JOSE, CA 95133</p>
           </div>
         </div>
       </div>
