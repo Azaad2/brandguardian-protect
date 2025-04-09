@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Check, ShoppingBag, ShoppingCart, Award, CheckCheck, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -25,8 +24,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { ResellerFormData, BusinessType, ProductCategory, SalesVolume } from '@/types/reseller';
 import Footer from '@/components/layout/Footer';
+import { Link } from 'react-router-dom';
+import BndBoxLogo from '@/components/branding/BndBoxLogo';
 
-// Define the form schema using zod
 const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   businessType: z.enum(['individual', 'corporation', 'partnership', 'llc', 'other'] as const),
@@ -83,11 +83,9 @@ const ResellerHub = () => {
     setIsSubmitting(true);
     
     try {
-      // Here we would normally send the data to an API
       console.log('Form submission: ', values);
       console.log('Document file:', documentFile);
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       toast({
@@ -133,7 +131,6 @@ const ResellerHub = () => {
 
   const removeFile = () => {
     setDocumentFile(null);
-    // Reset the file input
     const fileInput = document.getElementById('document-upload') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -147,7 +144,13 @@ const ResellerHub = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 pt-8 pb-16">
+        <div className="mb-8">
+          <Link to="/" className="inline-block">
+            <BndBoxLogo className="h-10" />
+          </Link>
+        </div>
+        
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Join Our Network of Trusted Resellers</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -156,7 +159,6 @@ const ResellerHub = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {/* Benefits Cards */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -208,7 +210,6 @@ const ResellerHub = () => {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-              {/* Business Information Section */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900">Business Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -283,7 +284,6 @@ const ResellerHub = () => {
                   />
                 </div>
                 
-                {/* Document Upload Box */}
                 <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">Verification Documents</p>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
@@ -339,7 +339,6 @@ const ResellerHub = () => {
                 </div>
               </div>
               
-              {/* Marketplace Profiles Section */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900">Marketplace Profiles</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -387,7 +386,6 @@ const ResellerHub = () => {
                 </div>
               </div>
               
-              {/* Product Categories Section */}
               <div className="space-y-6">
                 <FormField
                   control={form.control}
@@ -444,7 +442,6 @@ const ResellerHub = () => {
                 />
               </div>
               
-              {/* Sales Performance Section */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900">Sales Performance</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -493,7 +490,6 @@ const ResellerHub = () => {
                 </div>
               </div>
               
-              {/* Contact Information Section */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -541,7 +537,6 @@ const ResellerHub = () => {
                 </div>
               </div>
               
-              {/* Agreement Section */}
               <FormField
                 control={form.control}
                 name="termsAgreement"
