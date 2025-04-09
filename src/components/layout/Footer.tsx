@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1">
             <div className="mb-4">
-              <BndBoxLogo variant="full" size="sm" className="h-10" />
+              <BndBoxLogo className="h-10" />
             </div>
             <p className="text-gray-600 mb-6">
               A marketplace where brands meet resellers.
