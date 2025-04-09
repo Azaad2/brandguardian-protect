@@ -21,23 +21,24 @@ export const sendEmail = async (submission: ContactSubmission): Promise<boolean>
     // Using formsubmit.co as a simple email service
     // To make this work, you need to first activate the email by sending a test submission to:
     // https://formsubmit.co/help@bndbox.com
-    const response = await fetch(`https://formsubmit.co/help@bndbox.com`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        name: submission.name,
-        email: submission.email,
-        message: emailContent,
-        _subject: `New Contact Form from ${submission.company}`,
-        _replyto: submission.email
-      }),
+    
+    // Create a simple form data object
+    const formData = new FormData();
+    formData.append('name', submission.name);
+    formData.append('email', submission.email);
+    formData.append('message', emailContent);
+    formData.append('_subject', `New Contact Form from ${submission.company}`);
+    formData.append('_replyto', submission.email);
+    
+    const response = await fetch('https://formsubmit.co/ajax/help@bndbox.com', {
+      method: 'POST',
+      body: formData,
     });
     
     if (!response.ok) {
       console.error('Form submission API error:', response.status, response.statusText);
+      const responseText = await response.text();
+      console.error('Error response:', responseText);
       return false;
     }
     

@@ -21,12 +21,16 @@ const ContactSection = () => {
       }
       
       console.log('Form submitted successfully:', submission.id);
+      toast({
+        title: "Form Submitted Successfully",
+        description: "We've received your information and will be in touch shortly.",
+      });
       return true;
     } catch (error) {
       console.error('Error in form submission:', error);
       toast({
         title: "Email Delivery Failed",
-        description: "We couldn't send your information. Please try again or contact us directly.",
+        description: "We couldn't send your information. Please try again or contact us directly at help@bndbox.com.",
         variant: "destructive",
       });
       return false;

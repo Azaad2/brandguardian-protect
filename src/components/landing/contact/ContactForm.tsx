@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -70,24 +69,15 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         productCount: "N/A" // Default value for Admin.tsx compatibility
       };
       
+      console.log("Submitting form data:", submission);
       const success = await onSubmit(submission);
       
       if (success) {
-        toast({
-          title: "Form submitted!",
-          description: "We'll be in touch with you shortly.",
-        });
-        
+        console.log("Form submitted successfully");
         form.reset();
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      
-      toast({
-        title: "Something went wrong.",
-        description: "Your form was not submitted. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsSubmitting(false);
     }
