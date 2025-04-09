@@ -2,12 +2,32 @@
 import { ContactForm } from './contact/ContactForm';
 import { InfoPanel } from './contact/InfoPanel';
 import type { ContactSubmission } from '@/types/contact';
+import { sendEmail } from '@/utils/email';
+import { useToast } from '@/hooks/use-toast';
 
 const ContactSection = () => {
-  const handleSubmission = (submission: ContactSubmission) => {
-    // This is a hook for any additional processing needed when a form is submitted
-    // Currently, the form component handles all the necessary logic
-    console.log('Form submitted:', submission.id);
+  const { toast } = useToast();
+
+  const handleSubmission = async (submission: ContactSubmission) => {
+    try {
+      // Send email to help@bndbox.com
+      const emailSent = await sendEmail(submission);
+      
+      if (!emailSent) {
+        throw new Error("Failed to send email");
+      }
+      
+      console.log('Form submitted successfully:', submission.id);
+      return true;
+    } catch (error) {
+      console.error('Error in form submission:', error);
+      toast({
+        title: "Email Delivery Failed",
+        description: "We couldn't send your information. Please try again or contact us directly.",
+        variant: "destructive",
+      });
+      throw error; // Re-throw to be handled in the form component
+    }
   };
 
   return (
@@ -28,3 +48,4 @@ const ContactSection = () => {
 
 export type { ContactSubmission };
 export default ContactSection;
+

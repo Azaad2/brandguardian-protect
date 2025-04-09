@@ -3,10 +3,9 @@ import { ContactSubmission } from '@/types/contact';
 
 export const sendEmail = async (submission: ContactSubmission) => {
   try {
-    // Create form data for email service
-    const emailData = new FormData();
+    console.log('Sending email with submission data:', submission);
     
-    // Email is sent to help@bndbox.com
+    // Create form data for email service
     const emailContent = `
       New Contact Form Submission:
       
@@ -14,6 +13,7 @@ export const sendEmail = async (submission: ContactSubmission) => {
       Contact Person: ${submission.name}
       Email: ${submission.email}
       Marketplaces: ${submission.marketplaces}
+      Amazon Link: ${submission.amazonLink || 'N/A'}
       Message: ${submission.message || 'N/A'}
       Timestamp: ${new Date(submission.createdAt).toLocaleString()}
     `;
@@ -32,12 +32,17 @@ export const sendEmail = async (submission: ContactSubmission) => {
         email: submission.email,
         message: emailContent,
         _subject: `New Contact Form from ${submission.company}`,
+        _replyto: submission.email
       }),
     });
     
     if (!response.ok) {
+      console.error('Form submission API error:', response.status, response.statusText);
       throw new Error('Failed to send email');
     }
+    
+    const responseData = await response.json();
+    console.log('Form submission API response:', responseData);
     
     return true;
   } catch (error) {

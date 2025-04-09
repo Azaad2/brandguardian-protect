@@ -8,6 +8,7 @@ export interface ContactSubmission {
   companyName?: string; // Added for Admin.tsx compatibility
   email: string;
   marketplaces: string;
+  amazonLink?: string;
   message?: string;
   contactPerson?: string; // Added for Admin.tsx compatibility
   phone?: string; // Added for Admin.tsx compatibility

@@ -24,6 +24,9 @@ const formSchema = z.object({
   marketplaces: z.string().min(1, {
     message: "Please select at least one marketplace.",
   }),
+  amazonLink: z.string().url({
+    message: "Please enter a valid Amazon URL.",
+  }).optional().or(z.literal('')),
   message: z.string().optional(),
 });
 
@@ -40,6 +43,7 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
       email: "",
       company: "",
       marketplaces: "",
+      amazonLink: "",
       message: "",
     },
   });
@@ -48,9 +52,6 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       const timestamp = new Date().toISOString();
       
       const submission: ContactSubmission = {
@@ -60,6 +61,7 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         company: values.company,
         companyName: values.company, // For Admin.tsx compatibility
         marketplaces: values.marketplaces,
+        amazonLink: values.amazonLink || "N/A",
         message: values.message,
         createdAt: timestamp,
         timestamp: timestamp, // For Admin.tsx compatibility
@@ -68,7 +70,7 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         productCount: "N/A" // Default value for Admin.tsx compatibility
       };
       
-      onSubmit(submission);
+      await onSubmit(submission);
       
       toast({
         title: "Form submitted!",
@@ -77,6 +79,8 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
       
       form.reset();
     } catch (error) {
+      console.error("Form submission error:", error);
+      
       toast({
         title: "Something went wrong.",
         description: "Your form was not submitted. Please try again.",
@@ -165,6 +169,20 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
           
           <FormField
             control={form.control}
+            name="amazonLink"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Amazon Store Link (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://www.amazon.com/your-store" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
             name="message"
             render={({ field }) => (
               <FormItem>
@@ -193,3 +211,4 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
     </div>
   );
 };
+
