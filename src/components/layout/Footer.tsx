@@ -13,7 +13,7 @@ const Footer = () => {
               <BndBoxLogo className="h-10" />
             </div>
             <p className="text-gray-600 mb-6">
-              A marketplace where brands meet resellers.
+              A Marketplace Where Brands Meet Resellers.
             </p>
             <div className="flex gap-4">
               <a href="#" className="text-gray-600 hover:text-brandguardian-600">
