@@ -10,13 +10,12 @@ export const sendEmail = async (submission: ContactSubmission) => {
     const emailContent = `
       New Contact Form Submission:
       
-      Company Name: ${submission.companyName}
-      Contact Person: ${submission.contactPerson}
+      Company Name: ${submission.company}
+      Contact Person: ${submission.name}
       Email: ${submission.email}
-      Phone: ${submission.phone}
-      Product Count: ${submission.productCount}
-      Primary Concern: ${submission.primaryConcern}
-      Timestamp: ${new Date(submission.timestamp).toLocaleString()}
+      Marketplaces: ${submission.marketplaces}
+      Message: ${submission.message || 'N/A'}
+      Timestamp: ${new Date(submission.createdAt).toLocaleString()}
     `;
     
     // Using formsubmit.co as a simple email service
@@ -29,10 +28,10 @@ export const sendEmail = async (submission: ContactSubmission) => {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        name: submission.contactPerson,
+        name: submission.name,
         email: submission.email,
         message: emailContent,
-        _subject: `New Contact Form from ${submission.companyName}`,
+        _subject: `New Contact Form from ${submission.company}`,
       }),
     });
     

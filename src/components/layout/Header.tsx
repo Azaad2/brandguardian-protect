@@ -21,6 +21,7 @@ const Header = () => {
             <a href="#testimonials" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Testimonials</a>
             <Link to="/about" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">About</Link>
             <Link to="/blog" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Blog</Link>
+            <Link to="/reseller-hub" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Reseller Hub</Link>
           </nav>
           <Button asChild>
             <a href="#contact">Contact Us</a>
@@ -78,6 +79,13 @@ const Header = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Blog
+            </Link>
+            <Link 
+              to="/reseller-hub" 
+              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Reseller Hub
             </Link>
             <Button asChild>
               <a 
