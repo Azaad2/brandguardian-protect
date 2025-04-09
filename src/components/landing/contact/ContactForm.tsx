@@ -32,7 +32,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) => void }) => {
+export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) => Promise<boolean> }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
@@ -61,8 +61,8 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         company: values.company,
         companyName: values.company, // For Admin.tsx compatibility
         marketplaces: values.marketplaces,
-        amazonLink: values.amazonLink || "N/A",
-        message: values.message,
+        amazonLink: values.amazonLink || "",
+        message: values.message || "",
         createdAt: timestamp,
         timestamp: timestamp, // For Admin.tsx compatibility
         contactPerson: values.name, // For Admin.tsx compatibility
@@ -70,14 +70,16 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         productCount: "N/A" // Default value for Admin.tsx compatibility
       };
       
-      await onSubmit(submission);
+      const success = await onSubmit(submission);
       
-      toast({
-        title: "Form submitted!",
-        description: "We'll be in touch with you shortly.",
-      });
-      
-      form.reset();
+      if (success) {
+        toast({
+          title: "Form submitted!",
+          description: "We'll be in touch with you shortly.",
+        });
+        
+        form.reset();
+      }
     } catch (error) {
       console.error("Form submission error:", error);
       
@@ -211,4 +213,3 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
     </div>
   );
 };
-

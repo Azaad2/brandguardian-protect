@@ -1,7 +1,7 @@
 
 import { ContactSubmission } from '@/types/contact';
 
-export const sendEmail = async (submission: ContactSubmission) => {
+export const sendEmail = async (submission: ContactSubmission): Promise<boolean> => {
   try {
     console.log('Sending email with submission data:', submission);
     
@@ -38,7 +38,7 @@ export const sendEmail = async (submission: ContactSubmission) => {
     
     if (!response.ok) {
       console.error('Form submission API error:', response.status, response.statusText);
-      throw new Error('Failed to send email');
+      return false;
     }
     
     const responseData = await response.json();

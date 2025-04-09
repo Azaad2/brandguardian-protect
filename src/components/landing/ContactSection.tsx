@@ -8,12 +8,15 @@ import { useToast } from '@/hooks/use-toast';
 const ContactSection = () => {
   const { toast } = useToast();
 
-  const handleSubmission = async (submission: ContactSubmission) => {
+  const handleSubmission = async (submission: ContactSubmission): Promise<boolean> => {
     try {
+      console.log('Starting form submission:', submission);
+      
       // Send email to help@bndbox.com
       const emailSent = await sendEmail(submission);
       
       if (!emailSent) {
+        console.error('Email failed to send');
         throw new Error("Failed to send email");
       }
       
@@ -26,7 +29,7 @@ const ContactSection = () => {
         description: "We couldn't send your information. Please try again or contact us directly.",
         variant: "destructive",
       });
-      throw error; // Re-throw to be handled in the form component
+      return false;
     }
   };
 
@@ -46,6 +49,4 @@ const ContactSection = () => {
   );
 };
 
-export type { ContactSubmission };
 export default ContactSection;
-
