@@ -30,6 +30,7 @@ import BndBoxLogo from '@/components/branding/BndBoxLogo';
 import { sendEmail } from '@/utils/email';
 import { ResellerSubmission } from '@/types/resellerSubmission';
 
+// Define the form schema
 const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   businessType: z.enum(['individual', 'corporation', 'partnership', 'llc', 'other'] as const),
@@ -56,13 +57,16 @@ const formSchema = z.object({
   }),
 });
 
+// Extract the type from the schema
+type FormValues = z.infer<typeof formSchema>;
+
 const ResellerHub = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       companyName: '',
@@ -82,7 +86,7 @@ const ResellerHub = () => {
     },
   });
 
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     
     try {
@@ -91,7 +95,25 @@ const ResellerHub = () => {
       
       // Create submission object with all required fields
       const submission: ResellerSubmission = {
-        ...values,
+        // Explicitly include all required fields from ResellerFormData
+        companyName: values.companyName,
+        businessType: values.businessType,
+        businessLicense: values.businessLicense,
+        taxId: values.taxId,
+        productCategories: values.productCategories,
+        salesVolume: values.salesVolume,
+        email: values.email,
+        phone: values.phone,
+        termsAgreement: values.termsAgreement,
+        
+        // Optional fields
+        amazonSellerId: values.amazonSellerId,
+        walmartSellerId: values.walmartSellerId,
+        ebaySellerId: values.ebaySellerId,
+        feedbackScore: values.feedbackScore,
+        linkedIn: values.linkedIn,
+        
+        // ResellerSubmission specific fields
         id: `RESELLER-${Date.now()}`,
         createdAt: new Date().toISOString(),
         status: 'pending'

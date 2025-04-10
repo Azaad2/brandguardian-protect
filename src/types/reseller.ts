@@ -49,9 +49,3 @@ export type ResellerFormData = {
   // Agreement
   termsAgreement: boolean;
 };
-
-export type ResellerSubmission = ResellerFormData & {
-  id: string;
-  createdAt: string;
-  status: 'pending' | 'approved' | 'rejected';
-};
