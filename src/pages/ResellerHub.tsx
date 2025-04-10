@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Check, ShoppingBag, ShoppingCart, Award, CheckCheck, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -23,14 +22,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
-import { ResellerFormData, BusinessType, ProductCategory, SalesVolume } from '@/types/reseller';
+import { ResellerFormData, BusinessType, ProductCategory, SalesVolume, WholesaleBudget } from '@/types/reseller';
 import Footer from '@/components/layout/Footer';
 import { Link } from 'react-router-dom';
 import BndBoxLogo from '@/components/branding/BndBoxLogo';
 import { sendEmail } from '@/utils/email';
 import { ResellerSubmission } from '@/types/resellerSubmission';
 
-// Define the form schema
 const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   businessType: z.enum(['individual', 'corporation', 'partnership', 'llc', 'other'] as const),
@@ -48,6 +46,9 @@ const formSchema = z.object({
   salesVolume: z.enum([
     'under_10k', '10k_50k', '50k_100k', '100k_500k', '500k_1m', 'over_1m'
   ] as const),
+  wholesaleBudget: z.enum([
+    'under_5k', '5k_10k', '10k_25k', '25k_50k', '50k_100k', 'over_100k'
+  ] as const),
   feedbackScore: z.string().optional(),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(1, 'Phone number is required'),
@@ -57,7 +58,6 @@ const formSchema = z.object({
   }),
 });
 
-// Extract the type from the schema
 type FormValues = z.infer<typeof formSchema>;
 
 const ResellerHub = () => {
@@ -78,6 +78,7 @@ const ResellerHub = () => {
       ebaySellerId: '',
       productCategories: [] as ProductCategory[],
       salesVolume: 'under_10k' as SalesVolume,
+      wholesaleBudget: 'under_5k',
       feedbackScore: '',
       email: '',
       phone: '',
@@ -93,33 +94,29 @@ const ResellerHub = () => {
       console.log('Form submission values:', values);
       console.log('Document file:', documentFile);
       
-      // Create submission object with all required fields
       const submission: ResellerSubmission = {
-        // Explicitly include all required fields from ResellerFormData
         companyName: values.companyName,
         businessType: values.businessType,
         businessLicense: values.businessLicense,
         taxId: values.taxId,
         productCategories: values.productCategories,
         salesVolume: values.salesVolume,
+        wholesaleBudget: values.wholesaleBudget,
         email: values.email,
         phone: values.phone,
         termsAgreement: values.termsAgreement,
         
-        // Optional fields
         amazonSellerId: values.amazonSellerId,
         walmartSellerId: values.walmartSellerId,
         ebaySellerId: values.ebaySellerId,
         feedbackScore: values.feedbackScore,
         linkedIn: values.linkedIn,
         
-        // ResellerSubmission specific fields
         id: `RESELLER-${Date.now()}`,
         createdAt: new Date().toISOString(),
         status: 'pending'
       };
       
-      // Send email to help@bndbox.com
       const emailSent = await sendEmail(submission);
       
       if (!emailSent) {
@@ -507,6 +504,35 @@ const ResellerHub = () => {
                             <SelectItem value="100k_500k">$100,000 - $500,000</SelectItem>
                             <SelectItem value="500k_1m">$500,000 - $1 million</SelectItem>
                             <SelectItem value="over_1m">Over $1 million</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="wholesaleBudget"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Wholesale Purchasing Budget</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select budget range" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="under_5k">Under $5,000</SelectItem>
+                            <SelectItem value="5k_10k">$5,000 - $10,000</SelectItem>
+                            <SelectItem value="10k_25k">$10,000 - $25,000</SelectItem>
+                            <SelectItem value="25k_50k">$25,000 - $50,000</SelectItem>
+                            <SelectItem value="50k_100k">$50,000 - $100,000</SelectItem>
+                            <SelectItem value="over_100k">Over $100,000</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

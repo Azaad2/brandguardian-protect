@@ -22,6 +22,14 @@ export type SalesVolume =
   | '500k_1m'
   | 'over_1m';
 
+export type WholesaleBudget =
+  | 'under_5k'
+  | '5k_10k'
+  | '10k_25k'
+  | '25k_50k'
+  | '50k_100k'
+  | 'over_100k';
+
 export type ResellerFormData = {
   // Business Information
   companyName: string;
@@ -40,6 +48,9 @@ export type ResellerFormData = {
   // Sales Performance
   salesVolume: SalesVolume;
   feedbackScore?: string;
+  
+  // Purchasing Information
+  wholesaleBudget: WholesaleBudget;
   
   // Contact Information
   email: string;

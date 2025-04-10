@@ -46,6 +46,7 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
         Sales Performance:
         Sales Volume: ${submission.salesVolume}
         Feedback Score: ${submission.feedbackScore || 'N/A'}
+        Wholesale Budget: ${submission.wholesaleBudget}
         
         Contact Information:
         Email: ${submission.email}
