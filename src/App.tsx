@@ -10,6 +10,15 @@ import Blog from "./pages/Blog";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ResellerHub from "./pages/ResellerHub";
+import BrandPortal from "./pages/brand/BrandPortal";
+import ResellerPortal from "./pages/reseller/ResellerPortal";
+import BrandLogin from "./pages/brand/BrandLogin";
+import ResellerLogin from "./pages/reseller/ResellerLogin";
+import BrandDashboard from "./pages/brand/BrandDashboard";
+import ResellerDashboard from "./pages/reseller/ResellerDashboard";
+import BrandSignup from "./pages/brand/BrandSignup";
+import ResellerSignup from "./pages/reseller/ResellerSignup";
+import PasswordReset from "./pages/auth/PasswordReset";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +34,22 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/reseller-hub" element={<ResellerHub />} />
+          
+          {/* Brand Portal Routes */}
+          <Route path="/brand" element={<BrandPortal />} />
+          <Route path="/brand/login" element={<BrandLogin />} />
+          <Route path="/brand/signup" element={<BrandSignup />} />
+          <Route path="/brand/dashboard/*" element={<BrandDashboard />} />
+          
+          {/* Reseller Portal Routes */}
+          <Route path="/reseller" element={<ResellerPortal />} />
+          <Route path="/reseller/login" element={<ResellerLogin />} />
+          <Route path="/reseller/signup" element={<ResellerSignup />} />
+          <Route path="/reseller/dashboard/*" element={<ResellerDashboard />} />
+          
+          {/* Shared Auth Routes */}
+          <Route path="/reset-password" element={<PasswordReset />} />
+          
           <Route path="/careers" element={<Index />} />
           <Route path="/press" element={<Index />} />
           <Route path="/documentation" element={<Index />} />
