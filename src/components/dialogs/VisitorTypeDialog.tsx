@@ -28,9 +28,19 @@ const VisitorTypeDialog = ({ open, setOpen }: VisitorTypeDialogProps) => {
     navigate("/reseller-hub");
   };
 
+  // Prevent closing the dialog when clicking outside or pressing escape
+  const handleOpenChange = (open: boolean) => {
+    // Only allow the dialog to close if we're explicitly setting it to close
+    // through one of our buttons
+    if (open === false) {
+      return; // Prevent dialog from closing
+    }
+    setOpen(open);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">Welcome to BndBox</DialogTitle>
         </DialogHeader>
