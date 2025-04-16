@@ -57,7 +57,7 @@ const VisitorTypeDialog = ({ open, setOpen }: VisitorTypeDialogProps) => {
               <Building2 className="h-8 w-8 text-bndbox-600" />
               <div className="text-center">
                 <div className="font-bold">I'm a Brand</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
                   Find trusted resellers for your products
                 </p>
               </div>
@@ -71,7 +71,7 @@ const VisitorTypeDialog = ({ open, setOpen }: VisitorTypeDialogProps) => {
               <ShoppingBag className="h-8 w-8 text-bndbox-600" />
               <div className="text-center">
                 <div className="font-bold">I'm a Reseller</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
                   Connect with brands and grow your business
                 </p>
               </div>
