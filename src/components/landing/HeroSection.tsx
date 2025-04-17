@@ -30,7 +30,7 @@ const HeroSection = () => {
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-              Expand Your Brand's Reach On <span className="text-gradient">{currentMarketplace}</span> – Safely.
+              Find Marketplace Resellers for Amazon, Walmart and eBay
             </h1>
             
             <p className="text-xl text-gray-600 max-w-2xl">
