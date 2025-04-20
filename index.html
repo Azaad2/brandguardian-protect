@@ -1,28 +1,86 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brands are looking for Amazon Resellers | BndBox</title>
-    <meta name="description" content="Brands are looking for Amazon Resellers." />
+    <title>Brand Wholesale Approval | Connect with Amazon Resellers | BndBox</title>
+    <meta name="description" content="BndBox helps brands find and approve trusted wholesale resellers for Amazon, Walmart, and eBay marketplaces. Get your brand wholesale approval process streamlined." />
     <meta name="author" content="BndBox" />
 
-    <meta property="og:title" content="Brands are looking for Amazon Resellers | BndBox" />
-    <meta property="og:description" content="Brands are looking for Amazon Resellers." />
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bndbox.com/" />
+    <meta property="og:title" content="Brand Wholesale Approval | Connect with Amazon Resellers | BndBox" />
+    <meta property="og:description" content="BndBox helps brands find and approve trusted wholesale resellers for Amazon, Walmart, and eBay marketplaces. Get your brand wholesale approval process streamlined." />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-bndbox.png" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@bndbox" />
+    <meta name="twitter:title" content="Brand Wholesale Approval | Connect with Amazon Resellers | BndBox" />
+    <meta name="twitter:description" content="BndBox helps brands find and approve trusted wholesale resellers for Amazon, Walmart, and eBay marketplaces. Get your brand wholesale approval process streamlined." />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-bndbox.png" />
     
-    <meta name="keywords" content="e-commerce resellers, Amazon Walmart eBay resellers, brand protection multi-marketplace, trusted reseller network" />
+    <meta name="keywords" content="brand wholesale approval, e-commerce resellers, Amazon Walmart eBay resellers, brand protection, reseller application process, how to get approved by brands, multi-marketplace, trusted reseller network" />
     
     <link rel="icon" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='4' fill='%232E4053'/%3E%3Cpath d='M8 8H24' stroke='%23FF9900' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M8 16H24' stroke='%23FF9900' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M8 24H20' stroke='%23FF9900' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" type="image/svg+xml">
+    <link rel="canonical" href="https://bndbox.com/" />
     
+    <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/index.css" as="style">
+    
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.gpteng.co 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lovable.dev; connect-src 'self' https://www.google-analytics.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "BndBox",
+        "url": "https://bndbox.com",
+        "logo": "https://bndbox.com/logo.png",
+        "sameAs": [
+          "https://www.facebook.com/bndbox",
+          "https://www.linkedin.com/company/bndbox",
+          "https://twitter.com/bndbox"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+1-408-627-9875",
+          "contactType": "customer service",
+          "email": "help@bndbox.com"
+        }
+      }
+    </script>
+    
+    <!-- Structured Data - Service -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Brand Wholesale Approval",
+        "provider": {
+          "@type": "Organization",
+          "name": "BndBox"
+        },
+        "description": "Connect with pre-vetted resellers who respect your brand and amplify your sales across Amazon, Walmart, and eBay. Streamlined brand wholesale approval process.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-020LLVRLDW"></script>
@@ -38,6 +96,6 @@
     <div id="root"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx" defer></script>
   </body>
 </html>

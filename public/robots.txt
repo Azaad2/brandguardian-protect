@@ -1,3 +1,4 @@
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +13,10 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /filter=
+Disallow: /sort=
+Allow: /*.js$
+Allow: /*.css$
+
+Sitemap: https://bndbox.com/sitemap.xml

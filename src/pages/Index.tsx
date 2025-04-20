@@ -6,8 +6,17 @@ import HeroSection from "@/components/landing/HeroSection";
 import PainPointsSection from "@/components/landing/PainPointsSection";
 import SolutionSection from "@/components/landing/SolutionSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
+import FAQSection from "@/components/landing/FAQSection";
 import ContactSection from "@/components/landing/ContactSection";
 import VisitorTypeDialog from "@/components/dialogs/VisitorTypeDialog";
+import { 
+  Breadcrumb, 
+  BreadcrumbList, 
+  BreadcrumbItem, 
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
 
 const Index = () => {
   const [showDialog, setShowDialog] = useState(false);
@@ -25,10 +34,24 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Header />
       <main>
+        <div className="container mx-auto px-4 pt-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Brand Wholesale Approval</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
         <HeroSection />
         <PainPointsSection />
         <SolutionSection />
         <TestimonialsSection />
+        <FAQSection />
         <ContactSection />
       </main>
       <Footer />
