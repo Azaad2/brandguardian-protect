@@ -40,7 +40,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button size="lg" className="group" asChild>
                 <a href="#contact">
-                  Get Brand Wholesale Approval
+                  Get Started
                   <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </a>
               </Button>
@@ -169,3 +169,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+
