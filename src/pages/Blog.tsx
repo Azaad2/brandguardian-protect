@@ -1,4 +1,3 @@
-
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -9,13 +8,15 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
-      title: "Complete Guide to the Reseller Application Process",
-      excerpt: "Learn how to navigate the brand wholesale approval process effectively with step-by-step instructions for reseller applications.",
-      date: "April 5, 2025",
-      author: "Marketing Team",
-      slug: "reseller-application-process-guide",
-      image: "photo-1488590528505-98d2b5aba04b",
-      alt: "Person filling out application forms on a laptop"
+      title: "The Complete Guide to Amazon Wholesale Brand Approval in 2025",
+      excerpt: "Master the process of securing Amazon wholesale brand approvals with our comprehensive guide covering latest requirements, strategies, and success stories.",
+      date: "April 22, 2025",
+      author: "Brand Relations Team",
+      slug: "amazon-wholesale-brand-approval-guide-2025",
+      image: "photo-1661956602116-aa6865609028",
+      alt: "Amazon seller dashboard showing brand approval status",
+      readTime: "15 min read",
+      category: "Brand Approval Guides"
     },
     {
       id: 2,
@@ -92,8 +93,8 @@ const Blog = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Helmet>
-        <title>Blog | Brand Wholesale Approval Resources | BndBox</title>
-        <meta name="description" content="Expert articles and guides on brand wholesale approval, reseller application process, MAP policies, and e-commerce marketplace strategies." />
+        <title>Amazon Brand Approval Guide & Resources | BndBox Blog</title>
+        <meta name="description" content="Expert articles and guides on Amazon wholesale brand approval, reseller application process, MAP policies, and e-commerce marketplace strategies." />
         <link rel="canonical" href="https://bndbox.com/blog" />
       </Helmet>
       
@@ -103,31 +104,36 @@ const Blog = () => {
           <BreadcrumbNav />
         </div>
         
-        <h1 className="text-3xl font-bold mb-8">Brand Wholesale Approval Resources</h1>
+        <h1 className="text-4xl font-bold mb-8">Brand Wholesale Approval Resources</h1>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {blogPosts.map((post) => (
             <article key={post.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-video bg-gray-100 overflow-hidden">
                 <img 
-                  src={`https://images.unsplash.com/${post.image}?w=600&h=400&auto=format`} 
-                  alt={post.alt} 
-                  loading="lazy" 
+                  src={`https://images.unsplash.com/${post.image}?w=600&h=400&auto=format`}
+                  alt={post.alt}
+                  loading="lazy"
                   className="w-full h-full object-cover"
-                  width="600" 
-                  height="400" 
+                  width="600"
+                  height="400"
                 />
               </div>
-              <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">
-                  <a href={`/blog/${post.slug}`} className="hover:text-blue-600 transition-colors">
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm text-gray-500">{post.category}</span>
+                  <span className="text-sm text-gray-400">•</span>
+                  <span className="text-sm text-gray-500">{post.readTime}</span>
+                </div>
+                <h2 className="text-xl font-semibold mb-3 line-clamp-2 hover:text-blue-600 transition-colors">
+                  <a href={`/blog/${post.slug}`}>
                     {post.title}
                   </a>
                 </h2>
-                <p className="text-gray-600 mb-4">{post.excerpt}</p>
-                <div className="text-sm text-gray-500 flex justify-between">
+                <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
+                <div className="flex justify-between items-center text-sm text-gray-500">
                   <span>{post.author}</span>
-                  <time dateTime={post.date}>{post.date}</time>
+                  <time dateTime={new Date(post.date).toISOString()}>{post.date}</time>
                 </div>
               </div>
             </article>
