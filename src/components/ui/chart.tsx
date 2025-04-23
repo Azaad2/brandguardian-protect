@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Line, Bar, Pie } from 'recharts';
+import { Line, Bar, Pie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 type ChartData = {
   labels: string[];
@@ -86,10 +86,27 @@ const LineChart: React.FC<ChartProps> = ({ data, options, className }) => {
             </div>
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
-            <Line 
-              data={rechartsData}
-              dataKey={data.datasets.map(ds => ds.label)}
-            />
+            <ResponsiveContainer width="100%" height="100%">
+              <Line 
+                data={rechartsData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {data.datasets.map((dataset, index) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={dataset.label}
+                    stroke={Array.isArray(dataset.borderColor) ? dataset.borderColor[0] : dataset.borderColor}
+                    fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor}
+                  />
+                ))}
+              </Line>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
@@ -124,10 +141,25 @@ const BarChart: React.FC<ChartProps> = ({ data, options, className }) => {
             </div>
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
-            <Bar 
-              data={rechartsData}
-              dataKey={data.datasets.map(ds => ds.label)} 
-            />
+            <ResponsiveContainer width="100%" height="100%">
+              <Bar 
+                data={rechartsData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {data.datasets.map((dataset, index) => (
+                  <Bar
+                    key={index}
+                    dataKey={dataset.label}
+                    fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || '#8884d8'}
+                  />
+                ))}
+              </Bar>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
@@ -162,19 +194,36 @@ const PieChart: React.FC<ChartProps> = ({ data, options, className }) => {
             </div>
           </div>
           <div className="flex h-[calc(100%-2rem)] w-full items-center justify-center">
-            <Pie 
-              data={rechartsData.map((item, index) => ({
-                name: item.name,
-                value: data.datasets[0].data[index],
-              }))}
-              dataKey="value"
-              nameKey="name" 
-            />
+            <ResponsiveContainer width="100%" height="100%">
+              <Pie 
+                data={rechartsData.map((item, index) => ({
+                  name: item.name,
+                  value: data.datasets[0].data[index],
+                }))}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                fill="#8884d8"
+                label
+              >
+                {data.labels.map((entry, index) => {
+                  const color = Array.isArray(data.datasets[0].backgroundColor) 
+                    ? data.datasets[0].backgroundColor[index] 
+                    : data.datasets[0].backgroundColor || '#8884d8';
+                  return <Cell key={`cell-${index}`} fill={color} />;
+                })}
+              </Pie>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+// We need to import Cell for the PieChart
+import { Cell } from 'recharts';
 
 export { LineChart, BarChart, PieChart };
