@@ -47,13 +47,24 @@ interface ChartProps {
   className?: string;
 }
 
+// Convert our ChartData format to Recharts format
+const convertToRechartsData = (data: ChartData) => {
+  return data.labels.map((label, index) => {
+    const point: Record<string, any> = { name: label };
+    data.datasets.forEach(dataset => {
+      point[dataset.label] = dataset.data[index];
+    });
+    return point;
+  });
+};
+
 const LineChart: React.FC<ChartProps> = ({ data, options, className }) => {
-  // This is a simplified implementation
-  // In a real application, we would use Recharts or another charting library
+  const rechartsData = convertToRechartsData(data);
+  
   return (
     <div className={className}>
       <div className="flex h-full w-full items-center justify-center">
-        {/* This is a placeholder for where the chart would be rendered */}
+        {/* This is a simplified implementation */}
         <div className="h-full w-full rounded-md bg-slate-50 p-4">
           <div className="mb-4 flex justify-between">
             <div>
@@ -75,8 +86,10 @@ const LineChart: React.FC<ChartProps> = ({ data, options, className }) => {
             </div>
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
-            {/* This would be the actual Recharts component in a real implementation */}
-            <Line data={data} />
+            <Line 
+              data={rechartsData}
+              dataKey={data.datasets.map(ds => ds.label)}
+            />
           </div>
         </div>
       </div>
@@ -85,7 +98,8 @@ const LineChart: React.FC<ChartProps> = ({ data, options, className }) => {
 };
 
 const BarChart: React.FC<ChartProps> = ({ data, options, className }) => {
-  // Simplified implementation
+  const rechartsData = convertToRechartsData(data);
+  
   return (
     <div className={className}>
       <div className="flex h-full w-full items-center justify-center">
@@ -110,7 +124,10 @@ const BarChart: React.FC<ChartProps> = ({ data, options, className }) => {
             </div>
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
-            <Bar data={data} />
+            <Bar 
+              data={rechartsData}
+              dataKey={data.datasets.map(ds => ds.label)} 
+            />
           </div>
         </div>
       </div>
@@ -119,7 +136,8 @@ const BarChart: React.FC<ChartProps> = ({ data, options, className }) => {
 };
 
 const PieChart: React.FC<ChartProps> = ({ data, options, className }) => {
-  // Simplified implementation
+  const rechartsData = convertToRechartsData(data);
+  
   return (
     <div className={className}>
       <div className="flex h-full w-full items-center justify-center">
@@ -144,7 +162,14 @@ const PieChart: React.FC<ChartProps> = ({ data, options, className }) => {
             </div>
           </div>
           <div className="flex h-[calc(100%-2rem)] w-full items-center justify-center">
-            <Pie data={data} />
+            <Pie 
+              data={rechartsData.map((item, index) => ({
+                name: item.name,
+                value: data.datasets[0].data[index],
+              }))}
+              dataKey="value"
+              nameKey="name" 
+            />
           </div>
         </div>
       </div>

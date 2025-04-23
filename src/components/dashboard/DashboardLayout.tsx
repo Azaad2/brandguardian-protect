@@ -30,7 +30,14 @@ interface DashboardLayoutProps {
   userRole: UserRole;
 }
 
-const BrandNavItems = [
+interface NavItem {
+  icon: React.ElementType;
+  label: string;
+  path: string;
+  badge?: string;
+}
+
+const BrandNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/brand/dashboard' },
   { icon: Users, label: 'Resellers', path: '/brand/dashboard/resellers', badge: '3' },
   { icon: Package, label: 'Inventory', path: '/brand/dashboard/inventory' },
@@ -44,12 +51,12 @@ const BrandNavItems = [
   { icon: Settings, label: 'Settings', path: '/brand/dashboard/settings' },
 ];
 
-const ResellerNavItems = [
+const ResellerNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/reseller/dashboard' },
   { icon: Package, label: 'Brands', path: '/reseller/dashboard/brands' },
   { icon: ShoppingCart, label: 'Orders', path: '/reseller/dashboard/orders' },
   { icon: Bell, label: 'Shipments', path: '/reseller/dashboard/shipments' },
-  { icon: MessageSquare, label: 'Messages', path: '/reseller/dashboard/messages' },
+  { icon: MessageSquare, label: 'Messages', path: '/reseller/dashboard/messages', badge: '3' },
   { icon: BarChart3, label: 'Analytics', path: '/reseller/dashboard/analytics' },
   { icon: Settings, label: 'Settings', path: '/reseller/dashboard/settings' },
 ];
