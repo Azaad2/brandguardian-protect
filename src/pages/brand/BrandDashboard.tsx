@@ -9,6 +9,9 @@ import BrandAlerts from '@/components/brand/BrandAlerts';
 import BrandMessages from '@/components/brand/BrandMessages';
 import BrandAnalytics from '@/components/brand/BrandAnalytics';
 import BrandSettings from '@/components/brand/BrandSettings';
+import BrandListings from '@/components/brand/BrandListings';
+import BrandComplianceMonitor from '@/components/brand/BrandComplianceMonitor';
+import BrandReports from '@/components/brand/BrandReports';
 
 const BrandDashboard = () => {
   return (
@@ -22,6 +25,9 @@ const BrandDashboard = () => {
         <Route path="messages" element={<BrandMessages />} />
         <Route path="analytics" element={<BrandAnalytics />} />
         <Route path="settings" element={<BrandSettings />} />
+        <Route path="listings" element={<BrandListings />} />
+        <Route path="compliance" element={<BrandComplianceMonitor />} />
+        <Route path="reports" element={<BrandReports />} />
       </Routes>
     </DashboardLayout>
   );

@@ -1,6 +1,6 @@
 
 import { ReactNode, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Package, 
@@ -12,7 +12,10 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  ShieldCheck,
+  ShoppingBag,
+  FileBarChart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -20,6 +23,7 @@ import BndBoxLogo from '@/components/branding/BndBoxLogo';
 import { cn } from '@/lib/utils';
 import { UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -28,12 +32,15 @@ interface DashboardLayoutProps {
 
 const BrandNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/brand/dashboard' },
-  { icon: Users, label: 'Resellers', path: '/brand/dashboard/resellers' },
+  { icon: Users, label: 'Resellers', path: '/brand/dashboard/resellers', badge: '3' },
   { icon: Package, label: 'Inventory', path: '/brand/dashboard/inventory' },
+  { icon: ShoppingBag, label: 'Listings', path: '/brand/dashboard/listings' },
   { icon: ShoppingCart, label: 'Orders', path: '/brand/dashboard/orders' },
+  { icon: ShieldCheck, label: 'Compliance', path: '/brand/dashboard/compliance', badge: '2' },
   { icon: Bell, label: 'Alerts', path: '/brand/dashboard/alerts' },
-  { icon: MessageSquare, label: 'Messages', path: '/brand/dashboard/messages' },
+  { icon: MessageSquare, label: 'Messages', path: '/brand/dashboard/messages', badge: '5' },
   { icon: BarChart3, label: 'Analytics', path: '/brand/dashboard/analytics' },
+  { icon: FileBarChart, label: 'Reports', path: '/brand/dashboard/reports' },
   { icon: Settings, label: 'Settings', path: '/brand/dashboard/settings' },
 ];
 
@@ -50,6 +57,7 @@ const ResellerNavItems = [
 const DashboardLayout = ({ children, userRole }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const navItems = userRole === 'brand' ? BrandNavItems : ResellerNavItems;
 
   const toggleSidebar = () => {
@@ -57,13 +65,26 @@ const DashboardLayout = ({ children, userRole }: DashboardLayoutProps) => {
   };
 
   const handleLogout = () => {
-    // This would normally clear the authentication state
+    // Clear local storage authentication flag
+    localStorage.removeItem('brand_authenticated');
+    
+    // Show toast message
     toast({
       title: 'Logged out',
       description: 'You have been logged out successfully.',
       duration: 3000,
     });
+    
+    // Navigate to login
     navigate(`/${userRole}/login`);
+  };
+
+  // Check if a navigation item is active
+  const isActive = (path: string) => {
+    if (path === '/brand/dashboard' || path === '/reseller/dashboard') {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -105,12 +126,24 @@ const DashboardLayout = ({ children, userRole }: DashboardLayoutProps) => {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+                "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-100 hover:text-slate-900",
+                isActive(item.path) 
+                  ? "bg-primary/10 text-primary" 
+                  : "text-slate-700",
                 !sidebarOpen && "lg:justify-center lg:px-0"
               )}
             >
               <item.icon className={cn("h-5 w-5", !sidebarOpen && "lg:h-6 lg:w-6")} />
-              {sidebarOpen && <span className="ml-3 lg:inline">{item.label}</span>}
+              {sidebarOpen && (
+                <div className="ml-3 flex flex-1 items-center justify-between lg:inline">
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <Badge variant="secondary" className="ml-auto">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </div>
+              )}
             </Link>
           ))}
         </nav>
