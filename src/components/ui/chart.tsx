@@ -87,7 +87,7 @@ const LineChart: React.FC<ChartProps> = ({ data, options, className }) => {
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <Line data={rechartsData}>
+              <Line data={rechartsData} dataKey="name">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -139,7 +139,7 @@ const BarChart: React.FC<ChartProps> = ({ data, options, className }) => {
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <Bar data={rechartsData}>
+              <Bar data={rechartsData} dataKey="name">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
