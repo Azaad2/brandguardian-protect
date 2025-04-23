@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Line, Bar, Pie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Line, Bar, Pie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 
 type ChartData = {
   labels: string[];
@@ -87,10 +87,7 @@ const LineChart: React.FC<ChartProps> = ({ data, options, className }) => {
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <Line 
-                data={rechartsData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
+              <Line data={rechartsData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -142,10 +139,7 @@ const BarChart: React.FC<ChartProps> = ({ data, options, className }) => {
           </div>
           <div className="h-[calc(100%-2rem)] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <Bar 
-                data={rechartsData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
+              <Bar data={rechartsData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -222,8 +216,5 @@ const PieChart: React.FC<ChartProps> = ({ data, options, className }) => {
     </div>
   );
 };
-
-// We need to import Cell for the PieChart
-import { Cell } from 'recharts';
 
 export { LineChart, BarChart, PieChart };
