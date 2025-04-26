@@ -11,7 +11,6 @@ const ContactSection = () => {
           <div className="grid md:grid-cols-2">
             <InfoPanel />
             <div className="p-8 md:p-12">
-              {/* The ContactForm now handles email sending directly */}
               <ContactForm onSubmit={async () => true} />
             </div>
           </div>

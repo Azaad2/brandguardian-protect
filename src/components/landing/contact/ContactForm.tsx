@@ -75,7 +75,7 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
       
       console.log("Submitting form data:", submission);
       
-      // Send email directly without using the onSubmit prop
+      // Send email directly 
       const success = await sendEmail(submission);
       
       if (success) {
@@ -86,14 +86,17 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         });
         setIsSuccess(true);
         form.reset();
+        
+        // Call the onSubmit prop to maintain compatibility
+        await onSubmit(submission);
       } else {
-        throw new Error("Form submission failed");
+        throw new Error("Failed to send email");
       }
     } catch (error) {
       console.error("Form submission error:", error);
       toast({
         title: "Submission failed",
-        description: "There was a problem submitting your form. Please try again.",
+        description: "There was a problem submitting your form. Please try again or contact us directly at help@bndbox.com.",
         variant: "destructive",
       });
     } finally {

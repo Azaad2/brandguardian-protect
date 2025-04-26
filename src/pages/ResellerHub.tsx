@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Check, ShoppingBag, ShoppingCart, Award, CheckCheck, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -28,6 +29,7 @@ import { Link } from 'react-router-dom';
 import BndBoxLogo from '@/components/branding/BndBoxLogo';
 import { sendEmail } from '@/utils/email';
 import { ResellerSubmission } from '@/types/resellerSubmission';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
@@ -66,6 +68,7 @@ const ResellerHub = () => {
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [submissionError, setSubmissionError] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -90,6 +93,7 @@ const ResellerHub = () => {
 
   const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
+    setSubmissionError(false);
     
     try {
       console.log('Form submission values:', values);
@@ -119,10 +123,15 @@ const ResellerHub = () => {
       };
       
       console.log('Sending email with submission data:', submission);
+      
+      // Add delay to ensure form data is properly processed
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const emailSent = await sendEmail(submission);
       
       if (!emailSent) {
         console.error('Email failed to send');
+        setSubmissionError(true);
         throw new Error("Failed to send email");
       }
       
@@ -138,6 +147,7 @@ const ResellerHub = () => {
       setDocumentFile(null);
     } catch (error) {
       console.error('Error in form submission:', error);
+      setSubmissionError(true);
       toast({
         variant: "destructive",
         title: "Submission failed",
@@ -294,6 +304,15 @@ const ResellerHub = () => {
           <p className="text-gray-600 mb-8">
             Partner with top brands and expand your sales channels on Amazon, Walmart, and eBay.
           </p>
+          
+          {submissionError && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertTitle>Submission failed</AlertTitle>
+              <AlertDescription>
+                There was a problem with your submission. Please try again or contact us directly at help@bndbox.com.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">

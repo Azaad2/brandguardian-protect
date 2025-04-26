@@ -68,8 +68,12 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
     formData.append('_replyto', submission.email);
     
     // Using formsubmit.co as the email service
+    // Make sure to use the real help@bndbox.com email
     const response = await fetch('https://formsubmit.co/ajax/help@bndbox.com', {
       method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      },
       body: formData,
     });
     
