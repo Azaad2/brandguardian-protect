@@ -116,7 +116,7 @@ const SignupForm = ({ userRole }: SignupFormProps) => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} />
+                <Input placeholder="you@example.com" type="email" required {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -134,6 +134,7 @@ const SignupForm = ({ userRole }: SignupFormProps) => {
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
+                    required
                     {...field}
                   />
                 </FormControl>

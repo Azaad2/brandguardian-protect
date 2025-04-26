@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -57,7 +58,8 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         company: values.company,
         companyName: values.company, // For Admin.tsx compatibility
         marketplaces: values.marketplaces,
-        message: values.message,
+        message: values.message || "",
+        amazonLink: "", // Adding missing property
         createdAt: timestamp,
         timestamp: timestamp, // For Admin.tsx compatibility
         contactPerson: values.name, // For Admin.tsx compatibility
@@ -66,17 +68,22 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
       };
       
       // Send email to help@bndbox.com
-      await sendEmail(submission);
+      const emailSent = await sendEmail(submission);
       
-      onSubmit(submission);
-      
-      toast({
-        title: "Form submitted!",
-        description: "We'll be in touch with you shortly.",
-      });
-      
-      form.reset();
+      if (emailSent) {
+        onSubmit(submission);
+        
+        toast({
+          title: "Form submitted!",
+          description: "We'll be in touch with you shortly.",
+        });
+        
+        form.reset();
+      } else {
+        throw new Error("Failed to send email");
+      }
     } catch (error) {
+      console.error("Form submission error:", error);
       toast({
         title: "Something went wrong.",
         description: "Your form was not submitted. Please try again.",
@@ -114,7 +121,7 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@company.com" {...field} />
+                  <Input placeholder="you@company.com" type="email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

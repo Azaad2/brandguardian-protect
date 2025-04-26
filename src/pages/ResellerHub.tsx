@@ -65,6 +65,7 @@ const ResellerHub = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -106,11 +107,11 @@ const ResellerHub = () => {
         phone: values.phone,
         termsAgreement: values.termsAgreement,
         
-        amazonSellerId: values.amazonSellerId,
-        walmartSellerId: values.walmartSellerId,
-        ebaySellerId: values.ebaySellerId,
-        feedbackScore: values.feedbackScore,
-        linkedIn: values.linkedIn,
+        amazonSellerId: values.amazonSellerId || '',
+        walmartSellerId: values.walmartSellerId || '',
+        ebaySellerId: values.ebaySellerId || '',
+        feedbackScore: values.feedbackScore || '',
+        linkedIn: values.linkedIn || '',
         
         id: `RESELLER-${Date.now()}`,
         createdAt: new Date().toISOString(),
@@ -129,6 +130,7 @@ const ResellerHub = () => {
         description: "We'll review your information and contact you soon.",
       });
       
+      setSubmissionSuccess(true);
       form.reset();
       setSelectedCategories([]);
       setDocumentFile(null);
@@ -178,6 +180,46 @@ const ResellerHub = () => {
     'electronics', 'beauty', 'home_goods', 'fashion', 'toys',
     'sports', 'automotive', 'health', 'grocery', 'books', 'other'
   ];
+
+  if (submissionSuccess) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 pt-8 pb-16">
+          <div className="mb-8 flex justify-between items-center">
+            <Link to="/" className="inline-block">
+              <BndBoxLogo className="h-10" />
+            </Link>
+            <Link 
+              to="/reseller/login" 
+              className="text-bndbox-600 hover:text-bndbox-700 font-medium transition-colors"
+            >
+              Reseller Login
+            </Link>
+          </div>
+          
+          <div className="max-w-2xl mx-auto mt-20 text-center bg-white p-8 rounded-lg shadow-md">
+            <CheckCheck className="mx-auto h-16 w-16 text-green-500 mb-4" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Application Submitted!</h1>
+            <p className="text-lg text-gray-600 mb-8">
+              Thank you for your interest in becoming a verified reseller with BndBox. We've received your application and will review it within 3-5 business days.
+            </p>
+            <p className="text-md text-gray-600 mb-8">
+              We'll contact you at <strong>{form.getValues().email}</strong> with next steps.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button onClick={() => setSubmissionSuccess(false)} variant="outline">
+                Submit another application
+              </Button>
+              <Button asChild>
+                <Link to="/">Return to homepage</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

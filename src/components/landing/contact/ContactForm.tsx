@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ContactSubmission } from "@/types/contact";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CheckCheck } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -33,6 +35,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) => Promise<boolean> }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<FormValues>({
@@ -74,14 +77,39 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
       
       if (success) {
         console.log("Form submitted successfully");
+        toast({
+          title: "Thank you for your message!",
+          description: "We'll be in touch with you shortly.",
+        });
+        setIsSuccess(true);
         form.reset();
+      } else {
+        throw new Error("Form submission failed");
       }
     } catch (error) {
       console.error("Form submission error:", error);
+      toast({
+        title: "Submission failed",
+        description: "There was a problem submitting your form. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
+  
+  if (isSuccess) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-center">
+        <CheckCheck className="h-12 w-12 text-green-500 mb-4" />
+        <h3 className="text-2xl font-bold mb-2">Message Received!</h3>
+        <p className="text-muted-foreground mb-6">
+          Thank you for reaching out. One of our team members will contact you shortly.
+        </p>
+        <Button onClick={() => setIsSuccess(false)}>Send Another Message</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -110,7 +138,7 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@company.com" {...field} />
+                  <Input placeholder="you@company.com" type="email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
