@@ -59,11 +59,6 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       subject = `New Reseller Application from ${submission.companyName}`;
     }
     
-    // Using formsubmit.co as a simple email service
-    // For demo purposes, we'll just log the email content and return success
-    // In a production environment, uncomment the fetch code below
-    
-    /*
     // Create a simple form data object
     const formData = new FormData();
     formData.append('name', 'companyName' in submission ? submission.companyName : submission.name);
@@ -72,6 +67,7 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
     formData.append('_subject', subject);
     formData.append('_replyto', submission.email);
     
+    // Using formsubmit.co as the email service
     const response = await fetch('https://formsubmit.co/ajax/help@bndbox.com', {
       method: 'POST',
       body: formData,
@@ -86,13 +82,7 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
     
     const responseData = await response.json();
     console.log('Form submission API response:', responseData);
-    */
     
-    // For demo, we'll just simulate success
-    console.log('Email would be sent with subject:', subject);
-    console.log('Email content:', emailContent);
-    
-    // Simulate successful submission
     return true;
   } catch (error) {
     console.error('Error sending email:', error);

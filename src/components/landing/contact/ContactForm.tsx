@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { ContactSubmission } from "@/types/contact";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCheck } from "lucide-react";
+import { sendEmail } from "@/utils/email";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -73,7 +74,9 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
       };
       
       console.log("Submitting form data:", submission);
-      const success = await onSubmit(submission);
+      
+      // Send email directly without using the onSubmit prop
+      const success = await sendEmail(submission);
       
       if (success) {
         console.log("Form submitted successfully");
