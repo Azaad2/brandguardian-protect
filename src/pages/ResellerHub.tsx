@@ -118,6 +118,7 @@ const ResellerHub = () => {
         status: 'pending'
       };
       
+      console.log('Sending email with submission data:', submission);
       const emailSent = await sendEmail(submission);
       
       if (!emailSent) {
@@ -125,6 +126,7 @@ const ResellerHub = () => {
         throw new Error("Failed to send email");
       }
       
+      console.log('Email sent successfully');
       toast({
         title: "Application submitted!",
         description: "We'll review your information and contact you soon.",
