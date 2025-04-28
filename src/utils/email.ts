@@ -59,37 +59,83 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       subject = `New Reseller Application from ${submission.companyName}`;
     }
     
-    // Create a simple form data object
-    const formData = new FormData();
-    formData.append('name', 'companyName' in submission ? submission.companyName : submission.name);
-    formData.append('email', submission.email);
-    formData.append('message', emailContent);
-    formData.append('_subject', subject);
-    formData.append('_replyto', submission.email);
+    // Using EmailJS API instead of formsubmit.co which may have blocked the domain
+    const serviceID = 'default_service'; // Replace with actual EmailJS service ID
+    const templateID = 'template_bndbox'; // Replace with actual EmailJS template ID
+    const userID = 'user_bndboxId'; // Replace with actual EmailJS user ID
     
-    // Using formsubmit.co as the email service
-    // Make sure to use the real help@bndbox.com email
-    const response = await fetch('https://formsubmit.co/ajax/help@bndbox.com', {
+    const templateParams = {
+      to_email: 'help@bndbox.com',
+      from_name: 'companyName' in submission ? submission.companyName : submission.name,
+      from_email: submission.email,
+      subject: subject,
+      message: emailContent,
+    };
+    
+    // Alternatively, using a direct server endpoint with a POST request
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: formData,
+      body: JSON.stringify({
+        service_id: serviceID,
+        template_id: templateID,
+        user_id: userID,
+        template_params: templateParams
+      }),
     });
     
     if (!response.ok) {
-      console.error('Form submission API error:', response.status, response.statusText);
+      console.error('Email API error:', response.status, response.statusText);
       const responseText = await response.text();
       console.error('Error response:', responseText);
-      return false;
+      
+      // Fallback to a different email service or method if needed
+      return await sendEmailFallback(submission);
     }
     
-    const responseData = await response.json();
-    console.log('Form submission API response:', responseData);
-    
+    console.log('Email sent successfully');
     return true;
   } catch (error) {
     console.error('Error sending email:', error);
+    return await sendEmailFallback(submission);
+  }
+};
+
+// Fallback email function using a different approach 
+const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmission): Promise<boolean> => {
+  try {
+    console.log('Using fallback email method');
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('_subject', 'companyName' in submission ? 
+      `Contact Form: ${submission.company}` : 
+      `Reseller Application: ${submission.companyName}`);
+    
+    formData.append('_replyto', submission.email);
+    formData.append('email', submission.email);
+    formData.append('message', JSON.stringify(submission, null, 2));
+    
+    // Using a different email form service (formspree as example)
+    const response = await fetch('https://formspree.io/f/help@bndbox.com', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Fallback email service error:', response.status);
+      return false;
+    }
+    
+    console.log('Email sent through fallback method');
+    return true;
+  } catch (error) {
+    console.error('Fallback email error:', error);
     return false;
   }
 };

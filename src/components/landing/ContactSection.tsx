@@ -2,8 +2,19 @@
 import { ContactForm } from './contact/ContactForm';
 import { InfoPanel } from './contact/InfoPanel';
 import type { ContactSubmission } from '@/types/contact';
+import { sendEmail } from '@/utils/email';
 
 const ContactSection = () => {
+  const handleSubmit = async (data: ContactSubmission): Promise<boolean> => {
+    try {
+      const success = await sendEmail(data);
+      return success;
+    } catch (error) {
+      console.error('Error sending contact form:', error);
+      return false;
+    }
+  };
+  
   return (
     <section className="py-20 gradient-bg px-4" id="contact">
       <div className="container mx-auto">
@@ -11,7 +22,7 @@ const ContactSection = () => {
           <div className="grid md:grid-cols-2">
             <InfoPanel />
             <div className="p-8 md:p-12">
-              <ContactForm onSubmit={async () => true} />
+              <ContactForm onSubmit={handleSubmit} />
             </div>
           </div>
         </div>
