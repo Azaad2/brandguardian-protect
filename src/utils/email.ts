@@ -1,6 +1,7 @@
 
 import { ContactSubmission } from '@/types/contact';
 import { ResellerSubmission } from '@/types/resellerSubmission';
+import emailjs from '@emailjs/browser';
 
 export const sendEmail = async (submission: ContactSubmission | ResellerSubmission): Promise<boolean> => {
   try {
@@ -59,11 +60,12 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       subject = `New Reseller Application from ${submission.companyName}`;
     }
     
-    // Using EmailJS API with your provided credentials
+    // EmailJS configuration
     const serviceID = 'default_service'; // This is typically the default service in EmailJS
-    const templateID = 'template_bndbox'; // Replace with your actual template ID
+    const templateID = 'template_bndbox'; // Your EmailJS template ID
     const publicKey = 'NEJ-2t7dGMfGCAV_d'; // Your provided public key
     
+    // Template parameters for EmailJS
     const templateParams = {
       to_email: 'help@bndbox.com',
       from_name: 'marketplaces' in submission ? submission.name : submission.companyName,
@@ -72,41 +74,60 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       message: emailContent,
     };
     
-    // Send email using EmailJS
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        service_id: serviceID,
-        template_id: templateID,
-        user_id: publicKey,
-        template_params: templateParams
-      }),
-    });
+    // Initialize EmailJS with public key
+    emailjs.init(publicKey);
     
-    if (!response.ok) {
-      console.error('Email API error:', response.status, response.statusText);
-      const responseText = await response.text();
-      console.error('Error response:', responseText);
+    // Send email using EmailJS directly
+    try {
+      const response = await emailjs.send(
+        serviceID,
+        templateID,
+        templateParams
+      );
       
-      // Fallback to a different email service or method if needed
-      return await sendEmailFallback(submission);
+      console.log('Email sent successfully:', response);
+      return true;
+    } catch (emailError) {
+      console.error('EmailJS error:', emailError);
+      
+      // If EmailJS fails, try the REST API approach as second option
+      try {
+        const restResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            service_id: serviceID,
+            template_id: templateID,
+            user_id: publicKey,
+            template_params: templateParams
+          }),
+        });
+        
+        if (!restResponse.ok) {
+          console.error('EmailJS REST API error:', restResponse.status, restResponse.statusText);
+          throw new Error(`EmailJS REST API error: ${restResponse.status}`);
+        }
+        
+        console.log('Email sent successfully via REST API');
+        return true;
+      } catch (restError) {
+        console.error('EmailJS REST API fallback error:', restError);
+        // If REST API also fails, try FormSpree fallback
+        return await sendEmailFallback(submission);
+      }
     }
-    
-    console.log('Email sent successfully');
-    return true;
   } catch (error) {
     console.error('Error sending email:', error);
     return await sendEmailFallback(submission);
   }
 };
 
-// Fallback email function using a different approach 
+// Fallback email function using Formspree
 const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmission): Promise<boolean> => {
   try {
-    console.log('Using fallback email method');
+    console.log('Using fallback email method (Formspree)');
     
     // Create form data
     const formData = new FormData();
@@ -119,7 +140,7 @@ const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmiss
     formData.append('message', JSON.stringify(submission, null, 2));
     
     // Using Formspree as a fallback
-    const response = await fetch('https://formspree.io/f/help@bndbox.com', {
+    const response = await fetch('https://formspree.io/f/xbjnnbjj', { // Use a valid Formspree endpoint
       method: 'POST',
       body: formData,
       headers: {

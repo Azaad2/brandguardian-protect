@@ -7,7 +7,9 @@ import { sendEmail } from '@/utils/email';
 const ContactSection = () => {
   const handleSubmit = async (data: ContactSubmission): Promise<boolean> => {
     try {
+      console.log('ContactSection: sending email with data:', data);
       const success = await sendEmail(data);
+      console.log('ContactSection: email send result:', success);
       return success;
     } catch (error) {
       console.error('Error sending contact form:', error);
