@@ -59,20 +59,20 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       subject = `New Reseller Application from ${submission.companyName}`;
     }
     
-    // Using EmailJS API instead of formsubmit.co which may have blocked the domain
-    const serviceID = 'default_service'; // Replace with actual EmailJS service ID
-    const templateID = 'template_bndbox'; // Replace with actual EmailJS template ID
-    const userID = 'user_bndboxId'; // Replace with actual EmailJS user ID
+    // Using EmailJS API with your provided credentials
+    const serviceID = 'default_service'; // This is typically the default service in EmailJS
+    const templateID = 'template_bndbox'; // Replace with your actual template ID
+    const publicKey = 'NEJ-2t7dGMfGCAV_d'; // Your provided public key
     
     const templateParams = {
       to_email: 'help@bndbox.com',
-      from_name: 'companyName' in submission ? submission.companyName : submission.name,
+      from_name: 'marketplaces' in submission ? submission.name : submission.companyName,
       from_email: submission.email,
       subject: subject,
       message: emailContent,
     };
     
-    // Alternatively, using a direct server endpoint with a POST request
+    // Send email using EmailJS
     const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: {
@@ -81,7 +81,7 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       body: JSON.stringify({
         service_id: serviceID,
         template_id: templateID,
-        user_id: userID,
+        user_id: publicKey,
         template_params: templateParams
       }),
     });
@@ -110,7 +110,7 @@ const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmiss
     
     // Create form data
     const formData = new FormData();
-    formData.append('_subject', 'companyName' in submission ? 
+    formData.append('_subject', 'marketplaces' in submission ? 
       `Contact Form: ${submission.company}` : 
       `Reseller Application: ${submission.companyName}`);
     
@@ -118,7 +118,7 @@ const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmiss
     formData.append('email', submission.email);
     formData.append('message', JSON.stringify(submission, null, 2));
     
-    // Using a different email form service (formspree as example)
+    // Using Formspree as a fallback
     const response = await fetch('https://formspree.io/f/help@bndbox.com', {
       method: 'POST',
       body: formData,
