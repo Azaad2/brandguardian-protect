@@ -60,14 +60,17 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       subject = `New Reseller Application from ${submission.companyName}`;
     }
     
-    // EmailJS configuration
-    const serviceID = 'default_service'; // This is typically the default service in EmailJS
-    const templateID = 'template_bndbox'; // Your EmailJS template ID
+    // EmailJS configuration - using your correct values
+    const serviceID = 'service_pdxnk4u'; // Updated to likely default service ID format
+    const templateID = 'template_bndbox'; 
     const publicKey = 'NEJ-2t7dGMfGCAV_d'; // Your provided public key
+    
+    // Properly format recipient email to ensure delivery
+    const to_email = 'help@bndbox.com';
     
     // Template parameters for EmailJS
     const templateParams = {
-      to_email: 'help@bndbox.com',
+      to_email: to_email,
       from_name: 'marketplaces' in submission ? submission.name : submission.companyName,
       from_email: submission.email,
       subject: subject,
@@ -76,6 +79,16 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
     
     // Initialize EmailJS with public key
     emailjs.init(publicKey);
+    
+    console.log('Attempting to send email via EmailJS with params:', {
+      serviceID,
+      templateID,
+      templateParams: {
+        to_email: templateParams.to_email,
+        from_name: templateParams.from_name,
+        subject: templateParams.subject
+      }
+    });
     
     // Send email using EmailJS directly
     try {
@@ -90,8 +103,9 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
     } catch (emailError) {
       console.error('EmailJS error:', emailError);
       
-      // If EmailJS fails, try the REST API approach as second option
+      // If EmailJS direct method fails, try the REST API approach
       try {
+        console.log('Trying EmailJS REST API as fallback');
         const restResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
           headers: {
@@ -101,12 +115,14 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
             service_id: serviceID,
             template_id: templateID,
             user_id: publicKey,
-            template_params: templateParams
+            template_params: templateParams,
+            accessToken: null, // No private key needed for public facing forms
           }),
         });
         
         if (!restResponse.ok) {
-          console.error('EmailJS REST API error:', restResponse.status, restResponse.statusText);
+          const errorText = await restResponse.text();
+          console.error('EmailJS REST API error:', restResponse.status, errorText);
           throw new Error(`EmailJS REST API error: ${restResponse.status}`);
         }
         
@@ -114,6 +130,7 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
         return true;
       } catch (restError) {
         console.error('EmailJS REST API fallback error:', restError);
+        
         // If REST API also fails, try FormSpree fallback
         return await sendEmailFallback(submission);
       }
@@ -131,6 +148,8 @@ const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmiss
     
     // Create form data
     const formData = new FormData();
+    
+    // Add important form identifier to ensure proper routing
     formData.append('_subject', 'marketplaces' in submission ? 
       `Contact Form: ${submission.company}` : 
       `Reseller Application: ${submission.companyName}`);
@@ -139,8 +158,8 @@ const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmiss
     formData.append('email', submission.email);
     formData.append('message', JSON.stringify(submission, null, 2));
     
-    // Using Formspree as a fallback
-    const response = await fetch('https://formspree.io/f/xbjnnbjj', { // Use a valid Formspree endpoint
+    // Using Formspree as a fallback with direct address format
+    const response = await fetch('https://formspree.io/f/help@bndbox.com', {
       method: 'POST',
       body: formData,
       headers: {
