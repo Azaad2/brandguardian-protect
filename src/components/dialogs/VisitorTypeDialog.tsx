@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Building2 } from "lucide-react";
@@ -44,11 +45,11 @@ const VisitorTypeDialog = ({ open, setOpen }: VisitorTypeDialogProps) => {
       <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">Welcome to BndBox</DialogTitle>
+          <DialogDescription className="text-center text-muted-foreground">
+            Please select how you would like to use our platform
+          </DialogDescription>
         </DialogHeader>
         <div className="py-6">
-          <p className="text-center text-muted-foreground mb-6">
-            Please select how you would like to use our platform
-          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button
               variant="outline"
