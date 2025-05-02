@@ -60,12 +60,12 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       subject = `New Reseller Application from ${submission.companyName}`;
     }
     
-    // EmailJS configuration - using your correct values
-    const serviceID = 'service_pdxnk4u'; // Updated to likely default service ID format
-    const templateID = 'template_bndbox'; 
-    const publicKey = 'NEJ-2t7dGMfGCAV_d'; // Your provided public key
+    // EmailJS configuration
+    const serviceID = 'service_pdxnk4u';
+    const templateID = 'template_bndbox';
+    const publicKey = 'NEJ-2t7dGMfGCAV_d';
     
-    // Properly format recipient email to ensure delivery
+    // Set recipient email
     const to_email = 'help@bndbox.com';
     
     // Template parameters for EmailJS
@@ -80,32 +80,31 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
     // Initialize EmailJS with public key
     emailjs.init(publicKey);
     
-    console.log('Attempting to send email via EmailJS with params:', {
+    console.log('EmailJS params:', {
       serviceID,
       templateID,
-      templateParams: {
+      params: {
         to_email: templateParams.to_email,
         from_name: templateParams.from_name,
-        subject: templateParams.subject
+        from_email: templateParams.from_email,
+        subject: templateParams.subject,
+        message_preview: templateParams.message.substring(0, 100) + '...'
       }
     });
     
-    // Send email using EmailJS directly
+    // Try multiple methods to ensure email delivery
     try {
-      const response = await emailjs.send(
-        serviceID,
-        templateID,
-        templateParams
-      );
-      
-      console.log('Email sent successfully:', response);
+      // Method 1: Direct send via EmailJS
+      console.log('Attempting direct EmailJS send...');
+      const response = await emailjs.send(serviceID, templateID, templateParams);
+      console.log('EmailJS direct send response:', response);
       return true;
-    } catch (emailError) {
-      console.error('EmailJS error:', emailError);
+    } catch (error1) {
+      console.error('EmailJS direct send failed:', error1);
       
-      // If EmailJS direct method fails, try the REST API approach
+      // Method 2: Try REST API approach
       try {
-        console.log('Trying EmailJS REST API as fallback');
+        console.log('Attempting EmailJS REST API method...');
         const restResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
           headers: {
@@ -116,50 +115,68 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
             template_id: templateID,
             user_id: publicKey,
             template_params: templateParams,
-            accessToken: null, // No private key needed for public facing forms
           }),
         });
         
-        if (!restResponse.ok) {
-          const errorText = await restResponse.text();
-          console.error('EmailJS REST API error:', restResponse.status, errorText);
+        if (restResponse.ok) {
+          console.log('EmailJS REST API success:', await restResponse.text());
+          return true;
+        } else {
+          console.error('EmailJS REST API error:', restResponse.status, await restResponse.text());
           throw new Error(`EmailJS REST API error: ${restResponse.status}`);
         }
+      } catch (error2) {
+        console.error('EmailJS REST API method failed:', error2);
         
-        console.log('Email sent successfully via REST API');
-        return true;
-      } catch (restError) {
-        console.error('EmailJS REST API fallback error:', restError);
-        
-        // If REST API also fails, try FormSpree fallback
-        return await sendEmailFallback(submission);
+        // Method 3: Formspree fallback
+        return await sendEmailFallback(submission, emailContent, subject);
       }
     }
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error in email sending process:', error);
     return await sendEmailFallback(submission);
   }
 };
 
 // Fallback email function using Formspree
-const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmission): Promise<boolean> => {
+const sendEmailFallback = async (
+  submission: ContactSubmission | ResellerSubmission, 
+  content?: string,
+  subject?: string
+): Promise<boolean> => {
   try {
-    console.log('Using fallback email method (Formspree)');
+    console.log('Using Formspree fallback method');
     
     // Create form data
     const formData = new FormData();
     
-    // Add important form identifier to ensure proper routing
-    formData.append('_subject', 'marketplaces' in submission ? 
+    // Add email subject
+    const emailSubject = subject || ('marketplaces' in submission ? 
       `Contact Form: ${submission.company}` : 
       `Reseller Application: ${submission.companyName}`);
     
+    formData.append('_subject', emailSubject);
+    
+    // Add reply-to address
     formData.append('_replyto', submission.email);
     formData.append('email', submission.email);
-    formData.append('message', JSON.stringify(submission, null, 2));
     
-    // Using Formspree as a fallback with direct address format
-    const response = await fetch('https://formspree.io/f/help@bndbox.com', {
+    // Add message content
+    if (content) {
+      formData.append('message', content);
+    } else {
+      formData.append('message', JSON.stringify(submission, null, 2));
+    }
+    
+    // Include name information
+    formData.append('name', 'marketplaces' in submission ? submission.name : submission.companyName);
+    
+    // Using Formspree with a direct email format
+    const formspreeEndpoint = 'https://formspree.io/f/xaygdrqz'; // Using Formspree default endpoint
+    
+    console.log('Sending to Formspree:', formspreeEndpoint);
+    
+    const response = await fetch(formspreeEndpoint, {
       method: 'POST',
       body: formData,
       headers: {
@@ -168,14 +185,14 @@ const sendEmailFallback = async (submission: ContactSubmission | ResellerSubmiss
     });
     
     if (!response.ok) {
-      console.error('Fallback email service error:', response.status);
+      console.error('Formspree error:', response.status, await response.text());
       return false;
     }
     
-    console.log('Email sent through fallback method');
+    console.log('Email sent through Formspree:', await response.json());
     return true;
   } catch (error) {
-    console.error('Fallback email error:', error);
+    console.error('Formspree fallback error:', error);
     return false;
   }
 };

@@ -4,13 +4,24 @@ import { InfoPanel } from './contact/InfoPanel';
 import type { ContactSubmission } from '@/types/contact';
 import { sendEmail } from '@/utils/email';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 const ContactSection = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (data: ContactSubmission): Promise<boolean> => {
+    if (isSubmitting) return false;
+    
+    setIsSubmitting(true);
+    
     try {
       console.log('ContactSection: sending email with data:', data);
+      
+      // Ensure we have a timestamp
+      if (!data.createdAt) {
+        data.createdAt = new Date().toISOString();
+      }
       
       // Attempt to send the email
       const success = await sendEmail(data);
@@ -21,15 +32,15 @@ const ContactSection = () => {
           title: "Message sent successfully!",
           description: "We'll be in touch with you shortly.",
         });
+        return true;
       } else {
         toast({
           title: "Submission error",
-          description: "There was a problem sending your message. Please try again.",
+          description: "There was a problem sending your message. Please try again or contact us directly at help@bndbox.com",
           variant: "destructive",
         });
+        return false;
       }
-      
-      return success;
     } catch (error) {
       console.error('Error sending contact form:', error);
       
@@ -40,6 +51,8 @@ const ContactSection = () => {
       });
       
       return false;
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
