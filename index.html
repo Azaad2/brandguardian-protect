@@ -37,10 +37,9 @@
     <link rel="preload" href="/src/index.css" as="style">
     <link rel="preload" href="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" as="image" type="image/webp" fetchpriority="high">
     
-    <!-- Security headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.gpteng.co 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lovable.dev; connect-src 'self' https://www.google-analytics.com;">
+    <!-- Updated Security headers to allow EmailJS and Formspree -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.gpteng.co https://static.cloudflareinsights.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lovable.dev; connect-src 'self' https://www.google-analytics.com https://api.emailjs.com https://formspree.io;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     
     <!-- Structured Data - Organization -->
