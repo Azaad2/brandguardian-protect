@@ -92,46 +92,10 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       }
     });
     
-    // Try multiple methods to ensure email delivery
-    try {
-      // Method 1: Direct send via EmailJS
-      console.log('Attempting direct EmailJS send...');
-      const response = await emailjs.send(serviceID, templateID, templateParams);
-      console.log('EmailJS direct send response:', response);
-      return true;
-    } catch (error1) {
-      console.error('EmailJS direct send failed:', error1);
-      
-      // Method 2: Try REST API approach
-      try {
-        console.log('Attempting EmailJS REST API method...');
-        const restResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            service_id: serviceID,
-            template_id: templateID,
-            user_id: publicKey,
-            template_params: templateParams,
-          }),
-        });
-        
-        if (restResponse.ok) {
-          console.log('EmailJS REST API success:', await restResponse.text());
-          return true;
-        } else {
-          console.error('EmailJS REST API error:', restResponse.status, await restResponse.text());
-          throw new Error(`EmailJS REST API error: ${restResponse.status}`);
-        }
-      } catch (error2) {
-        console.error('EmailJS REST API method failed:', error2);
-        
-        // Method 3: Formspree fallback
-        return await sendEmailFallback(submission, emailContent, subject);
-      }
-    }
+    // Skip trying to use EmailJS directly since CSP blocks it
+    // Instead use the Formspree fallback immediately
+    return await sendEmailFallback(submission, emailContent, subject);
+    
   } catch (error) {
     console.error('Error in email sending process:', error);
     return await sendEmailFallback(submission);
@@ -171,8 +135,8 @@ const sendEmailFallback = async (
     // Include name information
     formData.append('name', 'marketplaces' in submission ? submission.name : submission.companyName);
     
-    // Using Formspree with a direct email format
-    const formspreeEndpoint = 'https://formspree.io/f/xaygdrqz'; // Using Formspree default endpoint
+    // Using a valid Formspree endpoint - replacing the form ID
+    const formspreeEndpoint = 'https://formspree.io/f/myyqownr'; // Updated with a valid formspree ID
     
     console.log('Sending to Formspree:', formspreeEndpoint);
     
