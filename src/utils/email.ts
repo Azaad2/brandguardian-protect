@@ -1,4 +1,3 @@
-
 import { ContactSubmission } from '@/types/contact';
 import { ResellerSubmission } from '@/types/resellerSubmission';
 
@@ -101,8 +100,8 @@ const sendEmailViaFormspree = async (
     // Include name information
     formData.append('name', 'marketplaces' in submission ? submission.name : submission.companyName);
     
-    // Using a valid Formspree endpoint
-    const formspreeEndpoint = 'https://formspree.io/f/myyqownr';
+    // Using the new valid Formspree endpoint
+    const formspreeEndpoint = 'https://formspree.io/f/xblogykb';
     
     console.log('Sending to Formspree:', formspreeEndpoint);
     
