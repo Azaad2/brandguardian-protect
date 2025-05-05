@@ -1,5 +1,11 @@
+
 import { ContactSubmission } from '@/types/contact';
 import { ResellerSubmission } from '@/types/resellerSubmission';
+import { 
+  generateBrandConfirmationEmail, 
+  generateResellerConfirmationEmail,
+  generateAdminNotificationEmail 
+} from './emailTemplates';
 
 export const sendEmail = async (submission: ContactSubmission | ResellerSubmission): Promise<boolean> => {
   try {
@@ -58,7 +64,46 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
       subject = `New Reseller Application from ${submission.companyName}`;
     }
     
-    // Use Formspree method directly - no EmailJS attempts
+    // 1. Send notification to admin
+    const adminNotificationSent = await sendEmailViaFormspree(
+      { email: 'help@bndbox.com', name: 'BndBox Admin' },
+      generateAdminNotificationEmail(
+        submission, 
+        'marketplaces' in submission ? 'brand' : 'reseller'
+      ),
+      subject
+    );
+    
+    if (!adminNotificationSent) {
+      console.warn('Failed to send admin notification email');
+    }
+    
+    // 2. Send confirmation email to user
+    let confirmationTemplate = '';
+    let confirmationSubject = '';
+    
+    if ('marketplaces' in submission) {
+      // Brand confirmation
+      confirmationTemplate = generateBrandConfirmationEmail(submission);
+      confirmationSubject = 'Thank you for contacting BndBox – We've received your request!';
+    } else {
+      // Reseller confirmation
+      confirmationTemplate = generateResellerConfirmationEmail(submission);
+      confirmationSubject = 'Thank you for your BndBox Reseller Application!';
+    }
+    
+    const confirmationSent = await sendEmailViaFormspree(
+      submission,
+      confirmationTemplate,
+      confirmationSubject,
+      true
+    );
+    
+    if (!confirmationSent) {
+      console.warn('Failed to send confirmation email');
+    }
+    
+    // 3. Send original notification (for backward compatibility)
     return await sendEmailViaFormspree(submission, emailContent, subject);
     
   } catch (error) {
@@ -69,9 +114,10 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
 
 // Email function using Formspree
 const sendEmailViaFormspree = async (
-  submission: ContactSubmission | ResellerSubmission, 
+  submission: ContactSubmission | ResellerSubmission | { email: string, name: string }, 
   content?: string,
-  subject?: string
+  subject?: string,
+  isHtml: boolean = false
 ): Promise<boolean> => {
   try {
     console.log('Using Formspree to send email');
@@ -80,9 +126,9 @@ const sendEmailViaFormspree = async (
     const formData = new FormData();
     
     // Add email subject
-    const emailSubject = subject || ('marketplaces' in submission ? 
-      `Contact Form: ${submission.company}` : 
-      `Reseller Application: ${submission.companyName}`);
+    const emailSubject = subject || (('marketplaces' in submission) ? 
+      `Contact Form: ${(submission as ContactSubmission).company}` : 
+      `Reseller Application: ${(submission as ResellerSubmission).companyName}`);
     
     formData.append('_subject', emailSubject);
     
@@ -92,13 +138,23 @@ const sendEmailViaFormspree = async (
     
     // Add message content
     if (content) {
-      formData.append('message', content);
+      if (isHtml) {
+        formData.append('_html', content);
+      } else {
+        formData.append('message', content);
+      }
     } else {
       formData.append('message', JSON.stringify(submission, null, 2));
     }
     
     // Include name information
-    formData.append('name', 'marketplaces' in submission ? submission.name : submission.companyName);
+    const name = 'name' in submission ? 
+      submission.name : 
+      ('marketplaces' in submission ? 
+        (submission as ContactSubmission).name : 
+        (submission as ResellerSubmission).companyName);
+    
+    formData.append('name', name);
     
     // Using the new valid Formspree endpoint
     const formspreeEndpoint = 'https://formspree.io/f/xblogykb';
