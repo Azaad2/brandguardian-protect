@@ -85,11 +85,11 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
     if ('marketplaces' in submission) {
       // Brand confirmation
       confirmationTemplate = generateBrandConfirmationEmail(submission);
-      confirmationSubject = 'Thank you for contacting BndBox – We've received your request!';
+      confirmationSubject = "Thank you for contacting BndBox – We've received your request!";
     } else {
       // Reseller confirmation
       confirmationTemplate = generateResellerConfirmationEmail(submission);
-      confirmationSubject = 'Thank you for your BndBox Reseller Application!';
+      confirmationSubject = "Thank you for your BndBox Reseller Application!";
     }
     
     const confirmationSent = await sendEmailViaFormspree(
