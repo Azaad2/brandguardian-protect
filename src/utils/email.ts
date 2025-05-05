@@ -126,9 +126,18 @@ const sendEmailViaFormspree = async (
     const formData = new FormData();
     
     // Add email subject
-    const emailSubject = subject || (('marketplaces' in submission) ? 
-      `Contact Form: ${(submission as ContactSubmission).company}` : 
-      `Reseller Application: ${(submission as ResellerSubmission).companyName}`);
+    let emailSubject = subject;
+    
+    // If no subject is provided, generate one based on submission type
+    if (!emailSubject) {
+      if ('marketplaces' in submission) {
+        emailSubject = `Contact Form: ${(submission as ContactSubmission).company}`;
+      } else if ('companyName' in submission) {
+        emailSubject = `Reseller Application: ${submission.companyName}`;
+      } else {
+        emailSubject = 'New Submission from BndBox';
+      }
+    }
     
     formData.append('_subject', emailSubject);
     
@@ -148,11 +157,12 @@ const sendEmailViaFormspree = async (
     }
     
     // Include name information
-    const name = 'name' in submission ? 
-      submission.name : 
-      ('marketplaces' in submission ? 
-        (submission as ContactSubmission).name : 
-        (submission as ResellerSubmission).companyName);
+    let name = '';
+    if ('name' in submission) {
+      name = submission.name;
+    } else if ('companyName' in submission) {
+      name = submission.companyName;
+    }
     
     formData.append('name', name);
     
