@@ -1,4 +1,3 @@
-
 import { ContactSubmission } from '@/types/contact';
 import { ResellerSubmission } from '@/types/resellerSubmission';
 import { 
@@ -38,8 +37,7 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
         Business Information:
         Company Name: ${submission.companyName}
         Business Type: ${submission.businessType}
-        Business License: ${submission.businessLicense}
-        Tax ID: ${submission.taxId}
+        EIN Number: ${submission.einNumber}
         
         Marketplace Profiles:
         Amazon Seller ID: ${submission.amazonSellerId || 'N/A'}

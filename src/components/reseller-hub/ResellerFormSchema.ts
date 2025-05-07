@@ -5,8 +5,7 @@ import { BusinessType, ProductCategory, SalesVolume, WholesaleBudget } from '@/t
 export const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   businessType: z.enum(['individual', 'corporation', 'partnership', 'llc', 'other'] as const),
-  businessLicense: z.string().min(1, 'Business license is required'),
-  taxId: z.string().min(1, 'Tax ID is required'),
+  einNumber: z.string().min(1, 'EIN number is required'),
   amazonSellerId: z.string().optional(),
   walmartSellerId: z.string().optional(),
   ebaySellerId: z.string().optional(),

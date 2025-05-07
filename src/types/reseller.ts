@@ -14,8 +14,7 @@ export type WholesaleBudget =
 export interface ResellerFormData {
   companyName: string;
   businessType: BusinessType;
-  businessLicense: string;
-  taxId: string;
+  einNumber: string;
   amazonSellerId?: string;
   walmartSellerId?: string;
   ebaySellerId?: string;

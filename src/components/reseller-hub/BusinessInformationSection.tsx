@@ -70,26 +70,12 @@ const BusinessInformationSection = ({
         
         <FormField
           control={form.control}
-          name="businessLicense"
+          name="einNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Business License Number</FormLabel>
+              <FormLabel>EIN Number</FormLabel>
               <FormControl>
-                <Input placeholder="License Number" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="taxId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tax ID Number</FormLabel>
-              <FormControl>
-                <Input placeholder="Tax ID" {...field} />
+                <Input placeholder="XX-XXXXXXX" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -34,8 +33,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
     defaultValues: {
       companyName: '',
       businessType: 'individual',
-      businessLicense: '',
-      taxId: '',
+      einNumber: '',
       amazonSellerId: '',
       walmartSellerId: '',
       ebaySellerId: '',
@@ -61,8 +59,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       const submission: ResellerSubmission = {
         companyName: values.companyName,
         businessType: values.businessType,
-        businessLicense: values.businessLicense,
-        taxId: values.taxId,
+        einNumber: values.einNumber,
         productCategories: values.productCategories,
         salesVolume: values.salesVolume,
         wholesaleBudget: values.wholesaleBudget,
