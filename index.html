@@ -32,13 +32,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://formspree.io" crossorigin>
+    <link rel="preconnect" href="https://alb.reddit.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Preload critical resources -->
     <link rel="preload" href="/src/index.css" as="style">
     
-    <!-- Updated Security headers to allow proper communication with Formspree -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.gpteng.co https://static.cloudflareinsights.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lovable.dev; connect-src 'self' https://www.google-analytics.com https://formspree.io https://formspree.io/f/xblogykb; form-action 'self' https://formspree.io;">
+    <!-- Updated Security headers to allow proper communication with Formspree and Reddit Pixel -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.gpteng.co https://static.cloudflareinsights.com https://alb.reddit.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lovable.dev https://alb.reddit.com; connect-src 'self' https://www.google-analytics.com https://formspree.io https://formspree.io/f/xblogykb https://alb.reddit.com; form-action 'self' https://formspree.io;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     
@@ -91,6 +92,13 @@
       gtag('js', new Date());
       gtag('config', 'G-020LLVRLDW');
     </script>
+    
+    <!-- Reddit Pixel Code -->
+    <script>
+      !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+      rdt('init','a2_glm8olkamn82');
+    </script>
+    <!-- END Reddit Pixel Code -->
   </head>
 
   <body>

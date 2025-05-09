@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from '@/components/layout/Footer';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,8 +19,7 @@ const ResellerHub = () => {
     defaultValues: {
       companyName: '',
       businessType: 'individual',
-      businessLicense: '',
-      taxId: '',
+      einNumber: '',
       amazonSellerId: '',
       walmartSellerId: '',
       ebaySellerId: '',
@@ -34,6 +33,18 @@ const ResellerHub = () => {
       termsAgreement: false,
     },
   });
+
+  // Track page view with Reddit Pixel
+  useEffect(() => {
+    if (window.rdt) {
+      try {
+        window.rdt('track', 'PageVisit');
+        console.log('Reddit Pixel: PageVisit event tracked');
+      } catch (error) {
+        console.error('Reddit Pixel tracking error:', error);
+      }
+    }
+  }, []);
 
   const handleSubmissionSuccess = (email: string) => {
     setSubmittedEmail(email);

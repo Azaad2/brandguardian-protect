@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,12 @@ import VerificationProcessSection from './VerificationProcessSection';
 
 interface ResellerApplicationFormProps {
   onSubmissionSuccess: (email: string) => void;
+}
+
+declare global {
+  interface Window {
+    rdt?: (event: string, ...args: any[]) => void;
+  }
 }
 
 const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFormProps) => {
@@ -47,6 +54,20 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       termsAgreement: false,
     },
   });
+
+  const trackRedditPixelConversion = () => {
+    // Track form submission with Reddit Pixel
+    if (window.rdt) {
+      try {
+        window.rdt('track', 'Lead');
+        console.log('Reddit Pixel: Lead event tracked');
+      } catch (error) {
+        console.error('Reddit Pixel tracking error:', error);
+      }
+    } else {
+      console.warn('Reddit Pixel not available');
+    }
+  };
 
   const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -92,6 +113,10 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       }
       
       console.log('Email sent successfully');
+      
+      // Track successful form submission with Reddit Pixel
+      trackRedditPixelConversion();
+      
       toast({
         title: "Application submitted!",
         description: "We'll review your information and contact you soon.",
