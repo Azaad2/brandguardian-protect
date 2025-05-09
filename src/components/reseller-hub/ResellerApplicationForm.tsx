@@ -24,7 +24,7 @@ interface ResellerApplicationFormProps {
 
 declare global {
   interface Window {
-    rdt?: (event: string, ...args: any[]) => void;
+    rdt?: (event: string, type?: string, ...args: any[]) => void;
   }
 }
 
@@ -56,16 +56,16 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
   });
 
   const trackRedditPixelConversion = () => {
-    // Track form submission with Reddit Pixel
-    if (window.rdt) {
+    // Track form submission with Reddit Pixel - Updated implementation
+    if (typeof window !== 'undefined' && window.rdt) {
       try {
         window.rdt('track', 'Lead');
-        console.log('Reddit Pixel: Lead event tracked');
+        console.log('Reddit Pixel: Lead event tracked in form submission');
       } catch (error) {
-        console.error('Reddit Pixel tracking error:', error);
+        console.error('Reddit Pixel tracking error in form:', error);
       }
     } else {
-      console.warn('Reddit Pixel not available');
+      console.warn('Reddit Pixel not available in form submission');
     }
   };
 
@@ -114,7 +114,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       
       console.log('Email sent successfully');
       
-      // Track successful form submission with Reddit Pixel
+      // Track successful form submission with Reddit Pixel - Direct call ensures tracking happens
       trackRedditPixelConversion();
       
       toast({

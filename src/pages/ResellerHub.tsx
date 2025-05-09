@@ -34,21 +34,35 @@ const ResellerHub = () => {
     },
   });
 
-  // Track page view with Reddit Pixel
+  // Track page view with Reddit Pixel - Updated implementation
   useEffect(() => {
-    if (window.rdt) {
+    // Make sure window and rdt are defined
+    if (typeof window !== 'undefined' && window.rdt) {
       try {
+        // Explicitly call the track method for PageVisit event
         window.rdt('track', 'PageVisit');
-        console.log('Reddit Pixel: PageVisit event tracked');
+        console.log('Reddit Pixel: PageVisit event tracked in ResellerHub component');
       } catch (error) {
-        console.error('Reddit Pixel tracking error:', error);
+        console.error('Reddit Pixel tracking error in ResellerHub:', error);
       }
+    } else {
+      console.warn('Reddit Pixel not available in ResellerHub component');
     }
   }, []);
 
   const handleSubmissionSuccess = (email: string) => {
     setSubmittedEmail(email);
     setSubmissionSuccess(true);
+    
+    // Track successful submission with Reddit Pixel
+    if (typeof window !== 'undefined' && window.rdt) {
+      try {
+        window.rdt('track', 'Lead');
+        console.log('Reddit Pixel: Lead event tracked on submission success');
+      } catch (error) {
+        console.error('Reddit Pixel tracking error on submission:', error);
+      }
+    }
   };
 
   const handleReset = () => {
