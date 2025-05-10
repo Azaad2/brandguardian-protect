@@ -23,8 +23,9 @@ const Header = () => {
             <Link to="/reseller-hub" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Reseller Hub</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link to="/brand/login" className="text-bndbox-600 hover:text-bndbox-700 transition-colors font-medium">
-              Brand Login
+            {/* Changed from "Brand Login" to "Brand Access" */}
+            <Link to="/#contact" className="text-bndbox-600 hover:text-bndbox-700 transition-colors font-medium">
+              Brand Access
             </Link>
             <Button asChild>
               <a href="#contact">Contact Us</a>
@@ -91,12 +92,13 @@ const Header = () => {
             >
               Reseller Hub
             </Link>
+            {/* Changed from "Brand Login" to "Brand Access" */}
             <Link 
-              to="/brand/login" 
+              to="/#contact" 
               className="text-bndbox-600 hover:text-bndbox-700 py-2 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Brand Login
+              Brand Access
             </Link>
             <Button asChild>
               <a 

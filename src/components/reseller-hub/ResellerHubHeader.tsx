@@ -10,10 +10,10 @@ const ResellerHubHeader = () => {
         <BndBoxLogo className="h-10" />
       </Link>
       <Link 
-        to="/reseller/login" 
+        to="/" 
         className="text-bndbox-600 hover:text-bndbox-700 font-medium transition-colors"
       >
-        Reseller Login
+        Back to Home
       </Link>
     </div>
   );
