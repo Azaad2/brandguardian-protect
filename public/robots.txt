@@ -1,5 +1,5 @@
 
-# BndBox.com Robots.txt - Updated 2025-04-20
+# BndBox.com Robots.txt - Updated 2025-05-11
 # Optimized for search engine crawling and indexing
 
 User-agent: Googlebot
@@ -21,6 +21,9 @@ Disallow: /filter=
 Disallow: /sort=
 Allow: /*.js$
 Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.svg$
 
 # Sitemap location
 Sitemap: https://bndbox.com/sitemap.xml
