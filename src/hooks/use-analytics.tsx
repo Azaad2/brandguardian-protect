@@ -64,11 +64,14 @@ export const useOutboundLinkTracking = () => {
         const url = anchor.href;
         const linkText = anchor.textContent || url;
         
-        // Track the outbound link click
-        window.gtag?.('event', 'outbound_link', {
-          event_category: 'Outbound Links',
-          event_label: linkText,
-          event_value: url
+        // Track the outbound link click using ReactGA instead of gtag
+        import('@/lib/analytics').then(({ trackEvent }) => {
+          trackEvent(
+            'Outbound Links', 
+            'click', 
+            linkText, 
+            undefined
+          );
         });
       }
     };
