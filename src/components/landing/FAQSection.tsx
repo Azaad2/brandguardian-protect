@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { trackSEOInteraction } from "@/lib/analytics";
 
 const FAQSection = () => {
   const faqItems = [
@@ -33,7 +34,16 @@ const FAQSection = () => {
       question: "How long does the wholesale approval process take?",
       answer: "The wholesale approval process through BndBox typically takes 3-7 business days, significantly faster than traditional methods. This timeline includes initial application, brand review, documentation exchange, and final approval. Some premium brands may require additional verification steps that can extend the process."
     },
+    {
+      question: "What documents do I need for Amazon seller brand approval?",
+      answer: "For Amazon seller brand approval, you typically need business documentation (business license, EIN), proof of address, bank statements, invoices from authorized distributors, letter of authorization from brand owners, and marketplace performance metrics showing your seller history and feedback scores."
+    }
   ];
+
+  // Track FAQ interactions for SEO analytics
+  const handleFAQClick = (question: string) => {
+    trackSEOInteraction('FAQ_Click', 'Accordion', question);
+  };
 
   // Generate structured data for FAQs
   const generateFAQSchema = () => {
@@ -67,7 +77,10 @@ const FAQSection = () => {
           <Accordion type="single" collapsible className="w-full">
             {faqItems.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left text-lg font-semibold">
+                <AccordionTrigger 
+                  className="text-left text-lg font-semibold"
+                  onClick={() => handleFAQClick(item.question)}
+                >
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600">

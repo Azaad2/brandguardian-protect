@@ -19,13 +19,55 @@ export const trackPageView = (path: string) => {
     hitType: 'pageview',
     page: path
   });
+  
+  // Track page load time as custom metric for SEO performance
+  if (window.performance) {
+    const perfData = window.performance.timing;
+    const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+    
+    if (pageLoadTime > 0) {
+      ReactGA.event({
+        category: 'Performance',
+        action: 'Page Load Time',
+        label: path,
+        value: Math.round(pageLoadTime)
+      });
+    }
+  }
 };
 
-export const trackEvent = (category: string, action: string, label?: string) => {
+export const trackEvent = (category: string, action: string, label?: string, value?: number) => {
   console.log('Tracking event:', category, action, label);
   ReactGA.event({
     category,
     action,
-    label
+    label,
+    value
+  });
+};
+
+// Track user engagement metrics relevant to SEO
+export const trackEngagement = (timeOnPage: number, scrollDepth: number, path: string) => {
+  ReactGA.event({
+    category: 'Engagement',
+    action: 'Time on Page',
+    label: path,
+    value: Math.round(timeOnPage)
+  });
+  
+  ReactGA.event({
+    category: 'Engagement',
+    action: 'Scroll Depth',
+    label: path,
+    value: scrollDepth
+  });
+};
+
+// Track SEO-relevant interactions
+export const trackSEOInteraction = (interactionType: string, elementType: string, content: string) => {
+  ReactGA.event({
+    category: 'SEO',
+    action: interactionType,
+    label: `${elementType}: ${content}`
   });
 };

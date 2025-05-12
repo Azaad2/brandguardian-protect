@@ -8,9 +8,19 @@ const ResellerHubHeader = () => {
   return (
     <>
       <Helmet>
-        <title>Reseller Hub | Brand Wholesale Approval | BndBox</title>
-        <meta name="description" content="Apply to become an approved reseller for premium brands on Amazon, Walmart, and eBay marketplaces. Complete our reseller application for wholesale access." />
+        <title>Amazon Reseller Hub | Brand Wholesale Approval Process | BndBox</title>
+        <meta name="description" content="Apply to become an approved Amazon reseller for premium brands. Complete our reseller application for wholesale access to top brands on Amazon, Walmart, and eBay marketplaces." />
         <link rel="canonical" href="https://bndbox.com/reseller-hub" />
+        <meta name="keywords" content="amazon reseller application, brand wholesale approval, e-commerce resellers, marketplace seller approval, amazon wholesale application" />
+        <meta property="og:title" content="Amazon Reseller Hub | Brand Wholesale Approval Process | BndBox" />
+        <meta property="og:description" content="Apply to become an approved Amazon reseller for premium brands. Complete our reseller application for wholesale access to top brands on Amazon, Walmart, and eBay marketplaces." />
+        <meta property="og:url" content="https://bndbox.com/reseller-hub" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://lovable.dev/opengraph-image-bndbox.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Amazon Reseller Hub | Brand Wholesale Approval Process | BndBox" />
+        <meta name="twitter:description" content="Apply to become an approved Amazon reseller for premium brands. Complete our reseller application for wholesale access to top brands." />
+        <meta name="twitter:image" content="https://lovable.dev/opengraph-image-bndbox.png" />
       </Helmet>
       <div className="mb-8 flex justify-between items-center">
         <Link to="/" className="inline-block">

@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { Helmet } from "react-helmet";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BreadcrumbNav from "@/components/navigation/BreadcrumbNav";
-import { Helmet } from "react-helmet";
+import { trackPageView, trackSEOInteraction } from "@/lib/analytics";
+import { Link } from "react-router-dom";
 
 const Blog = () => {
   const blogPosts = [
@@ -50,6 +52,16 @@ const Blog = () => {
     },
   ];
 
+  // Track page view with enhanced analytics
+  useEffect(() => {
+    trackPageView(window.location.pathname);
+  }, []);
+
+  // Track blog post click for SEO analytics
+  const handleBlogPostClick = (postTitle: string) => {
+    trackSEOInteraction('BlogPost_Click', 'Article', postTitle);
+  };
+
   // Generate blog schema structured data
   const generateBlogSchema = () => {
     const blogSchema = {
@@ -57,12 +69,17 @@ const Blog = () => {
       "@type": "Blog",
       "headline": "BndBox Blog - Brand Wholesale Approval Resources",
       "description": "Expert articles and guides on brand wholesale approval, reseller applications, MAP policies, and e-commerce marketplace strategies.",
+      "url": "https://bndbox.com/blog",
+      "datePublished": "2025-05-12",
+      "dateModified": "2025-05-12",
       "publisher": {
         "@type": "Organization",
         "name": "BndBox",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://bndbox.com/logo.png"
+          "url": "https://bndbox.com/logo.png",
+          "width": 600,
+          "height": 60
         }
       },
       "blogPost": blogPosts.map(post => ({
@@ -70,6 +87,7 @@ const Blog = () => {
         "headline": post.title,
         "description": post.excerpt,
         "datePublished": post.date,
+        "mainEntityOfPage": `https://bndbox.com/blog/${post.slug}`,
         "author": {
           "@type": "Person",
           "name": post.author
@@ -79,15 +97,46 @@ const Blog = () => {
           "name": "BndBox",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://bndbox.com/logo.png"
+            "url": "https://bndbox.com/logo.png",
+            "width": 600,
+            "height": 60
           }
         },
-        "image": `https://images.unsplash.com/${post.image}?w=800&auto=format`,
+        "image": {
+          "@type": "ImageObject",
+          "url": `https://images.unsplash.com/${post.image}?w=800&auto=format`,
+          "height": 800,
+          "width": 1200
+        },
         "url": `https://bndbox.com/blog/${post.slug}`
       }))
     };
 
     return JSON.stringify(blogSchema);
+  };
+  
+  // Generate breadcrumb schema
+  const generateBreadcrumbSchema = () => {
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://bndbox.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://bndbox.com/blog"
+        }
+      ]
+    };
+    
+    return JSON.stringify(breadcrumbSchema);
   };
 
   return (
@@ -95,7 +144,18 @@ const Blog = () => {
       <Helmet>
         <title>Amazon Brand Approval Guide & Resources | BndBox Blog</title>
         <meta name="description" content="Expert articles and guides on Amazon wholesale brand approval, reseller application process, MAP policies, and e-commerce marketplace strategies." />
+        <meta name="keywords" content="amazon brand approval, wholesale approval guides, reseller application process, MAP policy enforcement, amazon reseller guides" />
         <link rel="canonical" href="https://bndbox.com/blog" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        
+        {/* Schema.org JSON-LD structured data */}
+        <script type="application/ld+json">
+          {generateBlogSchema()}
+        </script>
+        
+        <script type="application/ld+json">
+          {generateBreadcrumbSchema()}
+        </script>
       </Helmet>
       
       <Header />
@@ -108,7 +168,7 @@ const Blog = () => {
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {blogPosts.map((post) => (
-            <article key={post.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <article key={post.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow" itemScope itemType="https://schema.org/BlogPosting">
               <div className="aspect-video bg-gray-100 overflow-hidden">
                 <img 
                   src={`https://images.unsplash.com/${post.image}?w=600&h=400&auto=format`}
@@ -117,34 +177,69 @@ const Blog = () => {
                   className="w-full h-full object-cover"
                   width="600"
                   height="400"
+                  itemProp="image"
                 />
               </div>
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm text-gray-500">{post.category}</span>
+                  <span className="text-sm text-gray-500" itemProp="articleSection">{post.category}</span>
                   <span className="text-sm text-gray-400">•</span>
                   <span className="text-sm text-gray-500">{post.readTime}</span>
                 </div>
-                <h2 className="text-xl font-semibold mb-3 line-clamp-2 hover:text-blue-600 transition-colors">
-                  <a href={`/blog/${post.slug}`}>
+                <h2 className="text-xl font-semibold mb-3 line-clamp-2 hover:text-blue-600 transition-colors" itemProp="headline">
+                  <Link 
+                    to={`/blog/${post.slug}`}
+                    onClick={() => handleBlogPostClick(post.title)}
+                  >
                     {post.title}
-                  </a>
+                  </Link>
                 </h2>
-                <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
+                <p className="text-gray-600 mb-4 line-clamp-3" itemProp="description">{post.excerpt}</p>
                 <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{post.author}</span>
-                  <time dateTime={new Date(post.date).toISOString()}>{post.date}</time>
+                  <span itemProp="author" itemScope itemType="https://schema.org/Person">
+                    <span itemProp="name">{post.author}</span>
+                  </span>
+                  <time dateTime={new Date(post.date).toISOString()} itemProp="datePublished">{post.date}</time>
                 </div>
+                <meta itemProp="url" content={`https://bndbox.com/blog/${post.slug}`} />
               </div>
             </article>
           ))}
         </div>
         
-        {/* Blog structured data */}
-        <script 
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: generateBlogSchema() }}
-        />
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-6">Popular Topics</h2>
+          <div className="flex flex-wrap gap-3">
+            <Link 
+              to="/blog?tag=amazon-approval" 
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-colors"
+              onClick={() => trackSEOInteraction('Tag_Click', 'BlogTag', 'amazon-approval')}
+            >
+              Amazon Brand Approval
+            </Link>
+            <Link 
+              to="/blog?tag=wholesale" 
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-colors"
+              onClick={() => trackSEOInteraction('Tag_Click', 'BlogTag', 'wholesale')}
+            >
+              Wholesale Strategy
+            </Link>
+            <Link 
+              to="/blog?tag=map-policy" 
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-colors"
+              onClick={() => trackSEOInteraction('Tag_Click', 'BlogTag', 'map-policy')}
+            >
+              MAP Policies
+            </Link>
+            <Link 
+              to="/blog?tag=reseller-tips" 
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-colors"
+              onClick={() => trackSEOInteraction('Tag_Click', 'BlogTag', 'reseller-tips')}
+            >
+              Reseller Tips
+            </Link>
+          </div>
+        </div>
       </main>
       <Footer />
     </div>

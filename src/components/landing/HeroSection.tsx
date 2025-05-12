@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ShieldCheck, ShoppingBag } from "lucide-react";
+import { trackSEOInteraction } from "@/lib/analytics";
 
 const HeroSection = () => {
   const [currentMarketplace, setCurrentMarketplace] = useState("Amazon");
@@ -18,6 +19,10 @@ const HeroSection = () => {
 
     return () => clearInterval(intervalId);
   }, []);
+  
+  const handleHeroCTA = () => {
+    trackSEOInteraction('CTA_Click', 'HeroButton', 'Get Started');
+  };
 
   return (
     <section className="pt-32 pb-20 px-4 sm:px-6 md:pt-40 md:pb-32 relative overflow-hidden bg-grid" aria-label="Brand Wholesale Approval Platform">
@@ -26,21 +31,21 @@ const HeroSection = () => {
           <div className="w-full lg:w-1/2 space-y-6 animate-fade-in">
             <div className="flex items-center gap-2 text-sm font-medium px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full w-fit">
               <ShoppingBag className="h-4 w-4 text-bndbox-600" aria-hidden="true" />
-              <span>Brand Wholesale Approval Platform</span>
+              <span>Amazon Brand Wholesale Approval Platform</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-              Streamline Your Brand Wholesale Approval Process
+              Streamline Your <span className="text-bndbox-600">Brand Wholesale Approval Process</span>
             </h1>
             
             <p className="text-xl text-gray-600 max-w-2xl">
-              Connect with pre-vetted resellers who respect your brand integrity and MAP pricing while amplifying your sales across Amazon, Walmart and eBay.
+              Connect with pre-vetted resellers who respect your brand integrity and MAP pricing while amplifying your sales across <span className="font-medium">Amazon</span>, <span className="font-medium">Walmart</span> and <span className="font-medium">eBay</span>.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="lg" className="group" asChild>
+              <Button size="lg" className="group" asChild onClick={handleHeroCTA}>
                 <a href="#contact">
-                  Get Started
+                  Get Started with Brand Approval
                   <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </a>
               </Button>
@@ -54,6 +59,30 @@ const HeroSection = () => {
                 </svg>
                 Trusted by 500+ brands for wholesale approval management
               </p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <img 
+                src="https://lovable.dev/amazon-logo.png" 
+                alt="Amazon Marketplace" 
+                className="h-6 opacity-80" 
+                width="80"
+                height="24" 
+              />
+              <img 
+                src="https://lovable.dev/walmart-logo.png" 
+                alt="Walmart Marketplace" 
+                className="h-5 opacity-80" 
+                width="80" 
+                height="20"
+              />
+              <img 
+                src="https://lovable.dev/ebay-logo.png" 
+                alt="eBay Marketplace" 
+                className="h-5 opacity-80" 
+                width="60"
+                height="20"
+              />
             </div>
           </div>
           
@@ -169,4 +198,3 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
-
