@@ -11,6 +11,7 @@ import { Loader2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import BndBoxLogo from '@/components/branding/BndBoxLogo';
+import { useAuth } from '@/hooks/use-auth';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -21,6 +22,7 @@ type PasswordResetFormValues = z.infer<typeof formSchema>;
 const PasswordReset = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { resetPassword } = useAuth();
 
   const form = useForm<PasswordResetFormValues>({
     resolver: zodResolver(formSchema),
@@ -33,9 +35,8 @@ const PasswordReset = () => {
     setIsSubmitting(true);
 
     try {
-      // This would normally call an API to request a password reset
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+      await resetPassword(data.email);
+      
       toast({
         title: 'Reset link sent',
         description: 'If an account exists with that email, you will receive a password reset link.',
@@ -108,7 +109,7 @@ const PasswordReset = () => {
           <CardFooter className="flex justify-center border-t border-slate-100 px-6 py-4">
             <div className="text-center text-sm">
               Remember your password?{' '}
-              <Link to="/brand/login" className="text-primary hover:text-primary/80 hover:underline">
+              <Link to="/reseller/login" className="text-primary hover:text-primary/80 hover:underline">
                 Go back to sign in
               </Link>
             </div>

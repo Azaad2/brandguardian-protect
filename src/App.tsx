@@ -23,6 +23,7 @@ import BrandSignup from "./pages/brand/BrandSignup";
 import ResellerSignup from "./pages/reseller/ResellerSignup";
 import PasswordReset from "./pages/auth/PasswordReset";
 import AuthGuard from "./components/auth/AuthGuard";
+import ResellerRegistration from "./pages/admin/ResellerRegistration";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/admin/reseller-registration" element={<ResellerRegistration />} />
                 <Route path="/reseller-hub" element={<ResellerHub />} />
                 
                 {/* Brand Portal Routes */}
