@@ -6,8 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProductCategory } from '@/types/reseller';
-import { ResellerSubmission } from '@/types/resellerSubmission';
-import { sendEmail } from '@/utils/email';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formSchema, FormValues } from './ResellerFormSchema';
 import BusinessInformationSection from './BusinessInformationSection';
@@ -17,6 +16,7 @@ import SalesPerformanceSection from './SalesPerformanceSection';
 import ContactInformationSection from './ContactInformationSection';
 import TermsAgreementSection from './TermsAgreementSection';
 import VerificationProcessSection from './VerificationProcessSection';
+import { useAuth } from '@/hooks/use-auth';
 
 interface ResellerApplicationFormProps {
   onSubmissionSuccess: (email: string) => void;
@@ -30,6 +30,7 @@ declare global {
 
 const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFormProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
@@ -75,46 +76,51 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
     
     try {
       console.log('Form submission values:', values);
-      console.log('Document file:', documentFile);
       
-      const submission: ResellerSubmission = {
-        companyName: values.companyName,
-        businessType: values.businessType,
-        einNumber: values.einNumber,
-        productCategories: values.productCategories,
-        salesVolume: values.salesVolume,
-        wholesaleBudget: values.wholesaleBudget,
-        email: values.email,
-        phone: values.phone,
-        termsAgreement: values.termsAgreement,
-        
-        amazonSellerId: values.amazonSellerId || '',
-        walmartSellerId: values.walmartSellerId || '',
-        ebaySellerId: values.ebaySellerId || '',
-        feedbackScore: values.feedbackScore || '',
-        linkedIn: values.linkedIn || '',
-        
-        id: `RESELLER-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        status: 'pending'
-      };
+      // Insert data into Supabase
+      const { data, error } = await supabase
+        .from('reseller_applications')
+        .insert({
+          user_id: user?.id, // Link to user if authenticated
+          company_name: values.companyName,
+          business_type: values.businessType,
+          ein_number: values.einNumber,
+          amazon_seller_id: values.amazonSellerId,
+          walmart_seller_id: values.walmartSellerId,
+          ebay_seller_id: values.ebaySellerId,
+          product_categories: values.productCategories,
+          sales_volume: values.salesVolume,
+          wholesale_budget: values.wholesaleBudget,
+          feedback_score: values.feedbackScore || '',
+          email: values.email,
+          phone: values.phone,
+          linkedin: values.linkedIn || '',
+        })
+        .select();
       
-      console.log('Sending email with submission data:', submission);
-      
-      // Add delay to ensure form data is properly processed
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const emailSent = await sendEmail(submission);
-      
-      if (!emailSent) {
-        console.error('Email failed to send');
-        setSubmissionError(true);
-        throw new Error("Failed to send email");
+      if (error) {
+        throw error;
       }
       
-      console.log('Email sent successfully');
+      console.log('Application submitted successfully:', data);
       
-      // Track successful form submission with Reddit Pixel - Direct call ensures tracking happens
+      // Upload reseller document if provided
+      if (documentFile && user) {
+        const fileExt = documentFile.name.split('.').pop();
+        const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+        const filePath = `reseller_documents/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(filePath, documentFile);
+          
+        if (uploadError) {
+          console.error('Document upload error:', uploadError);
+          // Continue with form submission even if document upload fails
+        }
+      }
+      
+      // Track successful form submission with Reddit Pixel
       trackRedditPixelConversion();
       
       toast({

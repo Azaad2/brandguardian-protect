@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -8,8 +8,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
 import { UserRole } from '@/types/auth';
+import { useAuth } from '@/hooks/use-auth';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -23,9 +23,18 @@ interface LoginFormProps {
 }
 
 const LoginForm = ({ userRole }: LoginFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { signIn, isLoading, user, userRole: currentUserRole } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && currentUserRole === userRole) {
+      navigate(`/${userRole}/dashboard`);
+    } else if (user && currentUserRole && currentUserRole !== userRole) {
+      navigate(`/${currentUserRole}/dashboard`);
+    }
+  }, [user, currentUserRole, userRole, navigate]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -36,35 +45,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
-    
-    try {
-      // This is where you would normally call your authentication API
-      console.log('Login attempt:', data);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock successful login for demo
-      toast({
-        title: 'Login successful',
-        description: 'Welcome back to the BndBox portal.',
-        duration: 3000,
-      });
-      
-      // Redirect to the appropriate dashboard
-      navigate(`/${userRole}/dashboard`);
-    } catch (error) {
-      console.error('Login error:', error);
-      toast({
-        title: 'Login failed',
-        description: 'Invalid email or password. Please try again.',
-        variant: 'destructive',
-        duration: 3000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await signIn(data.email, data.password);
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);

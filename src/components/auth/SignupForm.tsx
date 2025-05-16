@@ -9,8 +9,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
 import { UserRole } from '@/types/auth';
+import { useAuth } from '@/hooks/use-auth';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name is required' }),
@@ -29,8 +29,8 @@ interface SignupFormProps {
 }
 
 const SignupForm = ({ userRole }: SignupFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { signUp, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const form = useForm<SignupFormValues>({
@@ -45,35 +45,15 @@ const SignupForm = ({ userRole }: SignupFormProps) => {
   });
 
   const onSubmit = async (data: SignupFormValues) => {
-    setIsLoading(true);
-    
-    try {
-      // This is where you would normally call your registration API
-      console.log('Registration attempt:', data);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock successful registration for demo
-      toast({
-        title: 'Account created',
-        description: 'Your account has been created successfully.',
-        duration: 3000,
-      });
-      
-      // Redirect to the appropriate login page
-      navigate(`/${userRole}/login`);
-    } catch (error) {
-      console.error('Registration error:', error);
-      toast({
-        title: 'Registration failed',
-        description: 'There was a problem creating your account. Please try again.',
-        variant: 'destructive',
-        duration: 3000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await signUp(
+      data.email, 
+      data.password, 
+      {
+        full_name: data.name,
+        company_name: data.companyName,
+        user_role: userRole
+      }
+    );
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);

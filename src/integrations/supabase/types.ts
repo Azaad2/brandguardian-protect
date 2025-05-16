@@ -9,7 +9,252 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          brand_id: string
+          created_at: string
+          id: string
+          reseller_id: string
+          shipping_address: Json | null
+          status: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          brand_id: string
+          created_at?: string
+          id?: string
+          reseller_id: string
+          shipping_address?: Json | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string
+          created_at?: string
+          id?: string
+          reseller_id?: string
+          shipping_address?: Json | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          brand_id: string | null
+          categories: string[] | null
+          created_at: string
+          description: string | null
+          id: string
+          image_urls: string[] | null
+          msrp: number | null
+          name: string
+          price: number
+          sku: string
+          stock: number
+          updated_at: string
+          wholesale_price: number
+        }
+        Insert: {
+          brand_id?: string | null
+          categories?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_urls?: string[] | null
+          msrp?: number | null
+          name: string
+          price: number
+          sku: string
+          stock?: number
+          updated_at?: string
+          wholesale_price: number
+        }
+        Update: {
+          brand_id?: string | null
+          categories?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_urls?: string[] | null
+          msrp?: number | null
+          name?: string
+          price?: number
+          sku?: string
+          stock?: number
+          updated_at?: string
+          wholesale_price?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_role: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          user_role?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_role?: string | null
+        }
+        Relationships: []
+      }
+      reseller_applications: {
+        Row: {
+          amazon_seller_id: string | null
+          business_type: string
+          company_name: string
+          created_at: string
+          ebay_seller_id: string | null
+          ein_number: string
+          email: string
+          feedback_score: string | null
+          id: string
+          linkedin: string | null
+          phone: string
+          product_categories: string[]
+          sales_volume: string
+          status: string | null
+          updated_at: string
+          user_id: string | null
+          walmart_seller_id: string | null
+          wholesale_budget: string
+        }
+        Insert: {
+          amazon_seller_id?: string | null
+          business_type: string
+          company_name: string
+          created_at?: string
+          ebay_seller_id?: string | null
+          ein_number: string
+          email: string
+          feedback_score?: string | null
+          id?: string
+          linkedin?: string | null
+          phone: string
+          product_categories: string[]
+          sales_volume: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+          walmart_seller_id?: string | null
+          wholesale_budget: string
+        }
+        Update: {
+          amazon_seller_id?: string | null
+          business_type?: string
+          company_name?: string
+          created_at?: string
+          ebay_seller_id?: string | null
+          ein_number?: string
+          email?: string
+          feedback_score?: string | null
+          id?: string
+          linkedin?: string | null
+          phone?: string
+          product_categories?: string[]
+          sales_volume?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+          walmart_seller_id?: string | null
+          wholesale_budget?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
