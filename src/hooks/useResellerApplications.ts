@@ -168,6 +168,8 @@ export const useResellerApplications = () => {
     }
 
     try {
+      console.log('Adding manual application:', { email, companyName });
+      
       // Insert the application into the database
       const { data, error } = await supabase
         .from('reseller_applications')
@@ -175,19 +177,19 @@ export const useResellerApplications = () => {
           { 
             email: email, 
             company_name: companyName,
-            business_type: 'manual',  // Required field with a placeholder
-            ein_number: 'manual-entry', // Required field with a placeholder
-            product_categories: ['other'],     // Required field
-            sales_volume: 'under_10k',    // Required field with a placeholder
-            wholesale_budget: 'under_5k', // Required field with a placeholder
-            phone: 'manual-entry',       // Required field with a placeholder
+            business_type: 'manual',
+            ein_number: 'manual-entry',
+            product_categories: ['other'],
+            sales_volume: 'under_10k',
+            wholesale_budget: 'under_5k',
+            phone: 'manual-entry',
             status: 'pending'
           }
         ])
         .select();
 
       if (error) {
-        console.error('Error adding application:', error);
+        console.error('Supabase error adding application:', error);
         throw error;
       }
 
@@ -205,9 +207,10 @@ export const useResellerApplications = () => {
       console.error('Error in addManualApplication:', error);
       toast({
         title: 'Error adding application',
-        description: error.message,
+        description: error.message || "Failed to connect to the database. Please try again.",
         variant: 'destructive',
       });
+      throw error;
     }
   };
 

@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PlusCircle } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface AddResellerDialogProps {
   onAddApplication: (email: string, companyName: string) => Promise<void>;
@@ -22,13 +23,35 @@ const AddResellerDialog = ({ onAddApplication }: AddResellerDialogProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddApplication = async () => {
-    await onAddApplication(newEmail, newCompanyName);
-    // Reset form
-    setNewEmail('');
-    setNewCompanyName('');
-    setDialogOpen(false);
+    if (!newEmail || !newCompanyName) {
+      toast({
+        variant: "destructive",
+        title: "Missing information",
+        description: "Please provide both email and company name",
+      });
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      await onAddApplication(newEmail, newCompanyName);
+      // Reset form
+      setNewEmail('');
+      setNewCompanyName('');
+      setDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error in handleAddApplication:', error);
+      toast({
+        variant: "destructive",
+        title: "Error adding application",
+        description: error.message || "Failed to add application. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -74,10 +97,12 @@ const AddResellerDialog = ({ onAddApplication }: AddResellerDialogProps) => {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setDialogOpen(false)}>
+          <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleAddApplication}>Add Application</Button>
+          <Button onClick={handleAddApplication} disabled={isSubmitting}>
+            {isSubmitting ? "Adding..." : "Add Application"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
