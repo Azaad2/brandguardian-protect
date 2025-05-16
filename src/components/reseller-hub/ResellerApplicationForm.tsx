@@ -1,17 +1,14 @@
-
 import React, { useState } from 'react';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ProductCategory } from '@/types/reseller';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formSchema, FormValues } from './ResellerFormSchema';
 import BusinessInformationSection from './BusinessInformationSection';
 import MarketplaceProfilesSection from './MarketplaceProfilesSection';
-import ProductCategoriesSection from './ProductCategoriesSection';
 import SalesPerformanceSection from './SalesPerformanceSection';
 import ContactInformationSection from './ContactInformationSection';
 import TermsAgreementSection from './TermsAgreementSection';
@@ -32,7 +29,6 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [submissionError, setSubmissionError] = useState(false);
 
@@ -45,7 +41,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       amazonSellerId: '',
       walmartSellerId: '',
       ebaySellerId: '',
-      productCategories: [],
+      productCategories: ['other'], // Default value for product categories
       salesVolume: 'under_10k',
       wholesaleBudget: 'under_5k',
       feedbackScore: '',
@@ -88,7 +84,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
           amazon_seller_id: values.amazonSellerId,
           walmart_seller_id: values.walmartSellerId,
           ebay_seller_id: values.ebaySellerId,
-          product_categories: values.productCategories,
+          product_categories: values.productCategories, // Using the default value
           sales_volume: values.salesVolume,
           wholesale_budget: values.wholesaleBudget,
           feedback_score: values.feedbackScore || '',
@@ -130,7 +126,6 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       
       onSubmissionSuccess(values.email);
       form.reset();
-      setSelectedCategories([]);
       setDocumentFile(null);
     } catch (error) {
       console.error('Error in form submission:', error);
@@ -143,17 +138,6 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const toggleCategory = (category: ProductCategory) => {
-    setSelectedCategories(prev => {
-      const newSelection = prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category];
-      
-      form.setValue('productCategories', newSelection);
-      return newSelection;
-    });
   };
 
   return (
@@ -181,11 +165,6 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
             />
             
             <MarketplaceProfilesSection />
-            
-            <ProductCategoriesSection 
-              selectedCategories={selectedCategories}
-              toggleCategory={toggleCategory}
-            />
             
             <SalesPerformanceSection />
             

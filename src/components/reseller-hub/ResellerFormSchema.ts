@@ -14,7 +14,7 @@ export const formSchema = z.object({
       'electronics', 'beauty', 'home_goods', 'fashion', 'toys',
       'sports', 'automotive', 'health', 'grocery', 'books', 'other'
     ] as const)
-  ).min(1, 'Select at least one product category'),
+  ).default(['other']), // Changed to default instead of requiring selection
   salesVolume: z.enum([
     'under_10k', '10k_50k', '50k_100k', '100k_500k', '500k_1m', 'over_1m'
   ] as const),
