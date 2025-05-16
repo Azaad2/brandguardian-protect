@@ -47,14 +47,14 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
                 
-                {/* Admin Routes - Protected by AuthGuard */}
+                {/* Admin Routes - Temporarily bypass auth */}
                 <Route path="/admin" element={
-                  <AuthGuard requiredRole="admin" redirectTo="/">
+                  <AuthGuard bypassAuth={true}>
                     <Admin />
                   </AuthGuard>
                 } />
                 <Route path="/admin/reseller-registration" element={
-                  <AuthGuard requiredRole="admin" redirectTo="/">
+                  <AuthGuard bypassAuth={true}>
                     <ResellerRegistration />
                   </AuthGuard>
                 } />

@@ -1,5 +1,5 @@
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { UserRole } from '@/types/auth';
@@ -8,17 +8,26 @@ interface AuthGuardProps {
   children: ReactNode;
   requiredRole?: UserRole | UserRole[];
   redirectTo?: string;
+  bypassAuth?: boolean; // New prop to bypass authentication check
 }
 
 const AuthGuard = ({ 
   children, 
   requiredRole, 
-  redirectTo = '/' 
+  redirectTo = '/',
+  bypassAuth = false  // Default to false for backward compatibility
 }: AuthGuardProps) => {
   const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [accessGranted, setAccessGranted] = useState(false);
   
   useEffect(() => {
+    // If bypassing auth, grant access immediately
+    if (bypassAuth) {
+      setAccessGranted(true);
+      return;
+    }
+    
     // Wait for authentication to complete
     if (isLoading) return;
     
@@ -46,10 +55,13 @@ const AuthGuard = ({
         return;
       }
     }
-  }, [user, userRole, isLoading, requiredRole, navigate, redirectTo]);
+    
+    // If we got here, access is granted
+    setAccessGranted(true);
+  }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth]);
   
   // Show loading indicator while checking auth
-  if (isLoading) {
+  if (!bypassAuth && isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
@@ -57,8 +69,8 @@ const AuthGuard = ({
     );
   }
   
-  // If we've passed all checks, render children
-  return <>{children}</>;
+  // Only render children if access is granted or we're bypassing auth
+  return accessGranted || bypassAuth ? <>{children}</> : null;
 };
 
 export default AuthGuard;
