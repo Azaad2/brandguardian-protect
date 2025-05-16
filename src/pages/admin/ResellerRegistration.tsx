@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle, XCircle, PlusCircle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, PlusCircle, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -33,6 +33,7 @@ const ResellerRegistration = () => {
   const [loading, setLoading] = useState(true);
   const [creatingAccount, setCreatingAccount] = useState<Record<string, boolean>>({});
   const [passwords, setPasswords] = useState<Record<string, string>>({});
+  const [refreshing, setRefreshing] = useState(false);
   const navigate = useNavigate();
   
   // Form state for manual application addition
@@ -62,7 +63,11 @@ const ResellerRegistration = () => {
 
       setApplications(data || []);
       setPasswords(initialPasswords);
+      
+      // Debug log
+      console.log('Fetched applications:', data);
     } catch (error: any) {
+      console.error('Error fetching applications:', error);
       toast({
         title: 'Error fetching reseller applications',
         description: error.message,
@@ -70,6 +75,7 @@ const ResellerRegistration = () => {
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -99,6 +105,7 @@ const ResellerRegistration = () => {
 
     try {
       setCreatingAccount((prev) => ({ ...prev, [application.id]: true }));
+      console.log('Creating account for:', application.email, 'with password length:', passwords[application.id].length);
 
       // First check if a user with this email already exists
       const { data: existingUsers, error: existingError } = await supabase
@@ -107,9 +114,13 @@ const ResellerRegistration = () => {
         .eq('email', application.email)
         .maybeSingle();
 
-      if (existingError) throw existingError;
+      if (existingError) {
+        console.error('Error checking existing users:', existingError);
+        throw existingError;
+      }
 
       if (existingUsers) {
+        console.log('User already exists:', existingUsers);
         toast({
           title: 'User already exists',
           description: `A user with email ${application.email} already exists in the system.`,
@@ -131,16 +142,26 @@ const ResellerRegistration = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating user account:', error);
+        throw error;
+      }
+
+      console.log('Created user account:', data);
 
       // Update the application to link it to the user
-      await supabase
+      const { error: updateError } = await supabase
         .from('reseller_applications')
         .update({ 
           user_id: data.user?.id,
           status: 'approved' 
         })
         .eq('id', application.id);
+        
+      if (updateError) {
+        console.error('Error updating application:', updateError);
+        throw updateError;
+      }
 
       toast({
         title: 'Account created successfully',
@@ -151,6 +172,7 @@ const ResellerRegistration = () => {
       fetchResellerApplications();
 
     } catch (error: any) {
+      console.error('Error in createAccount:', error);
       toast({
         title: 'Error creating account',
         description: error.message,
@@ -179,18 +201,23 @@ const ResellerRegistration = () => {
           { 
             email: newEmail, 
             company_name: newCompanyName,
-            business_type: 'unknown',  // Required field with a placeholder
+            business_type: 'manual',  // Required field with a placeholder
             ein_number: 'manual-entry', // Required field with a placeholder
-            product_categories: [],     // Required field
-            sales_volume: 'unknown',    // Required field with a placeholder
-            wholesale_budget: 'unknown', // Required field with a placeholder
+            product_categories: ['other'],     // Required field
+            sales_volume: 'under_10k',    // Required field with a placeholder
+            wholesale_budget: 'under_5k', // Required field with a placeholder
             phone: 'manual-entry',       // Required field with a placeholder
             status: 'pending'
           }
         ])
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding application:', error);
+        throw error;
+      }
+
+      console.log('Added manual application:', data);
 
       toast({
         title: 'Application added successfully',
@@ -206,12 +233,18 @@ const ResellerRegistration = () => {
       fetchResellerApplications();
 
     } catch (error: any) {
+      console.error('Error in addManualApplication:', error);
       toast({
         title: 'Error adding application',
         description: error.message,
         variant: 'destructive',
       });
     }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchResellerApplications();
   };
 
   return (
@@ -230,55 +263,63 @@ const ResellerRegistration = () => {
                 Create login credentials for resellers who have submitted applications
               </CardDescription>
             </div>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Manual Application
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Add Reseller Application</DialogTitle>
-                  <DialogDescription>
-                    Add a reseller who sent their application by email
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="email" className="text-right">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      className="col-span-3"
-                      placeholder="reseller@company.com"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="company" className="text-right">
-                      Company
-                    </Label>
-                    <Input
-                      id="company"
-                      value={newCompanyName}
-                      onChange={(e) => setNewCompanyName(e.target.value)}
-                      className="col-span-3"
-                      placeholder="Reseller Company Name"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                    Cancel
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleRefresh} disabled={refreshing || loading}>
+                {refreshing ? 
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" /> : 
+                  <RefreshCw className="h-4 w-4 mr-1" />}
+                Refresh
+              </Button>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Manual Application
                   </Button>
-                  <Button onClick={addManualApplication}>Add Application</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Add Reseller Application</DialogTitle>
+                    <DialogDescription>
+                      Add a reseller who sent their application by email
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="email" className="text-right">
+                        Email
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        className="col-span-3"
+                        placeholder="reseller@company.com"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="company" className="text-right">
+                        Company
+                      </Label>
+                      <Input
+                        id="company"
+                        value={newCompanyName}
+                        onChange={(e) => setNewCompanyName(e.target.value)}
+                        className="col-span-3"
+                        placeholder="Reseller Company Name"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={addManualApplication}>Add Application</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
