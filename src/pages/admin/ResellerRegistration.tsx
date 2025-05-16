@@ -53,8 +53,8 @@ const ResellerRegistration = () => {
       </div>
 
       {!isOnline && (
-        <Alert variant="warning" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
+        <Alert className="mb-6 border-yellow-500 bg-yellow-50">
+          <AlertCircle className="h-4 w-4 text-yellow-600" />
           <AlertTitle>Offline Mode</AlertTitle>
           <AlertDescription>
             You are currently offline. Some features may be limited until your connection is restored.
