@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import BndBoxLogo from '@/components/branding/BndBoxLogo';
 import { useAuth } from '@/hooks/use-auth';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -22,7 +23,10 @@ type PasswordResetFormValues = z.infer<typeof formSchema>;
 const PasswordReset = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { resetPassword } = useAuth();
+  const searchParams = new URLSearchParams(location.search);
+  const userType = searchParams.get('type') || 'brand';
 
   const form = useForm<PasswordResetFormValues>({
     resolver: zodResolver(formSchema),
@@ -45,7 +49,7 @@ const PasswordReset = () => {
 
       // Go back to login page after showing the toast
       setTimeout(() => {
-        navigate('/brand/login');
+        navigate(`/${userType}/login`);
       }, 1000);
       
     } catch (error) {
@@ -77,6 +81,23 @@ const PasswordReset = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <Tabs defaultValue={userType} className="mb-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger 
+                  value="brand"
+                  onClick={() => navigate('/reset-password?type=brand')}
+                >
+                  Brand
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="reseller"
+                  onClick={() => navigate('/reset-password?type=reseller')}
+                >
+                  Reseller
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -109,7 +130,7 @@ const PasswordReset = () => {
           <CardFooter className="flex justify-center border-t border-slate-100 px-6 py-4">
             <div className="text-center text-sm">
               Remember your password?{' '}
-              <Link to="/reseller/login" className="text-primary hover:text-primary/80 hover:underline">
+              <Link to={`/${userType}/login`} className="text-primary hover:text-primary/80 hover:underline">
                 Go back to sign in
               </Link>
             </div>
