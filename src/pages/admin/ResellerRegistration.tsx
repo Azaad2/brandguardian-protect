@@ -23,7 +23,8 @@ const ResellerRegistration = () => {
     createAccount,
     addManualApplication,
     setRefreshing,
-    connectionError
+    connectionError,
+    pendingApplications
   } = useResellerApplications();
 
   // Monitor online status
