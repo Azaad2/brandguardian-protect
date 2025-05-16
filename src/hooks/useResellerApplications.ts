@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -12,12 +11,72 @@ interface ResellerApplication {
   user_id: string | null;
 }
 
+// For offline mode - temporary storage
+const TEMP_STORAGE_KEY = 'pendingResellerApplications';
+
 export const useResellerApplications = () => {
   const [applications, setApplications] = useState<ResellerApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState<Record<string, boolean>>({});
   const [passwords, setPasswords] = useState<Record<string, string>>({});
+  const [connectionError, setConnectionError] = useState(false);
+  const [pendingApplications, setPendingApplications] = useState<Array<{email: string, companyName: string}>>([]);
+
+  // Load any pending applications from localStorage
+  useEffect(() => {
+    const storedApplications = localStorage.getItem(TEMP_STORAGE_KEY);
+    if (storedApplications) {
+      setPendingApplications(JSON.parse(storedApplications));
+    }
+  }, []);
+
+  // Save pending applications to localStorage when changed
+  useEffect(() => {
+    if (pendingApplications.length > 0) {
+      localStorage.setItem(TEMP_STORAGE_KEY, JSON.stringify(pendingApplications));
+    }
+  }, [pendingApplications]);
+
+  // Sync pending applications when online
+  useEffect(() => {
+    const syncPendingApplications = async () => {
+      if (pendingApplications.length === 0 || connectionError) return;
+
+      try {
+        // Try to sync each pending application
+        for (const app of pendingApplications) {
+          try {
+            await addManualApplication(app.email, app.companyName, false);
+            // If successful, remove from pending
+            setPendingApplications(prev => 
+              prev.filter(p => !(p.email === app.email && p.companyName === app.companyName))
+            );
+          } catch (err) {
+            console.error('Failed to sync application:', app, err);
+            // Keep in pending if failed
+          }
+        }
+        
+        // Clear storage if all synced
+        if (pendingApplications.length === 0) {
+          localStorage.removeItem(TEMP_STORAGE_KEY);
+        }
+      } catch (error) {
+        console.error('Error syncing pending applications:', error);
+      }
+    };
+
+    const handleOnline = () => {
+      // When coming back online, try to sync pending applications
+      syncPendingApplications();
+      // And refresh the applications list
+      fetchResellerApplications();
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [pendingApplications, connectionError]);
 
   const generateTemporaryPassword = () => {
     // Generate a random password that meets requirements
@@ -32,12 +91,19 @@ export const useResellerApplications = () => {
   const fetchResellerApplications = async () => {
     try {
       setLoading(true);
+      setConnectionError(false);
+      
+      console.log('Fetching reseller applications...');
+      
       const { data, error } = await supabase
         .from('reseller_applications')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error fetching applications:', error);
+        throw error;
+      }
 
       // Initialize temporary passwords for each application
       const initialPasswords: Record<string, string> = {};
@@ -52,9 +118,14 @@ export const useResellerApplications = () => {
       console.log('Fetched applications:', data);
     } catch (error: any) {
       console.error('Error fetching applications:', error);
+      
+      if (error.message && error.message.includes('Failed to fetch')) {
+        setConnectionError(true);
+      }
+      
       toast({
         title: 'Error fetching reseller applications',
-        description: error.message,
+        description: error.message || 'Network connection error. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -147,9 +218,14 @@ export const useResellerApplications = () => {
 
     } catch (error: any) {
       console.error('Error in createAccount:', error);
+      
+      if (error.message && error.message.includes('Failed to fetch')) {
+        setConnectionError(true);
+      }
+      
       toast({
         title: 'Error creating account',
-        description: error.message,
+        description: error.message || 'Network connection error. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -157,7 +233,7 @@ export const useResellerApplications = () => {
     }
   };
 
-  const addManualApplication = async (email: string, companyName: string) => {
+  const addManualApplication = async (email: string, companyName: string, addToPendingIfFailed = true) => {
     if (!email || !companyName) {
       toast({
         title: 'Missing information',
@@ -194,6 +270,7 @@ export const useResellerApplications = () => {
       }
 
       console.log('Added manual application:', data);
+      setConnectionError(false);
 
       toast({
         title: 'Application added successfully',
@@ -205,11 +282,33 @@ export const useResellerApplications = () => {
 
     } catch (error: any) {
       console.error('Error in addManualApplication:', error);
-      toast({
-        title: 'Error adding application',
-        description: error.message || "Failed to connect to the database. Please try again.",
-        variant: 'destructive',
-      });
+      
+      if (error.message && error.message.includes('Failed to fetch')) {
+        setConnectionError(true);
+        
+        // Add to pending applications to try again when connection is available
+        if (addToPendingIfFailed) {
+          setPendingApplications(prev => [...prev, { email, companyName }]);
+          
+          toast({
+            title: 'Application saved locally',
+            description: 'The application will be submitted when your connection is restored.',
+          });
+        } else {
+          toast({
+            title: 'Network connection error',
+            description: 'Could not connect to the server. Please check your internet connection.',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        toast({
+          title: 'Error adding application',
+          description: error.message || "Failed to add application. Please try again.",
+          variant: 'destructive',
+        });
+      }
+      
       throw error;
     }
   };
@@ -228,6 +327,8 @@ export const useResellerApplications = () => {
     handlePasswordChange,
     createAccount,
     addManualApplication,
-    setRefreshing
+    setRefreshing,
+    connectionError,
+    pendingApplications
   };
 };

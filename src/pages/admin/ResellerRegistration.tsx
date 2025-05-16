@@ -1,14 +1,17 @@
 
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ResellerApplicationTable from '@/components/admin/ResellerApplicationTable';
 import AddResellerDialog from '@/components/admin/AddResellerDialog';
 import { useResellerApplications } from '@/hooks/useResellerApplications';
 
 const ResellerRegistration = () => {
   const navigate = useNavigate();
+  const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const {
     applications,
     loading,
@@ -19,8 +22,23 @@ const ResellerRegistration = () => {
     handlePasswordChange,
     createAccount,
     addManualApplication,
-    setRefreshing
+    setRefreshing,
+    connectionError
   } = useResellerApplications();
+
+  // Monitor online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -33,6 +51,26 @@ const ResellerRegistration = () => {
         <h1 className="text-2xl font-bold">Reseller Registration Management</h1>
         <Button onClick={() => navigate('/admin')}>Back to Admin</Button>
       </div>
+
+      {!isOnline && (
+        <Alert variant="warning" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Offline Mode</AlertTitle>
+          <AlertDescription>
+            You are currently offline. Some features may be limited until your connection is restored.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {connectionError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Connection Error</AlertTitle>
+          <AlertDescription>
+            Failed to connect to the database. Please check your network connection and try again.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Card>
         <CardHeader>
@@ -50,7 +88,10 @@ const ResellerRegistration = () => {
                   <RefreshCw className="h-4 w-4 mr-1" />}
                 Refresh
               </Button>
-              <AddResellerDialog onAddApplication={addManualApplication} />
+              <AddResellerDialog 
+                onAddApplication={addManualApplication} 
+                isOfflineMode={!isOnline || connectionError}
+              />
             </div>
           </div>
         </CardHeader>

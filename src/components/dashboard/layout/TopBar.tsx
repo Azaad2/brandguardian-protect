@@ -4,12 +4,7 @@ import { Button } from '@/components/ui/button';
 import { UserRole } from '@/types/auth';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-
-interface TopBarProps {
-  toggleSidebar: () => void;
-  userRole: UserRole;
-  pendingApplicationsCount?: number;
-}
+import { TopBarProps } from '../types';
 
 const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount = 0 }: TopBarProps) => {
   return (
