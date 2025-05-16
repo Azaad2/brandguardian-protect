@@ -35,7 +35,7 @@ const AuthGuard = ({
         : userRole === requiredRole;
       
       if (!hasRequiredRole) {
-        // Redirect to appropriate dashboard based on role
+        // Redirect based on role
         if (userRole === 'brand') {
           navigate('/brand/dashboard');
         } else if (userRole === 'reseller') {
@@ -43,11 +43,12 @@ const AuthGuard = ({
         } else {
           navigate(redirectTo);
         }
+        return;
       }
     }
   }, [user, userRole, isLoading, requiredRole, navigate, redirectTo]);
   
-  // Show nothing while checking auth
+  // Show loading indicator while checking auth
   if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">

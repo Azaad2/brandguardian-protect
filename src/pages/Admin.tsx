@@ -1,10 +1,19 @@
 
 import React from "react";
+import { Navigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HomeLink from "@/components/navigation/HomeLink";
+import { useAuth } from "@/hooks/use-auth";
 
 const Admin = () => {
+  const { userRole } = useAuth();
+  
+  // Only allow admin users to access this page
+  if (userRole !== 'admin') {
+    return <Navigate to="/" />;
+  }
+  
   // Sample data - in a real app, this would come from a database
   const inquiries = [
     {

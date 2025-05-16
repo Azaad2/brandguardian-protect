@@ -46,8 +46,19 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/admin/reseller-registration" element={<ResellerRegistration />} />
+                
+                {/* Admin Routes - Protected by AuthGuard */}
+                <Route path="/admin" element={
+                  <AuthGuard requiredRole="admin" redirectTo="/">
+                    <Admin />
+                  </AuthGuard>
+                } />
+                <Route path="/admin/reseller-registration" element={
+                  <AuthGuard requiredRole="admin" redirectTo="/">
+                    <ResellerRegistration />
+                  </AuthGuard>
+                } />
+                
                 <Route path="/reseller-hub" element={<ResellerHub />} />
                 
                 {/* Brand Portal Routes */}
