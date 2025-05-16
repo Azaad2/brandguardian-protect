@@ -6,8 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, PlusCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from '@/components/ui/label';
 
 interface ResellerApplication {
   id: string;
@@ -24,6 +34,11 @@ const ResellerRegistration = () => {
   const [creatingAccount, setCreatingAccount] = useState<Record<string, boolean>>({});
   const [passwords, setPasswords] = useState<Record<string, string>>({});
   const navigate = useNavigate();
+  
+  // Form state for manual application addition
+  const [newEmail, setNewEmail] = useState('');
+  const [newCompanyName, setNewCompanyName] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchResellerApplications();
@@ -146,6 +161,59 @@ const ResellerRegistration = () => {
     }
   };
 
+  const addManualApplication = async () => {
+    if (!newEmail || !newCompanyName) {
+      toast({
+        title: 'Missing information',
+        description: 'Please provide both email and company name',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Insert the application into the database
+      const { data, error } = await supabase
+        .from('reseller_applications')
+        .insert([
+          { 
+            email: newEmail, 
+            company_name: newCompanyName,
+            business_type: 'unknown',  // Required field with a placeholder
+            ein_number: 'manual-entry', // Required field with a placeholder
+            product_categories: [],     // Required field
+            sales_volume: 'unknown',    // Required field with a placeholder
+            wholesale_budget: 'unknown', // Required field with a placeholder
+            phone: 'manual-entry',       // Required field with a placeholder
+            status: 'pending'
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      toast({
+        title: 'Application added successfully',
+        description: 'The reseller application has been added to the system.',
+      });
+
+      // Reset form
+      setNewEmail('');
+      setNewCompanyName('');
+      setDialogOpen(false);
+
+      // Refresh the list
+      fetchResellerApplications();
+
+    } catch (error: any) {
+      toast({
+        title: 'Error adding application',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
@@ -155,10 +223,63 @@ const ResellerRegistration = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Create Reseller Accounts</CardTitle>
-          <CardDescription>
-            Create login credentials for resellers who have submitted applications
-          </CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Create Reseller Accounts</CardTitle>
+              <CardDescription>
+                Create login credentials for resellers who have submitted applications
+              </CardDescription>
+            </div>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Manual Application
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Reseller Application</DialogTitle>
+                  <DialogDescription>
+                    Add a reseller who sent their application by email
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email" className="text-right">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      className="col-span-3"
+                      placeholder="reseller@company.com"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="company" className="text-right">
+                      Company
+                    </Label>
+                    <Input
+                      id="company"
+                      value={newCompanyName}
+                      onChange={(e) => setNewCompanyName(e.target.value)}
+                      className="col-span-3"
+                      placeholder="Reseller Company Name"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={addManualApplication}>Add Application</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -166,7 +287,10 @@ const ResellerRegistration = () => {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : applications.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">No reseller applications found.</p>
+            <div className="text-center py-8 text-muted-foreground">
+              <p className="mb-4">No reseller applications found.</p>
+              <p>Use the "Add Manual Application" button to add resellers who sent their applications by email.</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
