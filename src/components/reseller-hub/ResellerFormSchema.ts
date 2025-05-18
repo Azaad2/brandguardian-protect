@@ -6,9 +6,9 @@ export const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   businessType: z.enum(['individual', 'corporation', 'partnership', 'llc', 'other'] as const),
   einNumber: z.string().min(1, 'EIN number is required'),
-  amazonSellerId: z.string().optional(),
-  walmartSellerId: z.string().optional(),
-  ebaySellerId: z.string().optional(),
+  amazonStoreLink: z.string().optional(),
+  walmartStoreLink: z.string().optional(),
+  ebayStoreLink: z.string().optional(),
   productCategories: z.array(
     z.enum([
       'electronics', 'beauty', 'home_goods', 'fashion', 'toys',

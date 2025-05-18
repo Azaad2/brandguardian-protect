@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -38,9 +39,9 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       companyName: '',
       businessType: 'individual',
       einNumber: '',
-      amazonSellerId: '',
-      walmartSellerId: '',
-      ebaySellerId: '',
+      amazonStoreLink: '',
+      walmartStoreLink: '',
+      ebayStoreLink: '',
       productCategories: ['other'], // Default value for product categories
       salesVolume: 'under_10k',
       wholesaleBudget: 'under_5k',
@@ -81,10 +82,10 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
           company_name: values.companyName,
           business_type: values.businessType,
           ein_number: values.einNumber,
-          amazon_seller_id: values.amazonSellerId,
-          walmart_seller_id: values.walmartSellerId,
-          ebay_seller_id: values.ebaySellerId,
-          product_categories: values.productCategories, // Using the default value
+          amazon_store_link: values.amazonStoreLink,
+          walmart_store_link: values.walmartStoreLink,
+          ebay_store_link: values.ebayStoreLink,
+          product_categories: values.productCategories,
           sales_volume: values.salesVolume,
           wholesale_budget: values.wholesaleBudget,
           feedback_score: values.feedbackScore || '',

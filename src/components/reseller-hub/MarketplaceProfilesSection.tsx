@@ -16,12 +16,12 @@ const MarketplaceProfilesSection = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <FormField
           control={form.control}
-          name="amazonSellerId"
+          name="amazonStoreLink"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Amazon Seller ID</FormLabel>
+              <FormLabel>Amazon Store Link</FormLabel>
               <FormControl>
-                <Input placeholder="Your Amazon Seller ID" {...field} />
+                <Input placeholder="https://www.amazon.com/shops/your-store" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -30,12 +30,12 @@ const MarketplaceProfilesSection = () => {
         
         <FormField
           control={form.control}
-          name="walmartSellerId"
+          name="walmartStoreLink"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Walmart Marketplace ID (optional)</FormLabel>
+              <FormLabel>Walmart Store Link (optional)</FormLabel>
               <FormControl>
-                <Input placeholder="Your Walmart ID" {...field} />
+                <Input placeholder="https://www.walmart.com/seller/your-store" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -44,12 +44,12 @@ const MarketplaceProfilesSection = () => {
         
         <FormField
           control={form.control}
-          name="ebaySellerId"
+          name="ebayStoreLink"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>eBay Seller ID (optional)</FormLabel>
+              <FormLabel>eBay Store Link (optional)</FormLabel>
               <FormControl>
-                <Input placeholder="Your eBay ID" {...field} />
+                <Input placeholder="https://www.ebay.com/str/your-store" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

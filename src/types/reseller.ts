@@ -15,9 +15,9 @@ export interface ResellerFormData {
   companyName: string;
   businessType: BusinessType;
   einNumber: string;
-  amazonSellerId?: string;
-  walmartSellerId?: string;
-  ebaySellerId?: string;
+  amazonStoreLink?: string;
+  walmartStoreLink?: string;
+  ebayStoreLink?: string;
   productCategories: ProductCategory[];
   salesVolume: SalesVolume;
   wholesaleBudget: WholesaleBudget;
