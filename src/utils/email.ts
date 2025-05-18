@@ -1,3 +1,4 @@
+
 import { ContactSubmission } from '@/types/contact';
 import { ResellerSubmission } from '@/types/resellerSubmission';
 import { 
@@ -40,9 +41,9 @@ export const sendEmail = async (submission: ContactSubmission | ResellerSubmissi
         EIN Number: ${submission.einNumber}
         
         Marketplace Profiles:
-        Amazon Seller ID: ${submission.amazonSellerId || 'N/A'}
-        Walmart Seller ID: ${submission.walmartSellerId || 'N/A'}
-        eBay Seller ID: ${submission.ebaySellerId || 'N/A'}
+        Amazon Store Link: ${submission.amazonStoreLink || 'N/A'}
+        Walmart Store Link: ${submission.walmartStoreLink || 'N/A'}
+        eBay Store Link: ${submission.ebayStoreLink || 'N/A'}
         
         Product Categories: ${submission.productCategories.join(', ')}
         

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import Footer from '@/components/layout/Footer';
@@ -22,9 +21,9 @@ const ResellerHub = () => {
       companyName: '',
       businessType: 'individual',
       einNumber: '',
-      amazonSellerId: '',
-      walmartSellerId: '',
-      ebaySellerId: '',
+      amazonStoreLink: '',
+      walmartStoreLink: '',
+      ebayStoreLink: '',
       productCategories: [],
       salesVolume: 'under_10k',
       wholesaleBudget: 'under_5k',
