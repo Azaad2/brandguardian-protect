@@ -7,6 +7,7 @@ import { brandNavItems, resellerNavItems, adminNavItems } from './data/navItems'
 import { useMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
+import { UserRole } from '@/types/auth';
 
 const DashboardLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,7 @@ const DashboardLayout = () => {
   const [pendingCount, setPendingCount] = useState(0);
 
   // Set appropriate nav items based on user role
-  const userRole = user?.role || 'reseller';
+  const userRole = (user?.role || 'reseller') as UserRole;
   const navItems = 
     userRole === 'brand' ? brandNavItems :
     userRole === 'admin' ? adminNavItems :

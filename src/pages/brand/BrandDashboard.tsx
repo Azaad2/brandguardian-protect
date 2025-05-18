@@ -15,8 +15,8 @@ import BrandReports from '@/components/brand/BrandReports';
 
 const BrandDashboard = () => {
   return (
-    <DashboardLayout userRole="brand">
-      <Routes>
+    <Routes>
+      <Route element={<DashboardLayout />}>
         <Route index element={<BrandOverview />} />
         <Route path="resellers" element={<BrandResellers />} />
         <Route path="inventory" element={<BrandInventory />} />
@@ -28,8 +28,8 @@ const BrandDashboard = () => {
         <Route path="listings" element={<BrandListings />} />
         <Route path="compliance" element={<BrandComplianceMonitor />} />
         <Route path="reports" element={<BrandReports />} />
-      </Routes>
-    </DashboardLayout>
+      </Route>
+    </Routes>
   );
 };
 

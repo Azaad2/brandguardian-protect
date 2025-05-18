@@ -35,29 +35,34 @@ const ResellerDashboard = () => {
   const location = useLocation();
 
   return (
-    <DashboardLayout userRole="reseller">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          variants={pageVariants}
-          transition={pageTransition}
-          className="w-full"
-        >
-          <Routes location={location}>
-            <Route index element={<ResellerOverview />} />
-            <Route path="brands" element={<ResellerBrands />} />
-            <Route path="orders" element={<ResellerOrders />} />
-            <Route path="shipments" element={<ResellerShipments />} />
-            <Route path="messages" element={<ResellerMessages />} />
-            <Route path="analytics" element={<ResellerAnalytics />} />
-            <Route path="settings" element={<ResellerSettings />} />
-          </Routes>
-        </motion.div>
-      </AnimatePresence>
-    </DashboardLayout>
+    <Routes>
+      <Route element={<DashboardLayout />}>
+        <Route
+          index
+          element={
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+                className="w-full"
+              >
+                <ResellerOverview />
+              </motion.div>
+            </AnimatePresence>
+          }
+        />
+        <Route path="brands" element={<ResellerBrands />} />
+        <Route path="orders" element={<ResellerOrders />} />
+        <Route path="shipments" element={<ResellerShipments />} />
+        <Route path="messages" element={<ResellerMessages />} />
+        <Route path="analytics" element={<ResellerAnalytics />} />
+        <Route path="settings" element={<ResellerSettings />} />
+      </Route>
+    </Routes>
   );
 };
 

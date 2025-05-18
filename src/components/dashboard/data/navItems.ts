@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import { NavItem } from '../types';
 
-export const BrandNavItems: NavItem[] = [
+// Changed variable names to camelCase to match imports in DashboardLayout
+export const brandNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/brand/dashboard' },
   { icon: Users, label: 'Resellers', path: '/brand/dashboard/resellers', badge: '3' },
   { icon: Package, label: 'Inventory', path: '/brand/dashboard/inventory' },
@@ -28,7 +29,7 @@ export const BrandNavItems: NavItem[] = [
   { icon: Settings, label: 'Settings', path: '/brand/dashboard/settings' },
 ];
 
-export const ResellerNavItems: NavItem[] = [
+export const resellerNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/reseller/dashboard' },
   { icon: Package, label: 'Brands', path: '/reseller/dashboard/brands' },
   { icon: ShoppingCart, label: 'Orders', path: '/reseller/dashboard/orders' },
@@ -36,4 +37,13 @@ export const ResellerNavItems: NavItem[] = [
   { icon: MessageSquare, label: 'Messages', path: '/reseller/dashboard/messages', badge: '3' },
   { icon: BarChart3, label: 'Analytics', path: '/reseller/dashboard/analytics' },
   { icon: Settings, label: 'Settings', path: '/reseller/dashboard/settings' },
+];
+
+// Added missing adminNavItems array
+export const adminNavItems: NavItem[] = [
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+  { icon: Users, label: 'Users', path: '/admin/users' },
+  { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
+  { icon: Bell, label: 'Applications', path: '/admin/reseller-registration', badge: 'pending' },
+  { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
