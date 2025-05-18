@@ -15,6 +15,7 @@ import ContactInformationSection from './ContactInformationSection';
 import TermsAgreementSection from './TermsAgreementSection';
 import VerificationProcessSection from './VerificationProcessSection';
 import { useAuth } from '@/hooks/use-auth';
+import { sendEmail } from '@/utils/email';
 
 interface ResellerApplicationFormProps {
   onSubmissionSuccess: (email: string) => void;
@@ -115,6 +116,20 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
           console.error('Document upload error:', uploadError);
           // Continue with form submission even if document upload fails
         }
+
+        // Also send document through Formspree
+        const formspreeSubmission = await sendFormWithDocument(values, documentFile);
+        if (!formspreeSubmission) {
+          console.warn('Formspree submission may have issues with the document');
+        }
+      } else {
+        // Send form without document through regular email utility
+        await sendEmail({
+          ...values,
+          id: data?.[0]?.id || 'unknown',
+          createdAt: new Date().toISOString(),
+          status: 'pending'
+        });
       }
       
       // Track successful form submission with Reddit Pixel
@@ -138,6 +153,62 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Send form data with document attachment via FormSpree
+  const sendFormWithDocument = async (values: FormValues, file: File): Promise<boolean> => {
+    try {
+      // Create FormData object for multipart/form-data submission
+      const formData = new FormData();
+      
+      // Add all form fields
+      formData.append('companyName', values.companyName);
+      formData.append('businessType', values.businessType);
+      formData.append('einNumber', values.einNumber);
+      formData.append('email', values.email);
+      formData.append('phone', values.phone);
+      formData.append('amazonStoreLink', values.amazonStoreLink || 'N/A');
+      formData.append('walmartStoreLink', values.walmartStoreLink || 'N/A');
+      formData.append('ebayStoreLink', values.ebayStoreLink || 'N/A');
+      formData.append('productCategories', values.productCategories.join(', '));
+      formData.append('salesVolume', values.salesVolume);
+      formData.append('wholesaleBudget', values.wholesaleBudget);
+      formData.append('feedbackScore', values.feedbackScore || 'N/A');
+      formData.append('linkedIn', values.linkedIn || 'N/A');
+      
+      // Add document file
+      formData.append('document', file, file.name);
+      
+      // Add email subject
+      formData.append('_subject', `Reseller Application: ${values.companyName} (with document)`);
+      
+      // Set reply-to address
+      formData.append('_replyto', values.email);
+      
+      // Using the Formspree endpoint
+      const formspreeEndpoint = 'https://formspree.io/f/xblogykb';
+      
+      console.log('Sending form with document to Formspree:', formspreeEndpoint);
+      
+      const response = await fetch(formspreeEndpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        console.error('Formspree error:', response.status, await response.text());
+        return false;
+      }
+      
+      console.log('Form with document sent through Formspree:', await response.json());
+      return true;
+    } catch (error) {
+      console.error('Error sending form with document:', error);
+      return false;
     }
   };
 
