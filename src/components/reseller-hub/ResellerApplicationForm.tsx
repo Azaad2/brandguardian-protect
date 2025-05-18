@@ -124,11 +124,25 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
         }
       } else {
         // Send form without document through regular email utility
+        // Explicitly cast the required properties to ensure they're not optional
         await sendEmail({
-          ...values,
           id: data?.[0]?.id || 'unknown',
           createdAt: new Date().toISOString(),
-          status: 'pending'
+          status: 'pending',
+          companyName: values.companyName,
+          businessType: values.businessType,
+          einNumber: values.einNumber,
+          amazonStoreLink: values.amazonStoreLink || '',
+          walmartStoreLink: values.walmartStoreLink || '',
+          ebayStoreLink: values.ebayStoreLink || '',
+          productCategories: values.productCategories,
+          salesVolume: values.salesVolume,
+          wholesaleBudget: values.wholesaleBudget,
+          feedbackScore: values.feedbackScore || '',
+          email: values.email,
+          phone: values.phone,
+          linkedIn: values.linkedIn || '',
+          termsAgreement: values.termsAgreement
         });
       }
       
