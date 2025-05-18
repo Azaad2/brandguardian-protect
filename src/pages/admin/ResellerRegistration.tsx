@@ -46,6 +46,9 @@ const ResellerRegistration = () => {
     fetchResellerApplications();
   };
 
+  // Calculate number of pending applications for the badge
+  const pendingCount = applications.filter(app => app.status === 'pending').length;
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
