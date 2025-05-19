@@ -47,7 +47,7 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
                 
-                {/* Admin Routes - Temporarily bypass auth */}
+                {/* Admin Routes - Bypass auth for testing */}
                 <Route path="/admin" element={
                   <AuthGuard bypassAuth={true}>
                     <Admin />
@@ -61,22 +61,22 @@ const App = () => (
                 
                 <Route path="/reseller-hub" element={<ResellerHub />} />
                 
-                {/* Brand Portal Routes */}
+                {/* Brand Portal Routes - Updated to bypass auth for testing */}
                 <Route path="/brand" element={<BrandPortal />} />
                 <Route path="/brand/login" element={<BrandLogin />} />
                 <Route path="/brand/signup" element={<BrandSignup />} />
                 <Route path="/brand/dashboard/*" element={
-                  <AuthGuard requiredRole="brand" redirectTo="/brand/login">
+                  <AuthGuard bypassAuth={true} requiredRole="brand" redirectTo="/brand/login">
                     <BrandDashboard />
                   </AuthGuard>
                 } />
                 
-                {/* Reseller Portal Routes */}
+                {/* Reseller Portal Routes - Updated to bypass auth for testing */}
                 <Route path="/reseller" element={<ResellerPortal />} />
                 <Route path="/reseller/login" element={<ResellerLogin />} />
                 <Route path="/reseller/signup" element={<ResellerSignup />} />
                 <Route path="/reseller/dashboard/*" element={
-                  <AuthGuard requiredRole="reseller" redirectTo="/reseller/login">
+                  <AuthGuard bypassAuth={true} requiredRole="reseller" redirectTo="/reseller/login">
                     <ResellerDashboard />
                   </AuthGuard>
                 } />
