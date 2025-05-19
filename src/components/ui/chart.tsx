@@ -1,6 +1,15 @@
 
 import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart as RechartLineChart, Line, PieChart as RechartPieChart, Pie, Cell } from 'recharts';
 
+interface ChartOptions {
+  responsive?: boolean;
+  maintainAspectRatio?: boolean;
+  plugins?: any;
+  scales?: any;
+  indexAxis?: string;
+  [key: string]: any;
+}
+
 interface BarChartProps {
   data: {
     labels: string[];
@@ -10,9 +19,11 @@ interface BarChartProps {
       backgroundColor: string;
     }[];
   };
+  options?: ChartOptions;
+  className?: string;
 }
 
-export function BarChart({ data }: BarChartProps) {
+export function BarChart({ data, options, className }: BarChartProps) {
   // Transform data structure for recharts
   const chartData = data.labels.map((label, index) => {
     const dataPoint: any = { name: label };
@@ -23,7 +34,7 @@ export function BarChart({ data }: BarChartProps) {
   });
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" className={className}>
       <RechartBarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
@@ -54,9 +65,11 @@ interface LineChartProps {
       borderDash?: number[];
     }[];
   };
+  options?: ChartOptions;
+  className?: string;
 }
 
-export function LineChart({ data }: LineChartProps) {
+export function LineChart({ data, options, className }: LineChartProps) {
   // Transform data structure for recharts
   const chartData = data.labels.map((label, index) => {
     const dataPoint: any = { name: label };
@@ -67,7 +80,7 @@ export function LineChart({ data }: LineChartProps) {
   });
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" className={className}>
       <RechartLineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
@@ -100,9 +113,11 @@ interface PieChartProps {
       backgroundColor: string[];
     }[];
   };
+  options?: ChartOptions;
+  className?: string;
 }
 
-export function PieChart({ data }: PieChartProps) {
+export function PieChart({ data, options, className }: PieChartProps) {
   // Transform data structure for recharts
   const chartData = data.labels.map((label, index) => ({
     name: label,
@@ -110,7 +125,7 @@ export function PieChart({ data }: PieChartProps) {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" className={className}>
       <RechartPieChart margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
         <Pie
           data={chartData}

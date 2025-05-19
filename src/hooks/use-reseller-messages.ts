@@ -31,54 +31,83 @@ export const useResellerMessages = () => {
         content,
         is_read,
         created_at,
-        sender:sender_id(id, full_name, company_name),
-        recipient:recipient_id(id, full_name, company_name)
+        sender_id,
+        recipient_id
       `)
       .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
+
+    // For each message, get the sender and recipient profile information
+    const messagesWithUserInfo = await Promise.all(
+      data.map(async (message) => {
+        // Get the sender profile
+        const { data: senderData, error: senderError } = await supabase
+          .from('profiles')
+          .select('id, full_name, company_name')
+          .eq('id', message.sender_id)
+          .single();
+
+        if (senderError) {
+          console.error('Error fetching sender profile:', senderError);
+        }
+
+        // Get the recipient profile
+        const { data: recipientData, error: recipientError } = await supabase
+          .from('profiles')
+          .select('id, full_name, company_name')
+          .eq('id', message.recipient_id)
+          .single();
+
+        if (recipientError) {
+          console.error('Error fetching recipient profile:', recipientError);
+        }
+
+        const sender = senderData || { id: message.sender_id, full_name: 'Unknown User', company_name: 'Unknown Company' };
+        const recipient = recipientData || { id: message.recipient_id, full_name: 'Unknown User', company_name: 'Unknown Company' };
+
+        // Determine if user is sender or recipient
+        const isSender = message.sender_id === user.id;
+        const otherParty = isSender ? recipient : sender;
+        
+        // Extract first part of content as subject and the rest as preview
+        const contentParts = message.content.split('\n');
+        const subject = contentParts[0] || 'No Subject';
+        const preview = contentParts.slice(1).join(' ').substring(0, 100) + '...';
+        
+        // Determine message type based on content keywords
+        let type = 'standard';
+        if (message.content.toLowerCase().includes('application')) type = 'application';
+        else if (message.content.toLowerCase().includes('policy')) type = 'policy';
+        else if (message.content.toLowerCase().includes('promotion')) type = 'promotion';
+        else if (message.content.toLowerCase().includes('recommend')) type = 'recommendation';
+        else if (message.content.toLowerCase().includes('compliance')) type = 'compliance';
+        else if (message.content.toLowerCase().includes('inventory')) type = 'inventory';
+        
+        // Determine status based on content keywords
+        let status = 'standard';
+        if (message.content.toLowerCase().includes('approved')) status = 'approved';
+        else if (message.content.toLowerCase().includes('important')) status = 'important';
+        else if (message.content.toLowerCase().includes('action required') || 
+                message.content.toLowerCase().includes('warning')) {
+          status = 'warning';
+        }
+        
+        return {
+          id: message.id,
+          sender: otherParty.company_name || otherParty.full_name || 'Unknown',
+          subject: subject,
+          preview: preview,
+          timestamp: formatTimestamp(message.created_at),
+          type: type,
+          status: status,
+          unread: !message.is_read
+        };
+      })
+    );
     
-    // Transform message data to match our component needs
-    return data.map(message => {
-      // Determine if user is sender or recipient
-      const isSender = message.sender.id === user.id;
-      const otherParty = isSender ? message.recipient : message.sender;
-      
-      // Extract first part of content as subject and the rest as preview
-      const contentParts = message.content.split('\n');
-      const subject = contentParts[0] || 'No Subject';
-      const preview = contentParts.slice(1).join(' ').substring(0, 100) + '...';
-      
-      // Determine message type based on content keywords
-      let type = 'standard';
-      if (message.content.toLowerCase().includes('application')) type = 'application';
-      else if (message.content.toLowerCase().includes('policy')) type = 'policy';
-      else if (message.content.toLowerCase().includes('promotion')) type = 'promotion';
-      else if (message.content.toLowerCase().includes('recommend')) type = 'recommendation';
-      else if (message.content.toLowerCase().includes('compliance')) type = 'compliance';
-      else if (message.content.toLowerCase().includes('inventory')) type = 'inventory';
-      
-      // Determine status based on content keywords
-      let status = 'standard';
-      if (message.content.toLowerCase().includes('approved')) status = 'approved';
-      else if (message.content.toLowerCase().includes('important')) status = 'important';
-      else if (message.content.toLowerCase().includes('action required') || 
-               message.content.toLowerCase().includes('warning')) {
-        status = 'warning';
-      }
-      
-      return {
-        id: message.id,
-        sender: otherParty.company_name || otherParty.full_name || 'Unknown',
-        subject: subject,
-        preview: preview,
-        timestamp: formatTimestamp(message.created_at),
-        type: type,
-        status: status,
-        unread: !message.is_read
-      };
-    });
+    return messagesWithUserInfo;
   };
   
   const formatTimestamp = (timestamp: string) => {

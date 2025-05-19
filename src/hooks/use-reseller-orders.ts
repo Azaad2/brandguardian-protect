@@ -21,7 +21,7 @@ export const useResellerOrders = () => {
   const fetchOrders = async () => {
     if (!user) throw new Error('User not authenticated');
     
-    // Fetch orders joined with brand information
+    // Fetch orders
     const { data, error } = await supabase
       .from('orders')
       .select(`
@@ -29,27 +29,38 @@ export const useResellerOrders = () => {
         total_amount,
         status,
         created_at,
-        brand_id,
-        profiles!brand_id (company_name)
+        brand_id
       `)
       .eq('reseller_id', user.id)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
 
-    // Get order items count for each order
+    // Get order items count and brand information for each order
     const ordersWithItemCount = await Promise.all(
       data.map(async (order) => {
+        // Get order items count
         const { count, error: countError } = await supabase
           .from('order_items')
           .select('id', { count: 'exact' })
           .eq('order_id', order.id);
           
         if (countError) throw countError;
+
+        // Get brand information
+        const { data: brandData, error: brandError } = await supabase
+          .from('profiles')
+          .select('company_name')
+          .eq('id', order.brand_id)
+          .single();
+          
+        if (brandError) {
+          console.error('Error fetching brand information:', brandError);
+        }
         
         return {
           id: order.id,
-          brandName: order.profiles?.company_name || 'Unknown Brand',
+          brandName: brandData?.company_name || 'Unknown Brand',
           date: new Date(order.created_at).toISOString().split('T')[0],
           total: `$${order.total_amount.toFixed(2)}`,
           status: order.status,
