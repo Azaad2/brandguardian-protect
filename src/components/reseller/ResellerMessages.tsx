@@ -7,73 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Mail, Users, Search, Filter } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import { useResellerMessages, Message } from "@/hooks/use-reseller-messages";
 
 const ResellerMessages = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { messages, isLoading, isError, error } = useResellerMessages();
   
-  const messages = [
-    {
-      id: 1,
-      sender: "Beauty Co Support",
-      subject: "Your Brand Application Status",
-      preview: "We're pleased to inform you that your application to become an authorized Beauty Co reseller has been approved...",
-      timestamp: "10:30 AM",
-      type: "application",
-      status: "approved",
-      unread: true
-    },
-    {
-      id: 2,
-      sender: "TechGadget Brand Manager",
-      subject: "Updated MAP Policy Information",
-      preview: "We've recently updated our Minimum Advertised Price policy and wanted to ensure all our authorized resellers...",
-      timestamp: "Yesterday",
-      type: "policy",
-      status: "important",
-      unread: true
-    },
-    {
-      id: 3,
-      sender: "HomeEssentials Wholesale",
-      subject: "Q2 Promotional Opportunities",
-      preview: "As a valued reseller partner, we're giving you early access to our Q2 promotional bundles and special pricing...",
-      timestamp: "2 days ago",
-      type: "promotion",
-      status: "standard",
-      unread: true
-    },
-    {
-      id: 4,
-      sender: "BndBox Support",
-      subject: "New Brands Available for Application",
-      preview: "Based on your reseller profile and performance metrics, we've identified 3 new brands that would be a good fit...",
-      timestamp: "3 days ago",
-      type: "recommendation",
-      status: "standard",
-      unread: false
-    },
-    {
-      id: 5,
-      sender: "HealthProducts Compliance",
-      subject: "Action Required: Listing Update Needed",
-      preview: "We've noticed that several of your HealthProducts listings are using outdated product descriptions. Please update...",
-      timestamp: "1 week ago",
-      type: "compliance",
-      status: "warning",
-      unread: false
-    },
-    {
-      id: 6,
-      sender: "FashionBrand Wholesale",
-      subject: "Inventory Restock Notification",
-      preview: "The seasonal items you expressed interest in are now back in stock and available for wholesale purchase...",
-      timestamp: "1 week ago",
-      type: "inventory",
-      status: "standard",
-      unread: false
-    }
-  ];
-
   const getTypeStyles = (type: string) => {
     switch (type) {
       case "application":
@@ -111,6 +53,31 @@ const ResellerMessages = () => {
       message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
       message.sender.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  const unreadMessages = messages.filter(message => message.unread);
+  const applicationMessages = messages.filter(message => message.type === 'application');
+  const importantMessages = messages.filter(message => 
+    message.status === 'important' || message.status === 'warning'
+  );
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Messages</h1>
+          <p className="text-muted-foreground">Communicate with your brand partners</p>
+        </div>
+        
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {error instanceof Error ? error.message : 'Failed to load messages'}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -126,8 +93,14 @@ const ResellerMessages = () => {
             <MessageCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">Waiting for your response</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{unreadMessages.length}</div>
+                <p className="text-xs text-muted-foreground">Waiting for your response</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -137,8 +110,14 @@ const ResellerMessages = () => {
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">96%</div>
-            <p className="text-xs text-muted-foreground">Average response time: 3.2 hours</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">96%</div>
+                <p className="text-xs text-muted-foreground">Average response time: 3.2 hours</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -148,8 +127,16 @@ const ResellerMessages = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">Active communication channels</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {new Set(messages.map(m => m.sender)).size}
+                </div>
+                <p className="text-xs text-muted-foreground">Active communication channels</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -185,55 +172,69 @@ const ResellerMessages = () => {
               <CardDescription>View and respond to communications from your brand partners</CardDescription>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px]">
+              {isLoading ? (
                 <div className="space-y-4">
-                  {filteredMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex items-center justify-between rounded-lg border p-4 ${
-                        message.unread ? 'bg-muted/50' : ''
-                      }`}
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">{message.sender}</span>
-                          {message.unread && (
-                            <Badge variant="secondary">New</Badge>
-                          )}
-                          {getStatusBadge(message.status)}
-                        </div>
-                        <div className="text-sm font-medium">{message.subject}</div>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {message.preview}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">
-                            {message.timestamp}
-                          </span>
-                          <Badge
-                            className={getTypeStyles(message.type)}
-                          >
-                            {message.type}
-                          </Badge>
-                        </div>
+                  {Array(4).fill(0).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-2">
+                      <Skeleton className="h-8 w-full" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-16" />
                       </div>
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
                     </div>
                   ))}
-
-                  {filteredMessages.length === 0 && (
-                    <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed p-4 text-center">
-                      <Mail className="mb-2 h-6 w-6 text-muted-foreground" />
-                      <h3 className="text-lg font-medium">No messages found</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {searchTerm ? "Try adjusting your search term" : "You're all caught up!"}
-                      </p>
-                    </div>
-                  )}
                 </div>
-              </ScrollArea>
+              ) : (
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-4">
+                    {filteredMessages.length > 0 ? (
+                      filteredMessages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex items-center justify-between rounded-lg border p-4 ${
+                            message.unread ? 'bg-muted/50' : ''
+                          }`}
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">{message.sender}</span>
+                              {message.unread && (
+                                <Badge variant="secondary">New</Badge>
+                              )}
+                              {getStatusBadge(message.status)}
+                            </div>
+                            <div className="text-sm font-medium">{message.subject}</div>
+                            <p className="text-sm text-muted-foreground line-clamp-1">
+                              {message.preview}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">
+                                {message.timestamp}
+                              </span>
+                              <Badge
+                                className={getTypeStyles(message.type)}
+                              >
+                                {message.type}
+                              </Badge>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm">
+                            View
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed p-4 text-center">
+                        <Mail className="mb-2 h-6 w-6 text-muted-foreground" />
+                        <h3 className="text-lg font-medium">No messages found</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {searchTerm ? "Try adjusting your search term" : "You're all caught up!"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -245,43 +246,70 @@ const ResellerMessages = () => {
               <CardDescription>Messages that require your attention</CardDescription>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px]">
+              {isLoading ? (
                 <div className="space-y-4">
-                  {filteredMessages
-                    .filter(message => message.unread)
-                    .map((message) => (
-                      <div
-                        key={message.id}
-                        className="flex items-center justify-between rounded-lg border bg-muted/50 p-4"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold">{message.sender}</span>
-                            <Badge variant="secondary">New</Badge>
-                            {getStatusBadge(message.status)}
-                          </div>
-                          <div className="text-sm font-medium">{message.subject}</div>
-                          <p className="text-sm text-muted-foreground line-clamp-1">
-                            {message.preview}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">
-                              {message.timestamp}
-                            </span>
-                            <Badge
-                              className={getTypeStyles(message.type)}
-                            >
-                              {message.type}
-                            </Badge>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
+                  {Array(2).fill(0).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-2">
+                      <Skeleton className="h-8 w-full" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-16" />
                       </div>
+                    </div>
                   ))}
                 </div>
-              </ScrollArea>
+              ) : (
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-4">
+                    {unreadMessages.length > 0 ? (
+                      unreadMessages
+                        .filter(message => 
+                          message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          message.sender.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map((message) => (
+                          <div
+                            key={message.id}
+                            className="flex items-center justify-between rounded-lg border bg-muted/50 p-4"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">{message.sender}</span>
+                                <Badge variant="secondary">New</Badge>
+                                {getStatusBadge(message.status)}
+                              </div>
+                              <div className="text-sm font-medium">{message.subject}</div>
+                              <p className="text-sm text-muted-foreground line-clamp-1">
+                                {message.preview}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                  {message.timestamp}
+                                </span>
+                                <Badge
+                                  className={getTypeStyles(message.type)}
+                                >
+                                  {message.type}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm">
+                              View
+                            </Button>
+                          </div>
+                      ))
+                    ) : (
+                      <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed p-4 text-center">
+                        <Mail className="mb-2 h-6 w-6 text-muted-foreground" />
+                        <h3 className="text-lg font-medium">No unread messages</h3>
+                        <p className="text-sm text-muted-foreground">
+                          You're all caught up!
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -293,47 +321,74 @@ const ResellerMessages = () => {
               <CardDescription>Updates on your brand applications</CardDescription>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px]">
+              {isLoading ? (
                 <div className="space-y-4">
-                  {filteredMessages
-                    .filter(message => message.type === 'application')
-                    .map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex items-center justify-between rounded-lg border p-4 ${
-                          message.unread ? 'bg-muted/50' : ''
-                        }`}
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold">{message.sender}</span>
-                            {message.unread && (
-                              <Badge variant="secondary">New</Badge>
-                            )}
-                            {getStatusBadge(message.status)}
-                          </div>
-                          <div className="text-sm font-medium">{message.subject}</div>
-                          <p className="text-sm text-muted-foreground line-clamp-1">
-                            {message.preview}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">
-                              {message.timestamp}
-                            </span>
-                            <Badge
-                              className={getTypeStyles(message.type)}
-                            >
-                              {message.type}
-                            </Badge>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
+                  {Array(2).fill(0).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-2">
+                      <Skeleton className="h-8 w-full" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-16" />
                       </div>
+                    </div>
                   ))}
                 </div>
-              </ScrollArea>
+              ) : (
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-4">
+                    {applicationMessages.length > 0 ? (
+                      applicationMessages
+                        .filter(message => 
+                          message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          message.sender.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map((message) => (
+                          <div
+                            key={message.id}
+                            className={`flex items-center justify-between rounded-lg border p-4 ${
+                              message.unread ? 'bg-muted/50' : ''
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">{message.sender}</span>
+                                {message.unread && (
+                                  <Badge variant="secondary">New</Badge>
+                                )}
+                                {getStatusBadge(message.status)}
+                              </div>
+                              <div className="text-sm font-medium">{message.subject}</div>
+                              <p className="text-sm text-muted-foreground line-clamp-1">
+                                {message.preview}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                  {message.timestamp}
+                                </span>
+                                <Badge
+                                  className={getTypeStyles(message.type)}
+                                >
+                                  {message.type}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm">
+                              View
+                            </Button>
+                          </div>
+                      ))
+                    ) : (
+                      <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed p-4 text-center">
+                        <Mail className="mb-2 h-6 w-6 text-muted-foreground" />
+                        <h3 className="text-lg font-medium">No application messages</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Application status messages will appear here
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -345,47 +400,74 @@ const ResellerMessages = () => {
               <CardDescription>High priority communications</CardDescription>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px]">
+              {isLoading ? (
                 <div className="space-y-4">
-                  {filteredMessages
-                    .filter(message => message.status === 'important' || message.status === 'warning')
-                    .map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex items-center justify-between rounded-lg border p-4 ${
-                          message.unread ? 'bg-muted/50' : ''
-                        }`}
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold">{message.sender}</span>
-                            {message.unread && (
-                              <Badge variant="secondary">New</Badge>
-                            )}
-                            {getStatusBadge(message.status)}
-                          </div>
-                          <div className="text-sm font-medium">{message.subject}</div>
-                          <p className="text-sm text-muted-foreground line-clamp-1">
-                            {message.preview}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">
-                              {message.timestamp}
-                            </span>
-                            <Badge
-                              className={getTypeStyles(message.type)}
-                            >
-                              {message.type}
-                            </Badge>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
+                  {Array(2).fill(0).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-2">
+                      <Skeleton className="h-8 w-full" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-16" />
                       </div>
+                    </div>
                   ))}
                 </div>
-              </ScrollArea>
+              ) : (
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-4">
+                    {importantMessages.length > 0 ? (
+                      importantMessages
+                        .filter(message => 
+                          message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          message.sender.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map((message) => (
+                          <div
+                            key={message.id}
+                            className={`flex items-center justify-between rounded-lg border p-4 ${
+                              message.unread ? 'bg-muted/50' : ''
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">{message.sender}</span>
+                                {message.unread && (
+                                  <Badge variant="secondary">New</Badge>
+                                )}
+                                {getStatusBadge(message.status)}
+                              </div>
+                              <div className="text-sm font-medium">{message.subject}</div>
+                              <p className="text-sm text-muted-foreground line-clamp-1">
+                                {message.preview}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                  {message.timestamp}
+                                </span>
+                                <Badge
+                                  className={getTypeStyles(message.type)}
+                                >
+                                  {message.type}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm">
+                              View
+                            </Button>
+                          </div>
+                      ))
+                    ) : (
+                      <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed p-4 text-center">
+                        <Mail className="mb-2 h-6 w-6 text-muted-foreground" />
+                        <h3 className="text-lg font-medium">No important messages</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Important messages will appear here
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

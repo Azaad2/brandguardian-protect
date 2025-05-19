@@ -1,220 +1,137 @@
 
-import React from 'react';
-import { Line, Bar, Pie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
+import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart as RechartLineChart, Line, PieChart as RechartPieChart, Pie, Cell } from 'recharts';
 
-type ChartData = {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    backgroundColor?: string | string[];
-    borderColor?: string | string[];
-    borderWidth?: number;
-    tension?: number;
-    fill?: boolean;
-  }[];
-};
-
-type ChartOptions = {
-  responsive?: boolean;
-  maintainAspectRatio?: boolean;
-  plugins?: {
-    legend?: {
-      position?: 'top' | 'left' | 'right' | 'bottom';
-      display?: boolean;
-    };
-    tooltip?: {
-      mode?: 'index' | 'nearest' | 'point';
-      intersect?: boolean;
-    };
+interface BarChartProps {
+  data: {
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      backgroundColor: string;
+    }[];
   };
-  scales?: {
-    x?: {
-      stacked?: boolean;
-      beginAtZero?: boolean;
-    };
-    y?: {
-      stacked?: boolean;
-      beginAtZero?: boolean;
-    };
-  };
-  indexAxis?: 'x' | 'y';
-};
-
-interface ChartProps {
-  data: ChartData;
-  options?: ChartOptions;
-  className?: string;
 }
 
-// Convert our ChartData format to Recharts format
-const convertToRechartsData = (data: ChartData) => {
-  return data.labels.map((label, index) => {
-    const point: Record<string, any> = { name: label };
-    data.datasets.forEach(dataset => {
-      point[dataset.label] = dataset.data[index];
+export function BarChart({ data }: BarChartProps) {
+  // Transform data structure for recharts
+  const chartData = data.labels.map((label, index) => {
+    const dataPoint: any = { name: label };
+    data.datasets.forEach((dataset) => {
+      dataPoint[dataset.label] = dataset.data[index];
     });
-    return point;
+    return dataPoint;
   });
-};
 
-const LineChart: React.FC<ChartProps> = ({ data, options, className }) => {
-  const rechartsData = convertToRechartsData(data);
-  
   return (
-    <div className={className}>
-      <div className="flex h-full w-full items-center justify-center">
-        {/* This is a simplified implementation */}
-        <div className="h-full w-full rounded-md bg-slate-50 p-4">
-          <div className="mb-4 flex justify-between">
-            <div>
-              <h4 className="text-sm font-medium">Line Chart</h4>
-              <p className="text-xs text-muted-foreground">{data.datasets[0].label}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {data.datasets.map((dataset, index) => (
-                <div key={index} className="flex items-center gap-1">
-                  <div 
-                    className="h-3 w-3 rounded-full" 
-                    style={{ backgroundColor: Array.isArray(dataset.backgroundColor) 
-                      ? dataset.backgroundColor[0] 
-                      : dataset.backgroundColor || 'currentColor' }} 
-                  />
-                  <span className="text-xs">{dataset.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="h-[calc(100%-2rem)] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <Line data={rechartsData} dataKey="name">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                {data.datasets.map((dataset, index) => (
-                  <Line
-                    key={index}
-                    type="monotone"
-                    dataKey={dataset.label}
-                    stroke={Array.isArray(dataset.borderColor) ? dataset.borderColor[0] : dataset.borderColor}
-                    fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor}
-                  />
-                ))}
-              </Line>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartBarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {data.datasets.map((dataset, index) => (
+          <Bar 
+            key={dataset.label}
+            dataKey={dataset.label} 
+            fill={dataset.backgroundColor} 
+          />
+        ))}
+      </RechartBarChart>
+    </ResponsiveContainer>
   );
-};
+}
 
-const BarChart: React.FC<ChartProps> = ({ data, options, className }) => {
-  const rechartsData = convertToRechartsData(data);
-  
+interface LineChartProps {
+  data: {
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      borderColor: string;
+      backgroundColor: string;
+      tension?: number;
+      borderDash?: number[];
+    }[];
+  };
+}
+
+export function LineChart({ data }: LineChartProps) {
+  // Transform data structure for recharts
+  const chartData = data.labels.map((label, index) => {
+    const dataPoint: any = { name: label };
+    data.datasets.forEach((dataset) => {
+      dataPoint[dataset.label] = dataset.data[index];
+    });
+    return dataPoint;
+  });
+
   return (
-    <div className={className}>
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="h-full w-full rounded-md bg-slate-50 p-4">
-          <div className="mb-4 flex justify-between">
-            <div>
-              <h4 className="text-sm font-medium">Bar Chart</h4>
-              <p className="text-xs text-muted-foreground">{data.datasets[0].label}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {data.datasets.map((dataset, index) => (
-                <div key={index} className="flex items-center gap-1">
-                  <div 
-                    className="h-3 w-3 rounded-full" 
-                    style={{ backgroundColor: Array.isArray(dataset.backgroundColor) 
-                      ? dataset.backgroundColor[0] 
-                      : dataset.backgroundColor || 'currentColor' }} 
-                  />
-                  <span className="text-xs">{dataset.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="h-[calc(100%-2rem)] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <Bar data={rechartsData} dataKey="name">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                {data.datasets.map((dataset, index) => (
-                  <Bar
-                    key={index}
-                    dataKey={dataset.label}
-                    fill={Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor || '#8884d8'}
-                  />
-                ))}
-              </Bar>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartLineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {data.datasets.map((dataset, index) => (
+          <Line
+            key={dataset.label}
+            type="monotone"
+            dataKey={dataset.label}
+            stroke={dataset.borderColor}
+            strokeWidth={2}
+            dot={{ strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6 }}
+            strokeDasharray={dataset.borderDash ? `${dataset.borderDash[0]} ${dataset.borderDash[1]}` : ""}
+          />
+        ))}
+      </RechartLineChart>
+    </ResponsiveContainer>
   );
-};
+}
 
-const PieChart: React.FC<ChartProps> = ({ data, options, className }) => {
-  const rechartsData = convertToRechartsData(data);
-  
+interface PieChartProps {
+  data: {
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      backgroundColor: string[];
+    }[];
+  };
+}
+
+export function PieChart({ data }: PieChartProps) {
+  // Transform data structure for recharts
+  const chartData = data.labels.map((label, index) => ({
+    name: label,
+    value: data.datasets[0].data[index],
+  }));
+
   return (
-    <div className={className}>
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="h-full w-full rounded-md bg-slate-50 p-4">
-          <div className="mb-4 flex justify-between">
-            <div>
-              <h4 className="text-sm font-medium">Pie Chart</h4>
-              <p className="text-xs text-muted-foreground">{data.datasets[0].label}</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {data.labels.map((label, index) => (
-                <div key={index} className="flex items-center gap-1">
-                  <div 
-                    className="h-3 w-3 rounded-full" 
-                    style={{ backgroundColor: Array.isArray(data.datasets[0].backgroundColor) 
-                      ? data.datasets[0].backgroundColor[index] 
-                      : data.datasets[0].backgroundColor || 'currentColor' }} 
-                  />
-                  <span className="text-xs">{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex h-[calc(100%-2rem)] w-full items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <Pie 
-                data={rechartsData.map((item, index) => ({
-                  name: item.name,
-                  value: data.datasets[0].data[index],
-                }))}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#8884d8"
-                label
-              >
-                {data.labels.map((entry, index) => {
-                  const color = Array.isArray(data.datasets[0].backgroundColor) 
-                    ? data.datasets[0].backgroundColor[index] 
-                    : data.datasets[0].backgroundColor || '#8884d8';
-                  return <Cell key={`cell-${index}`} fill={color} />;
-                })}
-              </Pie>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartPieChart margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <Pie
+          data={chartData}
+          cx="50%"
+          cy="50%"
+          labelLine={true}
+          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          outerRadius={80}
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {chartData.map((entry, index) => (
+            <Cell 
+              key={`cell-${index}`} 
+              fill={data.datasets[0].backgroundColor[index % data.datasets[0].backgroundColor.length]} 
+            />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </RechartPieChart>
+    </ResponsiveContainer>
   );
-};
-
-export { LineChart, BarChart, PieChart };
+}
