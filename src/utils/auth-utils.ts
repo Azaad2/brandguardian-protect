@@ -6,21 +6,34 @@ import { UserRole } from '@/types/auth';
  * Fetch user role from the profiles table
  */
 export const fetchUserRole = async (userId: string): Promise<UserRole | null> => {
+  if (!userId) {
+    console.log('No user ID provided to fetchUserRole');
+    return null;
+  }
+  
   try {
+    console.log(`Fetching role for user: ${userId}`);
+    
     const { data, error } = await supabase
       .from('profiles')
       .select('user_role')
       .eq('id', userId)
-      .single();
+      .maybeSingle(); // Using maybeSingle instead of single for more graceful error handling
       
     if (error) {
-      console.error('Error fetching user role:', error);
+      console.error('Error fetching user role:', error.message, error.details);
       return null;
     }
     
-    return data?.user_role as UserRole || null;
+    if (!data) {
+      console.log(`No profile found for user: ${userId}`);
+      return null;
+    }
+    
+    console.log('User role fetched successfully:', data.user_role);
+    return data.user_role as UserRole || null;
   } catch (error) {
-    console.error('Error fetching user role:', error);
+    console.error('Unexpected error fetching user role:', error);
     return null;
   }
 };
