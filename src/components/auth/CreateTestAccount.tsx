@@ -12,9 +12,9 @@ const CreateTestAccount = ({ userRole }: { userRole: UserRole }) => {
   const handleCreateTestAccount = async () => {
     setIsCreating(true);
     
-    // Generate a random email and password
+    // Generate a random email and password with a format less likely to cause validation issues
     const randomId = Math.floor(Math.random() * 10000);
-    const email = `test_${userRole}_${randomId}@example.com`;
+    const email = `test${userRole}${randomId}@example.com`;
     const password = `Password123!`;
     
     try {

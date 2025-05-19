@@ -30,9 +30,12 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
  */
 export const createTestUser = async (email: string, password: string, userRole: UserRole): Promise<boolean> => {
   try {
+    // Generate a more compatible test email address
+    const cleanEmail = email.replace(/_/g, '') // Remove underscores as they may cause issues
+
     // First, sign up the user
-    const { error: signUpError } = await supabase.auth.signUp({ 
-      email, 
+    const { data, error: signUpError } = await supabase.auth.signUp({ 
+      email: cleanEmail, 
       password, 
       options: {
         data: {
@@ -48,6 +51,8 @@ export const createTestUser = async (email: string, password: string, userRole: 
       return false;
     }
     
+    // Log success details to help with troubleshooting
+    console.log('Test user created successfully:', data);
     return true;
   } catch (error) {
     console.error('Error in createTestUser:', error);

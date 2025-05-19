@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,6 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -28,7 +27,6 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { signIn, isLoading } = useAuth();
-  const navigate = useNavigate();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -41,6 +39,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const onSubmit = async (data: LoginFormValues) => {
     setIsAuthenticating(true);
     try {
+      console.log(`Attempting to sign in as ${userRole} with email: ${data.email}`);
       await signIn(data.email, data.password);
       
       // Success message will be shown from auth hooks
