@@ -10,6 +10,8 @@ import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { useAuth } from '@/hooks/use-auth';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -24,6 +26,7 @@ interface LoginFormProps {
 
 const LoginForm = ({ userRole }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { signIn, isLoading, user, userRole: currentUserRole } = useAuth();
   const navigate = useNavigate();
 
@@ -45,7 +48,46 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    await signIn(data.email, data.password);
+    setIsAuthenticating(true);
+    try {
+      // Use the Supabase client directly for more control
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (authData.session) {
+        // Successfully signed in
+        toast({
+          title: "Signed in successfully",
+          description: "Redirecting to your dashboard...",
+        });
+        
+        // Get the user role
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('user_role')
+          .eq('id', authData.user.id)
+          .single();
+          
+        // Redirect based on user role
+        const role = profileData?.user_role as UserRole || userRole;
+        navigate(`/${role}/dashboard`);
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Sign in failed',
+        description: error.message || 'Please check your credentials and try again',
+      });
+    } finally {
+      setIsAuthenticating(false);
+    }
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
@@ -109,8 +151,8 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
           </a>
         </div>
         
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? (
+        <Button type="submit" className="w-full" disabled={isAuthenticating || isLoading}>
+          {(isAuthenticating || isLoading) ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Signing in...
