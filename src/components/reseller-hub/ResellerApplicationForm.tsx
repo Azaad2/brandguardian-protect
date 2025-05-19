@@ -75,7 +75,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
     try {
       console.log('Form submission values:', values);
       
-      // Insert data into Supabase
+      // Insert data into Supabase - Fixed column names to match database schema
       const { data, error } = await supabase
         .from('reseller_applications')
         .insert({
@@ -83,9 +83,10 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
           company_name: values.companyName,
           business_type: values.businessType,
           ein_number: values.einNumber,
-          amazon_store_link: values.amazonStoreLink,
-          walmart_store_link: values.walmartStoreLink,
-          ebay_store_link: values.ebayStoreLink,
+          // Using seller_id fields instead of store_link fields
+          amazon_seller_id: values.amazonStoreLink || null,
+          walmart_seller_id: values.walmartStoreLink || null,
+          ebay_seller_id: values.ebayStoreLink || null,
           product_categories: values.productCategories,
           sales_volume: values.salesVolume,
           wholesale_budget: values.wholesaleBudget,
@@ -97,6 +98,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
         .select();
       
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
       
