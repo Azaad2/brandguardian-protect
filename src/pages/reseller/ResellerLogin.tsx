@@ -5,6 +5,7 @@ import LoginForm from '@/components/auth/LoginForm';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
+import CreateTestAccount from '@/components/auth/CreateTestAccount';
 
 const ResellerLogin = () => {
   const { user, userRole } = useAuth();
@@ -34,6 +35,7 @@ const ResellerLogin = () => {
       }
     >
       <LoginForm userRole="reseller" />
+      <CreateTestAccount userRole="reseller" />
     </AuthLayout>
   );
 };
