@@ -27,17 +27,8 @@ interface LoginFormProps {
 const LoginForm = ({ userRole }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const { signIn, isLoading, user, userRole: currentUserRole } = useAuth();
+  const { signIn, isLoading } = useAuth();
   const navigate = useNavigate();
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (user && currentUserRole === userRole) {
-      navigate(`/${userRole}/dashboard`);
-    } else if (user && currentUserRole && currentUserRole !== userRole) {
-      navigate(`/${currentUserRole}/dashboard`);
-    }
-  }, [user, currentUserRole, userRole, navigate]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -50,32 +41,29 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const onSubmit = async (data: LoginFormValues) => {
     setIsAuthenticating(true);
     try {
-      // Use the Supabase client directly for more control
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
+      await signIn(data.email, data.password);
       
-      if (error) {
-        throw error;
-      }
+      // Success message will be shown from auth hooks
+      // Redirection will be handled by the ResellerLogin component
       
-      if (authData.session) {
-        // Successfully signed in
-        toast({
-          title: "Signed in successfully",
-          description: "Redirecting to your dashboard...",
-        });
-        
-        // For testing purposes, bypass role check and redirect directly to dashboard
-        navigate(`/${userRole}/dashboard`);
-      }
     } catch (error: any) {
       console.error('Login error:', error);
+      
+      // Handle different error types
+      let errorMessage = 'Please check your credentials and try again';
+      
+      if (error.message === 'Email not confirmed') {
+        errorMessage = 'Please check your email to confirm your account before logging in';
+      } else if (error.message?.includes('Invalid login')) {
+        errorMessage = 'Invalid email or password';
+      } else if (error.message?.includes('Too many requests')) {
+        errorMessage = 'Too many login attempts. Please try again later';
+      }
+      
       toast({
         variant: 'destructive',
         title: 'Sign in failed',
-        description: error.message || 'Please check your credentials and try again',
+        description: errorMessage,
       });
     } finally {
       setIsAuthenticating(false);

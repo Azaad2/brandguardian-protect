@@ -2,8 +2,23 @@
 import { Link } from 'react-router-dom';
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
+import { useEffect } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { useNavigate } from 'react-router-dom';
 
 const ResellerLogin = () => {
+  const { user, userRole } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect if already authenticated as a reseller
+  useEffect(() => {
+    if (user && userRole === 'reseller') {
+      navigate('/reseller/dashboard');
+    } else if (user && userRole === 'brand') {
+      navigate('/brand/dashboard');
+    }
+  }, [user, userRole, navigate]);
+
   return (
     <AuthLayout
       title="Sign in to your Reseller account"
