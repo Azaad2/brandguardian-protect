@@ -14,7 +14,31 @@ export const useAuthState = () => {
   useEffect(() => {
     setIsLoading(true);
     
-    // Get initial session
+    // Set up auth state listener FIRST to avoid missing events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id || 'no user');
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          try {
+            const role = await fetchUserRole(session.user.id);
+            setUserRole(role);
+          } catch (error) {
+            console.error('Error fetching user role on auth change:', error);
+            setUserRole(null);
+          }
+        } else {
+          setUserRole(null);
+        }
+        
+        setIsLoading(false);
+      }
+    );
+    
+    // THEN get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -23,27 +47,18 @@ export const useAuthState = () => {
         fetchUserRole(session.user.id).then(role => {
           setUserRole(role);
           setIsLoading(false);
+        }).catch(error => {
+          console.error('Error fetching initial user role:', error);
+          setUserRole(null);
+          setIsLoading(false);
         });
       } else {
         setIsLoading(false);
       }
+    }).catch(error => {
+      console.error('Error getting initial session:', error);
+      setIsLoading(false);
     });
-    
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const role = await fetchUserRole(session.user.id);
-          setUserRole(role);
-        } else {
-          setUserRole(null);
-        }
-        setIsLoading(false);
-      }
-    );
     
     // Cleanup subscription
     return () => subscription.unsubscribe();

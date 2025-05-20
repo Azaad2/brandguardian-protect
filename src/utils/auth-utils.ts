@@ -16,9 +16,9 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
     
     const { data, error } = await supabase
       .from('profiles')
-      .select('user_role')
+      .select('user_role, full_name, company_name')
       .eq('id', userId)
-      .maybeSingle(); // Using maybeSingle instead of single for more graceful error handling
+      .maybeSingle();
       
     if (error) {
       console.error('Error fetching user role:', error.message, error.details);
@@ -27,6 +27,35 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
     
     if (!data) {
       console.log(`No profile found for user: ${userId}`);
+      
+      // Attempt to retrieve user data directly from auth and create profile
+      const { data: userData } = await supabase.auth.getUser(userId);
+      
+      if (userData?.user) {
+        const metadata = userData.user.user_metadata;
+        const userEmail = userData.user.email;
+        
+        if (userEmail) {
+          // Create profile if missing
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: userEmail,
+              full_name: metadata?.full_name || null,
+              company_name: metadata?.company_name || null,
+              user_role: metadata?.user_role || null
+            });
+            
+          if (insertError) {
+            console.error('Error creating missing profile:', insertError);
+          } else {
+            console.log('Created missing profile for user:', userId);
+            return metadata?.user_role as UserRole || null;
+          }
+        }
+      }
+      
       return null;
     }
     
