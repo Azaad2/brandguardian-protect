@@ -40,7 +40,7 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: FormSubmissio
           console.error('Document handling error:', uploadError);
           // Continue with form submission even if document upload fails
           toast({
-            variant: "warning",
+            variant: "default", // Changed from "warning" to "default" to fix the type error
             title: "Document upload issue",
             description: "Your application was submitted, but there was an issue with the document upload. You can contact support to provide your documents later.",
           });
