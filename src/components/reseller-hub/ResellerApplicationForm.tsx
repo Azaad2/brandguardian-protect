@@ -79,7 +79,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       const { data, error } = await supabase
         .from('reseller_applications')
         .insert({
-          user_id: user?.id, // Link to user if authenticated
+          user_id: user?.id || null, // Link to user if authenticated
           company_name: values.companyName,
           business_type: values.businessType,
           ein_number: values.einNumber,
@@ -94,6 +94,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
           email: values.email,
           phone: values.phone,
           linkedin: values.linkedIn || '',
+          status: 'pending'
         })
         .select();
       
