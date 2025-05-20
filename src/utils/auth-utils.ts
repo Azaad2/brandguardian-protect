@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole } from '@/types/auth';
 
@@ -39,13 +40,17 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
             console.log('Attempting to create profile from metadata:', metadata);
             
             // Create profile if missing using RPC function to bypass RLS
-            const { error: insertError } = await supabase.rpc('create_user_profile', {
-              user_id: userId,
-              user_email: userEmail,
-              user_full_name: metadata?.full_name || null,
-              user_company_name: metadata?.company_name || null,
-              user_role: metadata?.user_role || null
-            });
+            // Use 'any' type assertion to bypass TypeScript's type checking for the RPC function
+            const { error: insertError } = await supabase.rpc(
+              'create_user_profile' as any, 
+              {
+                user_id: userId,
+                user_email: userEmail,
+                user_full_name: metadata?.full_name || null,
+                user_company_name: metadata?.company_name || null,
+                user_role: metadata?.user_role || null
+              }
+            );
               
             if (insertError) {
               console.error('Error creating missing profile via RPC:', insertError);
