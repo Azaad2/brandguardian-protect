@@ -39,16 +39,20 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
           if (userEmail) {
             console.log('Attempting to create profile from metadata:', metadata);
             
+            // Set a default user role if none exists in metadata
+            const userRole = metadata?.user_role || 'reseller';
+            const fullName = metadata?.full_name || userEmail.split('@')[0];
+            const companyName = metadata?.company_name || `${fullName}'s Company`;
+            
             // Create profile if missing using RPC function to bypass RLS
-            // Use 'any' type assertion to bypass TypeScript's type checking for the RPC function
             const { error: insertError } = await supabase.rpc(
               'create_user_profile' as any, 
               {
                 user_id: userId,
                 user_email: userEmail,
-                user_full_name: metadata?.full_name || null,
-                user_company_name: metadata?.company_name || null,
-                user_role: metadata?.user_role || null
+                user_full_name: fullName,
+                user_company_name: companyName,
+                user_role: userRole
               }
             );
               
@@ -58,7 +62,7 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
               return metadata?.user_role as UserRole || null;
             } else {
               console.log('Created missing profile for user via RPC:', userId);
-              return metadata?.user_role as UserRole || null;
+              return userRole as UserRole;
             }
           }
         }
