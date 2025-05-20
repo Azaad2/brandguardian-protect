@@ -71,6 +71,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         title: 'Sign in failed',
         description: error.message,
       });
+      throw error; // Re-throw to allow the component to handle the error
     } finally {
       setIsLoading(false);
     }

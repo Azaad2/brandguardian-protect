@@ -28,32 +28,36 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
     if (!data) {
       console.log(`No profile found for user: ${userId}`);
       
-      // Attempt to retrieve user data directly from auth and create profile
-      const { data: userData } = await supabase.auth.getUser(userId);
-      
-      if (userData?.user) {
-        const metadata = userData.user.user_metadata;
-        const userEmail = userData.user.email;
+      try {
+        // This is the correct way to get user data - not with getUser(userId)
+        const { data: userData } = await supabase.auth.getUser();
         
-        if (userEmail) {
-          // Create profile if missing
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: userId,
-              email: userEmail,
-              full_name: metadata?.full_name || null,
-              company_name: metadata?.company_name || null,
-              user_role: metadata?.user_role || null
-            });
-            
-          if (insertError) {
-            console.error('Error creating missing profile:', insertError);
-          } else {
-            console.log('Created missing profile for user:', userId);
-            return metadata?.user_role as UserRole || null;
+        if (userData?.user) {
+          const metadata = userData.user.user_metadata;
+          const userEmail = userData.user.email;
+          
+          if (userEmail) {
+            // Create profile if missing
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: userId,
+                email: userEmail,
+                full_name: metadata?.full_name || null,
+                company_name: metadata?.company_name || null,
+                user_role: metadata?.user_role || null
+              });
+              
+            if (insertError) {
+              console.error('Error creating missing profile:', insertError);
+            } else {
+              console.log('Created missing profile for user:', userId);
+              return metadata?.user_role as UserRole || null;
+            }
           }
         }
+      } catch (authError) {
+        console.error('Error retrieving auth user data:', authError);
       }
       
       return null;
