@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole } from '@/types/auth';
 
@@ -29,7 +28,7 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
       console.log(`No profile found for user: ${userId}`);
       
       try {
-        // This is the correct way to get user data - not with getUser(userId)
+        // Get current user data from session
         const { data: userData } = await supabase.auth.getUser();
         
         if (userData?.user) {
@@ -37,27 +36,38 @@ export const fetchUserRole = async (userId: string): Promise<UserRole | null> =>
           const userEmail = userData.user.email;
           
           if (userEmail) {
-            // Create profile if missing
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert({
-                id: userId,
-                email: userEmail,
-                full_name: metadata?.full_name || null,
-                company_name: metadata?.company_name || null,
-                user_role: metadata?.user_role || null
-              });
+            console.log('Attempting to create profile from metadata:', metadata);
+            
+            // Create profile if missing using RPC function to bypass RLS
+            const { error: insertError } = await supabase.rpc('create_user_profile', {
+              user_id: userId,
+              user_email: userEmail,
+              user_full_name: metadata?.full_name || null,
+              user_company_name: metadata?.company_name || null,
+              user_role: metadata?.user_role || null
+            });
               
             if (insertError) {
-              console.error('Error creating missing profile:', insertError);
+              console.error('Error creating missing profile via RPC:', insertError);
+              // Try to return the role from metadata as fallback
+              return metadata?.user_role as UserRole || null;
             } else {
-              console.log('Created missing profile for user:', userId);
+              console.log('Created missing profile for user via RPC:', userId);
               return metadata?.user_role as UserRole || null;
             }
           }
         }
       } catch (authError) {
         console.error('Error retrieving auth user data:', authError);
+        // Try to extract role directly from session as last resort
+        try {
+          const { data: session } = await supabase.auth.getSession();
+          if (session?.session?.user?.user_metadata?.user_role) {
+            return session.session.user.user_metadata.user_role as UserRole;
+          }
+        } catch (sessionError) {
+          console.error('Error extracting role from session:', sessionError);
+        }
       }
       
       return null;

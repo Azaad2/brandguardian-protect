@@ -42,8 +42,11 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
       console.log(`Attempting to sign in as ${userRole} with email: ${data.email}`);
       await signIn(data.email, data.password);
       
-      // Success message will be shown from auth hooks
-      // Redirection will be handled by the ResellerLogin component
+      // Success toast
+      toast({
+        title: "Login successful",
+        description: "Redirecting to your dashboard...",
+      });
       
     } catch (error: any) {
       console.error('Login error:', error);
