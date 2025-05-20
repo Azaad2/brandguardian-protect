@@ -10,10 +10,38 @@ interface DocumentUploadProps {
 
 const DocumentUpload = ({ documentFile, setDocumentFile }: DocumentUploadProps) => {
   const { toast } = useToast();
+  const maxFileSizeMB = 5;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      
+      // Check file size (5MB limit)
+      if (file.size > maxFileSizeMB * 1024 * 1024) {
+        toast({
+          variant: "destructive",
+          title: "File size too large",
+          description: `The file exceeds the ${maxFileSizeMB}MB limit. Please select a smaller file.`,
+        });
+        return;
+      }
+      
+      // Check file type
+      const acceptedTypes = ['.pdf', '.jpg', '.jpeg', '.png', 'application/pdf', 'image/jpeg', 'image/png'];
+      const fileType = file.type;
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      
+      if (!acceptedTypes.some(type => 
+        type === fileType || type === fileExtension
+      )) {
+        toast({
+          variant: "destructive",
+          title: "Invalid file type",
+          description: "Please upload a PDF, JPG, or PNG file.",
+        });
+        return;
+      }
+      
       setDocumentFile(file);
       toast({
         title: "Document attached",
@@ -40,7 +68,7 @@ const DocumentUpload = ({ documentFile, setDocumentFile }: DocumentUploadProps) 
             <p className="mt-2 text-sm text-gray-500">
               Upload your EIN documents or Resale Certificate
             </p>
-            <p className="text-xs text-gray-400 mt-1">PDF, JPG, or PNG files up to 5MB</p>
+            <p className="text-xs text-gray-400 mt-1">PDF, JPG, or PNG files up to {maxFileSizeMB}MB</p>
             <div className="mt-4">
               <label
                 htmlFor="document-upload"
@@ -56,6 +84,9 @@ const DocumentUpload = ({ documentFile, setDocumentFile }: DocumentUploadProps) 
                 className="sr-only"
               />
             </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Note: Document upload is optional. You can submit your application without a document and provide it later if needed.
+            </p>
           </div>
         ) : (
           <div className="flex justify-between items-center">

@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { FormValues } from '../ResellerFormSchema';
 import { 
   trackRedditPixelConversion,
-  sendFormWithDocument,
+  sendFormWithoutDocument,
   submitApplication,
   uploadDocument,
   sendApplicationEmail
@@ -34,19 +34,28 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: FormSubmissio
       if (documentFile && user) {
         try {
           await uploadDocument(documentFile, user.id);
-          
-          // Also send document through Formspree
-          const formspreeSubmission = await sendFormWithDocument(values, documentFile);
-          if (!formspreeSubmission) {
-            console.warn('Formspree submission may have issues with the document');
-          }
+          console.log('Document uploaded successfully');
+          // Do not attempt to send file via Formspree as it's not supported
         } catch (uploadError) {
           console.error('Document handling error:', uploadError);
           // Continue with form submission even if document upload fails
+          toast({
+            variant: "warning",
+            title: "Document upload issue",
+            description: "Your application was submitted, but there was an issue with the document upload. You can contact support to provide your documents later.",
+          });
         }
-      } else {
-        // Send form without document through regular email utility
+      }
+      
+      // Always send application through Formspree without document
+      await sendFormWithoutDocument(values);
+      
+      // Also send via standard email utility
+      try {
         await sendApplicationEmail(data, values);
+      } catch (emailError) {
+        console.error('Email sending error:', emailError);
+        // Email sending is non-critical, continue with success path
       }
       
       // Track successful form submission with Reddit Pixel

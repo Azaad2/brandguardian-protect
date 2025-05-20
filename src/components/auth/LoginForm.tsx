@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { useAuth } from '@/hooks/use-auth';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -27,6 +26,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { signIn, isLoading } = useAuth();
+  const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -49,14 +49,18 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
       console.error('Login error:', error);
       
       // Handle different error types
-      let errorMessage = 'Please check your credentials and try again';
+      let errorMessage = 'Invalid email or password. Please check your credentials and try again.';
       
-      if (error.message === 'Email not confirmed') {
-        errorMessage = 'Please check your email to confirm your account before logging in';
-      } else if (error.message?.includes('Invalid login')) {
-        errorMessage = 'Invalid email or password';
-      } else if (error.message?.includes('Too many requests')) {
-        errorMessage = 'Too many login attempts. Please try again later';
+      if (typeof error === 'object' && error !== null) {
+        if (error.message?.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email to confirm your account before logging in';
+        } else if (error.message?.includes('Invalid login')) {
+          errorMessage = 'Invalid email or password';
+        } else if (error.message?.includes('Too many requests')) {
+          errorMessage = 'Too many login attempts. Please try again later';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
       }
       
       toast({
