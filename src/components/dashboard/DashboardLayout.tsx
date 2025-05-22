@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import SidebarNav from './layout/SidebarNav';
 import TopBar from './layout/TopBar';
 import { brandNavItems, resellerNavItems, adminNavItems } from './data/navItems';
@@ -8,19 +8,32 @@ import { useMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole } from '@/types/auth';
+import { NavItem } from './types';
 
 const DashboardLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isMobile } = useMobile();
   const { user } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
+  const location = useLocation();
 
-  // Set appropriate nav items based on user role
-  const userRole = (user?.role || 'reseller') as UserRole;
-  const navItems = 
-    userRole === 'brand' ? brandNavItems :
-    userRole === 'admin' ? adminNavItems :
-    resellerNavItems;
+  // Determine which nav items to use based on the current URL path
+  const getNavItemsFromPath = (): { navItems: NavItem[], userRole: UserRole } => {
+    const path = location.pathname;
+    
+    if (path.startsWith('/brand')) {
+      return { navItems: brandNavItems, userRole: 'brand' };
+    }
+    if (path.startsWith('/admin')) {
+      return { navItems: adminNavItems, userRole: 'admin' };
+    }
+    
+    // Default to reseller
+    return { navItems: resellerNavItems, userRole: 'reseller' };
+  };
+  
+  // Get the appropriate nav items for the current path
+  const { navItems, userRole } = getNavItemsFromPath();
 
   // Close sidebar on mobile when route changes
   const toggleSidebar = () => {

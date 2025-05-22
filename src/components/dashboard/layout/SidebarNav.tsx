@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,34 +24,42 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
-
-  // Completely rewritten isActive function to fix navigation issues
+  
+  // Completely rebuilt isActive function with debugging
   const isActive = (href: string) => {
-    // Get context ("brand", "reseller", "admin") from both paths
-    const hrefSegments = href.split('/');
-    const pathSegments = location.pathname.split('/');
-    const hrefContext = hrefSegments[1]; // "brand", "reseller", etc
-    const pathContext = pathSegments[1]; // Current context
+    const currentPath = location.pathname;
     
-    // First check if we're even in the same portal (brand vs reseller vs admin)
-    if (hrefContext !== pathContext) {
-      return false;
-    }
-    
-    // Exact match for root dashboard pages
-    if (href === `/${hrefContext}/dashboard` && location.pathname === href) {
+    // Direct exact match (handles dashboard root pages)
+    if (href === currentPath) {
       return true;
     }
     
-    // For nested routes, check if the current path starts with the nav item path
-    // But make sure the next segment matches too to prevent partial matches
-    if (href !== `/${hrefContext}/dashboard`) {
-      // For non-root items, we need more specific matching
-      // Make sure we're matching the specific section (e.g., /brand/dashboard/inventory)
-      const hrefSection = href.split('/')[3]; // The section part: inventory, orders, etc.
-      const pathSection = pathSegments[3]; // Current section
-      
-      return hrefSection === pathSection;
+    // For nested routes within a specific section
+    // Extract the portal and section from both the href and current path
+    const hrefParts = href.split('/');
+    const pathParts = currentPath.split('/');
+    
+    if (hrefParts.length < 3 || pathParts.length < 3) {
+      return false;
+    }
+    
+    // Check if we're in the same portal (brand, reseller, admin)
+    const samePortal = hrefParts[1] === pathParts[1];
+    if (!samePortal) return false;
+    
+    // Check if we're on the dashboard page
+    const bothOnDashboard = hrefParts[2] === 'dashboard' && pathParts[2] === 'dashboard';
+    if (!bothOnDashboard) return false;
+    
+    // For section-specific pages, match the section (inventory, orders, etc.)
+    if (hrefParts.length > 3 && pathParts.length > 3) {
+      return hrefParts[3] === pathParts[3];
+    }
+    
+    // If the href is exactly to /[portal]/dashboard and we're on a nested route,
+    // don't consider it active
+    if (hrefParts.length === 3 && pathParts.length > 3) {
+      return false;
     }
     
     return false;
@@ -88,33 +95,36 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
       </div>
       <Separator />
 
-      {/* Navigation */}
+      {/* Navigation - Fixed using <Link> instead of <a> tags */}
       <nav className="space-y-1 px-2 py-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={cn(
-              "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-100 hover:text-slate-900",
-              isActive(item.href) 
-                ? "bg-primary/10 text-primary" 
-                : "text-slate-700",
-              !isOpen && "lg:justify-center lg:px-0"
-            )}
-          >
-            <item.icon className={cn("h-5 w-5", !isOpen && "lg:h-6 lg:w-6")} />
-            {isOpen && (
-              <div className="ml-3 flex flex-1 items-center justify-between lg:inline">
-                <span>{item.title}</span>
-                {item.badge && (
-                  <Badge variant="secondary" className="ml-auto">
-                    {item.badge}
-                  </Badge>
-                )}
-              </div>
-            )}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-100 hover:text-slate-900",
+                active
+                  ? "bg-primary/10 text-primary" 
+                  : "text-slate-700",
+                !isOpen && "lg:justify-center lg:px-0"
+              )}
+            >
+              <item.icon className={cn("h-5 w-5", !isOpen && "lg:h-6 lg:w-6")} />
+              {isOpen && (
+                <div className="ml-3 flex flex-1 items-center justify-between lg:inline">
+                  <span>{item.title}</span>
+                  {item.badge && (
+                    <Badge variant="secondary" className="ml-auto">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

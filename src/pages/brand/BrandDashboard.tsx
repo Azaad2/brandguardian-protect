@@ -1,5 +1,5 @@
 
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import BrandOverview from '@/components/brand/BrandOverview';
 import BrandResellers from '@/components/brand/BrandResellers';
@@ -14,6 +14,11 @@ import BrandComplianceMonitor from '@/components/brand/BrandComplianceMonitor';
 import BrandReports from '@/components/brand/BrandReports';
 
 const BrandDashboard = () => {
+  const location = useLocation();
+  
+  // Log the current route for debugging
+  console.log("Brand Dashboard rendering with path:", location.pathname);
+  
   return (
     <Routes>
       <Route element={<DashboardLayout />}>
@@ -28,7 +33,8 @@ const BrandDashboard = () => {
         <Route path="listings" element={<BrandListings />} />
         <Route path="compliance" element={<BrandComplianceMonitor />} />
         <Route path="reports" element={<BrandReports />} />
-        {/* Add catch-all route to redirect any unknown paths */}
+        
+        {/* Add a catch-all route to redirect any unknown paths */}
         <Route path="*" element={<Navigate to="/brand/dashboard" replace />} />
       </Route>
     </Routes>
