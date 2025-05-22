@@ -68,11 +68,11 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
       <nav className="space-y-1 px-2 py-4">
         {navItems.map((item) => (
           <Link
-            key={item.path}
-            to={item.path}
+            key={item.href}
+            to={item.href}
             className={cn(
               "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-100 hover:text-slate-900",
-              isActive(item.path) 
+              isActive(item.href) 
                 ? "bg-primary/10 text-primary" 
                 : "text-slate-700",
               !isOpen && "lg:justify-center lg:px-0"
@@ -81,7 +81,7 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
             <item.icon className={cn("h-5 w-5", !isOpen && "lg:h-6 lg:w-6")} />
             {isOpen && (
               <div className="ml-3 flex flex-1 items-center justify-between lg:inline">
-                <span>{item.label}</span>
+                <span>{item.title}</span>
                 {item.badge && (
                   <Badge variant="secondary" className="ml-auto">
                     {item.badge}

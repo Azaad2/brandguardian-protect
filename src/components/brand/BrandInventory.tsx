@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -143,7 +142,7 @@ const BrandInventory = () => {
             Filter
           </Button>
           <label htmlFor="file-upload" className="cursor-pointer">
-            <Button variant="outline" size="sm" type="button" as="span">
+            <Button variant="outline" size="sm" type="button">
               <Upload className="mr-2 h-4 w-4" />
               Upload Catalog
             </Button>
@@ -253,7 +252,7 @@ const BrandInventory = () => {
                 </p>
                 <div className="mt-4">
                   <label htmlFor="first-catalog-upload" className="cursor-pointer">
-                    <Button variant="outline" size="sm" as="span">
+                    <Button variant="outline" size="sm">
                       <Upload className="mr-2 h-4 w-4" />
                       Upload Your First Catalog
                     </Button>
