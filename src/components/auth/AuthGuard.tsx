@@ -3,6 +3,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { UserRole } from '@/types/auth';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -15,11 +17,20 @@ const AuthGuard = ({
   children, 
   requiredRole, 
   redirectTo = '/',
-  bypassAuth = true  // Changed to true for testing purposes
+  bypassAuth = true  // Kept as true for testing purposes
 }: AuthGuardProps) => {
   const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
   const [accessGranted, setAccessGranted] = useState(false);
+  
+  // Portal testing helper
+  const navigateToPortal = (portal: 'brand' | 'reseller' | 'admin') => {
+    navigate(`/${portal}/dashboard`);
+    toast({
+      title: `Switched to ${portal} portal`,
+      description: `You are now viewing the ${portal} dashboard`,
+    });
+  };
   
   useEffect(() => {
     // If bypassing auth, grant access immediately
@@ -68,9 +79,51 @@ const AuthGuard = ({
       </div>
     );
   }
+
+  // Portal switcher for testing purposes
+  const TestingPortalSwitcher = () => {
+    if (!bypassAuth) return null;
+    
+    return (
+      <div className="fixed top-16 right-4 z-50 bg-white p-2 rounded shadow-lg border border-gray-200">
+        <div className="text-xs text-gray-500 mb-1">Testing: Switch Portal</div>
+        <div className="flex gap-2">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="h-7 text-xs" 
+            onClick={() => navigateToPortal('brand')}
+          >
+            Brand
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="h-7 text-xs"
+            onClick={() => navigateToPortal('reseller')}
+          >
+            Reseller
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="h-7 text-xs"
+            onClick={() => navigateToPortal('admin')}
+          >
+            Admin
+          </Button>
+        </div>
+      </div>
+    );
+  };
   
   // Only render children if access is granted or we're bypassing auth
-  return accessGranted || bypassAuth ? <>{children}</> : null;
+  return accessGranted || bypassAuth ? (
+    <>
+      {children}
+      <TestingPortalSwitcher />
+    </>
+  ) : null;
 };
 
 export default AuthGuard;

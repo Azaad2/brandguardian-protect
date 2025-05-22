@@ -24,6 +24,7 @@ import ResellerSignup from "./pages/reseller/ResellerSignup";
 import PasswordReset from "./pages/auth/PasswordReset";
 import AuthGuard from "./components/auth/AuthGuard";
 import ResellerRegistration from "./pages/admin/ResellerRegistration";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,11 @@ const App = () => (
                 <Route path="/admin/reseller-registration" element={
                   <AuthGuard bypassAuth={true}>
                     <ResellerRegistration />
+                  </AuthGuard>
+                } />
+                <Route path="/admin/dashboard/*" element={
+                  <AuthGuard bypassAuth={true} requiredRole="admin" redirectTo="/admin">
+                    <AdminDashboard />
                   </AuthGuard>
                 } />
                 

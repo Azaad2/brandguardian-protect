@@ -36,6 +36,33 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -114,8 +141,46 @@ export type Database = {
         }
         Relationships: []
       }
+      product_uploads: {
+        Row: {
+          admin_notes: string | null
+          brand_id: string
+          created_at: string
+          file_url: string | null
+          id: string
+          name: string
+          product_count: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          brand_id: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          name: string
+          product_count?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          brand_id?: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          name?: string
+          product_count?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
+          approval_status: string | null
+          asin: string | null
           brand_id: string | null
           categories: string[] | null
           created_at: string
@@ -128,9 +193,12 @@ export type Database = {
           sku: string
           stock: number
           updated_at: string
+          upload_batch_id: string | null
           wholesale_price: number
         }
         Insert: {
+          approval_status?: string | null
+          asin?: string | null
           brand_id?: string | null
           categories?: string[] | null
           created_at?: string
@@ -143,9 +211,12 @@ export type Database = {
           sku: string
           stock?: number
           updated_at?: string
+          upload_batch_id?: string | null
           wholesale_price: number
         }
         Update: {
+          approval_status?: string | null
+          asin?: string | null
           brand_id?: string | null
           categories?: string[] | null
           created_at?: string
@@ -158,9 +229,18 @@ export type Database = {
           sku?: string
           stock?: number
           updated_at?: string
+          upload_batch_id?: string | null
           wholesale_price?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_upload_batch_id_fkey"
+            columns: ["upload_batch_id"]
+            isOneToOne: false
+            referencedRelation: "product_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -260,6 +340,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_user_upload_access: {
+        Args: { bucket_id: string; owner: string }
+        Returns: boolean
+      }
       create_user_profile: {
         Args: {
           user_id: string
