@@ -26,25 +26,36 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
     setIsOpen(!isOpen);
   };
 
-  // Fixed: Properly check if a navigation item is active
-  const isActive = (path: string) => {
-    // For dashboard root routes, do exact match
-    if (path === "/brand/dashboard" || path === "/reseller/dashboard" || path === "/admin/dashboard") {
-      return location.pathname === path;
-    }
+  // Completely rewritten isActive function to fix navigation issues
+  const isActive = (href: string) => {
+    // Get context ("brand", "reseller", "admin") from both paths
+    const hrefSegments = href.split('/');
+    const pathSegments = location.pathname.split('/');
+    const hrefContext = hrefSegments[1]; // "brand", "reseller", etc
+    const pathContext = pathSegments[1]; // Current context
     
-    // Make sure we're comparing paths in the same context (brand, reseller, admin)
-    // This prevents cross-dashboard highlighting
-    const pathParts = path.split('/');
-    const currentPathParts = location.pathname.split('/');
-    
-    // Check if we're in the same context (brand, reseller, admin)
-    if (pathParts[1] !== currentPathParts[1]) {
+    // First check if we're even in the same portal (brand vs reseller vs admin)
+    if (hrefContext !== pathContext) {
       return false;
     }
     
-    // For all other routes, check if the current path starts with the nav item path
-    return location.pathname.startsWith(path);
+    // Exact match for root dashboard pages
+    if (href === `/${hrefContext}/dashboard` && location.pathname === href) {
+      return true;
+    }
+    
+    // For nested routes, check if the current path starts with the nav item path
+    // But make sure the next segment matches too to prevent partial matches
+    if (href !== `/${hrefContext}/dashboard`) {
+      // For non-root items, we need more specific matching
+      // Make sure we're matching the specific section (e.g., /brand/dashboard/inventory)
+      const hrefSection = href.split('/')[3]; // The section part: inventory, orders, etc.
+      const pathSection = pathSegments[3]; // Current section
+      
+      return hrefSection === pathSection;
+    }
+    
+    return false;
   };
 
   return (
