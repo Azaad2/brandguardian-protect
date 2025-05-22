@@ -217,6 +217,7 @@ const BrandInventory = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* ... keep existing code (isLoading check) */}
           {isLoading ? (
             <div className="text-center py-4">Loading catalogs...</div>
           ) : catalogs && catalogs.length > 0 ? (
@@ -236,8 +237,9 @@ const BrandInventory = () => {
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(catalog.status)}`}>
                       {catalog.status.charAt(0).toUpperCase() + catalog.status.slice(1)}
                     </span>
-                    <Button variant="ghost" size="sm" asChild>
-                      <a href={catalog.file_url} target="_blank" rel="noopener noreferrer">View</a>
+                    {/* Fixed: Changed `asChild` to use a regular Button with an onClick handler */}
+                    <Button variant="ghost" size="sm" onClick={() => window.open(catalog.file_url, '_blank')}>
+                      View
                     </Button>
                   </div>
                 </div>

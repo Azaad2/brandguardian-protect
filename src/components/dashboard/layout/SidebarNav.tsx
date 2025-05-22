@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -25,15 +26,24 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
     setIsOpen(!isOpen);
   };
 
-  // Check if a navigation item is active - Fixed to handle nested routes correctly
+  // Fixed: Properly check if a navigation item is active
   const isActive = (path: string) => {
-    // Check for exact match with dashboard root
+    // For dashboard root routes, do exact match
     if (path === "/brand/dashboard" || path === "/reseller/dashboard" || path === "/admin/dashboard") {
       return location.pathname === path;
     }
     
-    // For other routes, check if the current path starts with the nav item path
-    // This ensures nested routes are highlighted correctly
+    // Make sure we're comparing paths in the same context (brand, reseller, admin)
+    // This prevents cross-dashboard highlighting
+    const pathParts = path.split('/');
+    const currentPathParts = location.pathname.split('/');
+    
+    // Check if we're in the same context (brand, reseller, admin)
+    if (pathParts[1] !== currentPathParts[1]) {
+      return false;
+    }
+    
+    // For all other routes, check if the current path starts with the nav item path
     return location.pathname.startsWith(path);
   };
 

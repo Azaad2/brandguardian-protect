@@ -1,5 +1,5 @@
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import BrandOverview from '@/components/brand/BrandOverview';
 import BrandResellers from '@/components/brand/BrandResellers';
@@ -28,6 +28,8 @@ const BrandDashboard = () => {
         <Route path="listings" element={<BrandListings />} />
         <Route path="compliance" element={<BrandComplianceMonitor />} />
         <Route path="reports" element={<BrandReports />} />
+        {/* Add catch-all route to redirect any unknown paths */}
+        <Route path="*" element={<Navigate to="/brand/dashboard" replace />} />
       </Route>
     </Routes>
   );
