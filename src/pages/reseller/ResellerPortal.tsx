@@ -1,9 +1,10 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserCheck, UserPlus, ArrowRight } from 'lucide-react';
+import { UserCheck, UserPlus, ArrowRight, Settings } from 'lucide-react';
 import BndBoxLogo from '@/components/branding/BndBoxLogo';
 
 const ResellerPortal = () => {
@@ -25,10 +26,18 @@ const ResellerPortal = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-sm py-6">
-        <div className="container mx-auto px-4 flex justify-center">
+        <div className="container mx-auto px-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
             <BndBoxLogo className="h-10" />
           </Link>
+          <div className="flex gap-3">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/brand">Brand Portal</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/admin/dashboard">Admin Portal</Link>
+            </Button>
+          </div>
         </div>
       </header>
       
@@ -76,6 +85,15 @@ const ResellerPortal = () => {
                 </Button>
               </CardFooter>
             </Card>
+          </div>
+          
+          <div className="flex justify-center mt-6">
+            <Button variant="secondary" size="sm" asChild>
+              <Link to="/admin/dashboard">
+                <Settings className="mr-2 h-4 w-4" />
+                Access Admin Portal
+              </Link>
+            </Button>
           </div>
           
           <p className="text-sm text-gray-500 text-center mt-8">

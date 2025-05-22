@@ -1,6 +1,6 @@
 
 import { ReactNode, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { UserRole } from '@/types/auth';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ const AuthGuard = ({
 }: AuthGuardProps) => {
   const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [accessGranted, setAccessGranted] = useState(false);
   
   // Portal testing helper
@@ -80,8 +81,9 @@ const AuthGuard = ({
     );
   }
 
-  // Portal switcher for testing purposes
+  // Portal switcher for testing purposes - Always visible
   const TestingPortalSwitcher = () => {
+    // Always show the portal switcher when bypassAuth is true
     if (!bypassAuth) return null;
     
     return (
