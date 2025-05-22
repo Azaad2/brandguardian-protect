@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -26,11 +25,15 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
     setIsOpen(!isOpen);
   };
 
-  // Check if a navigation item is active
+  // Check if a navigation item is active - Fixed to handle nested routes correctly
   const isActive = (path: string) => {
-    if (path.endsWith('/dashboard')) {
+    // Check for exact match with dashboard root
+    if (path === "/brand/dashboard" || path === "/reseller/dashboard" || path === "/admin/dashboard") {
       return location.pathname === path;
     }
+    
+    // For other routes, check if the current path starts with the nav item path
+    // This ensures nested routes are highlighted correctly
     return location.pathname.startsWith(path);
   };
 

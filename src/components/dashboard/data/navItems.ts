@@ -10,6 +10,7 @@ import {
   Users,
   FileText,
   ClipboardCheck,
+  Bell,
 } from "lucide-react";
 
 export const brandNavItems = [
@@ -52,6 +53,16 @@ export const brandNavItems = [
     title: "Analytics",
     href: "/brand/dashboard/analytics",
     icon: BarChart3,
+  },
+  {
+    title: "Reports",
+    href: "/brand/dashboard/reports",
+    icon: FileText,
+  },
+  {
+    title: "Alerts",
+    href: "/brand/dashboard/alerts",
+    icon: Bell,
   },
   {
     title: "Settings",
