@@ -20,8 +20,8 @@ export const useProfileData = () => {
         
       if (error) throw error;
       
-      // Add bio property if it doesn't exist in the database
-      // We're explicitly adding bio to the returned object to ensure it exists
+      // The bio field now exists in the database, so we don't need to add it manually
+      // But we'll ensure it's never undefined in our application logic
       return {
         ...data,
         bio: data.bio || '',
