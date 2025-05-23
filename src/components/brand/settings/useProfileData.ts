@@ -20,9 +20,12 @@ export const useProfileData = () => {
         
       if (error) throw error;
 
-      // Check if bio exists, if not add it to the data
-      if (data && !('bio' in data)) {
-        data.bio = '';
+      // Add bio property if it doesn't exist in the database
+      if (data) {
+        return {
+          ...data,
+          bio: data.bio || '',
+        };
       }
       
       return data;

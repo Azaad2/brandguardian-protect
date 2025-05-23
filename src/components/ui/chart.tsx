@@ -89,14 +89,13 @@ export function LineChart({ data, className }: { data: ChartData; className?: st
         {data.datasets.map((dataset, index) => (
           <Line
             key={index}
-            type="monotone"
+            type={dataset.tension ? "natural" : "monotone"}
             dataKey={dataset.label}
             stroke={dataset.borderColor}
             strokeWidth={dataset.borderWidth || 2}
             dot={{ r: 4 }}
             activeDot={{ r: 8 }}
             strokeDasharray={dataset.borderDash}
-            {...(dataset.tension && { type: "natural" })}
           />
         ))}
       </ReChartsLineChart>
