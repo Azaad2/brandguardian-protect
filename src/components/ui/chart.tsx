@@ -1,222 +1,160 @@
 
-import React from "react";
+import * as React from "react";
 import { 
-  LineChart as RechartsLineChart, 
+  Bar, 
   Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  AreaChart as RechartsAreaChart, 
-  Area, 
-  BarChart as RechartsBarChart, 
-  Bar,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  Legend
+  Pie, 
+  BarChart as ReChartsBarChart,
+  LineChart as ReChartsLineChart,
+  PieChart as ReChartsPieChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Cell
 } from "recharts";
 
-// Chart data types to match the format used in our application
-export type ChartDataset = {
-  label: string;
-  data: number[];
-  backgroundColor?: string | string[];
-  borderColor?: string;
-  borderWidth?: number;
-  tension?: number;
-  borderDash?: number[];
-  fill?: string;
-};
-
-export type ChartData = {
+// Define type for chart data
+export interface ChartData {
   labels: string[];
-  datasets: ChartDataset[];
-};
-
-// Convert chart data format for recharts
-const formatChartData = (data: ChartData): any[] => {
-  return data.labels.map((label, i) => ({
-    name: label,
-    ...data.datasets.reduce((acc, dataset, j) => {
-      acc[dataset.label || `dataset-${j}`] = dataset.data[i];
-      return acc;
-    }, {} as Record<string, number>),
-  }));
-};
-
-// Convert data for pie chart
-const formatPieData = (data: ChartData): Array<{ name: string; value: number; color?: string }> => {
-  const dataset = data.datasets[0];
-  return data.labels.map((label, i) => ({
-    name: label,
-    value: dataset.data[i],
-    color: Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[i] : undefined,
-  }));
-};
-
-interface ChartProps {
-  data: ChartData;
-  xAxis?: string;
-  yAxis?: string;
-  color?: string;
-  showGrid?: boolean;
-  showAxisLabels?: boolean;
-  className?: string;
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor?: string | string[];
+    borderColor?: string;
+    borderWidth?: number;
+    tension?: number;
+    borderDash?: number[];
+  }[];
 }
 
-export const LineChart = ({ 
-  data, 
-  xAxis = "name", 
-  yAxis, 
-  color = "#3b82f6",
-  showGrid = true,
-  showAxisLabels = true,
-  className
-}: ChartProps) => {
-  const formattedData = formatChartData(data);
-  
-  return (
-    <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartsLineChart data={formattedData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
-        {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
-        {showAxisLabels && <YAxis fontSize={12} tickLine={false} axisLine={false} />}
-        <Tooltip 
-          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
-        />
-        {data.datasets.map((dataset, i) => (
-          <Line
-            key={i}
-            type="monotone"
-            dataKey={dataset.label}
-            stroke={dataset.borderColor || color}
-            strokeWidth={2}
-            dot={{ fill: dataset.borderColor || color, r: 3 }}
-            activeDot={{ fill: dataset.borderColor || color, r: 5 }}
-            strokeDasharray={dataset.borderDash}
-          />
-        ))}
-      </RechartsLineChart>
-    </ResponsiveContainer>
-  );
-};
+// Define type for pie chart data item
+export interface PieChartDataItem {
+  name: string;
+  value: number;
+  color?: string;
+}
 
-export const AreaChart = ({ 
-  data, 
-  xAxis = "name", 
-  yAxis, 
-  color = "#3b82f6",
-  showGrid = true,
-  showAxisLabels = true,
-  className
-}: ChartProps) => {
-  const formattedData = formatChartData(data);
-  
-  return (
-    <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartsAreaChart data={formattedData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
-        {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
-        {showAxisLabels && <YAxis fontSize={12} tickLine={false} axisLine={false} />}
-        <Tooltip 
-          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
-        />
-        {data.datasets.map((dataset, i) => (
-          <Area
-            key={i}
-            type="monotone"
-            dataKey={dataset.label}
-            stroke={dataset.borderColor || color}
-            fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : `${color}20`}
-            strokeWidth={2}
-          />
-        ))}
-      </RechartsAreaChart>
-    </ResponsiveContainer>
-  );
-};
+// Bar Chart Component
+export function BarChart({ data, className }: { data: ChartData; className?: string }) {
+  // Transform the data for recharts
+  const transformedData = data.labels.map((label, index) => {
+    const dataPoint: Record<string, any> = { name: label };
+    data.datasets.forEach((dataset) => {
+      dataPoint[dataset.label] = dataset.data[index];
+    });
+    return dataPoint;
+  });
 
-export const BarChart = ({ 
-  data, 
-  xAxis = "name", 
-  yAxis, 
-  color = "#3b82f6",
-  showGrid = true,
-  showAxisLabels = true,
-  className
-}: ChartProps) => {
-  const formattedData = formatChartData(data);
-  
   return (
     <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartsBarChart data={formattedData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
-        {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
-        {showAxisLabels && <YAxis fontSize={12} tickLine={false} axisLine={false} />}
-        <Tooltip 
-          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
-        />
-        {data.datasets.map((dataset, i) => (
+      <ReChartsBarChart data={transformedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {data.datasets.map((dataset, index) => (
           <Bar 
-            key={i} 
+            key={index}
             dataKey={dataset.label} 
             fill={Array.isArray(dataset.backgroundColor) 
               ? dataset.backgroundColor[0] 
-              : dataset.backgroundColor || color
-            } 
-            radius={[4, 4, 0, 0]} 
+              : dataset.backgroundColor}
           />
         ))}
-      </RechartsBarChart>
+      </ReChartsBarChart>
     </ResponsiveContainer>
   );
-};
-
-interface PieChartProps {
-  data: ChartData | Array<{ name: string; value: number; color?: string }>;
-  colors?: string[];
-  innerRadius?: number;
-  outerRadius?: number;
-  className?: string;
 }
 
-export const PieChart = ({ 
-  data, 
-  colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
-  innerRadius = 0,
-  outerRadius = 80,
-  className
-}: PieChartProps) => {
-  // Handle both data formats
-  const pieData = Array.isArray(data) ? data : formatPieData(data);
-  
+// Line Chart Component
+export function LineChart({ data, className }: { data: ChartData; className?: string }) {
+  // Transform the data for recharts
+  const transformedData = data.labels.map((label, index) => {
+    const dataPoint: Record<string, any> = { name: label };
+    data.datasets.forEach((dataset) => {
+      dataPoint[dataset.label] = dataset.data[index];
+    });
+    return dataPoint;
+  });
+
   return (
     <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartsPieChart margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+      <ReChartsLineChart data={transformedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {data.datasets.map((dataset, index) => (
+          <Line
+            key={index}
+            type="monotone"
+            dataKey={dataset.label}
+            stroke={dataset.borderColor}
+            strokeWidth={dataset.borderWidth || 2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 8 }}
+            strokeDasharray={dataset.borderDash}
+            {...(dataset.tension && { type: "natural" })}
+          />
+        ))}
+      </ReChartsLineChart>
+    </ResponsiveContainer>
+  );
+}
+
+// Pie Chart Component
+export function PieChart({ 
+  data, 
+  className 
+}: { 
+  data: ChartData | PieChartDataItem[]; 
+  className?: string 
+}) {
+  const isPieChartData = (data: any): data is PieChartDataItem[] => {
+    return Array.isArray(data) && data.length > 0 && 'name' in data[0] && 'value' in data[0];
+  };
+
+  // Transform data if it's in ChartData format
+  const transformedData = isPieChartData(data) 
+    ? data 
+    : data.labels.map((label, index) => ({
+        name: label,
+        value: data.datasets[0].data[index],
+        color: Array.isArray(data.datasets[0].backgroundColor) 
+          ? data.datasets[0].backgroundColor[index] 
+          : data.datasets[0].backgroundColor
+      }));
+
+  const COLORS = [
+    "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8",
+    "#82CA9D", "#A4DE6C", "#D0ED57", "#FFC658", "#8DD1E1"
+  ];
+
+  return (
+    <ResponsiveContainer width="100%" height="100%" className={className}>
+      <ReChartsPieChart>
         <Pie
-          data={pieData}
+          data={transformedData}
+          dataKey="value"
+          nameKey="name"
           cx="50%"
           cy="50%"
-          labelLine={false}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
+          outerRadius={80}
           fill="#8884d8"
-          dataKey="value"
+          label={(entry) => entry.name}
         >
-          {pieData.map((entry, index) => (
+          {transformedData.map((entry, index) => (
             <Cell 
               key={`cell-${index}`} 
-              fill={entry.color || colors[index % colors.length]} 
+              fill={entry.color || COLORS[index % COLORS.length]} 
             />
           ))}
         </Pie>
-        <Tooltip 
-          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
-        />
+        <Tooltip />
         <Legend />
-      </RechartsPieChart>
+      </ReChartsPieChart>
     </ResponsiveContainer>
   );
-};
+}
