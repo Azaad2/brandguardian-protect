@@ -1,6 +1,21 @@
 
 import React from "react";
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart as RechartsAreaChart, Area, BarChart as RechartsBarChart, Bar } from "recharts";
+import { 
+  LineChart as RechartsLineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  AreaChart as RechartsAreaChart, 
+  Area, 
+  BarChart as RechartsBarChart, 
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell
+} from "recharts";
 
 interface ChartProps {
   data: any[];
@@ -89,6 +104,51 @@ export const BarChart = ({
         />
         <Bar dataKey={yAxis} fill={color} radius={[4, 4, 0, 0]} />
       </RechartsBarChart>
+    </ResponsiveContainer>
+  );
+};
+
+interface PieChartProps {
+  data: Array<{
+    name: string;
+    value: number;
+    color?: string;
+  }>;
+  colors?: string[];
+  innerRadius?: number;
+  outerRadius?: number;
+}
+
+export const PieChart = ({ 
+  data, 
+  colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+  innerRadius = 0,
+  outerRadius = 80
+}: PieChartProps) => {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartsPieChart margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {data.map((entry, index) => (
+            <Cell 
+              key={`cell-${index}`} 
+              fill={entry.color || colors[index % colors.length]} 
+            />
+          ))}
+        </Pie>
+        <Tooltip 
+          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
+        />
+      </RechartsPieChart>
     </ResponsiveContainer>
   );
 };
