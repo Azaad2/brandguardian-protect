@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+// Profile schema with bio field
 const profileFormSchema = z.object({
   companyName: z.string().min(2, {
     message: "Company name must be at least 2 characters.",
@@ -85,13 +86,13 @@ const BrandSettings = () => {
   });
 
   // Update form values when profile data is loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (profile) {
       profileForm.reset({
         companyName: profile.company_name || "",
         fullName: profile.full_name || "",
         email: profile.email || "",
-        bio: profile.bio || "",
+        bio: profile.bio || "", // Use optional chaining since bio might not exist
       });
     }
   }, [profile, profileForm]);
