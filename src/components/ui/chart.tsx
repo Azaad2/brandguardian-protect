@@ -1,152 +1,94 @@
 
-import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart as RechartLineChart, Line, PieChart as RechartPieChart, Pie, Cell } from 'recharts';
+import React from "react";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart as RechartsAreaChart, Area, BarChart as RechartsBarChart, Bar } from "recharts";
 
-interface ChartOptions {
-  responsive?: boolean;
-  maintainAspectRatio?: boolean;
-  plugins?: any;
-  scales?: any;
-  indexAxis?: string;
-  [key: string]: any;
+interface ChartProps {
+  data: any[];
+  xAxis: string;
+  yAxis: string;
+  color?: string;
+  showGrid?: boolean;
+  showAxisLabels?: boolean;
 }
 
-interface BarChartProps {
-  data: {
-    labels: string[];
-    datasets: {
-      label: string;
-      data: number[];
-      backgroundColor: string;
-    }[];
-  };
-  options?: ChartOptions;
-  className?: string;
-}
-
-export function BarChart({ data, options, className }: BarChartProps) {
-  // Transform data structure for recharts
-  const chartData = data.labels.map((label, index) => {
-    const dataPoint: any = { name: label };
-    data.datasets.forEach((dataset) => {
-      dataPoint[dataset.label] = dataset.data[index];
-    });
-    return dataPoint;
-  });
-
+export const LineChart = ({ 
+  data, 
+  xAxis, 
+  yAxis, 
+  color = "#3b82f6",
+  showGrid = true,
+  showAxisLabels = true 
+}: ChartProps) => {
   return (
-    <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartBarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        {data.datasets.map((dataset, index) => (
-          <Bar 
-            key={dataset.label}
-            dataKey={dataset.label} 
-            fill={dataset.backgroundColor} 
-          />
-        ))}
-      </RechartBarChart>
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartsLineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
+        {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
+        {showAxisLabels && <YAxis fontSize={12} tickLine={false} axisLine={false} />}
+        <Tooltip 
+          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
+        />
+        <Line
+          type="monotone"
+          dataKey={yAxis}
+          stroke={color}
+          strokeWidth={2}
+          dot={{ fill: color, r: 3 }}
+          activeDot={{ fill: color, r: 5 }}
+        />
+      </RechartsLineChart>
     </ResponsiveContainer>
   );
-}
+};
 
-interface LineChartProps {
-  data: {
-    labels: string[];
-    datasets: {
-      label: string;
-      data: number[];
-      borderColor: string;
-      backgroundColor: string;
-      tension?: number;
-      borderDash?: number[];
-    }[];
-  };
-  options?: ChartOptions;
-  className?: string;
-}
-
-export function LineChart({ data, options, className }: LineChartProps) {
-  // Transform data structure for recharts
-  const chartData = data.labels.map((label, index) => {
-    const dataPoint: any = { name: label };
-    data.datasets.forEach((dataset) => {
-      dataPoint[dataset.label] = dataset.data[index];
-    });
-    return dataPoint;
-  });
-
+export const AreaChart = ({ 
+  data, 
+  xAxis, 
+  yAxis, 
+  color = "#3b82f6",
+  showGrid = true,
+  showAxisLabels = true 
+}: ChartProps) => {
   return (
-    <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartLineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        {data.datasets.map((dataset, index) => (
-          <Line
-            key={dataset.label}
-            type="monotone"
-            dataKey={dataset.label}
-            stroke={dataset.borderColor}
-            strokeWidth={2}
-            dot={{ strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6 }}
-            strokeDasharray={dataset.borderDash ? `${dataset.borderDash[0]} ${dataset.borderDash[1]}` : ""}
-          />
-        ))}
-      </RechartLineChart>
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartsAreaChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
+        {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
+        {showAxisLabels && <YAxis fontSize={12} tickLine={false} axisLine={false} />}
+        <Tooltip 
+          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
+        />
+        <Area
+          type="monotone"
+          dataKey={yAxis}
+          stroke={color}
+          fill={`${color}20`}
+          strokeWidth={2}
+        />
+      </RechartsAreaChart>
     </ResponsiveContainer>
   );
-}
+};
 
-interface PieChartProps {
-  data: {
-    labels: string[];
-    datasets: {
-      label: string;
-      data: number[];
-      backgroundColor: string[];
-    }[];
-  };
-  options?: ChartOptions;
-  className?: string;
-}
-
-export function PieChart({ data, options, className }: PieChartProps) {
-  // Transform data structure for recharts
-  const chartData = data.labels.map((label, index) => ({
-    name: label,
-    value: data.datasets[0].data[index],
-  }));
-
+export const BarChart = ({ 
+  data, 
+  xAxis, 
+  yAxis, 
+  color = "#3b82f6",
+  showGrid = true,
+  showAxisLabels = true 
+}: ChartProps) => {
   return (
-    <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartPieChart margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <Pie
-          data={chartData}
-          cx="50%"
-          cy="50%"
-          labelLine={true}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-          outerRadius={80}
-          fill="#8884d8"
-          dataKey="value"
-        >
-          {chartData.map((entry, index) => (
-            <Cell 
-              key={`cell-${index}`} 
-              fill={data.datasets[0].backgroundColor[index % data.datasets[0].backgroundColor.length]} 
-            />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </RechartPieChart>
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartsBarChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
+        {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
+        {showAxisLabels && <YAxis fontSize={12} tickLine={false} axisLine={false} />}
+        <Tooltip 
+          contentStyle={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "6px" }}
+        />
+        <Bar dataKey={yAxis} fill={color} radius={[4, 4, 0, 0]} />
+      </RechartsBarChart>
     </ResponsiveContainer>
   );
-}
+};

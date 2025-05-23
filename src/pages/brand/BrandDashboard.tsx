@@ -22,6 +22,9 @@ const BrandDashboard = () => {
   return (
     <Routes>
       <Route element={<DashboardLayout />}>
+        {/* Redirect /brand/dashboard to /brand/dashboard/ */}
+        <Route path="" element={<Navigate to="/brand/dashboard/" replace />} />
+        
         <Route index element={<BrandOverview />} />
         <Route path="resellers" element={<BrandResellers />} />
         <Route path="inventory" element={<BrandInventory />} />
