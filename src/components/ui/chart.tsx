@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { 
   Bar, 
@@ -95,7 +94,7 @@ export function LineChart({ data, className }: { data: ChartData; className?: st
             strokeWidth={dataset.borderWidth || 2}
             dot={{ r: 4 }}
             activeDot={{ r: 8 }}
-            strokeDasharray={dataset.borderDash}
+            strokeDasharray={dataset.borderDash ? dataset.borderDash.join(' ') : undefined}
           />
         ))}
       </ReChartsLineChart>

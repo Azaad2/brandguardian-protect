@@ -4,16 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { PieChart } from "@/components/ui/chart";
 import { Download } from "lucide-react";
-
-// Sample formatted data for charts
-const inventoryValueDistribution = {
-  labels: ["In Stock", "Low Stock", "Out of Stock", "Back-ordered"],
-  datasets: [{
-    label: "Inventory Value",
-    data: [68, 17, 10, 5],
-    backgroundColor: ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]
-  }]
-};
+import { inventoryValueDistribution } from "./ReportsData";
 
 const InventoryReportsTab = () => {
   return (

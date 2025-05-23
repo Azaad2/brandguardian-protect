@@ -4,16 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { PieChart } from "@/components/ui/chart";
 import { Download } from "lucide-react";
-
-// Sample formatted data for charts
-const mapComplianceDistribution = {
-  labels: ["Compliant", "Minor Violations", "Severe Violations"],
-  datasets: [{
-    label: "MAP Compliance",
-    data: [75, 20, 5],
-    backgroundColor: ["#00C49F", "#FFBB28", "#FF8042"]
-  }]
-};
+import { mapComplianceDistribution } from "./ReportsData";
 
 const ComplianceReportsTab = () => {
   return (

@@ -19,16 +19,13 @@ export const useProfileData = () => {
         .single();
         
       if (error) throw error;
-
-      // Add bio property if it doesn't exist in the database
-      if (data) {
-        return {
-          ...data,
-          bio: data.bio || '',
-        };
-      }
       
-      return data;
+      // Add bio property if it doesn't exist in the database
+      // We're explicitly adding bio to the returned object to ensure it exists
+      return {
+        ...data,
+        bio: data.bio || '',
+      };
     },
     enabled: !!user,
   });
