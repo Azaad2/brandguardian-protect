@@ -36,7 +36,7 @@ export type ChartData = {
 };
 
 // Convert chart data format for recharts
-const formatChartData = (data: ChartData, dataKey: string): any[] => {
+const formatChartData = (data: ChartData): any[] => {
   return data.labels.map((label, i) => ({
     name: label,
     ...data.datasets.reduce((acc, dataset, j) => {
@@ -63,6 +63,7 @@ interface ChartProps {
   color?: string;
   showGrid?: boolean;
   showAxisLabels?: boolean;
+  className?: string;
 }
 
 export const LineChart = ({ 
@@ -71,12 +72,13 @@ export const LineChart = ({
   yAxis, 
   color = "#3b82f6",
   showGrid = true,
-  showAxisLabels = true 
+  showAxisLabels = true,
+  className
 }: ChartProps) => {
-  const formattedData = formatChartData(data, yAxis || data.datasets[0].label || "value");
+  const formattedData = formatChartData(data);
   
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" className={className}>
       <RechartsLineChart data={formattedData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
         {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
@@ -107,12 +109,13 @@ export const AreaChart = ({
   yAxis, 
   color = "#3b82f6",
   showGrid = true,
-  showAxisLabels = true 
+  showAxisLabels = true,
+  className
 }: ChartProps) => {
-  const formattedData = formatChartData(data, yAxis || data.datasets[0].label || "value");
+  const formattedData = formatChartData(data);
   
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" className={className}>
       <RechartsAreaChart data={formattedData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
         {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
@@ -126,7 +129,7 @@ export const AreaChart = ({
             type="monotone"
             dataKey={dataset.label}
             stroke={dataset.borderColor || color}
-            fill={dataset.backgroundColor || `${color}20`}
+            fill={typeof dataset.backgroundColor === 'string' ? dataset.backgroundColor : `${color}20`}
             strokeWidth={2}
           />
         ))}
@@ -141,12 +144,13 @@ export const BarChart = ({
   yAxis, 
   color = "#3b82f6",
   showGrid = true,
-  showAxisLabels = true 
+  showAxisLabels = true,
+  className
 }: ChartProps) => {
-  const formattedData = formatChartData(data, yAxis || data.datasets[0].label || "value");
+  const formattedData = formatChartData(data);
   
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" className={className}>
       <RechartsBarChart data={formattedData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
         {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />}
         {showAxisLabels && <XAxis dataKey={xAxis} fontSize={12} tickLine={false} axisLine={false} />}
@@ -175,19 +179,21 @@ interface PieChartProps {
   colors?: string[];
   innerRadius?: number;
   outerRadius?: number;
+  className?: string;
 }
 
 export const PieChart = ({ 
   data, 
   colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
   innerRadius = 0,
-  outerRadius = 80
+  outerRadius = 80,
+  className
 }: PieChartProps) => {
   // Handle both data formats
   const pieData = Array.isArray(data) ? data : formatPieData(data);
   
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" className={className}>
       <RechartsPieChart margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
         <Pie
           data={pieData}

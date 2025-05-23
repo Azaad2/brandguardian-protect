@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -92,7 +91,7 @@ const BrandSettings = () => {
         companyName: profile.company_name || "",
         fullName: profile.full_name || "",
         email: profile.email || "",
-        bio: profile.bio || "", // Use optional chaining since bio might not exist
+        bio: profile.bio || "", // Handle possible undefined bio
       });
     }
   }, [profile, profileForm]);
@@ -102,16 +101,17 @@ const BrandSettings = () => {
     mutationFn: async (values: z.infer<typeof profileFormSchema>) => {
       if (!user) throw new Error("Not authenticated");
       
+      // Include bio in the update
       const { error } = await supabase
         .from('profiles')
         .update({
           company_name: values.companyName,
           full_name: values.fullName,
           email: values.email,
-          bio: values.bio,
+          bio: values.bio,  // This will be added to the profiles table
         })
         .eq('id', user.id);
-        
+      
       if (error) throw error;
       return { success: true };
     },

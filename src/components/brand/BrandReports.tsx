@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { AreaChart, BarChart, LineChart } from "@/components/ui/chart";
+import { AreaChart, BarChart, LineChart, PieChart } from "@/components/ui/chart";
 import { ArrowDownToLine, FileText, Filter } from "lucide-react";
 
 const BrandReports = () => {
