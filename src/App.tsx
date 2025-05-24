@@ -25,6 +25,9 @@ import AuthGuard from "./components/auth/AuthGuard";
 import ResellerRegistration from "./pages/admin/ResellerRegistration";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import EnforceMAPPolicyPreventUnauthorizedSellers from "./pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers";
+import PreventUnauthorizedSellersAmazon from "./pages/blog/PreventUnauthorizedSellersAmazon";
+import AmazonBrandRegistryBenefits from "./pages/blog/AmazonBrandRegistryBenefits";
+import IdentifyRemoveCounterfeitProducts from "./pages/blog/IdentifyRemoveCounterfeitProducts";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +51,9 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers-amazon" element={<EnforceMAPPolicyPreventUnauthorizedSellers />} />
+                <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<PreventUnauthorizedSellersAmazon />} />
+                <Route path="/blog/amazon-brand-registry-benefits" element={<AmazonBrandRegistryBenefits />} />
+                <Route path="/blog/identify-remove-counterfeit-products" element={<IdentifyRemoveCounterfeitProducts />} />
                 
                 {/* Admin Routes - Bypass auth for testing */}
                 <Route path="/admin" element={
