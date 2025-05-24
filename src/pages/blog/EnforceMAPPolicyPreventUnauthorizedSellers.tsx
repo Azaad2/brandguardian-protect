@@ -3,9 +3,11 @@ import { Helmet } from "react-helmet";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BreadcrumbNav from "@/components/navigation/BreadcrumbNav";
+import TableOfContents from "@/components/blog/TableOfContents";
+import PullQuote from "@/components/blog/PullQuote";
+import MAPPolicyTemplate from "@/components/blog/MAPPolicyTemplate";
 import { trackPageView, trackSEOInteraction } from "@/lib/analytics";
 import { Link } from "react-router-dom";
-import { Download, BookOpen } from "lucide-react";
 
 const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
   // Track page view with enhanced analytics
@@ -26,14 +28,6 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
     { id: "conclusion", title: "Conclusion", level: 1 },
     { id: "faq", title: "Frequently Asked Questions", level: 1 }
   ];
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      trackSEOInteraction('TOC_Click', 'Article', id);
-    }
-  };
 
   // Generate article schema structured data
   const generateArticleSchema = () => {
@@ -206,25 +200,7 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
           </div>
 
           {/* Table of Contents */}
-          <div className="bg-gray-50 rounded-lg p-6 mb-8 border">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
-              Table of Contents
-            </h2>
-            <nav className="space-y-2">
-              {tableOfContents.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`block text-left w-full hover:text-blue-600 transition-colors ${
-                    item.level === 1 ? 'font-medium text-gray-900' : 'text-gray-600 ml-4'
-                  }`}
-                >
-                  {item.title}
-                </button>
-              ))}
-            </nav>
-          </div>
+          <TableOfContents items={tableOfContents} />
 
           <article className="prose prose-lg max-w-none" itemScope itemType="https://schema.org/BlogPosting">
             <header className="mb-8" id="introduction">
@@ -249,15 +225,10 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
                 In today's competitive e-commerce landscape, brands face an increasingly complex challenge: maintaining control over their products, pricing, and reputation on Amazon and other marketplaces. With unauthorized sellers proliferating at an alarming rate, many brands are seeing their carefully crafted pricing strategies undermined, their customer relationships damaged, and their brand equity eroded.
               </p>
 
-              {/* Pull Quote with Key Statistic */}
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-6 my-8 rounded-r-lg">
-                <blockquote className="text-2xl font-semibold text-blue-900 mb-2">
-                  "Over 53% of brands selling on Amazon report significant issues with unauthorized sellers"
-                </blockquote>
-                <p className="text-blue-700">
-                  This results in an estimated <strong>$45 billion in annual revenue losses</strong> and brand value deterioration across the marketplace.
-                </p>
-              </div>
+              <PullQuote
+                quote="Over 53% of brands selling on Amazon report significant issues with unauthorized sellers"
+                description="This results in an estimated $45 billion in annual revenue losses and brand value deterioration across the marketplace."
+              />
 
               <p className="mb-8">
                 This comprehensive guide explores the unauthorized seller crisis on Amazon, the limitations of conventional MAP (Minimum Advertised Price) enforcement approaches, and how <Link to="/reseller-hub" className="text-blue-600 hover:text-blue-800 font-medium" onClick={() => trackSEOInteraction('Internal_Link', 'Article', 'Reseller Hub')}>BndBox's innovative platform</Link> is revolutionizing brand protection by connecting brands with pre-vetted, authorized resellers. Whether you're a brand owner, e-commerce manager, or marketplace specialist, you'll discover actionable strategies to regain control of your brand's online presence.
@@ -313,15 +284,11 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
                 </p>
               </div>
 
-              {/* Pull Quote with Key Statistic */}
-              <div className="bg-red-50 border-l-4 border-red-500 p-6 my-8 rounded-r-lg">
-                <blockquote className="text-xl font-semibold text-red-900 mb-2">
-                  "The average brand on Amazon now competes with 45+ unauthorized sellers"
-                </blockquote>
-                <p className="text-red-700">
-                  This represents a <strong>37% increase</strong> from just two years ago, creating a chaotic marketplace environment where traditional brand control becomes nearly impossible.
-                </p>
-              </div>
+              <PullQuote
+                variant="red"
+                quote="The average brand on Amazon now competes with 45+ unauthorized sellers"
+                description="This represents a 37% increase from just two years ago, creating a chaotic marketplace environment where traditional brand control becomes nearly impossible."
+              />
 
               <h3 className="text-2xl font-semibold mb-4 text-gray-900" id="real-world-impact">Real-World Impact: The Premium Electronics Case</h3>
 
@@ -373,15 +340,11 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
                 </div>
               </div>
 
-              {/* Pull Quote with Key Statistic */}
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 my-8 rounded-r-lg">
-                <blockquote className="text-xl font-semibold text-yellow-900 mb-2">
-                  "72% of brand protection professionals find Amazon's native tools insufficient"
-                </blockquote>
-                <p className="text-yellow-700">
-                  Only <strong>8% rate them as "highly effective"</strong> for comprehensive MAP enforcement and brand protection strategies.
-                </p>
-              </div>
+              <PullQuote
+                variant="yellow"
+                quote="72% of brand protection professionals find Amazon's native tools insufficient"
+                description="Only 8% rate them as highly effective for comprehensive MAP enforcement and brand protection strategies."
+              />
 
               {/* Visual Divider */}
               <div className="border-t border-gray-200 my-12"></div>
@@ -434,32 +397,8 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
                 </Link>
               </div>
 
-              {/* Downloadable MAP Policy Template Section */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-8 my-12">
-                <div className="flex items-start gap-4">
-                  <Download className="w-8 h-8 text-green-600 mt-1" />
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">Free MAP Policy Template Download</h3>
-                    <p className="text-gray-700 mb-4">
-                      Get our comprehensive MAP policy template that includes Amazon-specific clauses, enforcement procedures, and legal defensibility guidelines. This template has been refined through hundreds of successful implementations.
-                    </p>
-                    <div className="space-y-2 mb-6">
-                      <p className="text-sm text-gray-600">✓ Amazon marketplace-specific provisions</p>
-                      <p className="text-sm text-gray-600">✓ Graduated enforcement procedures</p>
-                      <p className="text-sm text-gray-600">✓ Legal compliance guidelines</p>
-                      <p className="text-sm text-gray-600">✓ Implementation checklist</p>
-                    </div>
-                    <Link 
-                      to="/brand"
-                      className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                      onClick={() => trackSEOInteraction('Lead_Magnet', 'Article', 'MAP Policy Template')}
-                    >
-                      <Download className="w-4 h-4" />
-                      Download Free Template
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              {/* MAP Policy Template Component */}
+              <MAPPolicyTemplate />
 
               {/* Visual Divider */}
               <div className="border-t border-gray-200 my-12"></div>
@@ -557,15 +496,11 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
                 </Link>
               </div>
 
-              {/* Pull Quote with Results */}
-              <div className="bg-green-50 border-l-4 border-green-500 p-6 my-8 rounded-r-lg">
-                <blockquote className="text-xl font-semibold text-green-900 mb-2">
-                  "Brands implementing BndBox typically see 70-90% reduction in unauthorized sellers within 90 days"
-                </blockquote>
-                <p className="text-green-700">
-                  Along with <strong>MAP compliance improvements of 50% or more</strong> and significant recapture of lost revenue and margin.
-                </p>
-              </div>
+              <PullQuote
+                variant="green"
+                quote="Brands implementing BndBox typically see 70-90% reduction in unauthorized sellers within 90 days"
+                description="Along with MAP compliance improvements of 50% or more and significant recapture of lost revenue and margin."
+              />
 
               {/* Visual Divider */}
               <div className="border-t border-gray-200 my-12"></div>
