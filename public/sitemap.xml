@@ -6,21 +6,21 @@
   <!-- Homepage -->
   <url>
     <loc>https://bndbox.com/</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <!-- About Page -->
   <url>
     <loc>https://bndbox.com/about</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Blog Page -->
   <url>
     <loc>https://bndbox.com/blog</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://bndbox.com/blog"/>
@@ -28,7 +28,7 @@
   <!-- Reseller Hub Page -->
   <url>
     <loc>https://bndbox.com/reseller-hub</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -39,46 +39,52 @@
   <!-- Brand Portal Page -->
   <url>
     <loc>https://bndbox.com/brand</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Reseller Portal Page -->
   <url>
     <loc>https://bndbox.com/reseller</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Individual Blog Posts -->
   <url>
+    <loc>https://bndbox.com/blog/enforce-map-policy-prevent-unauthorized-sellers-amazon</loc>
+    <lastmod>2025-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://bndbox.com/blog/amazon-wholesale-brand-approval-guide-2025</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bndbox.com/blog/how-to-get-approved-by-brands</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bndbox.com/blog/map-policy-enforcement-best-practices</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bndbox.com/blog/brand-wholesale-approval-guide</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <!-- Error Page -->
   <url>
     <loc>https://bndbox.com/not-found</loc>
-    <lastmod>2025-05-12</lastmod>
+    <lastmod>2025-05-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.1</priority>
   </url>

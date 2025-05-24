@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,6 +24,7 @@ import PasswordReset from "./pages/auth/PasswordReset";
 import AuthGuard from "./components/auth/AuthGuard";
 import ResellerRegistration from "./pages/admin/ResellerRegistration";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import EnforceMAPPolicyPreventUnauthorizedSellers from "./pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +47,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers-amazon" element={<EnforceMAPPolicyPreventUnauthorizedSellers />} />
                 
                 {/* Admin Routes - Bypass auth for testing */}
                 <Route path="/admin" element={

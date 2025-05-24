@@ -10,6 +10,18 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
+      title: "How to Enforce MAP Policy and Prevent Unauthorized Sellers on Amazon in 2025",
+      excerpt: "Comprehensive guide to MAP policy enforcement and unauthorized seller prevention on Amazon. Learn proven strategies to protect your brand and pricing integrity in 2025.",
+      date: "May 24, 2025",
+      author: "BndBox Team",
+      slug: "enforce-map-policy-prevent-unauthorized-sellers-amazon",
+      image: "photo-1461749280684-dccba630e2f6",
+      alt: "Amazon seller dashboard showing brand protection and MAP policy enforcement tools",
+      readTime: "15 min read",
+      category: "Brand Protection"
+    },
+    {
+      id: 2,
       title: "The Complete Guide to Amazon Wholesale Brand Approval in 2025",
       excerpt: "Master the process of securing Amazon wholesale brand approvals with our comprehensive guide covering latest requirements, strategies, and success stories.",
       date: "April 22, 2025",
@@ -21,7 +33,7 @@ const Blog = () => {
       category: "Brand Approval Guides"
     },
     {
-      id: 2,
+      id: 3,
       title: "How to Get Approved by Brands as an Amazon Reseller",
       excerpt: "Discover proven strategies to secure brand wholesale approval for selling products on Amazon marketplace.",
       date: "March 28, 2025",
@@ -31,7 +43,7 @@ const Blog = () => {
       alt: "Amazon marketplace seller dashboard on a computer screen"
     },
     {
-      id: 3,
+      id: 4,
       title: "MAP Policy Enforcement: Best Practices for Brands and Resellers",
       excerpt: "Updated guide on implementing and maintaining effective Minimum Advertised Price policies to protect brand integrity.",
       date: "March 15, 2025",
@@ -41,7 +53,7 @@ const Blog = () => {
       alt: "Business professional reviewing pricing documents"
     },
     {
-      id: 4,
+      id: 5,
       title: "Brand Wholesale Approval: What Every Reseller Needs to Know",
       excerpt: "Essential insights into the brand approval process and how to position your reseller business for success.",
       date: "March 1, 2025",
