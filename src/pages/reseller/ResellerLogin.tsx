@@ -5,7 +5,6 @@ import LoginForm from '@/components/auth/LoginForm';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
-import CreateTestAccount from '@/components/auth/CreateTestAccount';
 import { toast } from '@/hooks/use-toast';
 
 const ResellerLogin = () => {
@@ -45,7 +44,6 @@ const ResellerLogin = () => {
       }
     >
       <LoginForm userRole="reseller" />
-      <CreateTestAccount userRole="reseller" />
     </AuthLayout>
   );
 };
