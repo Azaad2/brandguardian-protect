@@ -14,20 +14,23 @@ import { ShoppingBag, Building2 } from "lucide-react";
 interface VisitorTypeDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  onVisitorTypeSelected?: () => void;
 }
 
-const VisitorTypeDialog = ({ open, setOpen }: VisitorTypeDialogProps) => {
+const VisitorTypeDialog = ({ open, setOpen, onVisitorTypeSelected }: VisitorTypeDialogProps) => {
   const navigate = useNavigate();
 
   const handleBrandSelect = () => {
-    // Changed to navigate to homepage instead of brand portal
-    navigate("/");
+    // Brands stay on homepage
     setOpen(false);
+    onVisitorTypeSelected?.();
   };
 
   const handleResellerSelect = () => {
-    setOpen(false);
+    // Resellers go to reseller hub to fill form
     navigate("/reseller-hub");
+    setOpen(false);
+    onVisitorTypeSelected?.();
   };
 
   // Prevent closing the dialog when clicking outside or pressing escape

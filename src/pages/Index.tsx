@@ -1,7 +1,7 @@
 
 import { Helmet } from 'react-helmet';
 import { trackPageView } from '@/lib/analytics';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import HeroSection from '@/components/landing/HeroSection';
 import PainPointsSection from '@/components/landing/PainPointsSection';
@@ -11,11 +11,25 @@ import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/layout/Footer';
 import PortalSwitcher from '@/components/PortalSwitcher';
+import VisitorTypeDialog from '@/components/dialogs/VisitorTypeDialog';
 
 const Index = () => {
+  const [showVisitorDialog, setShowVisitorDialog] = useState(false);
+
   useEffect(() => {
     trackPageView(window.location.pathname);
+    
+    // Show visitor type dialog on first visit
+    const hasVisited = localStorage.getItem('bndbox-visitor-type-selected');
+    if (!hasVisited) {
+      setShowVisitorDialog(true);
+    }
   }, []);
+
+  const handleVisitorTypeSelected = () => {
+    localStorage.setItem('bndbox-visitor-type-selected', 'true');
+    setShowVisitorDialog(false);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -35,6 +49,12 @@ const Index = () => {
       <ContactSection />
       <Footer />
       <PortalSwitcher />
+      
+      <VisitorTypeDialog 
+        open={showVisitorDialog} 
+        setOpen={setShowVisitorDialog}
+        onVisitorTypeSelected={handleVisitorTypeSelected}
+      />
     </div>
   );
 };
