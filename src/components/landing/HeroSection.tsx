@@ -35,7 +35,7 @@ const HeroSection = () => {
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-              Streamline Your <span className="text-bndbox-600">Brand Wholesale Approval Process</span>
+              Protect <span className="text-bndbox-600">Brand Integrity on Marketplaces</span>
             </h1>
             
             <p className="text-xl text-gray-600 max-w-2xl">
