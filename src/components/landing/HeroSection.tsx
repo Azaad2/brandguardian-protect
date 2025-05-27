@@ -35,7 +35,7 @@ const HeroSection = () => {
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-              Protect <span className="text-bndbox-600">Brand Integrity on Marketplaces</span>
+              Protect Your <span className="text-bndbox-600">Brand Integrity on Marketplaces</span>
             </h1>
             
             <p className="text-xl text-gray-600 max-w-2xl">
@@ -45,7 +45,7 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button size="lg" className="group" asChild onClick={handleHeroCTA}>
                 <a href="#contact">
-                  Get Started with Brand Approval
+                  Get Started with Automation
                   <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </a>
               </Button>
