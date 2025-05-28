@@ -21,12 +21,14 @@ const VisitorTypeDialog = ({ open, setOpen, onVisitorTypeSelected }: VisitorType
   const navigate = useNavigate();
 
   const handleBrandSelect = () => {
+    console.log('Brand selected - staying on homepage');
     // Brands stay on homepage
     setOpen(false);
     onVisitorTypeSelected?.();
   };
 
   const handleResellerSelect = () => {
+    console.log('Reseller selected - navigating to reseller hub');
     // Resellers go to reseller hub to fill form
     navigate("/reseller-hub");
     setOpen(false);
@@ -34,18 +36,24 @@ const VisitorTypeDialog = ({ open, setOpen, onVisitorTypeSelected }: VisitorType
   };
 
   // Prevent closing the dialog when clicking outside or pressing escape
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = (newOpen: boolean) => {
+    console.log('Dialog open change attempted:', newOpen);
     // Only allow the dialog to close if we're explicitly setting it to close
     // through one of our buttons
-    if (open === false) {
+    if (!newOpen) {
+      console.log('Preventing dialog close - must select an option');
       return; // Prevent dialog from closing
     }
-    setOpen(open);
+    setOpen(newOpen);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent 
+        className="sm:max-w-md" 
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">Welcome to BndBox</DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">

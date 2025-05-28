@@ -21,12 +21,19 @@ const Index = () => {
     
     // Show visitor type dialog on first visit
     const hasVisited = localStorage.getItem('bndbox-visitor-type-selected');
+    console.log('Checking visitor type selection:', hasVisited);
+    
     if (!hasVisited) {
-      setShowVisitorDialog(true);
+      console.log('First time visitor - showing dialog');
+      // Add a small delay to ensure the page is fully loaded
+      setTimeout(() => {
+        setShowVisitorDialog(true);
+      }, 500);
     }
   }, []);
 
   const handleVisitorTypeSelected = () => {
+    console.log('Visitor type selected - setting localStorage and hiding dialog');
     localStorage.setItem('bndbox-visitor-type-selected', 'true');
     setShowVisitorDialog(false);
   };
