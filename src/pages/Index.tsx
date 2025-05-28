@@ -10,7 +10,6 @@ import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/layout/Footer';
-import PortalSwitcher from '@/components/PortalSwitcher';
 import VisitorTypeDialog from '@/components/dialogs/VisitorTypeDialog';
 
 const Index = () => {
@@ -55,7 +54,6 @@ const Index = () => {
       <FAQSection />
       <ContactSection />
       <Footer />
-      <PortalSwitcher />
       
       <VisitorTypeDialog 
         open={showVisitorDialog} 
