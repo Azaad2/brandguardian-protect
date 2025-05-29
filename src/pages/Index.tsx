@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet';
 import { trackPageView } from '@/lib/analytics';
 import { useEffect, useState } from 'react';
@@ -23,7 +22,16 @@ const Index = () => {
     console.log('Checking visitor type selection:', hasVisited);
     console.log('Current localStorage keys:', Object.keys(localStorage));
     
-    if (!hasVisited || hasVisited === 'false' || hasVisited === null) {
+    // Check for URL parameter to reset dialog (for testing)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset-dialog') === 'true') {
+      console.log('Reset dialog parameter detected - clearing localStorage');
+      localStorage.removeItem('bndbox-visitor-type-selected');
+    }
+    
+    const updatedHasVisited = localStorage.getItem('bndbox-visitor-type-selected');
+    
+    if (!updatedHasVisited || updatedHasVisited === 'false' || updatedHasVisited === null) {
       console.log('First time visitor detected - showing dialog');
       // Add a small delay to ensure the page is fully loaded
       setTimeout(() => {
