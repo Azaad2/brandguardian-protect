@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -60,11 +59,6 @@ const App = () => (
                 
                 {/* Admin Routes - Fixed routing structure */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="/admin/dashboard" element={
-                  <AuthGuard requiredRole="admin" redirectTo="/">
-                    <AdminDashboard />
-                  </AuthGuard>
-                } />
                 <Route path="/admin/dashboard/*" element={
                   <AuthGuard requiredRole="admin" redirectTo="/">
                     <AdminDashboard />
