@@ -23,6 +23,7 @@ import ResellerSignup from "./pages/reseller/ResellerSignup";
 import PasswordReset from "./pages/auth/PasswordReset";
 import AuthGuard from "./components/auth/AuthGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import RoleUpdater from "./pages/RoleUpdater";
 import EnforceMAPPolicyPreventUnauthorizedSellers from "./pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers";
 import PreventUnauthorizedSellersAmazon from "./pages/blog/PreventUnauthorizedSellersAmazon";
 import AmazonBrandRegistryBenefits from "./pages/blog/AmazonBrandRegistryBenefits";
@@ -53,6 +54,9 @@ const App = () => (
                 <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<PreventUnauthorizedSellersAmazon />} />
                 <Route path="/blog/amazon-brand-registry-benefits" element={<AmazonBrandRegistryBenefits />} />
                 <Route path="/blog/identify-remove-counterfeit-products" element={<IdentifyRemoveCounterfeitProducts />} />
+                
+                {/* Temporary role updater page */}
+                <Route path="/update-role" element={<RoleUpdater />} />
                 
                 {/* Admin Routes - Redirect /admin to /admin/dashboard */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
