@@ -5,23 +5,37 @@ export const updateUserRole = async (userId: string, newRole: 'admin' | 'brand' 
   try {
     console.log(`Updating user ${userId} to role: ${newRole}`);
     
+    // First check if profile exists
+    const { data: existingProfile, error: checkError } = await supabase
+      .from('profiles')
+      .select('id, user_role')
+      .eq('id', userId)
+      .maybeSingle();
+    
+    if (checkError) {
+      console.error('Error checking existing profile:', checkError);
+      throw checkError;
+    }
+    
+    if (!existingProfile) {
+      throw new Error('No profile found for this user');
+    }
+    
+    // Now update the role
     const { data, error } = await supabase
       .from('profiles')
       .update({ user_role: newRole })
       .eq('id', userId)
-      .select();
+      .select('id, user_role, full_name')
+      .single();
     
     if (error) {
       console.error('Error updating user role:', error);
       throw error;
     }
     
-    if (!data || data.length === 0) {
-      throw new Error('No profile found to update');
-    }
-    
-    console.log('User role updated successfully:', data[0]);
-    return data[0];
+    console.log('User role updated successfully:', data);
+    return data;
   } catch (error) {
     console.error('Failed to update user role:', error);
     throw error;
