@@ -9,15 +9,17 @@ import ResellerRegistration from "@/pages/admin/ResellerRegistration";
 
 const AdminDashboard = () => {
   return (
-    <DashboardLayout>
-      <Routes>
+    <Routes>
+      <Route path="/*" element={
+        <DashboardLayout />
+      }>
         <Route index element={<AdminOverview />} />
         <Route path="reseller-applications" element={<ResellerRegistration />} />
         <Route path="brands-directory" element={<BrandsDirectory />} />
         <Route path="catalog-approvals" element={<CatalogApprovals />} />
         <Route path="user-management" element={<UserManagement />} />
-      </Routes>
-    </DashboardLayout>
+      </Route>
+    </Routes>
   );
 };
 
