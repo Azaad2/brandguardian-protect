@@ -1,15 +1,15 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAnalytics } from "./hooks/use-analytics";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./hooks/use-auth";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
-import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ResellerHub from "./pages/ResellerHub";
 import BrandPortal from "./pages/brand/BrandPortal";
@@ -22,7 +22,6 @@ import BrandSignup from "./pages/brand/BrandSignup";
 import ResellerSignup from "./pages/reseller/ResellerSignup";
 import PasswordReset from "./pages/auth/PasswordReset";
 import AuthGuard from "./components/auth/AuthGuard";
-import ResellerRegistration from "./pages/admin/ResellerRegistration";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import EnforceMAPPolicyPreventUnauthorizedSellers from "./pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers";
 import PreventUnauthorizedSellersAmazon from "./pages/blog/PreventUnauthorizedSellersAmazon";
@@ -55,41 +54,32 @@ const App = () => (
                 <Route path="/blog/amazon-brand-registry-benefits" element={<AmazonBrandRegistryBenefits />} />
                 <Route path="/blog/identify-remove-counterfeit-products" element={<IdentifyRemoveCounterfeitProducts />} />
                 
-                {/* Admin Routes - Bypass auth for testing */}
-                <Route path="/admin" element={
-                  <AuthGuard bypassAuth={true}>
-                    <Admin />
-                  </AuthGuard>
-                } />
-                <Route path="/admin/reseller-registration" element={
-                  <AuthGuard bypassAuth={true}>
-                    <ResellerRegistration />
-                  </AuthGuard>
-                } />
+                {/* Admin Routes - Redirect /admin to /admin/dashboard */}
+                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/dashboard/*" element={
-                  <AuthGuard bypassAuth={true} requiredRole="admin" redirectTo="/admin">
+                  <AuthGuard requiredRole="admin" redirectTo="/">
                     <AdminDashboard />
                   </AuthGuard>
                 } />
                 
                 <Route path="/reseller-hub" element={<ResellerHub />} />
                 
-                {/* Brand Portal Routes - Updated to bypass auth for testing */}
+                {/* Brand Portal Routes */}
                 <Route path="/brand" element={<BrandPortal />} />
                 <Route path="/brand/login" element={<BrandLogin />} />
                 <Route path="/brand/signup" element={<BrandSignup />} />
                 <Route path="/brand/dashboard/*" element={
-                  <AuthGuard bypassAuth={true} requiredRole="brand" redirectTo="/brand/login">
+                  <AuthGuard requiredRole="brand" redirectTo="/brand/login">
                     <BrandDashboard />
                   </AuthGuard>
                 } />
                 
-                {/* Reseller Portal Routes - Updated to bypass auth for testing */}
+                {/* Reseller Portal Routes */}
                 <Route path="/reseller" element={<ResellerPortal />} />
                 <Route path="/reseller/login" element={<ResellerLogin />} />
                 <Route path="/reseller/signup" element={<ResellerSignup />} />
                 <Route path="/reseller/dashboard/*" element={
-                  <AuthGuard bypassAuth={true} requiredRole="reseller" redirectTo="/reseller/login">
+                  <AuthGuard requiredRole="reseller" redirectTo="/reseller/login">
                     <ResellerDashboard />
                   </AuthGuard>
                 } />
@@ -97,16 +87,7 @@ const App = () => (
                 {/* Shared Auth Routes */}
                 <Route path="/reset-password" element={<PasswordReset />} />
                 
-                <Route path="/careers" element={<Index />} />
-                <Route path="/press" element={<Index />} />
-                <Route path="/documentation" element={<Index />} />
-                <Route path="/help" element={<Index />} />
-                <Route path="/guides" element={<Index />} />
-                <Route path="/status" element={<Index />} />
-                <Route path="/privacy" element={<Index />} />
-                <Route path="/terms" element={<Index />} />
-                <Route path="/cookies" element={<Index />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                {/* Catch-all route for 404 */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AnalyticsWrapper>
