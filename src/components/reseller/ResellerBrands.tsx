@@ -1,28 +1,59 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import { useResellerBrands } from "@/hooks/use-reseller-brands";
+import { AlertCircle, ExternalLink, Check, Clock, X } from "lucide-react";
+import { useAvailableBrands, useBrandApplications } from "@/hooks/use-brand-applications";
 
 const ResellerBrands = () => {
-  const { brands, isLoading, isError, error } = useResellerBrands();
+  const { data: brands = [], isLoading, isError, error } = useAvailableBrands();
+  const { applyToBrand, isApplying } = useBrandApplications();
+
+  const getStatusIcon = (status: string | null) => {
+    switch (status) {
+      case 'approved':
+        return <Check className="h-4 w-4 text-green-600" />;
+      case 'pending':
+        return <Clock className="h-4 w-4 text-amber-600" />;
+      case 'rejected':
+        return <X className="h-4 w-4 text-red-600" />;
+      default:
+        return null;
+    }
+  };
+
+  const getStatusBadge = (status: string | null) => {
+    switch (status) {
+      case 'approved':
+        return <Badge className="bg-green-600">✓ Approved</Badge>;
+      case 'pending':
+        return <Badge className="bg-amber-600">⏳ Applied</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">✗ Rejected</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  const handleApply = (brandId: string) => {
+    applyToBrand({ brandId });
+  };
 
   if (isError) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Brand Partnerships</h1>
-          <p className="text-muted-foreground">Browse and manage your brand partnerships</p>
+          <h1 className="text-3xl font-bold">Available Brands</h1>
+          <p className="text-muted-foreground">Discover and apply to wholesale opportunities</p>
         </div>
         
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {error instanceof Error ? error.message : 'Failed to load brand partnerships'}
+            {error instanceof Error ? error.message : 'Failed to load available brands'}
           </AlertDescription>
         </Alert>
       </div>
@@ -32,69 +63,111 @@ const ResellerBrands = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Brand Partnerships</h1>
-        <p className="text-muted-foreground">Browse and manage your brand partnerships</p>
+        <h1 className="text-3xl font-bold">Available Brands</h1>
+        <p className="text-muted-foreground">Discover and apply to wholesale opportunities with one click</p>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Active Brands</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-4">
-              {Array(4).fill(0).map((_, i) => (
-                <div key={i} className="flex flex-col space-y-2">
-                  <Skeleton className="h-8 w-full" />
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                </div>
-              ))}
+
+      {isLoading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array(6).fill(0).map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : brands.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-8">
+            <div className="text-muted-foreground">
+              No brands are currently available for applications. Check back later!
             </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Brand Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Min. Order</TableHead>
-                  <TableHead>Last Order</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {brands.length > 0 ? (
-                  brands.map((brand) => (
-                    <TableRow key={brand.name}>
-                      <TableCell className="font-medium">{brand.name}</TableCell>
-                      <TableCell>{brand.category}</TableCell>
-                      <TableCell>{brand.productsCount}</TableCell>
-                      <TableCell>{brand.minOrder}</TableCell>
-                      <TableCell>{brand.lastOrder}</TableCell>
-                      <TableCell>
-                        <Badge variant={brand.status === 'Approved' ? 'default' : 'secondary'}>
-                          {brand.status}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      <div className="text-muted-foreground">
-                        No brand partnerships found. Apply to brands to establish partnerships.
-                      </div>
-                    </TableCell>
-                  </TableRow>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {brands.map((brand) => (
+            <Card key={brand.id} className="relative overflow-hidden">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    {brand.logo_url && (
+                      <img 
+                        src={brand.logo_url} 
+                        alt={`${brand.name} logo`}
+                        className="w-12 h-12 rounded object-cover"
+                      />
+                    )}
+                    <div>
+                      <CardTitle className="text-lg">{brand.name}</CardTitle>
+                      {brand.website_url && (
+                        <a 
+                          href={brand.website_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1"
+                        >
+                          Visit Website
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  {getStatusIcon(brand.applicationStatus)}
+                </div>
+                {brand.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {brand.description}
+                  </p>
                 )}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                {brand.categories && brand.categories.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {brand.categories.slice(0, 3).map((category) => (
+                      <Badge key={category} variant="outline" className="text-xs">
+                        {category}
+                      </Badge>
+                    ))}
+                    {brand.categories.length > 3 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{brand.categories.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  {brand.applicationStatus ? (
+                    getStatusBadge(brand.applicationStatus)
+                  ) : (
+                    <Button 
+                      onClick={() => handleApply(brand.id)}
+                      disabled={isApplying}
+                      className="w-full"
+                    >
+                      {isApplying ? 'Applying...' : 'Apply Now'}
+                    </Button>
+                  )}
+                </div>
+
+                {brand.applicationStatus === 'approved' && (
+                  <Button variant="outline" className="w-full">
+                    View Catalog
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

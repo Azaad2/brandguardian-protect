@@ -1,23 +1,23 @@
 
-import { useState } from "react";
-import { Routes, Route } from 'react-router-dom';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import AdminOverview from '@/components/admin/AdminOverview';
-import ResellerRegistration from './ResellerRegistration';
-import CatalogApprovals from '@/components/admin/CatalogApprovals';
-import UserManagement from './UserManagement';
+import { Routes, Route } from "react-router-dom";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import AdminOverview from "@/components/admin/AdminOverview";
+import ResellerApplicationTable from "@/components/admin/ResellerApplicationTable";
+import BrandsDirectory from "@/components/admin/BrandsDirectory";
+import CatalogApprovals from "@/components/admin/CatalogApprovals";
+import UserManagement from "@/pages/admin/UserManagement";
 
 const AdminDashboard = () => {
   return (
-    <Routes>
-      <Route element={<DashboardLayout />}>
+    <DashboardLayout userRole="admin">
+      <Routes>
         <Route index element={<AdminOverview />} />
-        <Route path="users" element={<UserManagement />} />
-        <Route path="reseller-registration" element={<ResellerRegistration />} />
-        <Route path="catalog-management" element={<CatalogApprovals />} />
-        {/* Add more admin routes as needed */}
-      </Route>
-    </Routes>
+        <Route path="reseller-applications" element={<ResellerApplicationTable />} />
+        <Route path="brands-directory" element={<BrandsDirectory />} />
+        <Route path="catalog-approvals" element={<CatalogApprovals />} />
+        <Route path="user-management" element={<UserManagement />} />
+      </Routes>
+    </DashboardLayout>
   );
 };
 

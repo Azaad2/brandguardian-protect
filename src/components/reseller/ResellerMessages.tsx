@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -6,59 +5,105 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Mail, Users, Search, Filter } from "lucide-react";
+import { MessageCircle, Mail, Users, Search, Filter, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useResellerMessages, Message } from "@/hooks/use-reseller-messages";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+
+interface Message {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+  email_thread_id: string | null;
+  message_source: string | null;
+  brand_application_id: string | null;
+  brand_application?: {
+    brand: {
+      name: string;
+      logo_url: string | null;
+    };
+  };
+}
 
 const ResellerMessages = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { messages, isLoading, isError, error } = useResellerMessages();
-  
-  const getTypeStyles = (type: string) => {
-    switch (type) {
-      case "application":
-        return "bg-blue-100 text-blue-700";
-      case "policy":
-        return "bg-purple-100 text-purple-700";
-      case "promotion":
-        return "bg-green-100 text-green-700";
-      case "recommendation":
-        return "bg-amber-100 text-amber-700";
-      case "compliance":
-        return "bg-red-100 text-red-700";
-      case "inventory":
-        return "bg-teal-100 text-teal-700";
-      default:
-        return "bg-gray-100 text-gray-700";
+  const { user } = useAuth();
+
+  // Fetch messages with brand application details
+  const { data: messages = [], isLoading, isError, error } = useQuery({
+    queryKey: ['reseller-messages', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('messages')
+        .select(`
+          *,
+          brand_application:brand_applications(
+            brand:brands_directory(
+              name,
+              logo_url
+            )
+          )
+        `)
+        .eq('recipient_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Message[];
+    },
+    enabled: !!user,
+  });
+
+  const getMessageType = (message: Message) => {
+    if (message.message_source === 'email_inbound') {
+      return 'Brand Reply';
+    } else if (message.brand_application_id) {
+      return 'Application';
     }
+    return 'Internal';
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <Badge variant="default" className="bg-green-600">Approved</Badge>;
-      case "important":
-        return <Badge variant="default" className="bg-blue-600">Important</Badge>;
-      case "warning":
-        return <Badge variant="default" className="bg-red-600">Action Required</Badge>;
-      default:
-        return null;
+  const getMessageIcon = (message: Message) => {
+    if (message.message_source === 'email_inbound') {
+      return <Mail className="h-4 w-4 text-blue-600" />;
+    } else if (message.brand_application_id) {
+      return <ExternalLink className="h-4 w-4 text-green-600" />;
     }
+    return <MessageCircle className="h-4 w-4 text-gray-600" />;
+  };
+
+  const getTypeStyles = (message: Message) => {
+    if (message.message_source === 'email_inbound') {
+      return "bg-blue-100 text-blue-700";
+    } else if (message.brand_application_id) {
+      return "bg-green-100 text-green-700";
+    }
+    return "bg-gray-100 text-gray-700";
+  };
+
+  const getSenderName = (message: Message) => {
+    if (message.brand_application?.brand?.name) {
+      return message.brand_application.brand.name;
+    }
+    return 'BndBox System';
   };
 
   const filteredMessages = messages.filter(
     message => 
-      message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      message.sender.toLowerCase().includes(searchTerm.toLowerCase())
+      getSenderName(message).toLowerCase().includes(searchTerm.toLowerCase()) || 
+      message.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const unreadMessages = messages.filter(message => message.unread);
-  const applicationMessages = messages.filter(message => message.type === 'application');
-  const importantMessages = messages.filter(message => 
-    message.status === 'important' || message.status === 'warning'
-  );
+  const unreadMessages = messages.filter(message => !message.is_read);
+  const applicationMessages = messages.filter(message => message.brand_application_id);
+  const emailMessages = messages.filter(message => message.message_source === 'email_inbound');
 
   if (isError) {
     return (
@@ -83,7 +128,7 @@ const ResellerMessages = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Messages</h1>
-        <p className="text-muted-foreground">Communicate with your brand partners</p>
+        <p className="text-muted-foreground">Real-time communication with your brand partners</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -98,7 +143,7 @@ const ResellerMessages = () => {
             ) : (
               <>
                 <div className="text-2xl font-bold">{unreadMessages.length}</div>
-                <p className="text-xs text-muted-foreground">Waiting for your response</p>
+                <p className="text-xs text-muted-foreground">New messages waiting</p>
               </>
             )}
           </CardContent>
@@ -106,7 +151,7 @@ const ResellerMessages = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">Email Replies</CardTitle>
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -114,8 +159,8 @@ const ResellerMessages = () => {
               <Skeleton className="h-8 w-16" />
             ) : (
               <>
-                <div className="text-2xl font-bold">96%</div>
-                <p className="text-xs text-muted-foreground">Average response time: 3.2 hours</p>
+                <div className="text-2xl font-bold">{emailMessages.length}</div>
+                <p className="text-xs text-muted-foreground">Direct from brands</p>
               </>
             )}
           </CardContent>
@@ -123,7 +168,7 @@ const ResellerMessages = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Brand Connections</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Conversations</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -132,9 +177,9 @@ const ResellerMessages = () => {
             ) : (
               <>
                 <div className="text-2xl font-bold">
-                  {new Set(messages.map(m => m.sender)).size}
+                  {new Set(messages.map(m => m.brand_application?.brand?.name).filter(Boolean)).size}
                 </div>
-                <p className="text-xs text-muted-foreground">Active communication channels</p>
+                <p className="text-xs text-muted-foreground">Different brands</p>
               </>
             )}
           </CardContent>
@@ -160,16 +205,22 @@ const ResellerMessages = () => {
       <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">All Messages</TabsTrigger>
-          <TabsTrigger value="unread">Unread</TabsTrigger>
-          <TabsTrigger value="applications">Applications</TabsTrigger>
-          <TabsTrigger value="important">Important</TabsTrigger>
+          <TabsTrigger value="unread">
+            Unread ({unreadMessages.length})
+          </TabsTrigger>
+          <TabsTrigger value="applications">
+            Applications ({applicationMessages.length})
+          </TabsTrigger>
+          <TabsTrigger value="email-replies">
+            Brand Replies ({emailMessages.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all">
           <Card>
             <CardHeader>
-              <CardTitle>Message Center</CardTitle>
-              <CardDescription>View and respond to communications from your brand partners</CardDescription>
+              <CardTitle>All Messages</CardTitle>
+              <CardDescription>Complete message history with real-time updates</CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -191,33 +242,51 @@ const ResellerMessages = () => {
                       filteredMessages.map((message) => (
                         <div
                           key={message.id}
-                          className={`flex items-center justify-between rounded-lg border p-4 ${
-                            message.unread ? 'bg-muted/50' : ''
+                          className={`flex items-start gap-3 rounded-lg border p-4 ${
+                            !message.is_read ? 'bg-muted/50 border-blue-200' : ''
                           }`}
                         >
-                          <div className="space-y-1">
+                          <div className="flex-shrink-0">
+                            {message.brand_application?.brand?.logo_url ? (
+                              <img 
+                                src={message.brand_application.brand.logo_url} 
+                                alt="Brand logo"
+                                className="w-10 h-10 rounded object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded bg-gray-200 flex items-center justify-center">
+                                {getMessageIcon(message)}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="flex-grow space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-semibold">{message.sender}</span>
-                              {message.unread && (
-                                <Badge variant="secondary">New</Badge>
+                              <span className="font-semibold">{getSenderName(message)}</span>
+                              {!message.is_read && (
+                                <Badge variant="secondary" className="text-xs">New</Badge>
                               )}
-                              {getStatusBadge(message.status)}
-                            </div>
-                            <div className="text-sm font-medium">{message.subject}</div>
-                            <p className="text-sm text-muted-foreground line-clamp-1">
-                              {message.preview}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground">
-                                {message.timestamp}
-                              </span>
-                              <Badge
-                                className={getTypeStyles(message.type)}
-                              >
-                                {message.type}
+                              <Badge className={getTypeStyles(message)}>
+                                {getMessageType(message)}
                               </Badge>
                             </div>
+                            
+                            <p className="text-sm text-muted-foreground line-clamp-3">
+                              {message.content}
+                            </p>
+                            
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(message.created_at).toLocaleString()}
+                              </span>
+                              {message.message_source === 'email_inbound' && (
+                                <Badge variant="outline" className="text-xs">
+                                  Via Email
+                                </Badge>
+                              )}
+                            </div>
                           </div>
+                          
                           <Button variant="outline" size="sm">
                             View
                           </Button>
@@ -228,7 +297,7 @@ const ResellerMessages = () => {
                         <Mail className="mb-2 h-6 w-6 text-muted-foreground" />
                         <h3 className="text-lg font-medium">No messages found</h3>
                         <p className="text-sm text-muted-foreground">
-                          {searchTerm ? "Try adjusting your search term" : "You're all caught up!"}
+                          {searchTerm ? "Try adjusting your search term" : "Messages from brands will appear here"}
                         </p>
                       </div>
                     )}
@@ -264,35 +333,55 @@ const ResellerMessages = () => {
                     {unreadMessages.length > 0 ? (
                       unreadMessages
                         .filter(message => 
-                          message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          message.sender.toLowerCase().includes(searchTerm.toLowerCase())
+                          getSenderName(message).toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          message.content.toLowerCase().includes(searchTerm.toLowerCase())
                         )
                         .map((message) => (
                           <div
                             key={message.id}
-                            className="flex items-center justify-between rounded-lg border bg-muted/50 p-4"
+                            className={`flex items-start gap-3 rounded-lg border p-4 ${
+                              !message.is_read ? 'bg-muted/50 border-blue-200' : ''
+                            }`}
                           >
-                            <div className="space-y-1">
+                            <div className="flex-shrink-0">
+                              {message.brand_application?.brand?.logo_url ? (
+                                <img 
+                                  src={message.brand_application.brand.logo_url} 
+                                  alt="Brand logo"
+                                  className="w-10 h-10 rounded object-cover"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded bg-gray-200 flex items-center justify-center">
+                                  {getMessageIcon(message)}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="flex-grow space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold">{message.sender}</span>
-                                <Badge variant="secondary">New</Badge>
-                                {getStatusBadge(message.status)}
-                              </div>
-                              <div className="text-sm font-medium">{message.subject}</div>
-                              <p className="text-sm text-muted-foreground line-clamp-1">
-                                {message.preview}
-                              </p>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground">
-                                  {message.timestamp}
-                                </span>
-                                <Badge
-                                  className={getTypeStyles(message.type)}
-                                >
-                                  {message.type}
+                                <span className="font-semibold">{getSenderName(message)}</span>
+                                <Badge variant="secondary" className="text-xs">New</Badge>
+                                <Badge className={getTypeStyles(message)}>
+                                  {getMessageType(message)}
                                 </Badge>
                               </div>
+                              
+                              <p className="text-sm text-muted-foreground line-clamp-3">
+                                {message.content}
+                              </p>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(message.created_at).toLocaleString()}
+                                </span>
+                                {message.message_source === 'email_inbound' && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Via Email
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
+                            
                             <Button variant="outline" size="sm">
                               View
                             </Button>
@@ -339,39 +428,55 @@ const ResellerMessages = () => {
                     {applicationMessages.length > 0 ? (
                       applicationMessages
                         .filter(message => 
-                          message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          message.sender.toLowerCase().includes(searchTerm.toLowerCase())
+                          getSenderName(message).toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          message.content.toLowerCase().includes(searchTerm.toLowerCase())
                         )
                         .map((message) => (
                           <div
                             key={message.id}
-                            className={`flex items-center justify-between rounded-lg border p-4 ${
-                              message.unread ? 'bg-muted/50' : ''
+                            className={`flex items-start gap-3 rounded-lg border p-4 ${
+                              !message.is_read ? 'bg-muted/50 border-blue-200' : ''
                             }`}
                           >
-                            <div className="space-y-1">
+                            <div className="flex-shrink-0">
+                              {message.brand_application?.brand?.logo_url ? (
+                                <img 
+                                  src={message.brand_application.brand.logo_url} 
+                                  alt="Brand logo"
+                                  className="w-10 h-10 rounded object-cover"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded bg-gray-200 flex items-center justify-center">
+                                  {getMessageIcon(message)}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="flex-grow space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold">{message.sender}</span>
-                                {message.unread && (
-                                  <Badge variant="secondary">New</Badge>
-                                )}
-                                {getStatusBadge(message.status)}
-                              </div>
-                              <div className="text-sm font-medium">{message.subject}</div>
-                              <p className="text-sm text-muted-foreground line-clamp-1">
-                                {message.preview}
-                              </p>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground">
-                                  {message.timestamp}
-                                </span>
-                                <Badge
-                                  className={getTypeStyles(message.type)}
-                                >
-                                  {message.type}
+                                <span className="font-semibold">{getSenderName(message)}</span>
+                                <Badge variant="secondary" className="text-xs">New</Badge>
+                                <Badge className={getTypeStyles(message)}>
+                                  {getMessageType(message)}
                                 </Badge>
                               </div>
+                              
+                              <p className="text-sm text-muted-foreground line-clamp-3">
+                                {message.content}
+                              </p>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(message.created_at).toLocaleString()}
+                                </span>
+                                {message.message_source === 'email_inbound' && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Via Email
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
+                            
                             <Button variant="outline" size="sm">
                               View
                             </Button>
@@ -393,11 +498,11 @@ const ResellerMessages = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="important">
+        <TabsContent value="email-replies">
           <Card>
             <CardHeader>
-              <CardTitle>Important Messages</CardTitle>
-              <CardDescription>High priority communications</CardDescription>
+              <CardTitle>Brand Replies</CardTitle>
+              <CardDescription>Direct responses from brands via email</CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -415,42 +520,58 @@ const ResellerMessages = () => {
               ) : (
                 <ScrollArea className="h-[400px]">
                   <div className="space-y-4">
-                    {importantMessages.length > 0 ? (
-                      importantMessages
+                    {emailMessages.length > 0 ? (
+                      emailMessages
                         .filter(message => 
-                          message.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          message.sender.toLowerCase().includes(searchTerm.toLowerCase())
+                          getSenderName(message).toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          message.content.toLowerCase().includes(searchTerm.toLowerCase())
                         )
                         .map((message) => (
                           <div
                             key={message.id}
-                            className={`flex items-center justify-between rounded-lg border p-4 ${
-                              message.unread ? 'bg-muted/50' : ''
+                            className={`flex items-start gap-3 rounded-lg border p-4 ${
+                              !message.is_read ? 'bg-muted/50 border-blue-200' : ''
                             }`}
                           >
-                            <div className="space-y-1">
+                            <div className="flex-shrink-0">
+                              {message.brand_application?.brand?.logo_url ? (
+                                <img 
+                                  src={message.brand_application.brand.logo_url} 
+                                  alt="Brand logo"
+                                  className="w-10 h-10 rounded object-cover"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded bg-gray-200 flex items-center justify-center">
+                                  {getMessageIcon(message)}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="flex-grow space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold">{message.sender}</span>
-                                {message.unread && (
-                                  <Badge variant="secondary">New</Badge>
-                                )}
-                                {getStatusBadge(message.status)}
-                              </div>
-                              <div className="text-sm font-medium">{message.subject}</div>
-                              <p className="text-sm text-muted-foreground line-clamp-1">
-                                {message.preview}
-                              </p>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground">
-                                  {message.timestamp}
-                                </span>
-                                <Badge
-                                  className={getTypeStyles(message.type)}
-                                >
-                                  {message.type}
+                                <span className="font-semibold">{getSenderName(message)}</span>
+                                <Badge variant="secondary" className="text-xs">New</Badge>
+                                <Badge className={getTypeStyles(message)}>
+                                  {getMessageType(message)}
                                 </Badge>
                               </div>
+                              
+                              <p className="text-sm text-muted-foreground line-clamp-3">
+                                {message.content}
+                              </p>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(message.created_at).toLocaleString()}
+                                </span>
+                                {message.message_source === 'email_inbound' && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Via Email
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
+                            
                             <Button variant="outline" size="sm">
                               View
                             </Button>
@@ -459,9 +580,9 @@ const ResellerMessages = () => {
                     ) : (
                       <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed p-4 text-center">
                         <Mail className="mb-2 h-6 w-6 text-muted-foreground" />
-                        <h3 className="text-lg font-medium">No important messages</h3>
+                        <h3 className="text-lg font-medium">No brand replies</h3>
                         <p className="text-sm text-muted-foreground">
-                          Important messages will appear here
+                          Responses from brands will appear here
                         </p>
                       </div>
                     )}

@@ -9,32 +9,129 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      brand_applications: {
+        Row: {
+          application_data: Json | null
+          brand_id: string
+          created_at: string
+          email_thread_id: string | null
+          id: string
+          reseller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          application_data?: Json | null
+          brand_id: string
+          created_at?: string
+          email_thread_id?: string | null
+          id?: string
+          reseller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          application_data?: Json | null
+          brand_id?: string
+          created_at?: string
+          email_thread_id?: string | null
+          id?: string
+          reseller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_applications_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brands_directory: {
+        Row: {
+          categories: string[] | null
+          contact_email: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          categories?: string[] | null
+          contact_email: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          categories?: string[] | null
+          contact_email?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
+          brand_application_id: string | null
           content: string
           created_at: string
+          email_thread_id: string | null
           id: string
           is_read: boolean | null
+          message_source: string | null
           recipient_id: string
           sender_id: string
         }
         Insert: {
+          brand_application_id?: string | null
           content: string
           created_at?: string
+          email_thread_id?: string | null
           id?: string
           is_read?: boolean | null
+          message_source?: string | null
           recipient_id: string
           sender_id: string
         }
         Update: {
+          brand_application_id?: string | null
           content?: string
           created_at?: string
+          email_thread_id?: string | null
           id?: string
           is_read?: boolean | null
+          message_source?: string | null
           recipient_id?: string
           sender_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_brand_application_id_fkey"
+            columns: ["brand_application_id"]
+            isOneToOne: false
+            referencedRelation: "brand_applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
