@@ -1,5 +1,4 @@
 
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,7 +23,6 @@ import ResellerSignup from "./pages/reseller/ResellerSignup";
 import PasswordReset from "./pages/auth/PasswordReset";
 import AuthGuard from "./components/auth/AuthGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import DashboardLayout from "./components/dashboard/DashboardLayout";
 import RoleUpdater from "./pages/RoleUpdater";
 import EnforceMAPPolicyPreventUnauthorizedSellers from "./pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers";
 import PreventUnauthorizedSellersAmazon from "./pages/blog/PreventUnauthorizedSellersAmazon";
@@ -63,7 +61,7 @@ const App = () => (
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/dashboard/*" element={
-                  <AuthGuard requiredRole="admin" redirectTo="/">
+                  <AuthGuard requiredRole="admin">
                     <AdminDashboard />
                   </AuthGuard>
                 } />
@@ -75,7 +73,7 @@ const App = () => (
                 <Route path="/brand/login" element={<BrandLogin />} />
                 <Route path="/brand/signup" element={<BrandSignup />} />
                 <Route path="/brand/dashboard/*" element={
-                  <AuthGuard requiredRole="brand" redirectTo="/brand/login">
+                  <AuthGuard requiredRole="brand">
                     <BrandDashboard />
                   </AuthGuard>
                 } />
@@ -85,7 +83,7 @@ const App = () => (
                 <Route path="/reseller/login" element={<ResellerLogin />} />
                 <Route path="/reseller/signup" element={<ResellerSignup />} />
                 <Route path="/reseller/dashboard/*" element={
-                  <AuthGuard requiredRole="reseller" redirectTo="/reseller/login">
+                  <AuthGuard requiredRole="reseller">
                     <ResellerDashboard />
                   </AuthGuard>
                 } />
@@ -105,4 +103,3 @@ const App = () => (
 );
 
 export default App;
-
