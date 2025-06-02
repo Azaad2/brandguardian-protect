@@ -9,16 +9,19 @@ export const updateUserRole = async (userId: string, newRole: 'admin' | 'brand' 
       .from('profiles')
       .update({ user_role: newRole })
       .eq('id', userId)
-      .select()
-      .single();
+      .select();
     
     if (error) {
       console.error('Error updating user role:', error);
       throw error;
     }
     
-    console.log('User role updated successfully:', data);
-    return data;
+    if (!data || data.length === 0) {
+      throw new Error('No profile found to update');
+    }
+    
+    console.log('User role updated successfully:', data[0]);
+    return data[0];
   } catch (error) {
     console.error('Failed to update user role:', error);
     throw error;
@@ -37,11 +40,15 @@ export const getCurrentUserRole = async () => {
       .from('profiles')
       .select('user_role, full_name')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     
     if (error) {
       console.error('Error fetching user role:', error);
       throw error;
+    }
+    
+    if (!data) {
+      throw new Error('No profile found for current user');
     }
     
     console.log('Current user role:', data);
