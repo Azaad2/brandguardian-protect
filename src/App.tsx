@@ -1,4 +1,5 @@
 
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -59,14 +60,14 @@ const App = () => (
                 {/* Temporary role updater page */}
                 <Route path="/update-role" element={<RoleUpdater />} />
                 
-                {/* Admin Routes - Properly structured with DashboardLayout */}
+                {/* Admin Routes - Fixed structure */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="/admin/dashboard" element={
+                <Route path="/admin/*" element={
                   <AuthGuard requiredRole="admin" redirectTo="/">
                     <DashboardLayout />
                   </AuthGuard>
                 }>
-                  <Route path="*" element={<AdminDashboard />} />
+                  <Route path="dashboard/*" element={<AdminDashboard />} />
                 </Route>
                 
                 <Route path="/reseller-hub" element={<ResellerHub />} />
@@ -106,3 +107,4 @@ const App = () => (
 );
 
 export default App;
+
