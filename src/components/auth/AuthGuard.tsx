@@ -15,13 +15,15 @@ const AuthGuard = ({
   children, 
   requiredRole, 
   redirectTo = '/',
-  bypassAuth = true  // Kept as true for testing purposes
+  bypassAuth = false  // Changed to false for proper authentication
 }: AuthGuardProps) => {
   const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
   const [accessGranted, setAccessGranted] = useState(false);
   
   useEffect(() => {
+    console.log('AuthGuard check:', { user, userRole, isLoading, requiredRole, bypassAuth });
+    
     // If bypassing auth, grant access immediately
     if (bypassAuth) {
       setAccessGranted(true);
@@ -42,6 +44,8 @@ const AuthGuard = ({
       const hasRequiredRole = Array.isArray(requiredRole) 
         ? requiredRole.includes(userRole)
         : userRole === requiredRole;
+      
+      console.log('Role check:', { userRole, requiredRole, hasRequiredRole });
       
       if (!hasRequiredRole) {
         // Redirect based on role

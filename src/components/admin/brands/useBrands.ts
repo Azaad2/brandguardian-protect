@@ -11,12 +11,17 @@ export const useBrands = () => {
   const { data: brands = [], isLoading } = useQuery({
     queryKey: ['brands-directory'],
     queryFn: async () => {
+      console.log('Fetching brands...');
       const { data, error } = await supabase
         .from('brands_directory')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching brands:', error);
+        throw error;
+      }
+      console.log('Brands fetched successfully:', data);
       return data as Brand[];
     },
   });
@@ -24,6 +29,31 @@ export const useBrands = () => {
   // Add brand mutation
   const addBrandMutation = useMutation({
     mutationFn: async (brandData: Omit<Brand, 'id' | 'created_at' | 'updated_at'>) => {
+      console.log('Adding brand with data:', brandData);
+      
+      // Check current user and session
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('Current user:', user);
+      console.log('User error:', userError);
+      
+      if (!user) {
+        throw new Error('No authenticated user found');
+      }
+      
+      // Check if user is admin
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_role')
+        .eq('id', user.id)
+        .single();
+      
+      console.log('User profile:', profile);
+      console.log('Profile error:', profileError);
+      
+      if (profile?.user_role !== 'admin') {
+        throw new Error(`User role is ${profile?.user_role}, but admin role is required`);
+      }
+      
       const { data, error } = await supabase
         .from('brands_directory')
         .insert([{
@@ -34,6 +64,8 @@ export const useBrands = () => {
         }])
         .select()
         .single();
+      
+      console.log('Insert result:', { data, error });
       
       if (error) throw error;
       return data;
@@ -46,6 +78,7 @@ export const useBrands = () => {
       });
     },
     onError: (error) => {
+      console.error('Add brand mutation error:', error);
       toast({
         title: 'Error',
         description: `Failed to add brand: ${error.message}`,
