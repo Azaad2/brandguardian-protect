@@ -1,11 +1,11 @@
 
 import { ReactNode } from 'react';
-import { UserRole } from '@/types/auth';
+import { UserRole } from '@/types';
 
 export interface NavItem {
   icon: React.ElementType;
-  title: string; // Changed from label to match existing code
-  href: string;  // Changed from path to match existing code
+  title: string;
+  href: string;
   badge?: string;
 }
 

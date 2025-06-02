@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -60,11 +61,9 @@ const BrandsDirectory = () => {
         .from('brands_directory')
         .insert([{
           ...brandData,
-          categories: brandData.categories && Array.isArray(brandData.categories) 
+          categories: Array.isArray(brandData.categories) 
             ? brandData.categories 
-            : typeof brandData.categories === 'string' 
-              ? brandData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
-              : []
+            : []
         }])
         .select()
         .single();
@@ -91,16 +90,11 @@ const BrandsDirectory = () => {
 
   // Update brand mutation
   const updateBrandMutation = useMutation({
-    mutationFn: async ({ id, categories, ...brandData }: Partial<Brand> & { id: string }) => {
+    mutationFn: async ({ id, ...brandData }: Partial<Brand> & { id: string }) => {
       const { data, error } = await supabase
         .from('brands_directory')
         .update({
           ...brandData,
-          categories: categories && Array.isArray(categories) 
-            ? categories 
-            : typeof categories === 'string' 
-              ? categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
-              : categories,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
@@ -178,17 +172,28 @@ const BrandsDirectory = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const categoriesArray = formData.categories
+      ? formData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
+      : [];
+    
     if (editingBrand) {
       updateBrandMutation.mutate({
         id: editingBrand.id,
-        ...formData,
-        categories: formData.categories,
-        is_active: editingBrand.is_active,
+        name: formData.name,
+        website_url: formData.website_url,
+        description: formData.description,
+        contact_email: formData.contact_email,
+        logo_url: formData.logo_url,
+        categories: categoriesArray,
       });
     } else {
       addBrandMutation.mutate({
-        ...formData,
-        categories: formData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0),
+        name: formData.name,
+        website_url: formData.website_url,
+        description: formData.description,
+        contact_email: formData.contact_email,
+        logo_url: formData.logo_url,
+        categories: categoriesArray,
         is_active: true,
       });
     }

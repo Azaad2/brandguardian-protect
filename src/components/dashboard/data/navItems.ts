@@ -1,42 +1,42 @@
 
-import { NavItem } from "@/types";
+import { NavItem } from "../types";
 
 export const navItems: NavItem[] = [
-  { name: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-  { name: "Brands", href: "/dashboard/brands", icon: "Store" },
-  { name: "Messages", href: "/dashboard/messages", icon: "MessageCircle" },
-  { name: "Orders", href: "/dashboard/orders", icon: "ShoppingCart" },
-  { name: "Settings", href: "/dashboard/settings", icon: "Settings" },
+  { title: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
+  { title: "Brands", href: "/dashboard/brands", icon: "Store" },
+  { title: "Messages", href: "/dashboard/messages", icon: "MessageCircle" },
+  { title: "Orders", href: "/dashboard/orders", icon: "ShoppingCart" },
+  { title: "Settings", href: "/dashboard/settings", icon: "Settings" },
 ];
 
 export const resellerNavItems: NavItem[] = [
-  { name: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-  { name: "Brands", href: "/dashboard/brands", icon: "Store" },
-  { name: "Messages", href: "/dashboard/messages", icon: "MessageCircle" },
-  { name: "Orders", href: "/dashboard/orders", icon: "ShoppingCart" },
-  { name: "Settings", href: "/dashboard/settings", icon: "Settings" },
+  { title: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
+  { title: "Brands", href: "/dashboard/brands", icon: "Store" },
+  { title: "Messages", href: "/dashboard/messages", icon: "MessageCircle" },
+  { title: "Orders", href: "/dashboard/orders", icon: "ShoppingCart" },
+  { title: "Settings", href: "/dashboard/settings", icon: "Settings" },
 ];
 
 export const brandNavItems: NavItem[] = [
-  { name: "Dashboard", href: "/brand/dashboard", icon: "LayoutDashboard" },
-  { name: "Inventory", href: "/brand/dashboard/inventory", icon: "Package" },
-  { name: "Resellers", href: "/brand/dashboard/resellers", icon: "Users" },
-  { name: "Orders", href: "/brand/dashboard/orders", icon: "ShoppingCart" },
-  { name: "Messages", href: "/brand/dashboard/messages", icon: "MessageCircle" },
-  { name: "Analytics", href: "/brand/dashboard/analytics", icon: "BarChart3" },
-  { name: "Settings", href: "/brand/dashboard/settings", icon: "Settings" },
+  { title: "Dashboard", href: "/brand/dashboard", icon: "LayoutDashboard" },
+  { title: "Inventory", href: "/brand/dashboard/inventory", icon: "Package" },
+  { title: "Resellers", href: "/brand/dashboard/resellers", icon: "Users" },
+  { title: "Orders", href: "/brand/dashboard/orders", icon: "ShoppingCart" },
+  { title: "Messages", href: "/brand/dashboard/messages", icon: "MessageCircle" },
+  { title: "Analytics", href: "/brand/dashboard/analytics", icon: "BarChart3" },
+  { title: "Settings", href: "/brand/dashboard/settings", icon: "Settings" },
 ];
 
 export const adminNavItems: NavItem[] = [
-  { name: "Overview", href: "/admin/dashboard", icon: "LayoutDashboard" },
-  { name: "Reseller Applications", href: "/admin/dashboard/reseller-applications", icon: "Users" },
-  { name: "Brands Directory", href: "/admin/dashboard/brands-directory", icon: "Building2" },
-  { name: "Catalog Approvals", href: "/admin/dashboard/catalog-approvals", icon: "PackageCheck" },
-  { name: "User Management", href: "/admin/dashboard/user-management", icon: "UserCog" },
+  { title: "Overview", href: "/admin/dashboard", icon: "LayoutDashboard" },
+  { title: "Reseller Applications", href: "/admin/dashboard/reseller-applications", icon: "Users" },
+  { title: "Brands Directory", href: "/admin/dashboard/brands-directory", icon: "Building2" },
+  { title: "Catalog Approvals", href: "/admin/dashboard/catalog-approvals", icon: "PackageCheck" },
+  { title: "User Management", href: "/admin/dashboard/user-management", icon: "UserCog" },
 ];
 
 export const profileActions: NavItem[] = [
-  { name: "Profile", href: "/dashboard/settings/profile", icon: "User" },
-  { name: "Notifications", href: "/dashboard/settings/notifications", icon: "Bell" },
-  { name: "Security", href: "/dashboard/settings/security", icon: "Shield" },
+  { title: "Profile", href: "/dashboard/settings/profile", icon: "User" },
+  { title: "Notifications", href: "/dashboard/settings/notifications", icon: "Bell" },
+  { title: "Security", href: "/dashboard/settings/security", icon: "Shield" },
 ];
