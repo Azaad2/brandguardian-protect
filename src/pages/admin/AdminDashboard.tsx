@@ -1,5 +1,4 @@
 
-
 import { Routes, Route } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AdminOverview from "@/components/admin/AdminOverview";
@@ -9,6 +8,8 @@ import UserManagement from "@/pages/admin/UserManagement";
 import ResellerRegistration from "@/pages/admin/ResellerRegistration";
 
 const AdminDashboard = () => {
+  console.log('AdminDashboard rendering');
+  
   return (
     <Routes>
       <Route element={<DashboardLayout />}>
@@ -23,4 +24,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

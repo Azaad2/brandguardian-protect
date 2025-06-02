@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import SidebarNav from './layout/SidebarNav';
@@ -56,6 +57,7 @@ const DashboardLayout = () => {
   const { navItems, userRole } = getNavItemsFromPath();
 
   console.log('DashboardLayout - Determined userRole:', userRole, 'from path:', location.pathname);
+  console.log('DashboardLayout - Using navItems:', navItems);
 
   // Close sidebar on mobile when route changes
   const toggleSidebar = () => {
@@ -105,6 +107,8 @@ const DashboardLayout = () => {
     }
   }, [userRole]);
 
+  console.log('DashboardLayout - About to render with userRole:', userRole);
+
   return (
     <div className="flex min-h-screen flex-col">
       <TopBar 
@@ -120,7 +124,9 @@ const DashboardLayout = () => {
           userRole={userRole}
         />
         <main className="flex-1 bg-slate-50 p-4 md:p-6">
-          <Outlet />
+          <div className="min-h-full">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
