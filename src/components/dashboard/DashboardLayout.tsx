@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import SidebarNav from './layout/SidebarNav';
@@ -22,28 +21,29 @@ const DashboardLayout = () => {
     const path = location.pathname;
     
     console.log('DashboardLayout - Current path:', path);
+    console.log('DashboardLayout - Location object:', location);
     
     // Check for admin portal first (most specific)
     if (path.startsWith('/admin')) {
-      console.log('Detected admin portal');
+      console.log('Detected admin portal from path:', path);
       return { navItems: adminNavItems, userRole: 'admin' };
     }
     
     // Check for brand portal
     if (path.startsWith('/brand')) {
-      console.log('Detected brand portal');
+      console.log('Detected brand portal from path:', path);
       return { navItems: brandNavItems, userRole: 'brand' };
     }
     
     // Check for reseller portal
     if (path.startsWith('/reseller')) {
-      console.log('Detected reseller portal');
+      console.log('Detected reseller portal from path:', path);
       return { navItems: resellerNavItems, userRole: 'reseller' };
     }
     
     // Legacy fallback for /dashboard routes (default to reseller)
     if (path.startsWith('/dashboard')) {
-      console.log('Detected legacy dashboard route, defaulting to reseller');
+      console.log('Detected legacy dashboard route, defaulting to reseller. Path:', path);
       return { navItems: resellerNavItems, userRole: 'reseller' };
     }
     
@@ -54,6 +54,8 @@ const DashboardLayout = () => {
   
   // Get the appropriate nav items for the current path
   const { navItems, userRole } = getNavItemsFromPath();
+
+  console.log('DashboardLayout - Determined userRole:', userRole, 'from path:', location.pathname);
 
   // Close sidebar on mobile when route changes
   const toggleSidebar = () => {

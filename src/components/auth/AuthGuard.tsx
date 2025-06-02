@@ -15,7 +15,7 @@ const AuthGuard = ({
   children, 
   requiredRole, 
   redirectTo = '/',
-  bypassAuth = false  // Changed to false for proper authentication
+  bypassAuth = false
 }: AuthGuardProps) => {
   const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -26,15 +26,20 @@ const AuthGuard = ({
     
     // If bypassing auth, grant access immediately
     if (bypassAuth) {
+      console.log('Bypassing auth, granting access');
       setAccessGranted(true);
       return;
     }
     
     // Wait for authentication to complete
-    if (isLoading) return;
+    if (isLoading) {
+      console.log('Still loading auth, waiting...');
+      return;
+    }
     
-    // If no user, redirect to home
+    // If no user, redirect to redirectTo
     if (!user) {
+      console.log('No user found, redirecting to:', redirectTo);
       navigate(redirectTo);
       return;
     }
@@ -48,11 +53,14 @@ const AuthGuard = ({
       console.log('Role check:', { userRole, requiredRole, hasRequiredRole });
       
       if (!hasRequiredRole) {
+        console.log('User does not have required role, redirecting based on their role');
         // Redirect based on role
         if (userRole === 'brand') {
           navigate('/brand/dashboard');
         } else if (userRole === 'reseller') {
           navigate('/reseller/dashboard');
+        } else if (userRole === 'admin') {
+          navigate('/admin/dashboard');
         } else {
           navigate(redirectTo);
         }
@@ -61,6 +69,7 @@ const AuthGuard = ({
     }
     
     // If we got here, access is granted
+    console.log('Access granted!');
     setAccessGranted(true);
   }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth]);
   
