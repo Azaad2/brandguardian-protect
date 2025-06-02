@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/use-auth';
 const AdminRoleUpdater = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentRole, setCurrentRole] = useState<string | null>(null);
-  const [adminEmail, setAdminEmail] = useState('iconcipro.inc@gmail.com');
+  const [adminEmail, setAdminEmail] = useState('iconicpro.inc@gmail.com');
   const { user } = useAuth();
 
   const handleCheckRole = async () => {
