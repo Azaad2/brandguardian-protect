@@ -23,21 +23,25 @@ const DashboardLayout = () => {
     
     console.log('DashboardLayout - Current path:', path);
     
-    // More specific path matching
-    if (path.includes('/brand/dashboard')) {
-      console.log('Detected brand portal');
-      return { navItems: brandNavItems, userRole: 'brand' };
-    }
-    if (path.includes('/admin/dashboard')) {
+    // Check for admin portal first (most specific)
+    if (path.startsWith('/admin')) {
       console.log('Detected admin portal');
       return { navItems: adminNavItems, userRole: 'admin' };
     }
-    if (path.includes('/reseller/dashboard')) {
+    
+    // Check for brand portal
+    if (path.startsWith('/brand')) {
+      console.log('Detected brand portal');
+      return { navItems: brandNavItems, userRole: 'brand' };
+    }
+    
+    // Check for reseller portal
+    if (path.startsWith('/reseller')) {
       console.log('Detected reseller portal');
       return { navItems: resellerNavItems, userRole: 'reseller' };
     }
     
-    // Legacy fallback for /dashboard routes
+    // Legacy fallback for /dashboard routes (default to reseller)
     if (path.startsWith('/dashboard')) {
       console.log('Detected legacy dashboard route, defaulting to reseller');
       return { navItems: resellerNavItems, userRole: 'reseller' };
