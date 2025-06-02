@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import SidebarNav from './layout/SidebarNav';
@@ -20,14 +21,30 @@ const DashboardLayout = () => {
   const getNavItemsFromPath = (): { navItems: NavItem[], userRole: UserRole } => {
     const path = location.pathname;
     
-    if (path.startsWith('/brand')) {
+    console.log('DashboardLayout - Current path:', path);
+    
+    // More specific path matching
+    if (path.includes('/brand/dashboard')) {
+      console.log('Detected brand portal');
       return { navItems: brandNavItems, userRole: 'brand' };
     }
-    if (path.startsWith('/admin')) {
+    if (path.includes('/admin/dashboard')) {
+      console.log('Detected admin portal');
       return { navItems: adminNavItems, userRole: 'admin' };
     }
+    if (path.includes('/reseller/dashboard')) {
+      console.log('Detected reseller portal');
+      return { navItems: resellerNavItems, userRole: 'reseller' };
+    }
     
-    // Default to reseller
+    // Legacy fallback for /dashboard routes
+    if (path.startsWith('/dashboard')) {
+      console.log('Detected legacy dashboard route, defaulting to reseller');
+      return { navItems: resellerNavItems, userRole: 'reseller' };
+    }
+    
+    // If we can't determine from path, log warning and default to reseller
+    console.warn('Could not determine portal type from path:', path);
     return { navItems: resellerNavItems, userRole: 'reseller' };
   };
   
