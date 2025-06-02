@@ -60,15 +60,13 @@ const App = () => (
                 {/* Temporary role updater page */}
                 <Route path="/update-role" element={<RoleUpdater />} />
                 
-                {/* Admin Routes - Fixed structure */}
+                {/* Admin Routes */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="/admin/*" element={
+                <Route path="/admin/dashboard/*" element={
                   <AuthGuard requiredRole="admin" redirectTo="/">
-                    <DashboardLayout />
+                    <AdminDashboard />
                   </AuthGuard>
-                }>
-                  <Route path="dashboard/*" element={<AdminDashboard />} />
-                </Route>
+                } />
                 
                 <Route path="/reseller-hub" element={<ResellerHub />} />
                 
