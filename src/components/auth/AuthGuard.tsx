@@ -20,14 +20,20 @@ const AuthGuard = ({
   const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
   const [accessGranted, setAccessGranted] = useState(false);
+  const [hasCheckedAccess, setHasCheckedAccess] = useState(false);
   
   useEffect(() => {
     console.log('AuthGuard check:', { user: !!user, userRole, isLoading, requiredRole, bypassAuth });
+    
+    // Reset access check when role changes
+    setHasCheckedAccess(false);
+    setAccessGranted(false);
     
     // If bypassing auth, grant access immediately
     if (bypassAuth) {
       console.log('Bypassing auth, granting access');
       setAccessGranted(true);
+      setHasCheckedAccess(true);
       return;
     }
     
@@ -41,7 +47,7 @@ const AuthGuard = ({
     if (!user) {
       console.log('No user found, redirecting based on required role:', requiredRole);
       if (requiredRole === 'admin') {
-        navigate('/');
+        navigate('/admin/login');
       } else if (requiredRole === 'brand') {
         navigate('/brand/login');
       } else if (requiredRole === 'reseller') {
@@ -49,6 +55,7 @@ const AuthGuard = ({
       } else {
         navigate(redirectTo);
       }
+      setHasCheckedAccess(true);
       return;
     }
     
@@ -56,6 +63,7 @@ const AuthGuard = ({
     if (userRole === 'admin') {
       console.log('Admin user detected, granting access to all portals');
       setAccessGranted(true);
+      setHasCheckedAccess(true);
       return;
     }
     
@@ -77,6 +85,7 @@ const AuthGuard = ({
         } else {
           navigate(redirectTo);
         }
+        setHasCheckedAccess(true);
         return;
       }
     }
@@ -84,10 +93,11 @@ const AuthGuard = ({
     // If we got here, access is granted
     console.log('Access granted!');
     setAccessGranted(true);
+    setHasCheckedAccess(true);
   }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth]);
   
   // Show loading indicator while checking auth
-  if (!bypassAuth && (isLoading || !accessGranted)) {
+  if (!bypassAuth && (isLoading || !hasCheckedAccess)) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>

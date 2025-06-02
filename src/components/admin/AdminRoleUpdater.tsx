@@ -49,13 +49,13 @@ const AdminRoleUpdater = () => {
       await makeCurrentUserAdmin();
       toast({
         title: 'Success! 🎉',
-        description: 'You are now an admin and can access all portals! Please refresh the page.',
+        description: 'You are now an admin! Redirecting to admin dashboard...',
       });
       
-      // Refresh the page after a short delay
+      // Force page refresh and redirect to admin dashboard
       setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+        window.location.href = '/admin/dashboard';
+      }, 1500);
     } catch (error: any) {
       toast({
         title: 'Error',
