@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,8 @@ const AdminRoleUpdater = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentRole, setCurrentRole] = useState<string | null>(null);
   const [adminEmail, setAdminEmail] = useState('iconicpro.inc@gmail.com');
-  const { user } = useAuth();
+  const [adminPassword, setAdminPassword] = useState('');
+  const { user, signUp } = useAuth();
 
   const handleCheckRole = async () => {
     try {
@@ -95,6 +95,50 @@ const AdminRoleUpdater = () => {
     }
   };
 
+  const handleSignUpAsAdmin = async () => {
+    if (!adminEmail || !adminPassword) {
+      toast({
+        title: 'Error',
+        description: 'Please enter both email and password',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (adminPassword.length < 8) {
+      toast({
+        title: 'Error',
+        description: 'Password must be at least 8 characters',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await signUp(adminEmail, adminPassword, {
+        full_name: 'BndBox Admin',
+        company_name: 'BndBox',
+        user_role: 'admin'
+      });
+      
+      toast({
+        title: 'Success! 🎉',
+        description: 'Admin account created successfully! Please check your email to confirm registration.',
+      });
+      
+      setAdminPassword('');
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: `Failed to create admin account: ${error.message}`,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="w-full max-w-md mx-auto">
@@ -151,7 +195,7 @@ const AdminRoleUpdater = () => {
         <CardHeader>
           <CardTitle>Make Profile Admin</CardTitle>
           <CardDescription>
-            Update any existing profile to admin role by email
+            Update any existing profile to admin role by email or create new admin account
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -165,17 +209,40 @@ const AdminRoleUpdater = () => {
               placeholder="Enter email address"
             />
           </div>
-          
-          <Button 
-            onClick={handleMakeEmailAdmin} 
-            disabled={isLoading || !adminEmail}
-            className="w-full"
-          >
-            {isLoading ? 'Updating...' : 'Make This Email Admin'}
-          </Button>
 
-          <div className="text-xs text-gray-600">
-            <p>Note: The profile must already exist in the system (user must have signed up first).</p>
+          <div className="space-y-2">
+            <Label htmlFor="admin-password">Password (for new account)</Label>
+            <Input
+              id="admin-password"
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="Enter password (min 8 characters)"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Button 
+              onClick={handleMakeEmailAdmin} 
+              disabled={isLoading || !adminEmail}
+              className="w-full"
+              variant="outline"
+            >
+              {isLoading ? 'Updating...' : 'Make Existing Profile Admin'}
+            </Button>
+
+            <Button 
+              onClick={handleSignUpAsAdmin} 
+              disabled={isLoading || !adminEmail || !adminPassword}
+              className="w-full"
+            >
+              {isLoading ? 'Creating...' : 'Sign Up as Admin'}
+            </Button>
+          </div>
+
+          <div className="text-xs text-gray-600 space-y-1">
+            <p><strong>Make Existing Profile Admin:</strong> The profile must already exist in the system.</p>
+            <p><strong>Sign Up as Admin:</strong> Creates a new admin account with the email and password.</p>
           </div>
         </CardContent>
       </Card>
