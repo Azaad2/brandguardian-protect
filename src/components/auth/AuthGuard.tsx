@@ -43,12 +43,25 @@ const AuthGuard = ({
       return;
     }
     
+    // BYPASS ROLE CHECKS FOR ADMIN PORTAL - Just check if user exists
+    if (requiredRole === 'admin') {
+      if (!user) {
+        console.log('No user found, redirecting to admin login');
+        navigate('/admin/login');
+        setHasCheckedAccess(true);
+        return;
+      } else {
+        console.log('User found, granting admin access regardless of role');
+        setAccessGranted(true);
+        setHasCheckedAccess(true);
+        return;
+      }
+    }
+    
     // If no user, redirect to appropriate login based on required role
     if (!user) {
       console.log('No user found, redirecting based on required role:', requiredRole);
-      if (requiredRole === 'admin') {
-        navigate('/admin/login');
-      } else if (requiredRole === 'brand') {
+      if (requiredRole === 'brand') {
         navigate('/brand/login');
       } else if (requiredRole === 'reseller') {
         navigate('/reseller/login');
@@ -59,15 +72,7 @@ const AuthGuard = ({
       return;
     }
     
-    // SPECIAL CASE: Admin users can access ALL portals
-    if (userRole === 'admin') {
-      console.log('Admin user detected, granting access to all portals');
-      setAccessGranted(true);
-      setHasCheckedAccess(true);
-      return;
-    }
-    
-    // If role requirement specified, check if user has required role
+    // For non-admin portals, check roles normally
     if (requiredRole && userRole) {
       const hasRequiredRole = Array.isArray(requiredRole) 
         ? requiredRole.includes(userRole)
