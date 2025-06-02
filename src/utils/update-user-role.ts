@@ -18,7 +18,33 @@ export const updateUserRole = async (userId: string, newRole: 'admin' | 'brand' 
     }
     
     if (!existingProfile) {
-      throw new Error('No profile found for this user');
+      // If no profile exists, try to create one first
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error('No authenticated user found');
+      }
+
+      // Create profile using the RPC function
+      const { error: createError } = await supabase.rpc('create_user_profile', {
+        user_id: userId,
+        user_email: user.email || '',
+        user_full_name: user.user_metadata?.full_name || '',
+        user_company_name: user.user_metadata?.company_name || '',
+        user_role: newRole
+      });
+
+      if (createError) {
+        console.error('Error creating profile:', createError);
+        throw createError;
+      }
+
+      // Return the newly created profile data
+      return {
+        id: userId,
+        user_role: newRole,
+        full_name: user.user_metadata?.full_name || ''
+      };
     }
     
     // Now update the role
