@@ -58,8 +58,13 @@ const App = () => (
                 {/* Temporary role updater page */}
                 <Route path="/update-role" element={<RoleUpdater />} />
                 
-                {/* Admin Routes - Redirect /admin to /admin/dashboard */}
+                {/* Admin Routes - Fixed routing structure */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="/admin/dashboard" element={
+                  <AuthGuard requiredRole="admin" redirectTo="/">
+                    <AdminDashboard />
+                  </AuthGuard>
+                } />
                 <Route path="/admin/dashboard/*" element={
                   <AuthGuard requiredRole="admin" redirectTo="/">
                     <AdminDashboard />
