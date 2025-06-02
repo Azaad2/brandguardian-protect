@@ -72,3 +72,18 @@ export const getCurrentUserRole = async () => {
     throw error;
   }
 };
+
+export const makeCurrentUserAdmin = async () => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      throw new Error('No authenticated user found');
+    }
+    
+    return await updateUserRole(user.id, 'admin');
+  } catch (error) {
+    console.error('Failed to make current user admin:', error);
+    throw error;
+  }
+};

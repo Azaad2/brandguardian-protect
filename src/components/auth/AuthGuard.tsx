@@ -52,6 +52,13 @@ const AuthGuard = ({
       return;
     }
     
+    // SPECIAL CASE: Admin users can access ALL portals
+    if (userRole === 'admin') {
+      console.log('Admin user detected, granting access to all portals');
+      setAccessGranted(true);
+      return;
+    }
+    
     // If role requirement specified, check if user has required role
     if (requiredRole && userRole) {
       const hasRequiredRole = Array.isArray(requiredRole) 
@@ -67,8 +74,6 @@ const AuthGuard = ({
           navigate('/brand/dashboard');
         } else if (userRole === 'reseller') {
           navigate('/reseller/dashboard');
-        } else if (userRole === 'admin') {
-          navigate('/admin/dashboard');
         } else {
           navigate(redirectTo);
         }

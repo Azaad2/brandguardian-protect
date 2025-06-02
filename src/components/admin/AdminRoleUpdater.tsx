@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
-import { updateUserRole, getCurrentUserRole } from '@/utils/update-user-role';
+import { updateUserRole, getCurrentUserRole, makeCurrentUserAdmin } from '@/utils/update-user-role';
 import { useAuth } from '@/hooks/use-auth';
 
 const AdminRoleUpdater = () => {
@@ -43,10 +43,10 @@ const AdminRoleUpdater = () => {
 
     try {
       setIsLoading(true);
-      await updateUserRole(user.id, 'admin');
+      await makeCurrentUserAdmin();
       toast({
-        title: 'Success',
-        description: 'Your role has been updated to admin. Please refresh the page.',
+        title: 'Success! 🎉',
+        description: 'You are now an admin and can access all portals! Please refresh the page.',
       });
       
       // Refresh the page after a short delay
@@ -67,15 +67,18 @@ const AdminRoleUpdater = () => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Role Management</CardTitle>
+        <CardTitle>BndBox Owner Access</CardTitle>
         <CardDescription>
-          Check and update your user role to access admin features
+          Become an admin to access all portals (Brand, Reseller, and Admin)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {currentRole && (
           <div className="p-3 bg-slate-100 rounded-md">
             <p className="text-sm">Current Role: <strong>{currentRole}</strong></p>
+            {currentRole === 'admin' && (
+              <p className="text-sm text-green-600 mt-1">✅ You can access all portals!</p>
+            )}
           </div>
         )}
         
@@ -94,9 +97,21 @@ const AdminRoleUpdater = () => {
             disabled={isLoading || currentRole === 'admin'}
             className="w-full"
           >
-            {isLoading ? 'Updating...' : 'Update to Admin Role'}
+            {isLoading ? 'Updating...' : 'Make Me Admin (Owner Access)'}
           </Button>
         </div>
+
+        {currentRole === 'admin' && (
+          <div className="text-center space-y-2">
+            <p className="text-sm text-green-600 font-medium">🎉 Admin Access Granted!</p>
+            <div className="space-y-1 text-xs text-gray-600">
+              <p>You can now access:</p>
+              <p>• <a href="/admin/dashboard" className="text-blue-600 hover:underline">Admin Portal</a></p>
+              <p>• <a href="/brand/dashboard" className="text-blue-600 hover:underline">Brand Portal</a></p>
+              <p>• <a href="/reseller/dashboard" className="text-blue-600 hover:underline">Reseller Portal</a></p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
