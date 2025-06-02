@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import SidebarNav from './layout/SidebarNav';
@@ -7,7 +6,7 @@ import { brandNavItems, resellerNavItems, adminNavItems } from './data/navItems'
 import { useMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
-import { UserRole } from '@/types/auth';
+import { UserRole } from '@/types';
 import { NavItem } from './types';
 
 const DashboardLayout = () => {

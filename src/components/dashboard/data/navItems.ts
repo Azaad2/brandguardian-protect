@@ -1,3 +1,4 @@
+
 import { NavItem } from "@/types";
 
 export const navItems: NavItem[] = [
@@ -6,6 +7,24 @@ export const navItems: NavItem[] = [
   { name: "Messages", href: "/dashboard/messages", icon: "MessageCircle" },
   { name: "Orders", href: "/dashboard/orders", icon: "ShoppingCart" },
   { name: "Settings", href: "/dashboard/settings", icon: "Settings" },
+];
+
+export const resellerNavItems: NavItem[] = [
+  { name: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
+  { name: "Brands", href: "/dashboard/brands", icon: "Store" },
+  { name: "Messages", href: "/dashboard/messages", icon: "MessageCircle" },
+  { name: "Orders", href: "/dashboard/orders", icon: "ShoppingCart" },
+  { name: "Settings", href: "/dashboard/settings", icon: "Settings" },
+];
+
+export const brandNavItems: NavItem[] = [
+  { name: "Dashboard", href: "/brand/dashboard", icon: "LayoutDashboard" },
+  { name: "Inventory", href: "/brand/dashboard/inventory", icon: "Package" },
+  { name: "Resellers", href: "/brand/dashboard/resellers", icon: "Users" },
+  { name: "Orders", href: "/brand/dashboard/orders", icon: "ShoppingCart" },
+  { name: "Messages", href: "/brand/dashboard/messages", icon: "MessageCircle" },
+  { name: "Analytics", href: "/brand/dashboard/analytics", icon: "BarChart3" },
+  { name: "Settings", href: "/brand/dashboard/settings", icon: "Settings" },
 ];
 
 export const adminNavItems: NavItem[] = [

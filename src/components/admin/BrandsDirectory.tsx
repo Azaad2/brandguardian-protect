@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,7 +60,11 @@ const BrandsDirectory = () => {
         .from('brands_directory')
         .insert([{
           ...brandData,
-          categories: brandData.categories ? brandData.categories.split(',').map(c => c.trim()) : []
+          categories: brandData.categories && Array.isArray(brandData.categories) 
+            ? brandData.categories 
+            : typeof brandData.categories === 'string' 
+              ? brandData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
+              : []
         }])
         .select()
         .single();
@@ -88,14 +91,16 @@ const BrandsDirectory = () => {
 
   // Update brand mutation
   const updateBrandMutation = useMutation({
-    mutationFn: async ({ id, ...brandData }: Partial<Brand> & { id: string }) => {
+    mutationFn: async ({ id, categories, ...brandData }: Partial<Brand> & { id: string }) => {
       const { data, error } = await supabase
         .from('brands_directory')
         .update({
           ...brandData,
-          categories: typeof brandData.categories === 'string' 
-            ? brandData.categories.split(',').map(c => c.trim())
-            : brandData.categories,
+          categories: categories && Array.isArray(categories) 
+            ? categories 
+            : typeof categories === 'string' 
+              ? categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
+              : categories,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
@@ -177,11 +182,13 @@ const BrandsDirectory = () => {
       updateBrandMutation.mutate({
         id: editingBrand.id,
         ...formData,
+        categories: formData.categories,
         is_active: editingBrand.is_active,
       });
     } else {
       addBrandMutation.mutate({
         ...formData,
+        categories: formData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0),
         is_active: true,
       });
     }
