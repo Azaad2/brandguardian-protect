@@ -12,15 +12,15 @@ const AdminDashboard = () => {
   console.log('Current pathname:', window.location.pathname);
   
   return (
-    <Routes>
-      <Route path="/" element={<DashboardLayout />}>
+    <DashboardLayout>
+      <Routes>
         <Route index element={<AdminOverview />} />
         <Route path="reseller-applications" element={<ResellerRegistration />} />
         <Route path="brands-directory" element={<BrandsDirectory />} />
         <Route path="catalog-approvals" element={<CatalogApprovals />} />
         <Route path="user-management" element={<UserManagement />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </DashboardLayout>
   );
 };
 

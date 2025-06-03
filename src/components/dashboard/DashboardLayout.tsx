@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import SidebarNav from './layout/SidebarNav';
 import TopBar from './layout/TopBar';
 import { brandNavItems, resellerNavItems, adminNavItems } from './data/navItems';
@@ -10,7 +10,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { UserRole } from '@/types';
 import { NavItem } from './types';
 
-const DashboardLayout = () => {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { isMobile } = useMobile();
   const { user } = useAuth();
@@ -110,7 +114,7 @@ const DashboardLayout = () => {
   }, [userRole]);
 
   console.log('DashboardLayout - About to render with userRole:', userRole);
-  console.log('DashboardLayout - About to render Outlet');
+  console.log('DashboardLayout - About to render children');
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -128,7 +132,7 @@ const DashboardLayout = () => {
         />
         <main className="flex-1 bg-slate-50 p-4 md:p-6">
           <div className="min-h-full">
-            <Outlet />
+            {children}
           </div>
         </main>
       </div>
