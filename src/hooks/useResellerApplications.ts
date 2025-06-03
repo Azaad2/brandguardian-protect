@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -95,26 +96,35 @@ export const useResellerApplications = () => {
       
       console.log('Fetching reseller applications...');
       
-      const { data, error } = await supabase
-        .from('reseller_applications')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use the admin RPC function for better access control
+      const { data, error } = await supabase.rpc('admin_get_reseller_applications' as any);
 
       if (error) {
-        console.error('Supabase error fetching applications:', error);
-        throw error;
+        console.error('RPC error fetching applications:', error);
+        // Fallback to direct query
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('reseller_applications')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (fallbackError) {
+          console.error('Fallback error:', fallbackError);
+          throw fallbackError;
+        }
+        
+        setApplications(fallbackData || []);
+      } else {
+        setApplications(data || []);
       }
 
       // Initialize temporary passwords for each application
       const initialPasswords: Record<string, string> = {};
-      data?.forEach(app => {
+      const applicationsData = data || [];
+      applicationsData.forEach((app: any) => {
         initialPasswords[app.id] = generateTemporaryPassword();
       });
-
-      setApplications(data || []);
       setPasswords(initialPasswords);
       
-      // Debug log
       console.log('Fetched applications:', data);
     } catch (error: any) {
       console.error('Error fetching applications:', error);
@@ -180,7 +190,7 @@ export const useResellerApplications = () => {
         password: passwords[application.id],
         options: {
           data: {
-            full_name: application.company_name, // Using company name as full name
+            full_name: application.company_name,
             company_name: application.company_name,
             user_role: 'reseller'
           }
@@ -194,14 +204,14 @@ export const useResellerApplications = () => {
 
       console.log('Created user account:', data);
 
-      // Update the application to link it to the user
-      const { error: updateError } = await supabase
-        .from('reseller_applications')
-        .update({ 
+      // Update the application using RPC function
+      const { error: updateError } = await supabase.rpc('admin_update_reseller_application' as any, {
+        application_id: application.id,
+        application_data: {
           user_id: data.user?.id,
-          status: 'approved' 
-        })
-        .eq('id', application.id);
+          status: 'approved'
+        }
+      });
         
       if (updateError) {
         console.error('Error updating application:', updateError);
@@ -246,26 +256,23 @@ export const useResellerApplications = () => {
     try {
       console.log('Adding manual application:', { email, companyName });
       
-      // Insert the application into the database
-      const { data, error } = await supabase
-        .from('reseller_applications')
-        .insert([
-          { 
-            email: email, 
-            company_name: companyName,
-            business_type: 'manual',
-            ein_number: 'manual-entry',
-            product_categories: ['other'],
-            sales_volume: 'under_10k',
-            wholesale_budget: 'under_5k',
-            phone: 'manual-entry',
-            status: 'pending'
-          }
-        ])
-        .select();
+      // Use the admin RPC function to insert the application
+      const { data, error } = await supabase.rpc('admin_add_reseller_application' as any, {
+        application_data: {
+          email: email,
+          company_name: companyName,
+          business_type: 'manual',
+          ein_number: 'manual-entry',
+          product_categories: ['other'],
+          sales_volume: 'under_10k',
+          wholesale_budget: 'under_5k',
+          phone: 'manual-entry',
+          status: 'pending'
+        }
+      });
 
       if (error) {
-        console.error('Supabase error adding application:', error);
+        console.error('RPC error adding application:', error);
         throw error;
       }
 
