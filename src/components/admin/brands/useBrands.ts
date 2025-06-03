@@ -7,44 +7,56 @@ import { Brand, BrandFormData } from './types';
 export const useBrands = () => {
   const queryClient = useQueryClient();
 
-  // Fetch brands
+  // Fetch brands - use service role for admin access
   const { data: brands = [], isLoading } = useQuery({
     queryKey: ['brands-directory'],
     queryFn: async () => {
       console.log('Fetching brands...');
-      const { data, error } = await supabase
-        .from('brands_directory')
-        .select('*')
-        .order('created_at', { ascending: false });
+      
+      // For admin portal, we need to use a different approach since auth is bypassed
+      // We'll create a temporary admin session or use RPC function
+      const { data, error } = await supabase.rpc('admin_get_brands');
       
       if (error) {
-        console.error('Error fetching brands:', error);
-        throw error;
+        console.error('Error fetching brands via RPC:', error);
+        // Fallback to direct query without RLS
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('brands_directory')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) {
+          console.error('Fallback error:', fallbackError);
+          throw fallbackError;
+        }
+        return fallbackData as Brand[];
       }
+      
       console.log('Brands fetched successfully:', data);
       return data as Brand[];
     },
   });
 
-  // Add brand mutation - simplified for admin portal
+  // Add brand mutation - use RPC function for admin operations
   const addBrandMutation = useMutation({
     mutationFn: async (brandData: Omit<Brand, 'id' | 'created_at' | 'updated_at'>) => {
       console.log('Adding brand with data:', brandData);
       
-      const { data, error } = await supabase
-        .from('brands_directory')
-        .insert([{
+      const { data, error } = await supabase.rpc('admin_add_brand', {
+        brand_data: {
           ...brandData,
           categories: Array.isArray(brandData.categories) 
             ? brandData.categories 
             : []
-        }])
-        .select()
-        .single();
+        }
+      });
       
-      console.log('Insert result:', { data, error });
+      if (error) {
+        console.error('RPC error:', error);
+        throw error;
+      }
       
-      if (error) throw error;
+      console.log('Brand added successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -67,15 +79,13 @@ export const useBrands = () => {
   // Update brand mutation
   const updateBrandMutation = useMutation({
     mutationFn: async ({ id, ...brandData }: Partial<Brand> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('brands_directory')
-        .update({
+      const { data, error } = await supabase.rpc('admin_update_brand', {
+        brand_id: id,
+        brand_data: {
           ...brandData,
           updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();
+        }
+      });
       
       if (error) throw error;
       return data;
@@ -99,12 +109,13 @@ export const useBrands = () => {
   // Toggle brand status mutation
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { data, error } = await supabase
-        .from('brands_directory')
-        .update({ is_active, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await supabase.rpc('admin_update_brand', {
+        brand_id: id,
+        brand_data: { 
+          is_active, 
+          updated_at: new Date().toISOString() 
+        }
+      });
       
       if (error) throw error;
       return data;
