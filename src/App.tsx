@@ -63,7 +63,7 @@ const App = () => (
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard/*" element={
-                  <AuthGuard bypassAuth={true}>
+                  <AuthGuard requiredRole="admin">
                     <AdminDashboard />
                   </AuthGuard>
                 } />

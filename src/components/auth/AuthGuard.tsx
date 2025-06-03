@@ -43,7 +43,7 @@ const AuthGuard = ({
       return;
     }
     
-    // BYPASS ROLE CHECKS FOR ADMIN PORTAL - Just check if user exists
+    // For admin portal - require authentication but allow any authenticated user
     if (requiredRole === 'admin') {
       if (!user) {
         console.log('No user found, redirecting to admin login');
@@ -51,7 +51,7 @@ const AuthGuard = ({
         setHasCheckedAccess(true);
         return;
       } else {
-        console.log('User found, granting admin access regardless of role');
+        console.log('User found, granting admin access');
         setAccessGranted(true);
         setHasCheckedAccess(true);
         return;
