@@ -5,6 +5,19 @@ import { ResellerApplication } from './types';
 export const fetchApplicationsApi = async (): Promise<ResellerApplication[]> => {
   console.log('Fetching reseller applications...');
   
+  // Check current user authentication and role
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('Current user:', user);
+  console.log('Auth error:', authError);
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  
+  // Check if user has admin role
+  const { data: isAdminData, error: adminError } = await supabase.rpc('is_admin');
+  console.log('Is admin check result:', isAdminData, 'Error:', adminError);
+  
   const { data, error } = await supabase
     .from('reseller_applications')
     .select('*')
@@ -20,6 +33,21 @@ export const fetchApplicationsApi = async (): Promise<ResellerApplication[]> => 
 };
 
 export const createUserAccountApi = async (email: string, password: string, companyName: string) => {
+  // Check current user authentication and admin status
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('Creating account - Current user:', user);
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  
+  const { data: isAdminData, error: adminError } = await supabase.rpc('is_admin');
+  console.log('Admin check for account creation:', isAdminData, 'Error:', adminError);
+  
+  if (!isAdminData) {
+    throw new Error('Only administrators can create user accounts');
+  }
+
   // First check if a user with this email already exists
   const { data: existingUsers, error: existingError } = await supabase
     .from('profiles')
@@ -58,6 +86,21 @@ export const createUserAccountApi = async (email: string, password: string, comp
 };
 
 export const updateApplicationApi = async (applicationId: string, userId: string) => {
+  // Check current user authentication and admin status
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('Updating application - Current user:', user);
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  
+  const { data: isAdminData, error: adminError } = await supabase.rpc('is_admin');
+  console.log('Admin check for application update:', isAdminData, 'Error:', adminError);
+  
+  if (!isAdminData) {
+    throw new Error('Only administrators can update applications');
+  }
+
   const { error } = await supabase
     .from('reseller_applications')
     .update({
@@ -75,6 +118,21 @@ export const updateApplicationApi = async (applicationId: string, userId: string
 
 export const addManualApplicationApi = async (email: string, companyName: string) => {
   console.log('Adding manual application:', { email, companyName });
+  
+  // Check current user authentication and admin status
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('Adding manual app - Current user:', user);
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  
+  const { data: isAdminData, error: adminError } = await supabase.rpc('is_admin');
+  console.log('Admin check for manual application:', isAdminData, 'Error:', adminError);
+  
+  if (!isAdminData) {
+    throw new Error('Only administrators can add manual applications');
+  }
   
   const { data, error } = await supabase
     .from('reseller_applications')
