@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -62,7 +61,7 @@ const App = () => (
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/dashboard/*" element={
+                <Route path="/admin/dashboard" element={
                   <AuthGuard bypassAuth={true}>
                     <AdminDashboard />
                   </AuthGuard>
