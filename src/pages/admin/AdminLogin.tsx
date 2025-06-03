@@ -8,27 +8,19 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 const AdminLogin = () => {
-  const { user, userRole, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   
-  // Redirect if already authenticated as an admin
+  // Only redirect if already authenticated - let AuthGuard handle role verification
   useEffect(() => {
-    if (!isLoading) {
-      if (user && userRole === 'admin') {
-        toast({
-          title: "Login successful",
-          description: "Redirecting to admin dashboard",
-        });
-        navigate('/admin/dashboard');
-      } else if (user && (userRole === 'brand' || userRole === 'reseller')) {
-        toast({
-          description: "You don't have admin access. Please contact an administrator.",
-          variant: 'destructive'
-        });
-        navigate('/');
-      }
+    if (!isLoading && user) {
+      toast({
+        title: "Already logged in",
+        description: "Redirecting to admin dashboard",
+      });
+      navigate('/admin/dashboard');
     }
-  }, [user, userRole, navigate, isLoading]);
+  }, [user, navigate, isLoading]);
 
   return (
     <AuthLayout
