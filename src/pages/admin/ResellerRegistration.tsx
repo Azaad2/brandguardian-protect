@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ResellerApplicationTable from '@/components/admin/ResellerApplicationTable';
 import AddResellerDialog from '@/components/admin/AddResellerDialog';
-import { useResellerApplications } from '@/hooks/useResellerApplications';
+import { useResellerApplications } from '@/hooks/reseller-applications';
 
 const ResellerRegistration = () => {
   const navigate = useNavigate();

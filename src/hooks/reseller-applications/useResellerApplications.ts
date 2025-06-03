@@ -1,19 +1,14 @@
-
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-
-interface ResellerApplication {
-  id: string;
-  email: string;
-  company_name: string;
-  created_at: string;
-  status: string;
-  user_id: string | null;
-}
-
-// For offline mode - temporary storage
-const TEMP_STORAGE_KEY = 'pendingResellerApplications';
+import { ResellerApplication, UseResellerApplicationsState, PendingApplication } from './types';
+import { loadPendingApplications, savePendingApplications, clearPendingApplications } from './localStorage';
+import { generateTemporaryPassword } from './passwordUtils';
+import { 
+  fetchApplicationsApi, 
+  createUserAccountApi, 
+  updateApplicationApi, 
+  addManualApplicationApi 
+} from './api';
 
 export const useResellerApplications = () => {
   const [applications, setApplications] = useState<ResellerApplication[]>([]);
@@ -22,21 +17,17 @@ export const useResellerApplications = () => {
   const [creatingAccount, setCreatingAccount] = useState<Record<string, boolean>>({});
   const [passwords, setPasswords] = useState<Record<string, string>>({});
   const [connectionError, setConnectionError] = useState(false);
-  const [pendingApplications, setPendingApplications] = useState<Array<{email: string, companyName: string}>>([]);
+  const [pendingApplications, setPendingApplications] = useState<PendingApplication[]>([]);
 
   // Load any pending applications from localStorage
   useEffect(() => {
-    const storedApplications = localStorage.getItem(TEMP_STORAGE_KEY);
-    if (storedApplications) {
-      setPendingApplications(JSON.parse(storedApplications));
-    }
+    const storedApplications = loadPendingApplications();
+    setPendingApplications(storedApplications);
   }, []);
 
   // Save pending applications to localStorage when changed
   useEffect(() => {
-    if (pendingApplications.length > 0) {
-      localStorage.setItem(TEMP_STORAGE_KEY, JSON.stringify(pendingApplications));
-    }
+    savePendingApplications(pendingApplications);
   }, [pendingApplications]);
 
   // Sync pending applications when online
@@ -61,7 +52,7 @@ export const useResellerApplications = () => {
         
         // Clear storage if all synced
         if (pendingApplications.length === 0) {
-          localStorage.removeItem(TEMP_STORAGE_KEY);
+          clearPendingApplications();
         }
       } catch (error) {
         console.error('Error syncing pending applications:', error);
@@ -79,53 +70,21 @@ export const useResellerApplications = () => {
     return () => window.removeEventListener('online', handleOnline);
   }, [pendingApplications, connectionError]);
 
-  const generateTemporaryPassword = () => {
-    // Generate a random password that meets requirements
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let password = '';
-    for (let i = 0; i < 10; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return password;
-  };
-
   const fetchResellerApplications = async () => {
     try {
       setLoading(true);
       setConnectionError(false);
       
-      console.log('Fetching reseller applications...');
-      
-      // Use the admin RPC function for better access control
-      const { data, error } = await supabase.rpc('admin_get_reseller_applications' as any);
-
-      if (error) {
-        console.error('RPC error fetching applications:', error);
-        // Fallback to direct query
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('reseller_applications')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (fallbackError) {
-          console.error('Fallback error:', fallbackError);
-          throw fallbackError;
-        }
-        
-        setApplications(fallbackData || []);
-      } else {
-        setApplications(data || []);
-      }
+      const data = await fetchApplicationsApi();
+      setApplications(data);
 
       // Initialize temporary passwords for each application
       const initialPasswords: Record<string, string> = {};
-      const applicationsData = data || [];
-      applicationsData.forEach((app: any) => {
+      data.forEach((app: any) => {
         initialPasswords[app.id] = generateTemporaryPassword();
       });
       setPasswords(initialPasswords);
       
-      console.log('Fetched applications:', data);
     } catch (error: any) {
       console.error('Error fetching applications:', error);
       
@@ -162,61 +121,15 @@ export const useResellerApplications = () => {
       setCreatingAccount((prev) => ({ ...prev, [application.id]: true }));
       console.log('Creating account for:', application.email, 'with password length:', passwords[application.id].length);
 
-      // First check if a user with this email already exists
-      const { data: existingUsers, error: existingError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', application.email)
-        .maybeSingle();
+      const userData = await createUserAccountApi(
+        application.email, 
+        passwords[application.id], 
+        application.company_name
+      );
 
-      if (existingError) {
-        console.error('Error checking existing users:', existingError);
-        throw existingError;
-      }
+      console.log('Created user account:', userData);
 
-      if (existingUsers) {
-        console.log('User already exists:', existingUsers);
-        toast({
-          title: 'User already exists',
-          description: `A user with email ${application.email} already exists in the system.`,
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Create the user account
-      const { data, error } = await supabase.auth.signUp({
-        email: application.email,
-        password: passwords[application.id],
-        options: {
-          data: {
-            full_name: application.company_name,
-            company_name: application.company_name,
-            user_role: 'reseller'
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Error creating user account:', error);
-        throw error;
-      }
-
-      console.log('Created user account:', data);
-
-      // Update the application using RPC function
-      const { error: updateError } = await supabase.rpc('admin_update_reseller_application' as any, {
-        application_id: application.id,
-        application_data: {
-          user_id: data.user?.id,
-          status: 'approved'
-        }
-      });
-        
-      if (updateError) {
-        console.error('Error updating application:', updateError);
-        throw updateError;
-      }
+      await updateApplicationApi(application.id, userData.user?.id);
 
       toast({
         title: 'Account created successfully',
@@ -256,27 +169,7 @@ export const useResellerApplications = () => {
     try {
       console.log('Adding manual application:', { email, companyName });
       
-      // Use the admin RPC function to insert the application
-      const { data, error } = await supabase.rpc('admin_add_reseller_application' as any, {
-        application_data: {
-          email: email,
-          company_name: companyName,
-          business_type: 'manual',
-          ein_number: 'manual-entry',
-          product_categories: ['other'],
-          sales_volume: 'under_10k',
-          wholesale_budget: 'under_5k',
-          phone: 'manual-entry',
-          status: 'pending'
-        }
-      });
-
-      if (error) {
-        console.error('RPC error adding application:', error);
-        throw error;
-      }
-
-      console.log('Added manual application:', data);
+      await addManualApplicationApi(email, companyName);
       setConnectionError(false);
 
       toast({
