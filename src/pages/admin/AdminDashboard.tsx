@@ -9,6 +9,7 @@ import ResellerRegistration from "@/pages/admin/ResellerRegistration";
 
 const AdminDashboard = () => {
   console.log('AdminDashboard rendering');
+  console.log('Current pathname:', window.location.pathname);
   
   return (
     <Routes>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +26,8 @@ interface RecentActivity {
 }
 
 const AdminOverview = () => {
+  console.log('AdminOverview component rendering');
+  
   const [stats, setStats] = useState<AdminStats>({
     totalResellers: 0,
     totalBrands: 0,
@@ -40,6 +41,8 @@ const AdminOverview = () => {
   const { data: adminData, isLoading } = useQuery({
     queryKey: ['admin-overview'],
     queryFn: async () => {
+      console.log('Fetching admin overview data...');
+      
       // Fetch resellers count
       const { data: resellers, error: resellersError } = await supabase
         .from('profiles')
@@ -75,10 +78,11 @@ const AdminOverview = () => {
         .eq('status', 'pending');
 
       if (resellersError || brandsError || productsError || ordersError || pendingAppsError || pendingUploadsError) {
+        console.error('Error fetching data:', { resellersError, brandsError, productsError, ordersError, pendingAppsError, pendingUploadsError });
         throw new Error('Failed to fetch admin statistics');
       }
 
-      return {
+      const result = {
         totalResellers: resellers?.length || 0,
         totalBrands: brands?.length || 0,
         totalProducts: products?.length || 0,
@@ -86,6 +90,9 @@ const AdminOverview = () => {
         pendingApplications: pendingApps?.length || 0,
         pendingUploads: pendingUploads?.length || 0,
       };
+      
+      console.log('Fetched admin data:', result);
+      return result;
     },
   });
 
@@ -156,6 +163,7 @@ const AdminOverview = () => {
 
   useEffect(() => {
     if (adminData) {
+      console.log('Setting admin stats:', adminData);
       setStats(adminData);
     }
   }, [adminData]);
@@ -187,12 +195,15 @@ const AdminOverview = () => {
   };
 
   if (isLoading) {
+    console.log('AdminOverview is loading...');
     return (
       <div className="flex h-96 w-full items-center justify-center">
         <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
+
+  console.log('AdminOverview rendering main content with stats:', stats);
 
   return (
     <div className="space-y-6">

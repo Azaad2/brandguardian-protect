@@ -17,6 +17,8 @@ const DashboardLayout = () => {
   const [pendingCount, setPendingCount] = useState(0);
   const location = useLocation();
 
+  console.log('DashboardLayout rendering with location:', location);
+
   // Determine which nav items to use based on the current URL path
   const getNavItemsFromPath = (): { navItems: NavItem[], userRole: UserRole } => {
     const path = location.pathname;
@@ -108,6 +110,7 @@ const DashboardLayout = () => {
   }, [userRole]);
 
   console.log('DashboardLayout - About to render with userRole:', userRole);
+  console.log('DashboardLayout - About to render Outlet');
 
   return (
     <div className="flex min-h-screen flex-col">
