@@ -2,25 +2,76 @@
 import { Link } from 'react-router-dom';
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminLogin = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [isCheckingRole, setIsCheckingRole] = useState(false);
   
-  // Only redirect if already authenticated - let AuthGuard handle role verification
   useEffect(() => {
-    if (!isLoading && user) {
-      toast({
-        title: "Already logged in",
-        description: "Redirecting to admin dashboard",
-      });
-      navigate('/admin/dashboard');
-    }
+    const checkAdminAccess = async () => {
+      if (!isLoading && user) {
+        setIsCheckingRole(true);
+        try {
+          // Check if user has admin role
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('user_role')
+            .eq('id', user.id)
+            .maybeSingle();
+          
+          if (profileError) {
+            console.error('Error checking user profile:', profileError);
+            toast({
+              variant: "destructive",
+              title: "Access denied",
+              description: "Unable to verify admin permissions",
+            });
+            return;
+          }
+          
+          if (profileData && profileData.user_role === 'admin') {
+            toast({
+              title: "Welcome Admin",
+              description: "Redirecting to admin dashboard",
+            });
+            navigate('/admin/dashboard');
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Access denied",
+              description: "You do not have admin privileges",
+            });
+          }
+        } catch (error) {
+          console.error('Error checking admin access:', error);
+          toast({
+            variant: "destructive",
+            title: "Access denied",
+            description: "Unable to verify admin permissions",
+          });
+        } finally {
+          setIsCheckingRole(false);
+        }
+      }
+    };
+
+    checkAdminAccess();
   }, [user, navigate, isLoading]);
+
+  // Show loading while checking auth or role
+  if (isLoading || isCheckingRole) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <AuthLayout

@@ -3,6 +3,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { UserRole } from '@/types/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -43,7 +44,7 @@ const AuthGuard = ({
       return;
     }
     
-    // For admin portal - require authentication but allow any authenticated user
+    // For admin portal - require authentication and verify admin role from database
     if (requiredRole === 'admin') {
       if (!user) {
         console.log('No user found, redirecting to admin login');
@@ -51,9 +52,38 @@ const AuthGuard = ({
         setHasCheckedAccess(true);
         return;
       } else {
-        console.log('User found, granting admin access');
-        setAccessGranted(true);
-        setHasCheckedAccess(true);
+        // Double-check admin role from database for admin access
+        const verifyAdminRole = async () => {
+          try {
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('user_role')
+              .eq('id', user.id)
+              .maybeSingle();
+            
+            if (profileError) {
+              console.error('Error checking user profile:', profileError);
+              navigate('/admin/login');
+              setHasCheckedAccess(true);
+              return;
+            }
+            
+            if (profileData && profileData.user_role === 'admin') {
+              console.log('Admin role verified from database, granting access');
+              setAccessGranted(true);
+            } else {
+              console.log('User is not admin, redirecting to admin login');
+              navigate('/admin/login');
+            }
+            setHasCheckedAccess(true);
+          } catch (error) {
+            console.error('Error verifying admin role:', error);
+            navigate('/admin/login');
+            setHasCheckedAccess(true);
+          }
+        };
+        
+        verifyAdminRole();
         return;
       }
     }
