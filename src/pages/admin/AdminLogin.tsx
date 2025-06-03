@@ -18,6 +18,7 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkAdminAccess = async () => {
       if (!isLoading && user) {
+        console.log('AdminLogin: Checking admin access for user:', user.email);
         setIsCheckingRole(true);
         try {
           // Check if user has admin role
@@ -27,13 +28,17 @@ const AdminLogin = () => {
             .eq('id', user.id)
             .maybeSingle();
           
+          console.log('AdminLogin: Profile data:', profileData);
+          console.log('AdminLogin: Profile error:', profileError);
+          
           if (profileError) {
             console.error('Error checking user profile:', profileError);
             // If the user is iconicpro.inc@gmail.com, automatically make them admin
             if (user.email === 'iconicpro.inc@gmail.com') {
               console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
               try {
-                await updateUserRole(user.id, 'admin');
+                const result = await updateUserRole(user.id, 'admin');
+                console.log('Admin promotion result:', result);
                 toast({
                   title: "Admin Access Granted",
                   description: "You have been automatically promoted to admin",
@@ -42,6 +47,11 @@ const AdminLogin = () => {
                 return;
               } catch (error) {
                 console.error('Error promoting to admin:', error);
+                toast({
+                  variant: "destructive",
+                  title: "Promotion failed",
+                  description: "Failed to promote user to admin. Please try using /update-role",
+                });
               }
             }
             
@@ -54,17 +64,20 @@ const AdminLogin = () => {
           }
           
           if (profileData && profileData.user_role === 'admin') {
+            console.log('User is already admin, redirecting to dashboard');
             toast({
               title: "Welcome Admin",
               description: "Redirecting to admin dashboard",
             });
             navigate('/admin/dashboard');
           } else {
+            console.log('User profile exists but not admin. Current role:', profileData?.user_role);
             // If the user is iconicpro.inc@gmail.com but not admin, promote them
             if (user.email === 'iconicpro.inc@gmail.com') {
               console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
               try {
-                await updateUserRole(user.id, 'admin');
+                const result = await updateUserRole(user.id, 'admin');
+                console.log('Admin promotion result:', result);
                 toast({
                   title: "Admin Access Granted",
                   description: "You have been automatically promoted to admin",
@@ -73,6 +86,11 @@ const AdminLogin = () => {
                 return;
               } catch (error) {
                 console.error('Error promoting to admin:', error);
+                toast({
+                  variant: "destructive",
+                  title: "Promotion failed",
+                  description: "Failed to promote user to admin. Please try using /update-role",
+                });
               }
             }
             
@@ -157,6 +175,9 @@ const AdminLogin = () => {
               </div>
               <div className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded">
                 💡 Use iconicpro.inc@gmail.com for automatic admin access
+              </div>
+              <div className="text-xs text-green-600 bg-green-50 px-3 py-1 rounded">
+                🔧 Debug mode enabled - check browser console for logs
               </div>
             </div>
           </CardFooter>
