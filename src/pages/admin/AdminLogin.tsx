@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { updateUserRole } from '@/utils/update-user-role';
 
 const AdminLogin = () => {
   const { user, isLoading } = useAuth();
@@ -28,10 +29,26 @@ const AdminLogin = () => {
           
           if (profileError) {
             console.error('Error checking user profile:', profileError);
+            // If the user is iconicpro.inc@gmail.com, automatically make them admin
+            if (user.email === 'iconicpro.inc@gmail.com') {
+              console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
+              try {
+                await updateUserRole(user.id, 'admin');
+                toast({
+                  title: "Admin Access Granted",
+                  description: "You have been automatically promoted to admin",
+                });
+                navigate('/admin/dashboard');
+                return;
+              } catch (error) {
+                console.error('Error promoting to admin:', error);
+              }
+            }
+            
             toast({
               variant: "destructive",
               title: "Access denied",
-              description: "Unable to verify admin permissions",
+              description: "Unable to verify admin permissions. If you're the owner (iconicpro.inc@gmail.com), please visit /update-role to get admin access.",
             });
             return;
           }
@@ -43,10 +60,28 @@ const AdminLogin = () => {
             });
             navigate('/admin/dashboard');
           } else {
+            // If the user is iconicpro.inc@gmail.com but not admin, promote them
+            if (user.email === 'iconicpro.inc@gmail.com') {
+              console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
+              try {
+                await updateUserRole(user.id, 'admin');
+                toast({
+                  title: "Admin Access Granted",
+                  description: "You have been automatically promoted to admin",
+                });
+                navigate('/admin/dashboard');
+                return;
+              } catch (error) {
+                console.error('Error promoting to admin:', error);
+              }
+            }
+            
             toast({
               variant: "destructive",
               title: "Access denied",
-              description: "You do not have admin privileges",
+              description: user.email === 'iconicpro.inc@gmail.com' 
+                ? "Please visit /update-role to get admin access" 
+                : "You do not have admin privileges. Contact the administrator for access.",
             });
           }
         } catch (error) {
@@ -68,8 +103,11 @@ const AdminLogin = () => {
   // Show loading while checking auth or role
   if (isLoading || isCheckingRole) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
+      <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="text-center">
+          <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-red-400 mx-auto"></div>
+          <p className="text-white mt-4">Verifying admin access...</p>
+        </div>
       </div>
     );
   }
@@ -116,6 +154,9 @@ const AdminLogin = () => {
               </div>
               <div className="text-xs text-slate-500 bg-red-50 px-3 py-1 rounded">
                 🔒 Admin portal is for authorized personnel only
+              </div>
+              <div className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded">
+                💡 Use iconicpro.inc@gmail.com for automatic admin access
               </div>
             </div>
           </CardFooter>
