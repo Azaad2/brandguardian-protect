@@ -81,6 +81,12 @@ const AdminLogin = () => {
       footerContent={
         <div className="text-center text-sm space-y-2">
           <div>
+            Don't have an admin account?{' '}
+            <Link to="/brand/signup" className="text-primary hover:text-primary/80 hover:underline">
+              Create account
+            </Link>
+          </div>
+          <div>
             Need admin access?{' '}
             <Link to="/update-role" className="text-primary hover:text-primary/80 hover:underline">
               Request access
