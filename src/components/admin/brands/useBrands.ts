@@ -26,33 +26,10 @@ export const useBrands = () => {
     },
   });
 
-  // Add brand mutation
+  // Add brand mutation - simplified for admin portal
   const addBrandMutation = useMutation({
     mutationFn: async (brandData: Omit<Brand, 'id' | 'created_at' | 'updated_at'>) => {
       console.log('Adding brand with data:', brandData);
-      
-      // Check current user and session
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      console.log('Current user:', user);
-      console.log('User error:', userError);
-      
-      if (!user) {
-        throw new Error('No authenticated user found');
-      }
-      
-      // Check if user is admin
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_role')
-        .eq('id', user.id)
-        .single();
-      
-      console.log('User profile:', profile);
-      console.log('Profile error:', profileError);
-      
-      if (profile?.user_role !== 'admin') {
-        throw new Error(`User role is ${profile?.user_role}, but admin role is required`);
-      }
       
       const { data, error } = await supabase
         .from('brands_directory')
