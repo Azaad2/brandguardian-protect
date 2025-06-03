@@ -11,15 +11,15 @@ const AdminDashboard = () => {
   console.log('AdminDashboard rendering');
   
   return (
-    <DashboardLayout>
-      <Routes>
-        <Route path="/" element={<AdminOverview />} />
-        <Route path="/reseller-applications" element={<ResellerRegistration />} />
-        <Route path="/brands-directory" element={<BrandsDirectory />} />
-        <Route path="/catalog-approvals" element={<CatalogApprovals />} />
-        <Route path="/user-management" element={<UserManagement />} />
-      </Routes>
-    </DashboardLayout>
+    <Routes>
+      <Route path="/" element={<DashboardLayout />}>
+        <Route index element={<AdminOverview />} />
+        <Route path="reseller-applications" element={<ResellerRegistration />} />
+        <Route path="brands-directory" element={<BrandsDirectory />} />
+        <Route path="catalog-approvals" element={<CatalogApprovals />} />
+        <Route path="user-management" element={<UserManagement />} />
+      </Route>
+    </Routes>
   );
 };
 
