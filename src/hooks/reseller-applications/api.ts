@@ -14,8 +14,25 @@ export const fetchApplicationsApi = async (): Promise<ResellerApplication[]> => 
     throw new Error('User not authenticated');
   }
   
-  // For now, let's bypass the admin check for testing - we'll implement proper role management later
-  console.log('User authenticated, proceeding with data fetch');
+  // Check if user has admin role by checking their profile
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('user_role')
+    .eq('id', user.id)
+    .maybeSingle();
+  
+  console.log('Profile data:', profileData, 'Profile error:', profileError);
+  
+  if (profileError) {
+    console.error('Error checking user profile:', profileError);
+    throw new Error('Failed to verify user permissions');
+  }
+  
+  if (!profileData || profileData.user_role !== 'admin') {
+    throw new Error('Only administrators can access reseller applications');
+  }
+  
+  console.log('Admin access verified, proceeding with data fetch');
   
   const { data, error } = await supabase
     .from('reseller_applications')
@@ -40,8 +57,23 @@ export const createUserAccountApi = async (email: string, password: string, comp
     throw new Error('User not authenticated');
   }
   
-  // For now, let's bypass the admin check for testing
-  console.log('User authenticated, proceeding with account creation');
+  // Check if user has admin role
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('user_role')
+    .eq('id', user.id)
+    .maybeSingle();
+  
+  if (profileError) {
+    console.error('Error checking user profile:', profileError);
+    throw new Error('Failed to verify user permissions');
+  }
+  
+  if (!profileData || profileData.user_role !== 'admin') {
+    throw new Error('Only administrators can create user accounts');
+  }
+  
+  console.log('Admin access verified, proceeding with account creation');
 
   // First check if a user with this email already exists
   const { data: existingUsers, error: existingError } = await supabase
@@ -89,8 +121,23 @@ export const updateApplicationApi = async (applicationId: string, userId: string
     throw new Error('User not authenticated');
   }
   
-  // For now, let's bypass the admin check for testing
-  console.log('User authenticated, proceeding with application update');
+  // Check if user has admin role
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('user_role')
+    .eq('id', user.id)
+    .maybeSingle();
+  
+  if (profileError) {
+    console.error('Error checking user profile:', profileError);
+    throw new Error('Failed to verify user permissions');
+  }
+  
+  if (!profileData || profileData.user_role !== 'admin') {
+    throw new Error('Only administrators can update applications');
+  }
+  
+  console.log('Admin access verified, proceeding with application update');
 
   const { error } = await supabase
     .from('reseller_applications')
@@ -118,8 +165,23 @@ export const addManualApplicationApi = async (email: string, companyName: string
     throw new Error('User not authenticated');
   }
   
-  // For now, let's bypass the admin check for testing
-  console.log('User authenticated, proceeding with manual application creation');
+  // Check if user has admin role
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('user_role')
+    .eq('id', user.id)
+    .maybeSingle();
+  
+  if (profileError) {
+    console.error('Error checking user profile:', profileError);
+    throw new Error('Failed to verify user permissions');
+  }
+  
+  if (!profileData || profileData.user_role !== 'admin') {
+    throw new Error('Only administrators can add manual applications');
+  }
+  
+  console.log('Admin access verified, proceeding with manual application creation');
   
   const { data, error } = await supabase
     .from('reseller_applications')
