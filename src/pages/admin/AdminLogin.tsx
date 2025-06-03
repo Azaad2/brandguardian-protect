@@ -77,12 +77,12 @@ const AdminLogin = () => {
     <AuthLayout
       title="Admin Portal Login"
       description="Enter your admin credentials to access the management dashboard"
-      portalType="brand" // Using brand styling for consistency
+      portalType="brand"
       footerContent={
         <div className="text-center text-sm space-y-2">
           <div>
             Don't have an admin account?{' '}
-            <Link to="/brand/signup" className="text-primary hover:text-primary/80 hover:underline">
+            <Link to="/admin/signup" className="text-primary hover:text-primary/80 hover:underline">
               Create account
             </Link>
           </div>

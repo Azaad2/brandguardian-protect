@@ -24,6 +24,7 @@ import PasswordReset from "./pages/auth/PasswordReset";
 import AuthGuard from "./components/auth/AuthGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminLogin from "./pages/admin/AdminLogin";
+import AdminSignup from "./pages/admin/AdminSignup";
 import RoleUpdater from "./pages/RoleUpdater";
 import EnforceMAPPolicyPreventUnauthorizedSellers from "./pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers";
 import PreventUnauthorizedSellersAmazon from "./pages/blog/PreventUnauthorizedSellersAmazon";
@@ -62,6 +63,7 @@ const App = () => (
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/signup" element={<AdminSignup />} />
                 <Route path="/admin/dashboard/*" element={
                   <AuthGuard requiredRole="admin">
                     <AdminDashboard />
