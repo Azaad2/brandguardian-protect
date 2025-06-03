@@ -14,8 +14,8 @@ export const useBrands = () => {
       console.log('Fetching brands...');
       
       // For admin portal, we need to use a different approach since auth is bypassed
-      // We'll create a temporary admin session or use RPC function
-      const { data, error } = await supabase.rpc('admin_get_brands');
+      // We'll use the RPC function for admin access
+      const { data, error } = await supabase.rpc('admin_get_brands' as any);
       
       if (error) {
         console.error('Error fetching brands via RPC:', error);
@@ -42,7 +42,7 @@ export const useBrands = () => {
     mutationFn: async (brandData: Omit<Brand, 'id' | 'created_at' | 'updated_at'>) => {
       console.log('Adding brand with data:', brandData);
       
-      const { data, error } = await supabase.rpc('admin_add_brand', {
+      const { data, error } = await supabase.rpc('admin_add_brand' as any, {
         brand_data: {
           ...brandData,
           categories: Array.isArray(brandData.categories) 
@@ -79,7 +79,7 @@ export const useBrands = () => {
   // Update brand mutation
   const updateBrandMutation = useMutation({
     mutationFn: async ({ id, ...brandData }: Partial<Brand> & { id: string }) => {
-      const { data, error } = await supabase.rpc('admin_update_brand', {
+      const { data, error } = await supabase.rpc('admin_update_brand' as any, {
         brand_id: id,
         brand_data: {
           ...brandData,
@@ -109,7 +109,7 @@ export const useBrands = () => {
   // Toggle brand status mutation
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { data, error } = await supabase.rpc('admin_update_brand', {
+      const { data, error } = await supabase.rpc('admin_update_brand' as any, {
         brand_id: id,
         brand_data: { 
           is_active, 

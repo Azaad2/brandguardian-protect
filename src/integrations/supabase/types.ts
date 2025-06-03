@@ -440,6 +440,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_add_brand: {
+        Args: { brand_data: Json }
+        Returns: string
+      }
+      admin_get_brands: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          website_url: string
+          description: string
+          contact_email: string
+          logo_url: string
+          categories: string[]
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      admin_update_brand: {
+        Args: { brand_id: string; brand_data: Json }
+        Returns: string
+      }
       check_user_upload_access: {
         Args: { bucket_id: string; owner: string }
         Returns: boolean
