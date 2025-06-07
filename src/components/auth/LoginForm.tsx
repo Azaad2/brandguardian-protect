@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -27,6 +28,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { signIn, isLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -47,6 +49,17 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
         title: "Login successful",
         description: "Redirecting to your dashboard...",
       });
+
+      // Navigate based on user role after successful login
+      setTimeout(() => {
+        if (userRole === 'admin') {
+          navigate('/admin/dashboard');
+        } else if (userRole === 'brand') {
+          navigate('/brand/dashboard');
+        } else if (userRole === 'reseller') {
+          navigate('/reseller/dashboard');
+        }
+      }, 1000);
       
     } catch (error: any) {
       console.error('Login error:', error);

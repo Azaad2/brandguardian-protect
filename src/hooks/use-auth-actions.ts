@@ -63,7 +63,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       
       if (error) throw error;
       
-      // User role and redirect will be handled by the auth state change
+      // Don't navigate here - let the auth state change handle routing
       
     } catch (error: any) {
       toast({

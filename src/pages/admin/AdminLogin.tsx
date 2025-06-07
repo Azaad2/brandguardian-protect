@@ -37,7 +37,6 @@ const AdminLogin = () => {
             .maybeSingle();
           
           console.log('AdminLogin: Profile data:', profileData);
-          console.log('AdminLogin: Profile error:', profileError);
           
           if (profileError) {
             console.error('Error checking user profile:', profileError);
@@ -51,10 +50,7 @@ const AdminLogin = () => {
                   title: "Admin Access Granted",
                   description: "You have been automatically promoted to admin",
                 });
-                // Small delay before redirect to ensure state updates
-                setTimeout(() => {
-                  navigate('/admin/dashboard');
-                }, 1000);
+                navigate('/admin/dashboard');
                 setCheckComplete(true);
                 return;
               } catch (error) {
@@ -82,10 +78,7 @@ const AdminLogin = () => {
               title: "Welcome Admin",
               description: "Redirecting to admin dashboard",
             });
-            // Small delay before redirect to ensure state updates
-            setTimeout(() => {
-              navigate('/admin/dashboard');
-            }, 1000);
+            navigate('/admin/dashboard');
             setCheckComplete(true);
           } else {
             console.log('User profile exists but not admin. Current role:', profileData?.user_role);
@@ -99,10 +92,7 @@ const AdminLogin = () => {
                   title: "Admin Access Granted",
                   description: "You have been automatically promoted to admin",
                 });
-                // Small delay before redirect to ensure state updates
-                setTimeout(() => {
-                  navigate('/admin/dashboard');
-                }, 1000);
+                navigate('/admin/dashboard');
                 setCheckComplete(true);
                 return;
               } catch (error) {
@@ -198,9 +188,6 @@ const AdminLogin = () => {
               </div>
               <div className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded">
                 💡 Use iconicpro.inc@gmail.com for automatic admin access
-              </div>
-              <div className="text-xs text-green-600 bg-green-50 px-3 py-1 rounded">
-                🔧 Debug mode enabled - check browser console for logs
               </div>
             </div>
           </CardFooter>
