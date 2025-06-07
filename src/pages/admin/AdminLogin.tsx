@@ -14,12 +14,20 @@ const AdminLogin = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [isCheckingRole, setIsCheckingRole] = useState(false);
+  const [checkComplete, setCheckComplete] = useState(false);
   
   useEffect(() => {
     const checkAdminAccess = async () => {
+      // Prevent multiple checks
+      if (checkComplete || isCheckingRole) {
+        console.log('Admin check already completed or in progress');
+        return;
+      }
+
       if (!isLoading && user) {
         console.log('AdminLogin: Checking admin access for user:', user.email);
         setIsCheckingRole(true);
+        
         try {
           // Check if user has admin role
           const { data: profileData, error: profileError } = await supabase
@@ -33,7 +41,7 @@ const AdminLogin = () => {
           
           if (profileError) {
             console.error('Error checking user profile:', profileError);
-            // If the user is iconicpro.inc@gmail.com, automatically make them admin
+            // Special handling for iconicpro.inc@gmail.com
             if (user.email === 'iconicpro.inc@gmail.com') {
               console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
               try {
@@ -43,7 +51,11 @@ const AdminLogin = () => {
                   title: "Admin Access Granted",
                   description: "You have been automatically promoted to admin",
                 });
-                navigate('/admin/dashboard');
+                // Small delay before redirect to ensure state updates
+                setTimeout(() => {
+                  navigate('/admin/dashboard');
+                }, 1000);
+                setCheckComplete(true);
                 return;
               } catch (error) {
                 console.error('Error promoting to admin:', error);
@@ -60,6 +72,7 @@ const AdminLogin = () => {
               title: "Access denied",
               description: "Unable to verify admin permissions. If you're the owner (iconicpro.inc@gmail.com), please visit /update-role to get admin access.",
             });
+            setCheckComplete(true);
             return;
           }
           
@@ -69,10 +82,14 @@ const AdminLogin = () => {
               title: "Welcome Admin",
               description: "Redirecting to admin dashboard",
             });
-            navigate('/admin/dashboard');
+            // Small delay before redirect to ensure state updates
+            setTimeout(() => {
+              navigate('/admin/dashboard');
+            }, 1000);
+            setCheckComplete(true);
           } else {
             console.log('User profile exists but not admin. Current role:', profileData?.user_role);
-            // If the user is iconicpro.inc@gmail.com but not admin, promote them
+            // Special handling for iconicpro.inc@gmail.com
             if (user.email === 'iconicpro.inc@gmail.com') {
               console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
               try {
@@ -82,7 +99,11 @@ const AdminLogin = () => {
                   title: "Admin Access Granted",
                   description: "You have been automatically promoted to admin",
                 });
-                navigate('/admin/dashboard');
+                // Small delay before redirect to ensure state updates
+                setTimeout(() => {
+                  navigate('/admin/dashboard');
+                }, 1000);
+                setCheckComplete(true);
                 return;
               } catch (error) {
                 console.error('Error promoting to admin:', error);
@@ -101,6 +122,7 @@ const AdminLogin = () => {
                 ? "Please visit /update-role to get admin access" 
                 : "You do not have admin privileges. Contact the administrator for access.",
             });
+            setCheckComplete(true);
           }
         } catch (error) {
           console.error('Error checking admin access:', error);
@@ -109,6 +131,7 @@ const AdminLogin = () => {
             title: "Access denied",
             description: "Unable to verify admin permissions",
           });
+          setCheckComplete(true);
         } finally {
           setIsCheckingRole(false);
         }
@@ -116,7 +139,7 @@ const AdminLogin = () => {
     };
 
     checkAdminAccess();
-  }, [user, navigate, isLoading]);
+  }, [user, navigate, isLoading, checkComplete, isCheckingRole]);
 
   // Show loading while checking auth or role
   if (isLoading || isCheckingRole) {

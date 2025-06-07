@@ -22,13 +22,24 @@ const AuthGuard = ({
   const navigate = useNavigate();
   const [accessGranted, setAccessGranted] = useState(false);
   const [hasCheckedAccess, setHasCheckedAccess] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   
   useEffect(() => {
-    console.log('AuthGuard check:', { user: !!user, userRole, isLoading, requiredRole, bypassAuth });
+    console.log('AuthGuard check:', { 
+      user: !!user, 
+      userRole, 
+      isLoading, 
+      requiredRole, 
+      bypassAuth,
+      hasCheckedAccess,
+      isVerifying
+    });
     
-    // Reset access check when role changes
-    setHasCheckedAccess(false);
-    setAccessGranted(false);
+    // Prevent multiple simultaneous checks
+    if (isVerifying) {
+      console.log('Already verifying, skipping...');
+      return;
+    }
     
     // If bypassing auth, grant access immediately
     if (bypassAuth) {
@@ -43,55 +54,13 @@ const AuthGuard = ({
       console.log('Still loading auth, waiting...');
       return;
     }
-    
-    // For admin portal - require authentication and verify admin role from database
-    if (requiredRole === 'admin') {
-      if (!user) {
-        console.log('No user found, redirecting to admin login');
-        navigate('/admin/login');
-        setHasCheckedAccess(true);
-        return;
-      } else {
-        // Double-check admin role from database for admin access
-        const verifyAdminRole = async () => {
-          try {
-            const { data: profileData, error: profileError } = await supabase
-              .from('profiles')
-              .select('user_role')
-              .eq('id', user.id)
-              .maybeSingle();
-            
-            if (profileError) {
-              console.error('Error checking user profile:', profileError);
-              navigate('/admin/login');
-              setHasCheckedAccess(true);
-              return;
-            }
-            
-            if (profileData && profileData.user_role === 'admin') {
-              console.log('Admin role verified from database, granting access');
-              setAccessGranted(true);
-            } else {
-              console.log('User is not admin, redirecting to admin login');
-              navigate('/admin/login');
-            }
-            setHasCheckedAccess(true);
-          } catch (error) {
-            console.error('Error verifying admin role:', error);
-            navigate('/admin/login');
-            setHasCheckedAccess(true);
-          }
-        };
-        
-        verifyAdminRole();
-        return;
-      }
-    }
-    
-    // If no user, redirect to appropriate login based on required role
+
+    // If no user, redirect appropriately
     if (!user) {
       console.log('No user found, redirecting based on required role:', requiredRole);
-      if (requiredRole === 'brand') {
+      if (requiredRole === 'admin') {
+        navigate('/admin/login');
+      } else if (requiredRole === 'brand') {
         navigate('/brand/login');
       } else if (requiredRole === 'reseller') {
         navigate('/reseller/login');
@@ -99,6 +68,61 @@ const AuthGuard = ({
         navigate(redirectTo);
       }
       setHasCheckedAccess(true);
+      return;
+    }
+    
+    // For admin portal - special verification
+    if (requiredRole === 'admin') {
+      setIsVerifying(true);
+      
+      const verifyAdminRole = async () => {
+        try {
+          console.log('Verifying admin role for user:', user.email);
+          
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('user_role')
+            .eq('id', user.id)
+            .maybeSingle();
+          
+          console.log('Admin verification result:', { profileData, profileError });
+          
+          if (profileError) {
+            console.error('Error checking user profile:', profileError);
+            // Only redirect if we haven't already checked
+            if (!hasCheckedAccess) {
+              navigate('/admin/login');
+              setHasCheckedAccess(true);
+            }
+            setIsVerifying(false);
+            return;
+          }
+          
+          if (profileData && profileData.user_role === 'admin') {
+            console.log('Admin role verified, granting access');
+            setAccessGranted(true);
+          } else {
+            console.log('User is not admin, current role:', profileData?.user_role);
+            // Only redirect if we haven't already checked
+            if (!hasCheckedAccess) {
+              navigate('/admin/login');
+              setHasCheckedAccess(true);
+            }
+          }
+          setIsVerifying(false);
+          setHasCheckedAccess(true);
+        } catch (error) {
+          console.error('Error verifying admin role:', error);
+          // Only redirect if we haven't already checked
+          if (!hasCheckedAccess) {
+            navigate('/admin/login');
+            setHasCheckedAccess(true);
+          }
+          setIsVerifying(false);
+        }
+      };
+      
+      verifyAdminRole();
       return;
     }
     
@@ -129,13 +153,18 @@ const AuthGuard = ({
     console.log('Access granted!');
     setAccessGranted(true);
     setHasCheckedAccess(true);
-  }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth]);
+  }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth, hasCheckedAccess, isVerifying]);
   
   // Show loading indicator while checking auth
-  if (!bypassAuth && (isLoading || !hasCheckedAccess)) {
+  if (!bypassAuth && (isLoading || !hasCheckedAccess || isVerifying)) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
-        <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
+        <div className="text-center">
+          <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">
+            {isLoading ? 'Loading...' : isVerifying ? 'Verifying access...' : 'Checking permissions...'}
+          </p>
+        </div>
       </div>
     );
   }
