@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +39,7 @@ const AdminOverview = () => {
   });
 
   // Fetch admin statistics
-  const { data: adminData, isLoading } = useQuery({
+  const { data: adminData, isLoading, error } = useQuery({
     queryKey: ['admin-overview'],
     queryFn: async () => {
       console.log('Fetching admin overview data...');
@@ -203,10 +204,22 @@ const AdminOverview = () => {
     );
   }
 
+  if (error) {
+    console.error('AdminOverview error:', error);
+    return (
+      <div className="flex h-96 w-full items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">Error loading admin data</p>
+          <p className="text-sm text-gray-500">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
   console.log('AdminOverview rendering main content with stats:', stats);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
         <p className="text-muted-foreground">

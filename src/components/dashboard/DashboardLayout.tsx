@@ -117,7 +117,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   console.log('DashboardLayout - About to render children');
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-slate-50">
       <TopBar 
         toggleSidebar={toggleSidebar} 
         userRole={userRole} 
@@ -130,8 +130,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           navItems={navItems}
           userRole={userRole}
         />
-        <main className="flex-1 bg-slate-50 p-4 md:p-6">
-          <div className="min-h-full">
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <div className="w-full max-w-7xl mx-auto">
             {children}
           </div>
         </main>
