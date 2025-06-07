@@ -22,8 +22,9 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
   ) => {
     try {
       setIsLoading(true);
+      console.log(`📝 Attempting to sign up user: ${email} with role: ${metadata.user_role}`);
       
-      const { error } = await supabase.auth.signUp({ 
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password, 
         options: {
@@ -31,7 +32,14 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         }
       });
       
-      if (error) throw error;
+      console.log('📝 Signup response:', { data, error });
+      
+      if (error) {
+        console.error('❌ Signup error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Signup successful for:', email);
       
       toast({
         title: 'Account created',
@@ -42,6 +50,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       navigate(`/${metadata.user_role}/login`);
       
     } catch (error: any) {
+      console.error('❌ Signup failed:', error);
       toast({
         variant: 'destructive',
         title: 'Sign up failed',
@@ -55,17 +64,34 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log(`🔐 Starting sign in process for: ${email}`);
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (error) throw error;
+      console.log('🔐 Sign in response:', { 
+        user: data?.user?.id, 
+        session: !!data?.session,
+        error: error?.message 
+      });
+      
+      if (error) {
+        console.error('❌ Sign in error details:', {
+          message: error.message,
+          code: error.code || 'unknown',
+          status: error.status || 'unknown'
+        });
+        throw error;
+      }
+      
+      console.log('✅ Sign in successful for:', email);
       
       // Don't navigate here - let the auth state change handle routing
       
     } catch (error: any) {
+      console.error('❌ Sign in failed for:', email, error);
       toast({
         variant: 'destructive',
         title: 'Sign in failed',
@@ -80,10 +106,13 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
   const signOut = async () => {
     try {
       setIsLoading(true);
+      console.log('🚪 Signing out user');
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      console.log('✅ Sign out successful');
       navigate('/');
     } catch (error: any) {
+      console.error('❌ Sign out error:', error);
       toast({
         variant: 'destructive',
         title: 'Error signing out',
@@ -97,12 +126,18 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
   const resetPassword = async (email: string) => {
     try {
       setIsLoading(true);
+      console.log(`🔄 Requesting password reset for: ${email}`);
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Password reset error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Password reset email sent to:', email);
       
       toast({
         title: 'Password reset email sent',
@@ -110,6 +145,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       });
       
     } catch (error: any) {
+      console.error('❌ Password reset failed:', error);
       toast({
         variant: 'destructive',
         title: 'Password reset failed',

@@ -41,8 +41,12 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const onSubmit = async (data: LoginFormValues) => {
     setIsAuthenticating(true);
     try {
-      console.log(`Attempting to sign in as ${userRole} with email: ${data.email}`);
+      console.log(`🔐 Attempting to sign in as ${userRole} with email: ${data.email}`);
+      console.log(`🔑 Password length: ${data.password.length} characters`);
+      
       await signIn(data.email, data.password);
+      
+      console.log(`✅ Sign in successful for ${data.email}`);
       
       // Success toast
       toast({
@@ -52,6 +56,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
 
       // Navigate based on user role after successful login
       setTimeout(() => {
+        console.log(`🚀 Navigating to ${userRole} dashboard`);
         if (userRole === 'admin') {
           navigate('/admin/dashboard');
         } else if (userRole === 'brand') {
@@ -62,26 +67,51 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
       }, 1000);
       
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('❌ Login error details:', {
+        error,
+        message: error?.message,
+        code: error?.code,
+        status: error?.status,
+        email: data.email,
+        userRole
+      });
       
-      // Handle different error types
-      let errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+      // Handle different error types with more specific messaging
+      let errorMessage = 'Login failed. Please check your credentials and try again.';
+      let errorTitle = 'Sign in failed';
       
       if (typeof error === 'object' && error !== null) {
-        if (error.message?.includes('Email not confirmed')) {
-          errorMessage = 'Please check your email to confirm your account before logging in';
-        } else if (error.message?.includes('Invalid login')) {
-          errorMessage = 'Invalid email or password';
-        } else if (error.message?.includes('Too many requests')) {
-          errorMessage = 'Too many login attempts. Please try again later';
-        } else if (error.message) {
-          errorMessage = error.message;
+        const errorCode = error.code || error.error_code;
+        const errorMsg = error.message || '';
+        
+        console.log(`🔍 Error analysis - Code: ${errorCode}, Message: ${errorMsg}`);
+        
+        if (errorMsg.includes('Invalid login credentials') || errorCode === 'invalid_credentials') {
+          errorMessage = `Account not found or incorrect password for ${data.email}. Please check:
+          
+          1. Make sure the email is correct
+          2. Verify your password
+          3. Ensure your account has been created and confirmed
+          
+          If you're trying to access the admin portal with iconicpro.inc@gmail.com, please first create the account using the signup form.`;
+          errorTitle = 'Invalid credentials';
+        } else if (errorMsg.includes('Email not confirmed') || errorCode === 'email_not_confirmed') {
+          errorMessage = 'Please check your email and click the confirmation link before logging in.';
+          errorTitle = 'Email not confirmed';
+        } else if (errorMsg.includes('Too many requests') || errorCode === 'too_many_requests') {
+          errorMessage = 'Too many login attempts. Please wait a few minutes before trying again.';
+          errorTitle = 'Rate limited';
+        } else if (errorCode === 'signup_disabled') {
+          errorMessage = 'Account creation is currently disabled. Please contact support.';
+          errorTitle = 'Signup disabled';
+        } else if (errorMsg) {
+          errorMessage = errorMsg;
         }
       }
       
       toast({
         variant: 'destructive',
-        title: 'Sign in failed',
+        title: errorTitle,
         description: errorMessage,
       });
     } finally {
@@ -160,6 +190,18 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
             'Sign in'
           )}
         </Button>
+        
+        {/* Debug information for admin portal */}
+        {userRole === 'admin' && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+            <div className="font-medium text-blue-800 mb-1">🔧 Debug Info:</div>
+            <div className="text-blue-700">
+              • If login fails, check browser console for detailed error logs<br/>
+              • For iconicpro.inc@gmail.com: Ensure account exists and is confirmed<br/>
+              • Try creating account first if it doesn't exist
+            </div>
+          </div>
+        )}
       </form>
     </Form>
   );
