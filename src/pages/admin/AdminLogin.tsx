@@ -8,7 +8,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { updateUserRole } from '@/utils/update-user-role';
 
 const AdminLogin = () => {
   const { user, isLoading } = useAuth();
@@ -29,6 +28,9 @@ const AdminLogin = () => {
         setIsCheckingRole(true);
         
         try {
+          // First, wait a moment for any profile creation to complete
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           // Check if user has admin role
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
@@ -36,42 +38,13 @@ const AdminLogin = () => {
             .eq('id', user.id)
             .maybeSingle();
           
-          console.log('AdminLogin: Profile data:', profileData);
+          console.log('AdminLogin: Profile data after wait:', profileData);
           
           if (profileError) {
             console.error('Error checking user profile:', profileError);
-            // Special handling for iconicpro.inc@gmail.com
-            if (user.email === 'iconicpro.inc@gmail.com') {
-              console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
-              try {
-                const result = await updateUserRole(user.id, 'admin');
-                console.log('Admin promotion result:', result);
-                toast({
-                  title: "Admin Access Granted",
-                  description: "You have been automatically promoted to admin",
-                });
-                navigate('/admin/dashboard');
-                setCheckComplete(true);
-                return;
-              } catch (error) {
-                console.error('Error promoting to admin:', error);
-                toast({
-                  variant: "destructive",
-                  title: "Promotion failed",
-                  description: "Failed to promote user to admin. Please try using /update-role",
-                });
-              }
-            }
-            
-            toast({
-              variant: "destructive",
-              title: "Access denied",
-              description: "Unable to verify admin permissions. If you're the owner (iconicpro.inc@gmail.com), please visit /update-role to get admin access.",
-            });
-            setCheckComplete(true);
-            return;
           }
           
+          // If profile exists and has admin role, proceed
           if (profileData && profileData.user_role === 'admin') {
             console.log('User is already admin, redirecting to dashboard');
             toast({
@@ -80,40 +53,53 @@ const AdminLogin = () => {
             });
             navigate('/admin/dashboard');
             setCheckComplete(true);
-          } else {
-            console.log('User profile exists but not admin. Current role:', profileData?.user_role);
-            // Special handling for iconicpro.inc@gmail.com
-            if (user.email === 'iconicpro.inc@gmail.com') {
-              console.log('Auto-promoting iconicpro.inc@gmail.com to admin');
-              try {
-                const result = await updateUserRole(user.id, 'admin');
-                console.log('Admin promotion result:', result);
+            return;
+          }
+          
+          // If no profile or not admin, but user metadata says admin, try to update
+          if (user.user_metadata?.user_role === 'admin') {
+            console.log('User metadata indicates admin, attempting to ensure profile exists');
+            
+            try {
+              // Try to create/update profile with admin role
+              const { error: upsertError } = await supabase
+                .from('profiles')
+                .upsert({
+                  id: user.id,
+                  email: user.email || '',
+                  full_name: user.user_metadata?.full_name || '',
+                  company_name: user.user_metadata?.company_name || '',
+                  user_role: 'admin'
+                }, {
+                  onConflict: 'id'
+                });
+              
+              if (upsertError) {
+                console.error('Error upserting admin profile:', upsertError);
+              } else {
+                console.log('Successfully ensured admin profile exists');
                 toast({
                   title: "Admin Access Granted",
-                  description: "You have been automatically promoted to admin",
+                  description: "Redirecting to admin dashboard",
                 });
                 navigate('/admin/dashboard');
                 setCheckComplete(true);
                 return;
-              } catch (error) {
-                console.error('Error promoting to admin:', error);
-                toast({
-                  variant: "destructive",
-                  title: "Promotion failed",
-                  description: "Failed to promote user to admin. Please try using /update-role",
-                });
               }
+            } catch (error) {
+              console.error('Error ensuring admin profile:', error);
             }
-            
-            toast({
-              variant: "destructive",
-              title: "Access denied",
-              description: user.email === 'iconicpro.inc@gmail.com' 
-                ? "Please visit /update-role to get admin access" 
-                : "You do not have admin privileges. Contact the administrator for access.",
-            });
-            setCheckComplete(true);
           }
+          
+          // If we get here, user is not admin
+          console.log('User does not have admin access');
+          toast({
+            variant: "destructive",
+            title: "Access denied",
+            description: "You do not have admin privileges. Contact the administrator for access.",
+          });
+          setCheckComplete(true);
+          
         } catch (error) {
           console.error('Error checking admin access:', error);
           toast({
@@ -187,7 +173,7 @@ const AdminLogin = () => {
                 🔒 Admin portal is for authorized personnel only
               </div>
               <div className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded">
-                💡 Use iconicpro.inc@gmail.com for automatic admin access
+                💡 Sign up with admin role to get automatic access
               </div>
             </div>
           </CardFooter>

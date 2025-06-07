@@ -71,13 +71,16 @@ const AuthGuard = ({
       return;
     }
     
-    // For admin portal - special verification
+    // For admin portal - special verification with retry logic
     if (requiredRole === 'admin') {
       setIsVerifying(true);
       
       const verifyAdminRole = async () => {
         try {
           console.log('Verifying admin role for user:', user.email);
+          
+          // Wait a moment for any profile updates to complete
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
@@ -89,28 +92,53 @@ const AuthGuard = ({
           
           if (profileError) {
             console.error('Error checking user profile:', profileError);
-            // Only redirect if we haven't already checked
-            if (!hasCheckedAccess) {
-              navigate('/admin/login');
-              setHasCheckedAccess(true);
-            }
+          }
+          
+          // Check if user has admin role in profile
+          if (profileData && profileData.user_role === 'admin') {
+            console.log('Admin role verified in profile, granting access');
+            setAccessGranted(true);
+            setHasCheckedAccess(true);
             setIsVerifying(false);
             return;
           }
           
-          if (profileData && profileData.user_role === 'admin') {
-            console.log('Admin role verified, granting access');
-            setAccessGranted(true);
-          } else {
-            console.log('User is not admin, current role:', profileData?.user_role);
-            // Only redirect if we haven't already checked
-            if (!hasCheckedAccess) {
-              navigate('/admin/login');
-              setHasCheckedAccess(true);
+          // If metadata says admin but profile doesn't exist or isn't admin, try to fix it
+          if (user.user_metadata?.user_role === 'admin') {
+            console.log('User metadata indicates admin, attempting to ensure profile is correct');
+            
+            try {
+              const { error: upsertError } = await supabase
+                .from('profiles')
+                .upsert({
+                  id: user.id,
+                  email: user.email || '',
+                  full_name: user.user_metadata?.full_name || '',
+                  company_name: user.user_metadata?.company_name || '',
+                  user_role: 'admin'
+                }, {
+                  onConflict: 'id'
+                });
+              
+              if (!upsertError) {
+                console.log('Successfully ensured admin profile, granting access');
+                setAccessGranted(true);
+                setHasCheckedAccess(true);
+                setIsVerifying(false);
+                return;
+              }
+            } catch (error) {
+              console.error('Error ensuring admin profile:', error);
             }
           }
+          
+          console.log('User is not admin, redirecting to login');
+          // Only redirect if we haven't already checked
+          if (!hasCheckedAccess) {
+            navigate('/admin/login');
+            setHasCheckedAccess(true);
+          }
           setIsVerifying(false);
-          setHasCheckedAccess(true);
         } catch (error) {
           console.error('Error verifying admin role:', error);
           // Only redirect if we haven't already checked
