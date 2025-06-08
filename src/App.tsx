@@ -49,6 +49,7 @@ const App = () => (
           <AuthProvider>
             <AnalyticsWrapper>
               <Routes>
+                {/* Public routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
@@ -61,7 +62,7 @@ const App = () => (
                 <Route path="/update-role" element={<RoleUpdater />} />
                 
                 {/* Admin Routes */}
-                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/signup" element={<AdminSignup />} />
                 <Route path="/admin/dashboard/*" element={
@@ -70,6 +71,7 @@ const App = () => (
                   </AuthGuard>
                 } />
                 
+                {/* Protected reseller hub - requires no auth but shows application form */}
                 <Route path="/reseller-hub" element={<ResellerHub />} />
                 
                 {/* Brand Portal Routes */}
