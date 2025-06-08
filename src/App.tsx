@@ -76,6 +76,11 @@ const App = () => (
                     <AdminSignup />
                   </AuthGuard>
                 } />
+                <Route path="/admin/dashboard" element={
+                  <AuthGuard requiredRole="admin">
+                    <AdminDashboard />
+                  </AuthGuard>
+                } />
                 <Route path="/admin/dashboard/*" element={
                   <AuthGuard requiredRole="admin">
                     <AdminDashboard />
@@ -98,6 +103,11 @@ const App = () => (
                     <BrandSignup />
                   </AuthGuard>
                 } />
+                <Route path="/brand/dashboard" element={
+                  <AuthGuard requiredRole="brand">
+                    <BrandDashboard />
+                  </AuthGuard>
+                } />
                 <Route path="/brand/dashboard/*" element={
                   <AuthGuard requiredRole="brand">
                     <BrandDashboard />
@@ -118,6 +128,11 @@ const App = () => (
                 <Route path="/reseller/signup" element={
                   <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/reseller/dashboard">
                     <ResellerSignup />
+                  </AuthGuard>
+                } />
+                <Route path="/reseller/dashboard" element={
+                  <AuthGuard requiredRole="reseller">
+                    <ResellerDashboard />
                   </AuthGuard>
                 } />
                 <Route path="/reseller/dashboard/*" element={

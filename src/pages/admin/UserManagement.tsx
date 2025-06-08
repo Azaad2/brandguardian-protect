@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -57,25 +56,50 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [userDetails, setUserDetails] = useState<ResellerApplication | null>(null);
 
-  // Fetch all users with improved query logic
+  // Fetch all users - using a direct query that bypasses RLS for admin
   const { data: users, isLoading, refetch } = useQuery({
-    queryKey: ['admin-users'],
+    queryKey: ['admin-all-users'],
     queryFn: async () => {
-      console.log('Fetching all users...');
+      console.log('Fetching all users for admin...');
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching users:', error);
-        throw error;
+      // First verify we're admin
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
       }
 
-      console.log('Raw user data from database:', data);
-      console.log('Total users fetched:', data?.length || 0);
+      // Check admin status
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.user_role !== 'admin') {
+        throw new Error('Not authorized - admin access required');
+      }
+
+      // Use RPC function to get all users as admin (this bypasses RLS)
+      const { data, error } = await supabase.rpc('admin_get_all_users');
       
+      if (error) {
+        console.error('Error fetching users via RPC:', error);
+        // Fallback to direct query if RPC fails
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) {
+          console.error('Fallback query also failed:', fallbackError);
+          throw fallbackError;
+        }
+        
+        console.log('Using fallback data:', fallbackData);
+        return fallbackData as UserProfile[];
+      }
+
+      console.log('Successfully fetched users via RPC:', data);
       return data as UserProfile[];
     },
   });
