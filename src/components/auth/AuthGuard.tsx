@@ -7,16 +7,18 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface AuthGuardProps {
   children: ReactNode;
-  requiredRole?: UserRole | UserRole[];
+  requiredRole?: UserRole | UserRole[] | null;
   redirectTo?: string;
   bypassAuth?: boolean;
+  redirectIfAuthenticated?: string; // New prop for login/signup pages
 }
 
 const AuthGuard = ({ 
   children, 
   requiredRole, 
   redirectTo = '/',
-  bypassAuth = false
+  bypassAuth = false,
+  redirectIfAuthenticated
 }: AuthGuardProps) => {
   const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +32,7 @@ const AuthGuard = ({
       isLoading, 
       requiredRole, 
       bypassAuth,
+      redirectIfAuthenticated,
       hasCheckedAccess
     });
     
@@ -47,8 +50,18 @@ const AuthGuard = ({
       return;
     }
 
-    // If no user, redirect to appropriate login page
-    if (!user) {
+    // Handle redirectIfAuthenticated (for login/signup pages)
+    if (redirectIfAuthenticated && user) {
+      console.log('User is authenticated, redirecting away from login/signup page to:', redirectIfAuthenticated);
+      if (!hasCheckedAccess) {
+        navigate(redirectIfAuthenticated);
+        setHasCheckedAccess(true);
+      }
+      return;
+    }
+
+    // If no user and we need authentication, redirect to login
+    if (!user && requiredRole !== null) {
       console.log('No user found, redirecting based on required role:', requiredRole);
       if (!hasCheckedAccess) {
         if (requiredRole === 'admin') {
@@ -66,7 +79,7 @@ const AuthGuard = ({
     }
     
     // For admin portal - special verification
-    if (requiredRole === 'admin') {
+    if (requiredRole === 'admin' && user) {
       const verifyAdminRole = async () => {
         try {
           console.log('Verifying admin role for user:', user.email);
@@ -107,8 +120,8 @@ const AuthGuard = ({
       return;
     }
     
-    // For non-admin portals, check roles normally
-    if (requiredRole && userRole) {
+    // For role-based access control
+    if (requiredRole && userRole && user) {
       const hasRequiredRole = Array.isArray(requiredRole) 
         ? requiredRole.includes(userRole)
         : userRole === requiredRole;
@@ -138,7 +151,7 @@ const AuthGuard = ({
     console.log('Access granted!');
     setAccessGranted(true);
     setHasCheckedAccess(true);
-  }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth, hasCheckedAccess]);
+  }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth, redirectIfAuthenticated, hasCheckedAccess]);
   
   // Show loading indicator while checking auth
   if (!bypassAuth && (isLoading || !hasCheckedAccess)) {

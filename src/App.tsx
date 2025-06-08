@@ -61,33 +61,65 @@ const App = () => (
                 {/* Temporary role updater page */}
                 <Route path="/update-role" element={<RoleUpdater />} />
                 
-                {/* Admin Routes */}
+                {/* Protected reseller hub - requires no auth but shows application form */}
+                <Route path="/reseller-hub" element={<ResellerHub />} />
+                
+                {/* Admin Routes - All protected */}
                 <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/signup" element={<AdminSignup />} />
+                <Route path="/admin/login" element={
+                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/admin/dashboard">
+                    <AdminLogin />
+                  </AuthGuard>
+                } />
+                <Route path="/admin/signup" element={
+                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/admin/dashboard">
+                    <AdminSignup />
+                  </AuthGuard>
+                } />
                 <Route path="/admin/dashboard/*" element={
                   <AuthGuard requiredRole="admin">
                     <AdminDashboard />
                   </AuthGuard>
                 } />
                 
-                {/* Protected reseller hub - requires no auth but shows application form */}
-                <Route path="/reseller-hub" element={<ResellerHub />} />
-                
-                {/* Brand Portal Routes */}
-                <Route path="/brand" element={<BrandPortal />} />
-                <Route path="/brand/login" element={<BrandLogin />} />
-                <Route path="/brand/signup" element={<BrandSignup />} />
+                {/* Brand Portal Routes - All protected */}
+                <Route path="/brand" element={
+                  <AuthGuard bypassAuth={true}>
+                    <BrandPortal />
+                  </AuthGuard>
+                } />
+                <Route path="/brand/login" element={
+                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/brand/dashboard">
+                    <BrandLogin />
+                  </AuthGuard>
+                } />
+                <Route path="/brand/signup" element={
+                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/brand/dashboard">
+                    <BrandSignup />
+                  </AuthGuard>
+                } />
                 <Route path="/brand/dashboard/*" element={
                   <AuthGuard requiredRole="brand">
                     <BrandDashboard />
                   </AuthGuard>
                 } />
                 
-                {/* Reseller Portal Routes */}
-                <Route path="/reseller" element={<ResellerPortal />} />
-                <Route path="/reseller/login" element={<ResellerLogin />} />
-                <Route path="/reseller/signup" element={<ResellerSignup />} />
+                {/* Reseller Portal Routes - All protected */}
+                <Route path="/reseller" element={
+                  <AuthGuard bypassAuth={true}>
+                    <ResellerPortal />
+                  </AuthGuard>
+                } />
+                <Route path="/reseller/login" element={
+                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/reseller/dashboard">
+                    <ResellerLogin />
+                  </AuthGuard>
+                } />
+                <Route path="/reseller/signup" element={
+                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/reseller/dashboard">
+                    <ResellerSignup />
+                  </AuthGuard>
+                } />
                 <Route path="/reseller/dashboard/*" element={
                   <AuthGuard requiredRole="reseller">
                     <ResellerDashboard />
