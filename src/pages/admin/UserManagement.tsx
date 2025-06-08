@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, Search, Filter, MoreHorizontal } from 'lucide-react';
+import { Users, Search, Filter, MoreHorizontal, Mail, Phone, Calendar, Building } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   DropdownMenu,
@@ -15,6 +15,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface UserProfile {
   id: string;
@@ -26,9 +34,28 @@ interface UserProfile {
   bio: string | null;
 }
 
+interface ResellerApplication {
+  id: string;
+  company_name: string;
+  business_type: string;
+  ein_number: string;
+  phone: string;
+  sales_volume: string;
+  wholesale_budget: string;
+  product_categories: string[];
+  status: string;
+  amazon_seller_id: string | null;
+  walmart_seller_id: string | null;
+  ebay_seller_id: string | null;
+  feedback_score: string | null;
+  linkedin: string | null;
+}
+
 const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [userDetails, setUserDetails] = useState<ResellerApplication | null>(null);
 
   // Fetch all users
   const { data: users, isLoading, refetch } = useQuery({
@@ -57,6 +84,34 @@ const UserManagement = () => {
       return data as UserProfile[];
     },
   });
+
+  // Fetch detailed user information
+  const fetchUserDetails = async (userId: string, userRole: string) => {
+    if (userRole === 'reseller') {
+      const { data, error } = await supabase
+        .from('reseller_applications')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching reseller details:', error);
+        return null;
+      }
+      return data;
+    }
+    return null;
+  };
+
+  const handleViewDetails = async (user: UserProfile) => {
+    setSelectedUser(user);
+    if (user.user_role === 'reseller') {
+      const details = await fetchUserDetails(user.id, user.user_role);
+      setUserDetails(details);
+    } else {
+      setUserDetails(null);
+    }
+  };
 
   const getRoleBadgeColor = (role: string | null) => {
     switch (role) {
@@ -145,7 +200,7 @@ const UserManagement = () => {
       <Card>
         <CardHeader>
           <CardTitle>User Directory</CardTitle>
-          <CardDescription>Search and filter all platform users</CardDescription>
+          <CardDescription>Search and filter all platform users with complete details</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4 mb-6">
@@ -179,7 +234,7 @@ const UserManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
+                  <TableHead>User Details</TableHead>
                   <TableHead>Company</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Joined</TableHead>
@@ -190,13 +245,24 @@ const UserManagement = () => {
                 {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <div>
+                      <div className="space-y-1">
                         <div className="font-medium">{user.full_name || 'N/A'}</div>
-                        <div className="text-sm text-muted-foreground">{user.email}</div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {user.email}
+                        </div>
+                        {user.bio && (
+                          <div className="text-xs text-muted-foreground max-w-xs truncate">
+                            {user.bio}
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{user.company_name || 'N/A'}</div>
+                      <div className="flex items-center gap-1">
+                        <Building className="h-3 w-3 text-muted-foreground" />
+                        <span className="font-medium">{user.company_name || 'N/A'}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={`${getRoleBadgeColor(user.user_role)}`}>
@@ -204,27 +270,185 @@ const UserManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {new Date(user.created_at).toLocaleDateString()}
+                      <div className="flex items-center gap-1 text-sm">
+                        <Calendar className="h-3 w-3 text-muted-foreground" />
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleUserAction(user.id, 'view')}>
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleUserAction(user.id, 'edit')}>
-                            Edit User
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleUserAction(user.id, 'suspend')}>
-                            Suspend User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleViewDetails(user)}
+                            >
+                              View Details
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>User Details</DialogTitle>
+                              <DialogDescription>
+                                Complete information for {selectedUser?.email}
+                              </DialogDescription>
+                            </DialogHeader>
+                            {selectedUser && (
+                              <div className="space-y-6">
+                                {/* Basic Info */}
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Full Name</label>
+                                    <p className="font-medium">{selectedUser.full_name || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Email</label>
+                                    <p className="font-medium">{selectedUser.email}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Company</label>
+                                    <p className="font-medium">{selectedUser.company_name || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Role</label>
+                                    <Badge className={`${getRoleBadgeColor(selectedUser.user_role)}`}>
+                                      {selectedUser.user_role || 'N/A'}
+                                    </Badge>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Joined</label>
+                                    <p className="font-medium">{new Date(selectedUser.created_at).toLocaleDateString()}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-muted-foreground">User ID</label>
+                                    <p className="font-mono text-xs">{selectedUser.id}</p>
+                                  </div>
+                                </div>
+
+                                {selectedUser.bio && (
+                                  <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Bio</label>
+                                    <p className="mt-1">{selectedUser.bio}</p>
+                                  </div>
+                                )}
+
+                                {/* Reseller Specific Details */}
+                                {selectedUser.user_role === 'reseller' && userDetails && (
+                                  <div className="border-t pt-4">
+                                    <h3 className="text-lg font-semibold mb-4">Reseller Application Details</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <label className="text-sm font-medium text-muted-foreground">Business Type</label>
+                                        <p className="font-medium">{userDetails.business_type}</p>
+                                      </div>
+                                      <div>
+                                        <label className="text-sm font-medium text-muted-foreground">EIN Number</label>
+                                        <p className="font-medium">{userDetails.ein_number}</p>
+                                      </div>
+                                      <div>
+                                        <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                                        <p className="font-medium">{userDetails.phone}</p>
+                                      </div>
+                                      <div>
+                                        <label className="text-sm font-medium text-muted-foreground">Sales Volume</label>
+                                        <p className="font-medium">{userDetails.sales_volume}</p>
+                                      </div>
+                                      <div>
+                                        <label className="text-sm font-medium text-muted-foreground">Wholesale Budget</label>
+                                        <p className="font-medium">{userDetails.wholesale_budget}</p>
+                                      </div>
+                                      <div>
+                                        <label className="text-sm font-medium text-muted-foreground">Status</label>
+                                        <Badge className={userDetails.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                                          {userDetails.status}
+                                        </Badge>
+                                      </div>
+                                    </div>
+
+                                    {/* Marketplace IDs */}
+                                    <div className="mt-4">
+                                      <label className="text-sm font-medium text-muted-foreground">Marketplace IDs</label>
+                                      <div className="grid grid-cols-1 gap-2 mt-2">
+                                        {userDetails.amazon_seller_id && (
+                                          <div className="flex justify-between">
+                                            <span>Amazon:</span>
+                                            <span className="font-mono text-sm">{userDetails.amazon_seller_id}</span>
+                                          </div>
+                                        )}
+                                        {userDetails.walmart_seller_id && (
+                                          <div className="flex justify-between">
+                                            <span>Walmart:</span>
+                                            <span className="font-mono text-sm">{userDetails.walmart_seller_id}</span>
+                                          </div>
+                                        )}
+                                        {userDetails.ebay_seller_id && (
+                                          <div className="flex justify-between">
+                                            <span>eBay:</span>
+                                            <span className="font-mono text-sm">{userDetails.ebay_seller_id}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Product Categories */}
+                                    <div className="mt-4">
+                                      <label className="text-sm font-medium text-muted-foreground">Product Categories</label>
+                                      <div className="flex flex-wrap gap-1 mt-2">
+                                        {userDetails.product_categories?.map((category, index) => (
+                                          <Badge key={index} variant="outline" className="text-xs">
+                                            {category}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    {userDetails.feedback_score && (
+                                      <div className="mt-4">
+                                        <label className="text-sm font-medium text-muted-foreground">Feedback Score</label>
+                                        <p className="font-medium">{userDetails.feedback_score}</p>
+                                      </div>
+                                    )}
+
+                                    {userDetails.linkedin && (
+                                      <div className="mt-4">
+                                        <label className="text-sm font-medium text-muted-foreground">LinkedIn</label>
+                                        <a 
+                                          href={userDetails.linkedin} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="text-blue-600 hover:underline"
+                                        >
+                                          {userDetails.linkedin}
+                                        </a>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'edit')}>
+                              Edit User
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'suspend')}>
+                              Suspend User
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'delete')}>
+                              Delete User
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
