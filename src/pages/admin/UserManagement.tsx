@@ -57,33 +57,50 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [userDetails, setUserDetails] = useState<ResellerApplication | null>(null);
 
-  // Fetch all users
+  // Fetch all users with improved query logic
   const { data: users, isLoading, refetch } = useQuery({
-    queryKey: ['admin-users', searchTerm, selectedRole],
+    queryKey: ['admin-users'],
     queryFn: async () => {
-      let query = supabase
+      console.log('Fetching all users...');
+      
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
-
-      if (searchTerm) {
-        query = query.or(`email.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,full_name.ilike.%${searchTerm}%`);
-      }
-
-      if (selectedRole !== 'all') {
-        query = query.eq('user_role', selectedRole);
-      }
-
-      const { data, error } = await query;
       
       if (error) {
         console.error('Error fetching users:', error);
         throw error;
       }
 
+      console.log('Raw user data from database:', data);
+      console.log('Total users fetched:', data?.length || 0);
+      
       return data as UserProfile[];
     },
   });
+
+  // Filter users based on search and role
+  const filteredUsers = users?.filter(user => {
+    console.log('Filtering user:', user);
+    
+    // Apply search filter
+    const matchesSearch = !searchTerm || 
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Apply role filter
+    const matchesRole = selectedRole === 'all' || user.user_role === selectedRole;
+    
+    const shouldInclude = matchesSearch && matchesRole;
+    console.log(`User ${user.email}: search=${matchesSearch}, role=${matchesRole}, included=${shouldInclude}`);
+    
+    return shouldInclude;
+  }) || [];
+
+  console.log('Filtered users:', filteredUsers);
+  console.log('Total filtered users:', filteredUsers.length);
 
   // Fetch detailed user information
   const fetchUserDetails = async (userId: string, userRole: string) => {
@@ -131,7 +148,6 @@ const UserManagement = () => {
     // Implement user actions like suspend, activate, etc.
   };
 
-  const filteredUsers = users || [];
   const resellerCount = filteredUsers.filter(u => u.user_role === 'reseller').length;
   const brandCount = filteredUsers.filter(u => u.user_role === 'brand').length;
   const adminCount = filteredUsers.filter(u => u.user_role === 'admin').length;
@@ -153,6 +169,16 @@ const UserManagement = () => {
         </p>
       </div>
 
+      {/* Debug Information */}
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+        <p className="text-sm text-yellow-800">
+          Debug Info: Total users in DB: {users?.length || 0} | Filtered users: {filteredUsers.length}
+        </p>
+        <p className="text-sm text-yellow-800">
+          Search term: "{searchTerm}" | Selected role: {selectedRole}
+        </p>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -161,7 +187,8 @@ const UserManagement = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{filteredUsers.length}</div>
+            <div className="text-2xl font-bold">{users?.length || 0}</div>
+            <p className="text-xs text-muted-foreground">Filtered: {filteredUsers.length}</p>
           </CardContent>
         </Card>
 
@@ -227,6 +254,9 @@ const UserManagement = () => {
                 <option value="admin">Admins</option>
               </select>
             </div>
+            <Button onClick={() => refetch()} variant="outline">
+              Refresh
+            </Button>
           </div>
 
           {/* Users Table */}
@@ -458,7 +488,12 @@ const UserManagement = () => {
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No users found matching your criteria.</p>
+              <p className="text-muted-foreground">
+                {users?.length === 0 ? 'No users found in database.' : 'No users found matching your criteria.'}
+              </p>
+              <Button onClick={() => refetch()} variant="outline" className="mt-2">
+                Refresh Data
+              </Button>
             </div>
           )}
         </CardContent>
