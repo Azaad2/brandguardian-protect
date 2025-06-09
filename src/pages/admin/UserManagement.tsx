@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +57,7 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [userDetails, setUserDetails] = useState<ResellerApplication | null>(null);
 
-  // Fetch all users - using a direct query that bypasses RLS for admin
+  // Fetch all users - using direct query for now until RPC function is properly typed
   const { data: users, isLoading, refetch } = useQuery({
     queryKey: ['admin-all-users'],
     queryFn: async () => {
@@ -79,27 +80,19 @@ const UserManagement = () => {
         throw new Error('Not authorized - admin access required');
       }
 
-      // Use RPC function to get all users as admin (this bypasses RLS)
-      const { data, error } = await supabase.rpc('admin_get_all_users');
+      // For now, use direct query since RPC function needs to be properly added to types
+      // This will work for admin users due to their elevated permissions
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error fetching users via RPC:', error);
-        // Fallback to direct query if RPC fails
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (fallbackError) {
-          console.error('Fallback query also failed:', fallbackError);
-          throw fallbackError;
-        }
-        
-        console.log('Using fallback data:', fallbackData);
-        return fallbackData as UserProfile[];
+        console.error('Error fetching users:', error);
+        throw error;
       }
 
-      console.log('Successfully fetched users via RPC:', data);
+      console.log('Successfully fetched users:', data);
       return data as UserProfile[];
     },
   });
