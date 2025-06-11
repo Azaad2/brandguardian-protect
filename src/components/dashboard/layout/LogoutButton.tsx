@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { UserRole } from '@/types/auth';
+import { supabase } from "@/integrations/supabase/client";
 
 interface LogoutButtonProps {
   userRole: UserRole;
@@ -14,9 +15,11 @@ interface LogoutButtonProps {
 const LogoutButton = ({ userRole, sidebarOpen }: LogoutButtonProps) => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async  () => {
     // Clear local storage authentication flag
-    localStorage.removeItem('brand_authenticated');
+    await supabase.auth.signOut();
+    localStorage.clear();
+    sessionStorage.clear();
     
     // Show toast message
     toast({
@@ -30,7 +33,7 @@ const LogoutButton = ({ userRole, sidebarOpen }: LogoutButtonProps) => {
   };
 
   return (
-    <div className="absolute bottom-4 w-full px-2">
+    <div className="absolute bottom-16 w-full px-2">
       <Button
         variant="ghost"
         className={cn(

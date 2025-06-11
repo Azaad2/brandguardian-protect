@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { NavItem } from '../types';
 import { Badge } from '@/components/ui/badge';
 import { UserRole } from '@/types/auth';
+import LogoutButton from '@/components/dashboard/layout/LogoutButton'; 
 
 // Updated props interface to match what's being passed
 export interface SidebarProps {
@@ -82,7 +83,7 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
           )}
         >
           <BndBoxLogo className={cn("h-8 w-auto", !isOpen && "lg:h-10")} />
-          {isOpen && <span className="ml-2 text-xl font-semibold lg:inline">BndBox</span>}
+          {isOpen && <span className="ml-2 text-xl font-semibold lg:hidden">BndBox</span>}
         </Link>
         <Button 
           variant="ghost" 
@@ -126,6 +127,9 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
           );
         })}
       </nav>
+      <div className="border-t p-4">
+        <LogoutButton userRole={userRole} sidebarOpen={isOpen} />
+      </div>
     </aside>
   );
 };

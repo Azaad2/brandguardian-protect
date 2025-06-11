@@ -117,26 +117,31 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   console.log('DashboardLayout - About to render children');
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <TopBar 
-        toggleSidebar={toggleSidebar} 
-        userRole={userRole} 
-        pendingApplicationsCount={pendingCount} 
-      />
-      <div className="flex flex-1">
-        <SidebarNav
-          isOpen={isMobile ? isOpen : true}
-          setIsOpen={setIsOpen}
-          navItems={navItems}
-          userRole={userRole}
-        />
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
-          <div className="w-full max-w-7xl mx-auto">
-            {children}
-          </div>
-        </main>
+    <div className="flex h-screen flex-col bg-slate-50">
+  <TopBar 
+    toggleSidebar={toggleSidebar} 
+    userRole={userRole} 
+    pendingApplicationsCount={pendingCount} 
+  />
+
+  {/* Main area: Sidebar + Content */}
+  <div className="flex flex-1 overflow-hidden">
+    <SidebarNav
+      isOpen={isMobile ? isOpen : true}
+      setIsOpen={setIsOpen}
+      navItems={navItems}
+      userRole={userRole}
+    />
+
+    {/* Main content area scrolls */}
+    <main className="flex-1 overflow-auto p-4 md:p-6">
+      <div className="w-full max-w-7xl mx-auto">
+        {children}
       </div>
-    </div>
+    </main>
+  </div>
+</div>
+
   );
 };
 

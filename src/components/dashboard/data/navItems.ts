@@ -26,11 +26,11 @@ export const navItems: NavItem[] = [
 ];
 
 export const resellerNavItems: NavItem[] = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Brands", href: "/dashboard/brands", icon: Store },
-  { title: "Messages", href: "/dashboard/messages", icon: MessageCircle },
-  { title: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
+  { title: "Dashboard", href: "/reseller/dashboard", icon: LayoutDashboard },
+  { title: "Brands", href: "/reseller/dashboard/brands", icon: Store },
+  { title: "Messages", href: "/reseller/dashboard/messages", icon: MessageCircle },
+  { title: "Orders", href: "/reseller/dashboard/orders", icon: ShoppingCart },
+  { title: "Settings", href: "/reseller/dashboard/settings", icon: Settings },
 ];
 
 export const brandNavItems: NavItem[] = [
