@@ -11,8 +11,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { session, user, userRole, isLoading, setIsLoading } = useAuthState();
   const { signUp, signIn, signOut, resetPassword } = useAuthActions({ setIsLoading });
   
-  // Use session management for auto-logout
-  useSessionManagement();
+  // Use session management for auto-logout, passing userRole directly
+  useSessionManagement(userRole);
   
   const value = {
     session,

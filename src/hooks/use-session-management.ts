@@ -1,11 +1,9 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './use-auth';
+import { UserRole } from '@/types/auth';
 
-export const useSessionManagement = () => {
-  const { userRole } = useAuth();
-  
+export const useSessionManagement = (userRole: UserRole | null) => {
   useEffect(() => {
     // Don't apply aggressive session management for admin users
     if (userRole === 'admin') {
