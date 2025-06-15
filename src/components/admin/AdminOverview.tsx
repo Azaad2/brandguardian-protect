@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,13 +43,13 @@ const AdminOverview = () => {
     queryFn: async () => {
       console.log('Fetching admin overview data...');
       
-      // Fetch approved resellers count (those with approved applications)
-      const { data: approvedResellers, error: resellersError } = await supabase
-        .from('reseller_applications')
+      // Fetch resellers count from profiles table
+      const { data: resellers, error: resellersError } = await supabase
+        .from('profiles')
         .select('id')
-        .eq('status', 'approved');
+        .eq('user_role', 'reseller');
 
-      // Fetch brands count
+      // Fetch brands count from profiles table
       const { data: brands, error: brandsError } = await supabase
         .from('profiles')
         .select('id')
@@ -84,7 +83,7 @@ const AdminOverview = () => {
       }
 
       const result = {
-        totalResellers: approvedResellers?.length || 0,
+        totalResellers: resellers?.length || 0,
         totalBrands: brands?.length || 0,
         totalProducts: products?.length || 0,
         totalOrders: orders?.length || 0,
@@ -236,7 +235,7 @@ const AdminOverview = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalResellers}</div>
-            <p className="text-xs text-muted-foreground">Approved reseller accounts</p>
+            <p className="text-xs text-muted-foreground">Active reseller accounts</p>
           </CardContent>
         </Card>
 
