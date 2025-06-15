@@ -37,7 +37,7 @@ const ResellerLogin = () => {
       footerContent={
         <div className="text-center text-sm">
           Don't have an account?{' '}
-          <Link to="/reseller/signup" className="text-primary hover:text-primary/80 hover:underline">
+          <Link to="/reseller-hub" className="text-primary hover:text-primary/80 hover:underline">
             Sign up
           </Link>
         </div>

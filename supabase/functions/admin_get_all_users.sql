@@ -26,7 +26,7 @@ AS $$
     p.bio
   FROM public.profiles p
   WHERE EXISTS (
-    SELECT 1 FROM public.profiles admin_check 
+    SELECT * FROM public.profiles admin_check 
     WHERE admin_check.id = auth.uid() 
     AND admin_check.user_role = 'admin'
   )

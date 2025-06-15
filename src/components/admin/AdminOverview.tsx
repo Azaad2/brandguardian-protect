@@ -8,7 +8,7 @@ import { Users, Package, ShoppingCart, AlertTriangle, TrendingUp, FileText } fro
 import { useQuery } from '@tanstack/react-query';
 
 interface AdminStats {
-  totalResellers: number;
+  resellers: number;
   totalBrands: number;
   totalProducts: number;
   totalOrders: number;
@@ -30,7 +30,7 @@ const AdminOverview = () => {
   console.log('AdminOverview component rendering');
   
   const [stats, setStats] = useState<AdminStats>({
-    totalResellers: 0,
+    resellers: 0,
     totalBrands: 0,
     totalProducts: 0,
     totalOrders: 0,
@@ -56,7 +56,7 @@ const AdminOverview = () => {
 
       let totalResellers = 0;
       let totalBrands = 0;
-
+      console.log('sdsdsd',profiles)
       if (profiles && !profilesError) {
         totalResellers = profiles.filter((profile) => profile.user_role === 'reseller' && !!profile.email).length;
         totalBrands = profiles.filter((profile) => profile.user_role === 'brand' && !!profile.email).length;
