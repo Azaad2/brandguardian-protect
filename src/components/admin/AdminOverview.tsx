@@ -14,6 +14,7 @@ interface AdminStats {
   totalOrders: number;
   pendingApplications: number;
   pendingUploads: number;
+  pendingApplicationsList?: any[]; // New property for the pending applications list
 }
 
 interface RecentActivity {
