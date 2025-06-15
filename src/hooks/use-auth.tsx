@@ -2,6 +2,7 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useAuthState } from './use-auth-state';
 import { useAuthActions } from './use-auth-actions';
+import { useSessionManagement } from './use-session-management';
 import { AuthContextType } from '@/types/auth-context';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -9,6 +10,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { session, user, userRole, isLoading, setIsLoading } = useAuthState();
   const { signUp, signIn, signOut, resetPassword } = useAuthActions({ setIsLoading });
+  
+  // Use session management for auto-logout
+  useSessionManagement();
   
   const value = {
     session,

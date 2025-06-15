@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -24,30 +23,59 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       setIsLoading(true);
       console.log(`📝 Attempting to sign up user: ${email} with role: ${metadata.user_role}`);
       
-      const { data, error } = await supabase.auth.signUp({ 
-        email, 
-        password, 
-        options: {
-          data: metadata
+      // For resellers, create account but keep it inactive until admin approval
+      if (metadata.user_role === 'reseller') {
+        const { data, error } = await supabase.auth.signUp({ 
+          email, 
+          password, 
+          options: {
+            data: {
+              ...metadata,
+              status: 'pending_approval' // Add status to metadata
+            }
+          }
+        });
+        
+        if (error) {
+          console.error('❌ Signup error:', error);
+          throw error;
         }
-      });
-      
-      console.log('📝 Signup response:', { data, error });
-      
-      if (error) {
-        console.error('❌ Signup error:', error);
-        throw error;
+        
+        console.log('✅ Reseller signup successful, pending approval:', email);
+        
+        toast({
+          title: 'Application submitted',
+          description: 'Your reseller application has been submitted. You will receive an email notification once your account is approved by our admin team.',
+        });
+        
+        // Don't redirect to dashboard, stay on signup page or redirect to home
+        navigate('/');
+        
+      } else {
+        // For brands and admins, normal signup flow
+        const { data, error } = await supabase.auth.signUp({ 
+          email, 
+          password, 
+          options: {
+            data: metadata
+          }
+        });
+        
+        if (error) {
+          console.error('❌ Signup error:', error);
+          throw error;
+        }
+        
+        console.log('✅ Signup successful for:', email);
+        
+        toast({
+          title: 'Account created',
+          description: 'Please check your email to confirm your registration.',
+        });
+        
+        // Redirect based on user role
+        navigate(`/${metadata.user_role}/login`);
       }
-      
-      console.log('✅ Signup successful for:', email);
-      
-      toast({
-        title: 'Account created',
-        description: 'Please check your email to confirm your registration.',
-      });
-      
-      // Redirect based on user role
-      navigate(`/${metadata.user_role}/login`);
       
     } catch (error: any) {
       console.error('❌ Signup failed:', error);
@@ -84,6 +112,29 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
           status: error.status || 'unknown'
         });
         throw error;
+      }
+
+      // Check if user is a reseller and if they're approved
+      if (data?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profile?.user_role === 'reseller') {
+          const { data: resellerApp } = await supabase
+            .from('reseller_applications')
+            .select('status')
+            .eq('user_id', data.user.id)
+            .single();
+
+          if (!resellerApp || resellerApp.status !== 'approved') {
+            // Sign out the user immediately
+            await supabase.auth.signOut();
+            throw new Error('Your reseller account is pending approval. Please wait for admin approval before logging in.');
+          }
+        }
       }
       
       console.log('✅ Sign in successful for:', email);

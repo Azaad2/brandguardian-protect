@@ -6,6 +6,7 @@ import BrandsDirectory from "@/components/admin/BrandsDirectory";
 import CatalogApprovals from "@/components/admin/CatalogApprovals";
 import UserManagement from "@/pages/admin/UserManagement";
 import ResellerRegistration from "@/pages/admin/ResellerRegistration";
+import ResellerApprovalManager from "@/components/admin/ResellerApprovalManager";
 
 const AdminDashboard = () => {
   console.log('AdminDashboard rendering');
@@ -17,6 +18,7 @@ const AdminDashboard = () => {
         <Routes>
           <Route index element={<AdminOverview />} />
           <Route path="reseller-applications" element={<ResellerRegistration />} />
+          <Route path="reseller-approvals" element={<ResellerApprovalManager />} />
           <Route path="brands-directory" element={<BrandsDirectory />} />
           <Route path="catalog-approvals" element={<CatalogApprovals />} />
           <Route path="user-management" element={<UserManagement />} />

@@ -1,4 +1,3 @@
-
 import { 
   LayoutDashboard,
   Store,
@@ -13,7 +12,8 @@ import {
   UserCog,
   User,
   Bell,
-  Shield
+  Shield,
+  UserCheck
 } from "lucide-react";
 import { NavItem } from "../types";
 
@@ -46,6 +46,7 @@ export const brandNavItems: NavItem[] = [
 export const adminNavItems: NavItem[] = [
   { title: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Reseller Applications", href: "/admin/dashboard/reseller-applications", icon: Users },
+  { title: "Reseller Approvals", href: "/admin/dashboard/reseller-approvals", icon: UserCheck },
   { title: "Brands Directory", href: "/admin/dashboard/brands-directory", icon: Building2 },
   { title: "Catalog Approvals", href: "/admin/dashboard/catalog-approvals", icon: PackageCheck },
   { title: "User Management", href: "/admin/dashboard/user-management", icon: UserCog },
