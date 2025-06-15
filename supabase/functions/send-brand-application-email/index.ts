@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,12 +25,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+    
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     const { brandEmail, brandName, emailThreadId, applicationId, resellerInfo }: EmailRequest = await req.json();
+
+    console.log('Processing brand application email for:', brandEmail);
 
     // Get reseller profile details
     const { data: resellerProfile } = await supabase
@@ -48,12 +53,10 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Sending brand application email to:', brandEmail);
     console.log('Email thread ID:', emailThreadId);
 
-    // For now, we'll use a simple email service (this would be replaced with actual email sending)
-    // In a real implementation, you would integrate with Resend, SendGrid, or similar service
-    
-    const emailContent = {
-      to: brandEmail,
-      from: 'applications@bndbox.com',
+    // Send email using Resend
+    const emailResponse = await resend.emails.send({
+      from: 'BndBox Applications <applications@bndbox.com>',
+      to: [brandEmail],
       replyTo: `applications+${emailThreadId}@bndbox.com`,
       subject: `New Wholesale Application - ${resellerProfile?.company_name || resellerInfo.email}`,
       html: `
@@ -112,23 +115,20 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
         </div>
       `,
-    };
-
-    console.log('Email content prepared:', {
-      to: emailContent.to,
-      subject: emailContent.subject,
-      threadId: emailThreadId
     });
 
-    // In production, you would actually send the email here
-    // For now, we'll just log it and return success
-    console.log('Email would be sent with content:', emailContent);
+    console.log('Email sent successfully:', emailResponse);
+
+    if (emailResponse.error) {
+      throw new Error(`Resend API error: ${emailResponse.error.message}`);
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: 'Application email sent successfully',
-        emailThreadId 
+        emailThreadId,
+        emailId: emailResponse.data?.id
       }), 
       {
         status: 200,
@@ -139,7 +139,10 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error('Error in send-brand-application-email function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Failed to send brand application email'
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
