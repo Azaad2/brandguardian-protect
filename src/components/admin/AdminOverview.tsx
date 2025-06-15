@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,27 +44,41 @@ const AdminOverview = () => {
     queryFn: async () => {
       console.log('Fetching admin overview data...');
       
+      // Check current user session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('Current session:', session?.user?.id, 'Session error:', sessionError);
+      
       // Fetch resellers count from profiles table
       const { data: resellers, error: resellersError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, user_role, email, full_name')
         .eq('user_role', 'reseller');
+
+      console.log('Resellers query result:', { resellers, resellersError });
+      console.log('Resellers count:', resellers?.length);
 
       // Fetch brands count from profiles table
       const { data: brands, error: brandsError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, user_role, email, full_name')
         .eq('user_role', 'brand');
+
+      console.log('Brands query result:', { brands, brandsError });
+      console.log('Brands count:', brands?.length);
 
       // Fetch products count
       const { data: products, error: productsError } = await supabase
         .from('products')
         .select('id');
 
+      console.log('Products query result:', { products, productsError });
+
       // Fetch orders count
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select('id');
+
+      console.log('Orders query result:', { orders, ordersError });
 
       // Fetch pending applications
       const { data: pendingApps, error: pendingAppsError } = await supabase
@@ -71,11 +86,15 @@ const AdminOverview = () => {
         .select('id')
         .eq('status', 'pending');
 
+      console.log('Pending applications query result:', { pendingApps, pendingAppsError });
+
       // Fetch pending product uploads
       const { data: pendingUploads, error: pendingUploadsError } = await supabase
         .from('product_uploads')
         .select('id')
         .eq('status', 'pending');
+
+      console.log('Pending uploads query result:', { pendingUploads, pendingUploadsError });
 
       if (resellersError || brandsError || productsError || ordersError || pendingAppsError || pendingUploadsError) {
         console.error('Error fetching data:', { resellersError, brandsError, productsError, ordersError, pendingAppsError, pendingUploadsError });
@@ -91,7 +110,7 @@ const AdminOverview = () => {
         pendingUploads: pendingUploads?.length || 0,
       };
       
-      console.log('Fetched admin data:', result);
+      console.log('Final fetched admin data:', result);
       return result;
     },
   });
