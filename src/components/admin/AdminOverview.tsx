@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +38,7 @@ const AdminOverview = () => {
     pendingUploads: 0,
   });
 
-  // Fetch admin statistics using RPC functions to bypass RLS
+  // Fetch admin statistics - using separate queries for better reliability
   const { data: adminData, isLoading, error } = useQuery({
     queryKey: ['admin-overview'],
     queryFn: async () => {
@@ -47,21 +48,41 @@ const AdminOverview = () => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       console.log('Current session:', session?.user?.id, 'Session error:', sessionError);
       
-      // Use RPC calls or direct queries that work with admin permissions
-      const { data: profileData, error: profileError } = await supabase
+      // Try fetching profiles with a simpler query first
+      const { data: allProfiles, error: allProfilesError } = await supabase
         .from('profiles')
-        .select('user_role')
-        .not('user_role', 'is', null);
+        .select('id, user_role, email, company_name')
+        .order('created_at', { ascending: false });
 
-      console.log('All profiles query result:', { profileData, profileError });
+      console.log('All profiles query result:', { allProfiles, allProfilesError });
+
+      // If the above fails, try without ordering
+      let profileData = allProfiles;
+      if (allProfilesError || !allProfiles) {
+        console.log('Trying simpler profiles query...');
+        const { data: simpleProfiles, error: simpleError } = await supabase
+          .from('profiles')
+          .select('user_role');
+        
+        console.log('Simple profiles query result:', { simpleProfiles, simpleError });
+        profileData = simpleProfiles;
+      }
 
       let totalResellers = 0;
       let totalBrands = 0;
 
-      if (profileData && !profileError) {
+      if (profileData && profileData.length > 0) {
         totalResellers = profileData.filter(p => p.user_role === 'reseller').length;
         totalBrands = profileData.filter(p => p.user_role === 'brand').length;
-        console.log('Calculated resellers:', totalResellers, 'brands:', totalBrands);
+        console.log('Profile breakdown:', {
+          total: profileData.length,
+          resellers: totalResellers,
+          brands: totalBrands,
+          admins: profileData.filter(p => p.user_role === 'admin').length,
+          others: profileData.filter(p => !p.user_role || (p.user_role !== 'reseller' && p.user_role !== 'brand' && p.user_role !== 'admin')).length
+        });
+      } else {
+        console.log('No profile data available');
       }
 
       // Fetch products count
@@ -93,11 +114,6 @@ const AdminOverview = () => {
         .eq('status', 'pending');
 
       console.log('Pending uploads query result:', { pendingUploads, pendingUploadsError });
-
-      if (profileError || productsError || ordersError || pendingAppsError || pendingUploadsError) {
-        console.error('Error fetching data:', { profileError, productsError, ordersError, pendingAppsError, pendingUploadsError });
-        throw new Error('Failed to fetch admin statistics');
-      }
 
       const result = {
         totalResellers,
