@@ -47,29 +47,20 @@ const AdminOverview = () => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       console.log('Current session:', session?.user?.id, 'Session error:', sessionError);
       
-      // Fetch all profiles with proper error handling
+      // Get all profiles — count resellers by user_role
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, user_role, email, company_name')
         .order('created_at', { ascending: false });
 
-      console.log('Profiles query result:', { profiles, profilesError });
-
       let totalResellers = 0;
       let totalBrands = 0;
 
       if (profiles && !profilesError) {
-        const roleBreakdown = profiles.reduce((acc, profile) => {
-          const role = profile.user_role || 'unknown';
-          acc[role] = (acc[role] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        totalResellers = roleBreakdown.reseller || 0;
-        totalBrands = roleBreakdown.brand || 0;
-
-        console.log('Role breakdown:', roleBreakdown);
-        console.log('Calculated totals - Resellers:', totalResellers, 'Brands:', totalBrands);
+        totalResellers = profiles.filter((profile) => profile.user_role === 'reseller' && !!profile.email).length;
+        totalBrands = profiles.filter((profile) => profile.user_role === 'brand' && !!profile.email).length;
+        console.log('Profiles (for counts):', profiles);
+        console.log('Total resellers:', totalResellers, ' - Total brands:', totalBrands);
       } else {
         console.error('Failed to fetch profiles:', profilesError);
       }
@@ -88,13 +79,14 @@ const AdminOverview = () => {
 
       console.log('Orders query result:', { count: orders?.length || 0, ordersError });
 
-      // Fetch pending applications
+      // Fetch pending reseller applications WITH email/company/status
       const { data: pendingApps, error: pendingAppsError } = await supabase
         .from('reseller_applications')
-        .select('id, email, company_name, status')
-        .eq('status', 'pending');
+        .select('id, email, company_name, status, created_at')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
 
-      console.log('Pending applications query result:', { pendingApps, pendingAppsError });
+      console.log('Pending applications (full):', pendingApps, pendingAppsError);
 
       // Fetch pending product uploads
       const { data: pendingUploads, error: pendingUploadsError } = await supabase
@@ -111,6 +103,7 @@ const AdminOverview = () => {
         totalOrders: orders?.length || 0,
         pendingApplications: pendingApps?.length || 0,
         pendingUploads: pendingUploads?.length || 0,
+        pendingApplicationsList: pendingApps || [], // added full data for rendering below
       };
       
       console.log('Final admin stats:', result);
@@ -315,6 +308,42 @@ const AdminOverview = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Pending Reseller Applications Table */}
+      {stats.pendingApplications > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Pending Reseller Applications</CardTitle>
+            <CardDescription>
+              These resellers have applied and are awaiting account approval.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 text-left">Company</th>
+                    <th className="px-4 py-2 text-left">Email</th>
+                    <th className="px-4 py-2 text-left">Application Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.pendingApplicationsList.map((app: any) => (
+                    <tr key={app.id} className="hover:bg-gray-50 border-b">
+                      <td className="px-4 py-2">{app.company_name}</td>
+                      <td className="px-4 py-2">{app.email}</td>
+                      <td className="px-4 py-2">
+                        {app.created_at ? new Date(app.created_at).toLocaleDateString() : ''}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Activities */}
       <Card>
