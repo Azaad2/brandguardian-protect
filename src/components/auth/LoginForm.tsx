@@ -86,7 +86,10 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
         
         console.log(`🔍 Error analysis - Code: ${errorCode}, Message: ${errorMsg}`);
         
-        if (errorMsg.includes('Invalid login credentials') || errorCode === 'invalid_credentials') {
+        if (errorMsg.includes('pending approval')) {
+          errorMessage = 'Your reseller account is pending approval. Please wait for admin approval before logging in.';
+          errorTitle = 'Account Pending Approval';
+        } else if (errorMsg.includes('Invalid login credentials') || errorCode === 'invalid_credentials') {
           errorMessage = `Account not found or incorrect password for ${data.email}. Please check:
           
           1. Make sure the email is correct

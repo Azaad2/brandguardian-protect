@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -94,6 +95,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       setIsLoading(true);
       console.log(`🔐 Starting sign in process for: ${email}`);
       
+      // First, verify credentials without signing in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -114,7 +116,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         throw error;
       }
 
-      // Check if user is a reseller and if they're approved
+      // Check if user is a reseller and if they're approved BEFORE allowing login
       if (data?.user) {
         const { data: profile } = await supabase
           .from('profiles')
@@ -130,8 +132,13 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
             .single();
 
           if (!resellerApp || resellerApp.status !== 'approved') {
-            // Sign out the user immediately
+            // Sign out the user immediately to prevent any navigation
             await supabase.auth.signOut();
+            
+            // Clear any potential session data
+            localStorage.clear();
+            sessionStorage.clear();
+            
             throw new Error('Your reseller account is pending approval. Please wait for admin approval before logging in.');
           }
         }
