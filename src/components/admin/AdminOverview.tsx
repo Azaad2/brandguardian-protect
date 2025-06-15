@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +37,7 @@ const AdminOverview = () => {
     pendingUploads: 0,
   });
 
-  // Fetch admin statistics - using separate queries for better reliability
+  // Fetch admin statistics with improved error handling
   const { data: adminData, isLoading, error } = useQuery({
     queryKey: ['admin-overview'],
     queryFn: async () => {
@@ -48,41 +47,31 @@ const AdminOverview = () => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       console.log('Current session:', session?.user?.id, 'Session error:', sessionError);
       
-      // Try fetching profiles with a simpler query first
-      const { data: allProfiles, error: allProfilesError } = await supabase
+      // Fetch all profiles with proper error handling
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, user_role, email, company_name')
         .order('created_at', { ascending: false });
 
-      console.log('All profiles query result:', { allProfiles, allProfilesError });
-
-      // If the above fails, try without ordering
-      let profileData = allProfiles;
-      if (allProfilesError || !allProfiles) {
-        console.log('Trying simpler profiles query...');
-        const { data: simpleProfiles, error: simpleError } = await supabase
-          .from('profiles')
-          .select('user_role');
-        
-        console.log('Simple profiles query result:', { simpleProfiles, simpleError });
-        profileData = simpleProfiles;
-      }
+      console.log('Profiles query result:', { profiles, profilesError });
 
       let totalResellers = 0;
       let totalBrands = 0;
 
-      if (profileData && profileData.length > 0) {
-        totalResellers = profileData.filter(p => p.user_role === 'reseller').length;
-        totalBrands = profileData.filter(p => p.user_role === 'brand').length;
-        console.log('Profile breakdown:', {
-          total: profileData.length,
-          resellers: totalResellers,
-          brands: totalBrands,
-          admins: profileData.filter(p => p.user_role === 'admin').length,
-          others: profileData.filter(p => !p.user_role || (p.user_role !== 'reseller' && p.user_role !== 'brand' && p.user_role !== 'admin')).length
-        });
+      if (profiles && !profilesError) {
+        const roleBreakdown = profiles.reduce((acc, profile) => {
+          const role = profile.user_role || 'unknown';
+          acc[role] = (acc[role] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        totalResellers = roleBreakdown.reseller || 0;
+        totalBrands = roleBreakdown.brand || 0;
+
+        console.log('Role breakdown:', roleBreakdown);
+        console.log('Calculated totals - Resellers:', totalResellers, 'Brands:', totalBrands);
       } else {
-        console.log('No profile data available');
+        console.error('Failed to fetch profiles:', profilesError);
       }
 
       // Fetch products count
@@ -90,19 +79,19 @@ const AdminOverview = () => {
         .from('products')
         .select('id');
 
-      console.log('Products query result:', { products, productsError });
+      console.log('Products query result:', { count: products?.length || 0, productsError });
 
       // Fetch orders count
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select('id');
 
-      console.log('Orders query result:', { orders, ordersError });
+      console.log('Orders query result:', { count: orders?.length || 0, ordersError });
 
       // Fetch pending applications
       const { data: pendingApps, error: pendingAppsError } = await supabase
         .from('reseller_applications')
-        .select('id')
+        .select('id, email, company_name, status')
         .eq('status', 'pending');
 
       console.log('Pending applications query result:', { pendingApps, pendingAppsError });
@@ -124,7 +113,7 @@ const AdminOverview = () => {
         pendingUploads: pendingUploads?.length || 0,
       };
       
-      console.log('Final fetched admin data:', result);
+      console.log('Final admin stats:', result);
       return result;
     },
   });
