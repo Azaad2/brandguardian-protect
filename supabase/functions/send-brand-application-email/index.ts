@@ -92,7 +92,16 @@ const handler = async (req: Request): Promise<Response> => {
             
             <p><strong>How to respond:</strong></p>
             <p>Simply reply to this email to communicate directly with the reseller. Your responses will appear in their BndBox portal in real-time, creating a seamless communication experience.</p>
-            
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="mailto:applications+${emailThreadId}@bndbox.com?subject=Application%20Approved&body=Approved"
+                style="background-color: #38a169; color: white; padding: 10px 20px; margin-right: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                Approve
+              </a>
+              <a href="mailto:applications+${emailThreadId}@bndbox.com?subject=Application%20Rejected&body=Rejected"
+                style="background-color: #e53e3e; color: white; padding: 10px 20px; margin-left: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                Reject
+              </a>
+            </div>
             <div style="background: #e6fffa; border-left: 4px solid #38b2ac; padding: 15px; margin: 20px 0;">
               <p style="margin: 0;"><strong>BndBox Benefits:</strong></p>
               <ul style="margin: 10px 0 0 0; padding-left: 20px;">
@@ -110,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div style="background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #718096;">
-            <p>© 2024 BndBox. All rights reserved.</p>
+            <p>© 2025 BndBox. All rights reserved.</p>
             <p>This email was sent regarding a wholesale application on the BndBox platform.</p>
           </div>
         </div>
