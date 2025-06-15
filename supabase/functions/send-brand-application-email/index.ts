@@ -90,18 +90,20 @@ const handler = async (req: Request): Promise<Response> => {
               ` : ''}
             </div>
             
-            <p><strong>How to respondgggggggg:</strong></p>
+            <p><strong>How to respond:</strong></p>
             <p>Simply reply to this email to communicate directly with the reseller. Your responses will appear in their BndBox portal in real-time, creating a seamless communication experience.</p>
-            <div style="text-align: center; margin-top: 30px;">
-              <a href="mailto:applications+${emailThreadId}@bndbox.com?subject=Application%20Approved&body=Approved"
-                style="background-color: #38a169; color: white; padding: 10px 20px; margin-right: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                Approve
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="mailto:applications+${emailThreadId}@bndbox.com?subject=Application%20Approved&body=Congratulations!%20Your%20application%20has%20been%20approved.%20We%20look%20forward%20to%20working%20with%20you."
+                style="background-color: #38a169; color: white; padding: 12px 24px; margin: 0 10px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
+                ✅ Approve Application
               </a>
-              <a href="mailto:applications+${emailThreadId}@bndbox.com?subject=Application%20Rejected&body=Rejected"
-                style="background-color: #e53e3e; color: white; padding: 10px 20px; margin-left: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                Reject
+              <a href="mailto:applications+${emailThreadId}@bndbox.com?subject=Application%20Rejected&body=Thank%20you%20for%20your%20interest.%20Unfortunately,%20we%20cannot%20approve%20your%20application%20at%20this%20time."
+                style="background-color: #e53e3e; color: white; padding: 12px 24px; margin: 0 10px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
+                ❌ Reject Application
               </a>
             </div>
+            
             <div style="background: #e6fffa; border-left: 4px solid #38b2ac; padding: 15px; margin: 20px 0;">
               <p style="margin: 0;"><strong>BndBox Benefits:</strong></p>
               <ul style="margin: 10px 0 0 0; padding-left: 20px;">
