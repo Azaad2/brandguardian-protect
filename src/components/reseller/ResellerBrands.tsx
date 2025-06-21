@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ExternalLink, Check, Clock, X } from "lucide-react";
+import { AlertCircle, Check, Clock, X } from "lucide-react";
 import { useAvailableBrands, useBrandApplications } from "@/hooks/use-brand-applications";
 
 const ResellerBrands = () => {
@@ -45,7 +45,7 @@ const ResellerBrands = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Available Brands</h1>
+          <h1 className="text-3xl font-bold">Available Departments</h1>
           <p className="text-muted-foreground">Discover and apply to wholesale opportunities</p>
         </div>
         
@@ -53,7 +53,7 @@ const ResellerBrands = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {error instanceof Error ? error.message : 'Failed to load available brands'}
+            {error instanceof Error ? error.message : 'Failed to load available departments'}
           </AlertDescription>
         </Alert>
       </div>
@@ -63,7 +63,7 @@ const ResellerBrands = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Available Brands</h1>
+        <h1 className="text-3xl font-bold">Available Departments</h1>
         <p className="text-muted-foreground">Discover and apply to wholesale opportunities with one click</p>
       </div>
 
@@ -86,7 +86,7 @@ const ResellerBrands = () => {
         <Card>
           <CardContent className="text-center py-8">
             <div className="text-muted-foreground">
-              No brands are currently available for applications. Check back later!
+              No departments are currently available for applications. Check back later!
             </div>
           </CardContent>
         </Card>
@@ -100,22 +100,23 @@ const ResellerBrands = () => {
                     {brand.logo_url && (
                       <img 
                         src={brand.logo_url} 
-                        alt={`${brand.name} logo`}
+                        alt={`${brand.department || 'Department'} logo`}
                         className="w-12 h-12 rounded object-cover"
                       />
                     )}
                     <div>
-                      <CardTitle className="text-lg">{brand.name}</CardTitle>
-                      {brand.website_url && (
-                        <a 
-                          href={brand.website_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1"
-                        >
-                          Visit Website
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                      <CardTitle className="text-lg">
+                        {brand.department || 'General Department'}
+                      </CardTitle>
+                      {brand.approval_rate && (
+                        <div className="text-sm text-muted-foreground">
+                          Approval Rate: {brand.approval_rate}%
+                        </div>
+                      )}
+                      {brand.response_time && (
+                        <div className="text-sm text-muted-foreground">
+                          Response Time: {brand.response_time}h
+                        </div>
                       )}
                     </div>
                   </div>
