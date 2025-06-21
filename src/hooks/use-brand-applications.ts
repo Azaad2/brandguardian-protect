@@ -20,6 +20,9 @@ export interface BrandApplication {
     contact_email: string;
     logo_url: string | null;
     categories: string[] | null;
+    department: string | null;
+    approval_rate: number | null;
+    response_time: number | null;
   };
 }
 
@@ -43,7 +46,10 @@ export const useBrandApplications = () => {
             description,
             contact_email,
             logo_url,
-            categories
+            categories,
+            department,
+            approval_rate,
+            response_time
           )
         `)
         .eq('reseller_id', user.id)
@@ -80,7 +86,10 @@ export const useBrandApplications = () => {
             description,
             contact_email,
             logo_url,
-            categories
+            categories,
+            department,
+            approval_rate,
+            response_time
           )
         `)
         .single();
@@ -136,10 +145,10 @@ export const useAvailableBrands = () => {
     queryFn: async () => {
       if (!user) return [];
 
-      // Get all active brands
+      // Get all active brands with the new fields
       const { data: brands, error: brandsError } = await supabase
         .from('brands_directory')
-        .select('*')
+        .select('id, name, website_url, description, contact_email, logo_url, categories, is_active, department, approval_rate, response_time, created_at, updated_at')
         .eq('is_active', true)
         .order('name');
 
