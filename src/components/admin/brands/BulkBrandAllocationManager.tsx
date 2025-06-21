@@ -92,7 +92,7 @@ const BulkBrandAllocationManager = () => {
       );
       
       const errors = results
-        .filter((result): result is PromiseRejectedReason => result.status === 'rejected')
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
         .map(result => result.reason);
       
       if (errors.length > 0) {
