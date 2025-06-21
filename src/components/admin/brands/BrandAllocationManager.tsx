@@ -51,17 +51,38 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
   const { data: allocations = [], isLoading } = useQuery({
     queryKey: ['brand-allocations', brand.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get the allocations
+      const { data: allocationData, error: allocationError } = await supabase
         .from('brand_reseller_allocations')
-        .select(`
-          reseller_id,
-          allocated_at,
-          profiles!reseller_id(id, full_name, company_name, email)
-        `)
+        .select('reseller_id, allocated_at')
         .eq('brand_id', brand.id);
       
-      if (error) throw error;
-      return data as BrandAllocation[];
+      if (allocationError) throw allocationError;
+      
+      if (!allocationData || allocationData.length === 0) {
+        return [];
+      }
+
+      // Then get the profiles for those resellers
+      const resellerIds = allocationData.map(allocation => allocation.reseller_id);
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, company_name, email')
+        .in('id', resellerIds);
+      
+      if (profileError) throw profileError;
+
+      // Combine the data
+      return allocationData.map(allocation => ({
+        reseller_id: allocation.reseller_id,
+        allocated_at: allocation.allocated_at,
+        profiles: profileData?.find(profile => profile.id === allocation.reseller_id) || {
+          id: allocation.reseller_id,
+          full_name: null,
+          company_name: null,
+          email: 'Unknown'
+        }
+      })) as BrandAllocation[];
     },
     enabled: isOpen,
   });
