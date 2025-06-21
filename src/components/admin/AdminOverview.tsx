@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,13 +9,13 @@ import { Users, Package, ShoppingCart, AlertTriangle, TrendingUp, FileText } fro
 import { useQuery } from '@tanstack/react-query';
 
 interface AdminStats {
-  resellers: number;
+  totalResellers: number;
   totalBrands: number;
   totalProducts: number;
   totalOrders: number;
   pendingApplications: number;
   pendingUploads: number;
-  pendingApplicationsList?: any[]; // New property for the pending applications list
+  pendingApplicationsList?: any[];
 }
 
 interface RecentActivity {
@@ -30,7 +31,7 @@ const AdminOverview = () => {
   console.log('AdminOverview component rendering');
   
   const [stats, setStats] = useState<AdminStats>({
-    resellers: 0,
+    totalResellers: 0,
     totalBrands: 0,
     totalProducts: 0,
     totalOrders: 0,
@@ -104,7 +105,7 @@ const AdminOverview = () => {
         totalOrders: orders?.length || 0,
         pendingApplications: pendingApps?.length || 0,
         pendingUploads: pendingUploads?.length || 0,
-        pendingApplicationsList: pendingApps || [], // added full data for rendering below
+        pendingApplicationsList: pendingApps || [],
       };
       
       console.log('Final admin stats:', result);
@@ -311,7 +312,7 @@ const AdminOverview = () => {
       </div>
 
       {/* Pending Reseller Applications Table */}
-      {stats.pendingApplications > 0 && (
+      {stats.pendingApplications > 0 && stats.pendingApplicationsList && (
         <Card>
           <CardHeader>
             <CardTitle>Pending Reseller Applications</CardTitle>
