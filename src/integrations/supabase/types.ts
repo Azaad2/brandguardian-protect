@@ -52,38 +52,47 @@ export type Database = {
       }
       brands_directory: {
         Row: {
+          approval_rate: number | null
           categories: string[] | null
           contact_email: string
           created_at: string
+          department: string | null
           description: string | null
           id: string
           is_active: boolean
           logo_url: string | null
           name: string
+          response_time: number | null
           updated_at: string
           website_url: string | null
         }
         Insert: {
+          approval_rate?: number | null
           categories?: string[] | null
           contact_email: string
           created_at?: string
+          department?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
           logo_url?: string | null
           name: string
+          response_time?: number | null
           updated_at?: string
           website_url?: string | null
         }
         Update: {
+          approval_rate?: number | null
           categories?: string[] | null
           contact_email?: string
           created_at?: string
+          department?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
           logo_url?: string | null
           name?: string
+          response_time?: number | null
           updated_at?: string
           website_url?: string | null
         }

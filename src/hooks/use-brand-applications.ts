@@ -96,19 +96,21 @@ export const useBrandApplications = () => {
       
       if (error) throw error;
 
-      // Send email notification to brand
-      await supabase.functions.invoke('send-brand-application-email', {
-        body: {
-          brandEmail: data.brand.contact_email,
-          brandName: data.brand.name,
-          emailThreadId,
-          applicationId: data.id,
-          resellerInfo: {
-            id: user.id,
-            email: user.email,
+      // Send email notification to brand if contact email exists
+      if (data.brand?.contact_email) {
+        await supabase.functions.invoke('send-brand-application-email', {
+          body: {
+            brandEmail: data.brand.contact_email,
+            brandName: data.brand.name,
+            emailThreadId,
+            applicationId: data.id,
+            resellerInfo: {
+              id: user.id,
+              email: user.email,
+            }
           }
-        }
-      });
+        });
+      }
 
       return data;
     },
