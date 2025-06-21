@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,8 @@ import { useAvailableBrands, useBrandApplications } from "@/hooks/use-brand-appl
 
 const ResellerBrands = () => {
   const { data: brands = [], isLoading, isError, error } = useAvailableBrands();
-  const { applyToBrand, isApplying } = useBrandApplications();
+  const { applyToBrand } = useBrandApplications();
+  const [applyingBrandId, setApplyingBrandId] = useState<string | null>(null);
 
   const getStatusIcon = (status: string | null) => {
     switch (status) {
@@ -37,8 +39,13 @@ const ResellerBrands = () => {
     }
   };
 
-  const handleApply = (brandId: string) => {
-    applyToBrand({ brandId });
+  const handleApply = async (brandId: string) => {
+    setApplyingBrandId(brandId);
+    try {
+      await applyToBrand({ brandId });
+    } finally {
+      setApplyingBrandId(null);
+    }
   };
 
   if (isError) {
@@ -151,10 +158,10 @@ const ResellerBrands = () => {
                   ) : (
                     <Button 
                       onClick={() => handleApply(brand.id)}
-                      disabled={isApplying}
+                      disabled={applyingBrandId === brand.id}
                       className="w-full"
                     >
-                      {isApplying ? 'Applying...' : 'Apply Now'}
+                      {applyingBrandId === brand.id ? 'Applying...' : 'Apply Now'}
                     </Button>
                   )}
                 </div>
