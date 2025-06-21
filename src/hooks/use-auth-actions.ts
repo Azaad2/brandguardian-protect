@@ -125,22 +125,70 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
           .single();
 
         if (profile?.user_role === 'reseller') {
-          const { data: resellerApp } = await supabase
+          console.log('🔍 Checking reseller approval status for:', email);
+          
+          const { data: resellerApp, error: appError } = await supabase
             .from('reseller_applications')
             .select('status')
             .eq('user_id', data.user.id)
-            .single();
+            .maybeSingle();
 
-          if (!resellerApp || resellerApp.status !== 'approved') {
-            // Sign out the user immediately to prevent any navigation
-            await supabase.auth.signOut();
+          console.log('📋 Reseller application check:', { 
+            found: !!resellerApp, 
+            status: resellerApp?.status,
+            error: appError?.message 
+          });
+
+          // If no application found, create a pending one
+          if (!resellerApp && !appError) {
+            console.log('📝 No application found, creating pending application');
             
-            // Clear any potential session data
+            const { error: createError } = await supabase
+              .from('reseller_applications')
+              .insert({
+                user_id: data.user.id,
+                email: data.user.email || email,
+                company_name: profile?.user_role || 'Unknown Company',
+                business_type: 'Unknown',
+                ein_number: 'Not Provided',
+                product_categories: ['General'],
+                sales_volume: 'Unknown',
+                wholesale_budget: 'Unknown',
+                phone: 'Not Provided',
+                status: 'pending'
+              });
+
+            if (createError) {
+              console.error('❌ Error creating reseller application:', createError);
+            } else {
+              console.log('✅ Created pending reseller application');
+            }
+
+            // Sign out the user and show pending message
+            await supabase.auth.signOut();
             localStorage.clear();
             sessionStorage.clear();
             
-            throw new Error('Your reseller account is pending approval. Please wait for admin approval before logging in.');
+            throw new Error('Your reseller account is pending approval. An application has been created for admin review. Please wait for admin approval before logging in.');
           }
+
+          // If application exists but not approved
+          if (resellerApp && resellerApp.status !== 'approved') {
+            console.log('⏳ Reseller application status:', resellerApp.status);
+            
+            // Sign out the user immediately to prevent any navigation
+            await supabase.auth.signOut();
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            const statusMessage = resellerApp.status === 'rejected' 
+              ? 'Your reseller application has been rejected. Please contact support for more information.'
+              : 'Your reseller account is pending approval. Please wait for admin approval before logging in.';
+            
+            throw new Error(statusMessage);
+          }
+
+          console.log('✅ Reseller application approved, allowing login');
         }
       }
       
