@@ -486,11 +486,11 @@ export type Database = {
         Returns: string
       }
       admin_allocate_brand_to_reseller: {
-        Args: { brand_id: string; reseller_id: string }
+        Args: { p_brand_id: string; p_reseller_id: string }
         Returns: boolean
       }
       admin_delete_brand: {
-        Args: { brand_id: string }
+        Args: { p_brand_id: string }
         Returns: boolean
       }
       admin_get_brands: {
@@ -509,7 +509,7 @@ export type Database = {
         }[]
       }
       admin_remove_brand_allocation: {
-        Args: { brand_id: string; reseller_id: string }
+        Args: { p_brand_id: string; p_reseller_id: string }
         Returns: boolean
       }
       admin_update_brand: {
