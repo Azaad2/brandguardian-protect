@@ -133,7 +133,7 @@ export const useBrands = () => {
   const deleteBrandMutation = useMutation({
     mutationFn: async (brandId: string) => {
       const { data, error } = await supabase.rpc('admin_delete_brand', {
-        brand_id: brandId
+        p_brand_id: brandId
       });
       
       if (error) throw error;

@@ -91,8 +91,8 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
   const allocateMutation = useMutation({
     mutationFn: async (resellerId: string) => {
       const { data, error } = await supabase.rpc('admin_allocate_brand_to_reseller', {
-        brand_id: brand.id,
-        reseller_id: resellerId
+        p_brand_id: brand.id,
+        p_reseller_id: resellerId
       });
       
       if (error) throw error;
@@ -120,8 +120,8 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
   const removeAllocationMutation = useMutation({
     mutationFn: async (resellerId: string) => {
       const { data, error } = await supabase.rpc('admin_remove_brand_allocation', {
-        brand_id: brand.id,
-        reseller_id: resellerId
+        p_brand_id: brand.id,
+        p_reseller_id: resellerId
       });
       
       if (error) throw error;
