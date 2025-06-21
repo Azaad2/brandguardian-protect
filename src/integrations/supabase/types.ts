@@ -50,6 +50,38 @@ export type Database = {
           },
         ]
       }
+      brand_reseller_allocations: {
+        Row: {
+          allocated_at: string
+          allocated_by: string
+          brand_id: string
+          id: string
+          reseller_id: string
+        }
+        Insert: {
+          allocated_at?: string
+          allocated_by: string
+          brand_id: string
+          id?: string
+          reseller_id: string
+        }
+        Update: {
+          allocated_at?: string
+          allocated_by?: string
+          brand_id?: string
+          id?: string
+          reseller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_reseller_allocations_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brands_directory: {
         Row: {
           approval_rate: number | null
@@ -453,6 +485,14 @@ export type Database = {
         Args: { brand_data: Json }
         Returns: string
       }
+      admin_allocate_brand_to_reseller: {
+        Args: { brand_id: string; reseller_id: string }
+        Returns: boolean
+      }
+      admin_delete_brand: {
+        Args: { brand_id: string }
+        Returns: boolean
+      }
       admin_get_brands: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -467,6 +507,10 @@ export type Database = {
           created_at: string
           updated_at: string
         }[]
+      }
+      admin_remove_brand_allocation: {
+        Args: { brand_id: string; reseller_id: string }
+        Returns: boolean
       }
       admin_update_brand: {
         Args: { brand_id: string; brand_data: Json }

@@ -2,16 +2,19 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Edit, Eye, EyeOff } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Edit, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { Brand } from './types';
+import BrandAllocationManager from './BrandAllocationManager';
 
 interface BrandsTableProps {
   brands: Brand[];
   onEdit: (brand: Brand) => void;
   onToggleStatus: (brand: Brand) => void;
+  onDelete: (brand: Brand) => void;
 }
 
-const BrandsTable = ({ brands, onEdit, onToggleStatus }: BrandsTableProps) => {
+const BrandsTable = ({ brands, onEdit, onToggleStatus, onDelete }: BrandsTableProps) => {
   return (
     <Table>
       <TableHeader>
@@ -100,6 +103,28 @@ const BrandsTable = ({ brands, onEdit, onToggleStatus }: BrandsTableProps) => {
                     <Eye className="h-4 w-4" />
                   )}
                 </Button>
+                <BrandAllocationManager brand={brand} />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Brand</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{brand.name}"? This action cannot be undone and will remove all associated data including applications and allocations.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => onDelete(brand)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </TableCell>
           </TableRow>

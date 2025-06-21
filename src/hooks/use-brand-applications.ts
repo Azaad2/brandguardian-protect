@@ -147,20 +147,43 @@ export const useAvailableBrands = () => {
     queryFn: async () => {
       if (!user) return [];
 
-      // Get all active brands with the new fields
-      const { data: brands, error: brandsError } = await supabase
-        .from('brands_directory')
-        .select('id, name, website_url, description, contact_email, logo_url, categories, is_active, department, approval_rate, response_time, created_at, updated_at')
-        .eq('is_active', true)
-        .order('name');
+      // Get brands allocated to this reseller
+      const { data: allocatedBrands, error: allocationsError } = await supabase
+        .from('brand_reseller_allocations')
+        .select(`
+          brand_id,
+          brands_directory(
+            id,
+            name,
+            website_url,
+            description,
+            contact_email,
+            logo_url,
+            categories,
+            is_active,
+            department,
+            approval_rate,
+            response_time,
+            created_at,
+            updated_at
+          )
+        `)
+        .eq('reseller_id', user.id);
 
-      if (brandsError) throw brandsError;
+      if (allocationsError) throw allocationsError;
 
-      // Get user's applications
+      // Filter out null brands and only include active ones
+      const activeBrands = allocatedBrands
+        .filter(allocation => allocation.brands_directory && allocation.brands_directory.is_active)
+        .map(allocation => allocation.brands_directory);
+
+      // Get user's applications for these brands
+      const brandIds = activeBrands.map(brand => brand.id);
       const { data: applications, error: appsError } = await supabase
         .from('brand_applications')
         .select('brand_id, status')
-        .eq('reseller_id', user.id);
+        .eq('reseller_id', user.id)
+        .in('brand_id', brandIds);
 
       if (appsError) throw appsError;
 
@@ -169,7 +192,7 @@ export const useAvailableBrands = () => {
         applications.map(app => [app.brand_id, app.status])
       );
 
-      return brands.map(brand => ({
+      return activeBrands.map(brand => ({
         ...brand,
         applicationStatus: applicationMap.get(brand.id) || null,
       }));

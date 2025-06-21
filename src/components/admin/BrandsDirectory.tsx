@@ -22,6 +22,7 @@ const BrandsDirectory = () => {
     addBrandMutation,
     updateBrandMutation,
     toggleStatusMutation,
+    deleteBrandMutation,
   } = useBrands();
 
   const resetForm = () => {
@@ -78,6 +79,10 @@ const BrandsDirectory = () => {
     });
   };
 
+  const handleDelete = (brand: Brand) => {
+    deleteBrandMutation.mutate(brand.id);
+  };
+
   const handleBulkUploadSuccess = () => {
     setIsBulkUploadDialogOpen(false);
     // Brands will be refetched automatically due to query invalidation
@@ -88,7 +93,7 @@ const BrandsDirectory = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Brands Directory</h1>
-          <p className="text-muted-foreground">Manage brands available for reseller applications</p>
+          <p className="text-muted-foreground">Manage brands and their reseller allocations</p>
         </div>
         
         <div className="flex gap-2">
@@ -133,7 +138,7 @@ const BrandsDirectory = () => {
         <CardHeader>
           <CardTitle>All Brands</CardTitle>
           <CardDescription>
-            {brands.length} brands in directory
+            {brands.length} brands in directory. Use "Manage Access" to control which resellers can see each brand.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -144,6 +149,7 @@ const BrandsDirectory = () => {
               brands={brands}
               onEdit={handleEdit}
               onToggleStatus={toggleBrandStatus}
+              onDelete={handleDelete}
             />
           )}
         </CardContent>

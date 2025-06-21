@@ -129,11 +129,40 @@ export const useBrands = () => {
     },
   });
 
+  // Delete brand mutation
+  const deleteBrandMutation = useMutation({
+    mutationFn: async (brandId: string) => {
+      const { data, error } = await supabase.rpc('admin_delete_brand', {
+        brand_id: brandId
+      });
+      
+      if (error) throw error;
+      if (!data) throw new Error('Failed to delete brand');
+      
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['brands-directory'] });
+      toast({
+        title: 'Brand Deleted',
+        description: 'Brand has been successfully deleted.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to delete brand: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
   return {
     brands,
     isLoading,
     addBrandMutation,
     updateBrandMutation,
     toggleStatusMutation,
+    deleteBrandMutation,
   };
 };
