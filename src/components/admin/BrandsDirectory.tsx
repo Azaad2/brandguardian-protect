@@ -10,6 +10,7 @@ import { Brand, BrandFormData } from './brands/types';
 import BrandForm from './brands/BrandForm';
 import BrandsTable from './brands/BrandsTable';
 import BrandCSVUpload from './brands/BrandCSVUpload';
+import BulkBrandAllocationManager from './brands/BulkBrandAllocationManager';
 
 const BrandsDirectory = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -97,6 +98,8 @@ const BrandsDirectory = () => {
         </div>
         
         <div className="flex gap-2">
+          <BulkBrandAllocationManager />
+          
           <Dialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">
@@ -138,7 +141,7 @@ const BrandsDirectory = () => {
         <CardHeader>
           <CardTitle>All Brands</CardTitle>
           <CardDescription>
-            {brands.length} brands in directory. Use "Manage Access" to control which resellers can see each brand.
+            {brands.length} brands in directory. Use "Manage Access" for individual brand allocation or "Bulk Allocate Brands" for multiple brands at once.
           </CardDescription>
         </CardHeader>
         <CardContent>
