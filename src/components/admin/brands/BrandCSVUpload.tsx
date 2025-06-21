@@ -37,9 +37,9 @@ const BrandCSVUpload = ({ onSuccess }: BrandCSVUploadProps) => {
   };
 
   const downloadTemplate = () => {
-    const csvContent = `name,website_url,description,contact_email,logo_url,categories
-"Example Brand","https://example.com","Premium quality products","contact@example.com","https://example.com/logo.png","Electronics,Gadgets"
-"Another Brand","https://anotherbrand.com","Sustainable fashion","hello@anotherbrand.com","","Fashion,Sustainable"`;
+    const csvContent = `name,website_url,description,contact_email,logo_url,categories,approval_rate,response_time
+"Example Brand","https://example.com","Premium quality products","contact@example.com","https://example.com/logo.png","Electronics,Gadgets","95.5","12"
+"Another Brand","https://anotherbrand.com","Sustainable fashion","hello@anotherbrand.com","","Fashion,Sustainable","88.2","24"`;
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);

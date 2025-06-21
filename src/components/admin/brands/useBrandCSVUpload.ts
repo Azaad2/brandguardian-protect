@@ -22,6 +22,8 @@ interface BrandCSVRow {
   contact_email: string;
   logo_url: string;
   categories: string;
+  approval_rate: string;
+  response_time: string;
 }
 
 export const useBrandCSVUpload = () => {
@@ -71,6 +73,12 @@ export const useBrandCSVUpload = () => {
     if (brand.contact_email && !/\S+@\S+\.\S+/.test(brand.contact_email)) {
       return 'Invalid email format';
     }
+    if (brand.approval_rate && (isNaN(parseFloat(brand.approval_rate)) || parseFloat(brand.approval_rate) < 0 || parseFloat(brand.approval_rate) > 100)) {
+      return 'Approval rate must be a number between 0 and 100';
+    }
+    if (brand.response_time && (isNaN(parseFloat(brand.response_time)) || parseFloat(brand.response_time) < 0)) {
+      return 'Response time must be a positive number';
+    }
     return null;
   };
 
@@ -109,6 +117,8 @@ export const useBrandCSVUpload = () => {
             logo_url: brand.logo_url?.trim() || null,
             categories: brand.categories?.trim() ? 
               brand.categories.split(',').map(c => c.trim()).filter(c => c) : [],
+            approval_rate: brand.approval_rate?.trim() ? parseFloat(brand.approval_rate) : null,
+            response_time: brand.response_time?.trim() ? parseFloat(brand.response_time) : null,
             is_active: true
           });
         }

@@ -39,6 +39,9 @@ const BrandsDirectory = () => {
       ? formData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
       : [];
     
+    const approvalRate = formData.approval_rate ? parseFloat(formData.approval_rate) : null;
+    const responseTime = formData.response_time ? parseFloat(formData.response_time) : null;
+    
     if (editingBrand) {
       updateBrandMutation.mutate({
         id: editingBrand.id,
@@ -48,6 +51,8 @@ const BrandsDirectory = () => {
         contact_email: formData.contact_email,
         logo_url: formData.logo_url,
         categories: categoriesArray,
+        approval_rate: approvalRate,
+        response_time: responseTime,
       });
     } else {
       addBrandMutation.mutate({
@@ -57,6 +62,8 @@ const BrandsDirectory = () => {
         contact_email: formData.contact_email,
         logo_url: formData.logo_url,
         categories: categoriesArray,
+        approval_rate: approvalRate,
+        response_time: responseTime,
         is_active: true,
       });
     }

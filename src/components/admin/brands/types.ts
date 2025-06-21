@@ -8,6 +8,8 @@ export interface Brand {
   logo_url: string | null;
   categories: string[] | null;
   is_active: boolean;
+  approval_rate: number | null;
+  response_time: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -19,4 +21,6 @@ export interface BrandFormData {
   contact_email: string;
   logo_url: string;
   categories: string;
+  approval_rate: string;
+  response_time: string;
 }

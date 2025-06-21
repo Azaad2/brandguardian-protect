@@ -21,6 +21,8 @@ const BrandForm = ({ editingBrand, onSubmit, onCancel, isLoading }: BrandFormPro
     contact_email: editingBrand?.contact_email || '',
     logo_url: editingBrand?.logo_url || '',
     categories: editingBrand?.categories?.join(', ') || '',
+    approval_rate: editingBrand?.approval_rate?.toString() || '',
+    response_time: editingBrand?.response_time?.toString() || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -71,6 +73,34 @@ const BrandForm = ({ editingBrand, onSubmit, onCancel, isLoading }: BrandFormPro
             value={formData.logo_url}
             onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
             placeholder="https://example.com/logo.png"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="approval_rate">Approval Rate (%)</Label>
+          <Input
+            id="approval_rate"
+            type="number"
+            min="0"
+            max="100"
+            step="0.1"
+            value={formData.approval_rate}
+            onChange={(e) => setFormData({ ...formData, approval_rate: e.target.value })}
+            placeholder="85.5"
+          />
+        </div>
+        <div>
+          <Label htmlFor="response_time">Response Time (hours)</Label>
+          <Input
+            id="response_time"
+            type="number"
+            min="0"
+            step="0.1"
+            value={formData.response_time}
+            onChange={(e) => setFormData({ ...formData, response_time: e.target.value })}
+            placeholder="24"
           />
         </div>
       </div>
