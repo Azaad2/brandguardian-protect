@@ -10,8 +10,7 @@ import { useAvailableBrands, useBrandApplications } from "@/hooks/use-brand-appl
 
 const ResellerBrands = () => {
   const { data: brands = [], isLoading, isError, error } = useAvailableBrands();
-  const { applyToBrand } = useBrandApplications();
-  const [applyingBrandId, setApplyingBrandId] = useState<string | null>(null);
+  const { applyToBrand, isApplying } = useBrandApplications();
 
   const getStatusIcon = (status: string | null) => {
     switch (status) {
@@ -40,12 +39,7 @@ const ResellerBrands = () => {
   };
 
   const handleApply = async (brandId: string) => {
-    setApplyingBrandId(brandId);
-    try {
-      await applyToBrand({ brandId });
-    } finally {
-      setApplyingBrandId(null);
-    }
+    await applyToBrand({ brandId });
   };
 
   if (isError) {
@@ -158,10 +152,10 @@ const ResellerBrands = () => {
                   ) : (
                     <Button 
                       onClick={() => handleApply(brand.id)}
-                      disabled={applyingBrandId === brand.id}
+                      disabled={isApplying}
                       className="w-full"
                     >
-                      {applyingBrandId === brand.id ? 'Applying...' : 'Apply Now'}
+                      {isApplying ? 'Applying...' : 'Apply Now'}
                     </Button>
                   )}
                 </div>
