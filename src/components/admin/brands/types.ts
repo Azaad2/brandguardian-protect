@@ -10,6 +10,7 @@ export interface Brand {
   is_active: boolean;
   approval_rate: number | null;
   response_time: number | null;
+  department: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -23,4 +24,5 @@ export interface BrandFormData {
   categories: string;
   approval_rate: string;
   response_time: string;
+  department: string;
 }

@@ -53,6 +53,7 @@ const BrandsDirectory = () => {
         categories: categoriesArray,
         approval_rate: approvalRate,
         response_time: responseTime,
+        department: formData.department,
       });
     } else {
       addBrandMutation.mutate({
@@ -64,6 +65,7 @@ const BrandsDirectory = () => {
         categories: categoriesArray,
         approval_rate: approvalRate,
         response_time: responseTime,
+        department: formData.department,
         is_active: true,
       });
     }

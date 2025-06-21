@@ -23,6 +23,7 @@ const BrandForm = ({ editingBrand, onSubmit, onCancel, isLoading }: BrandFormPro
     categories: editingBrand?.categories?.join(', ') || '',
     approval_rate: editingBrand?.approval_rate?.toString() || '',
     response_time: editingBrand?.response_time?.toString() || '',
+    department: editingBrand?.department || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -77,7 +78,7 @@ const BrandForm = ({ editingBrand, onSubmit, onCancel, isLoading }: BrandFormPro
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <Label htmlFor="approval_rate">Approval Rate (%)</Label>
           <Input
@@ -101,6 +102,15 @@ const BrandForm = ({ editingBrand, onSubmit, onCancel, isLoading }: BrandFormPro
             value={formData.response_time}
             onChange={(e) => setFormData({ ...formData, response_time: e.target.value })}
             placeholder="24"
+          />
+        </div>
+        <div>
+          <Label htmlFor="department">Department</Label>
+          <Input
+            id="department"
+            value={formData.department}
+            onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+            placeholder="Electronics"
           />
         </div>
       </div>

@@ -24,6 +24,7 @@ interface BrandCSVRow {
   categories: string;
   approval_rate: string;
   response_time: string;
+  department: string;
 }
 
 export const useBrandCSVUpload = () => {
@@ -119,6 +120,7 @@ export const useBrandCSVUpload = () => {
               brand.categories.split(',').map(c => c.trim()).filter(c => c) : [],
             approval_rate: brand.approval_rate?.trim() ? parseFloat(brand.approval_rate) : null,
             response_time: brand.response_time?.trim() ? parseFloat(brand.response_time) : null,
+            department: brand.department?.trim() || null,
             is_active: true
           });
         }
