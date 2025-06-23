@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -138,7 +137,7 @@ const ResellerSettings = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Reseller Profile</CardTitle>
+            <CardTitle>Loading Profile...</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Skeleton className="h-4 w-3/4" />
@@ -199,7 +198,7 @@ const ResellerSettings = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              Reseller Profile
+              {profile.company_name}
             </CardTitle>
             {getStatusBadge(profile.status)}
           </div>
