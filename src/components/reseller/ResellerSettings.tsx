@@ -7,14 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import ResellerProfileHeader from "./settings/ResellerProfileHeader";
 import BusinessInformationCard from "./settings/BusinessInformationCard";
-import ContactInformationCard from "./settings/ContactInformationCard";
+import EditableContactForm from "./settings/EditableContactForm";
 import MarketplaceInformationCard from "./settings/MarketplaceInformationCard";
 import SalesPerformanceCard from "./settings/SalesPerformanceCard";
 import ProductCategoriesCard from "./settings/ProductCategoriesCard";
+import EditableBudgetForm from "./settings/EditableBudgetForm";
 import { 
   formatBusinessType, 
   formatSalesVolume, 
-  formatWholesaleBudget, 
   formatProductCategories 
 } from "./settings/utils/formatters";
 import { getStatusBadge } from "./settings/utils/statusHelpers";
@@ -44,33 +44,33 @@ const ResellerSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchResellerProfile = async () => {
-      if (!user) return;
+  const fetchResellerProfile = async () => {
+    if (!user) return;
 
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('reseller_applications')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('reseller_applications')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching reseller profile:', error);
-          setError('Failed to load profile information');
-          return;
-        }
-
-        setProfile(data);
-      } catch (err) {
-        console.error('Error:', err);
-        setError('An unexpected error occurred');
-      } finally {
-        setIsLoading(false);
+      if (error) {
+        console.error('Error fetching reseller profile:', error);
+        setError('Failed to load profile information');
+        return;
       }
-    };
 
+      setProfile(data);
+    } catch (err) {
+      console.error('Error:', err);
+      setError('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchResellerProfile();
   }, [user]);
 
@@ -148,13 +148,25 @@ const ResellerSettings = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <BusinessInformationCard profile={profile} formatBusinessType={formatBusinessType} />
-          <ContactInformationCard profile={profile} />
+          
+          <EditableContactForm 
+            profile={profile} 
+            onUpdate={fetchResellerProfile}
+          />
+          
           <MarketplaceInformationCard profile={profile} />
+          
           <SalesPerformanceCard 
             profile={profile} 
             formatSalesVolume={formatSalesVolume} 
-            formatWholesaleBudget={formatWholesaleBudget} 
+            formatWholesaleBudget={() => ''} // We'll handle budget separately now
           />
+          
+          <EditableBudgetForm 
+            profile={profile} 
+            onUpdate={fetchResellerProfile}
+          />
+          
           <ProductCategoriesCard 
             profile={profile} 
             formatProductCategories={formatProductCategories} 
