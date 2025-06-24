@@ -5,14 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, Search, Filter, MoreHorizontal, Mail, Phone, Calendar, Building } from 'lucide-react';
+import { Users, Search, Mail, Phone, Calendar, Building, MoreHorizontal } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -23,6 +23,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { toast } from '@/hooks/use-toast';
+import EditUserDialog from '@/components/admin/EditUserDialog';
+import ConfirmActionDialog from '@/components/admin/ConfirmActionDialog';
 
 interface UserProfile {
   id: string;
@@ -32,6 +35,7 @@ interface UserProfile {
   user_role: string | null;
   created_at: string;
   bio: string | null;
+  status: string | null;
 }
 
 interface ResellerApplication {
@@ -56,20 +60,34 @@ const UserManagement = () => {
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [userDetails, setUserDetails] = useState<ResellerApplication | null>(null);
+  const [editUser, setEditUser] = useState<UserProfile | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    confirmText: string;
+    action: () => void;
+    variant?: 'default' | 'destructive';
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    confirmText: '',
+    action: () => {},
+  });
 
-  // Fetch all users - using direct query for now until RPC function is properly typed
+  // Fetch all users
   const { data: users, isLoading, refetch } = useQuery({
     queryKey: ['admin-all-users'],
     queryFn: async () => {
       console.log('Fetching all users for admin...');
       
-      // First verify we're admin
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('Not authenticated');
       }
 
-      // Check admin status
       const { data: profile } = await supabase
         .from('profiles')
         .select('user_role')
@@ -80,11 +98,10 @@ const UserManagement = () => {
         throw new Error('Not authorized - admin access required');
       }
 
-      // For now, use direct query since RPC function needs to be properly added to types
-      // This will work for admin users due to their elevated permissions
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
+        .neq('status', 'deleted')
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -99,25 +116,15 @@ const UserManagement = () => {
 
   // Filter users based on search and role
   const filteredUsers = users?.filter(user => {
-    console.log('Filtering user:', user);
-    
-    // Apply search filter
     const matchesSearch = !searchTerm || 
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Apply role filter
     const matchesRole = selectedRole === 'all' || user.user_role === selectedRole;
     
-    const shouldInclude = matchesSearch && matchesRole;
-    console.log(`User ${user.email}: search=${matchesSearch}, role=${matchesRole}, included=${shouldInclude}`);
-    
-    return shouldInclude;
+    return matchesSearch && matchesRole;
   }) || [];
-
-  console.log('Filtered users:', filteredUsers);
-  console.log('Total filtered users:', filteredUsers.length);
 
   // Fetch detailed user information
   const fetchUserDetails = async (userId: string, userRole: string) => {
@@ -147,6 +154,149 @@ const UserManagement = () => {
     }
   };
 
+  const handleEditUser = (user: UserProfile) => {
+    setEditUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSuspendUser = async (userId: string, userEmail: string) => {
+    try {
+      console.log(`Suspending user: ${userId}`);
+      
+      const { data, error } = await supabase.rpc('admin_suspend_user', {
+        target_user_id: userId
+      });
+
+      if (error) {
+        console.error('Error suspending user:', error);
+        throw error;
+      }
+
+      if (data) {
+        toast({
+          title: 'User suspended',
+          description: `${userEmail} has been suspended successfully.`,
+        });
+        refetch();
+      } else {
+        throw new Error('Failed to suspend user - operation not allowed');
+      }
+    } catch (error: any) {
+      console.error('Failed to suspend user:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to suspend user',
+        description: error.message || 'An error occurred while suspending the user.',
+      });
+    }
+  };
+
+  const handleActivateUser = async (userId: string, userEmail: string) => {
+    try {
+      console.log(`Activating user: ${userId}`);
+      
+      const { data, error } = await supabase.rpc('admin_activate_user', {
+        target_user_id: userId
+      });
+
+      if (error) {
+        console.error('Error activating user:', error);
+        throw error;
+      }
+
+      if (data) {
+        toast({
+          title: 'User activated',
+          description: `${userEmail} has been activated successfully.`,
+        });
+        refetch();
+      } else {
+        throw new Error('Failed to activate user - operation not allowed');
+      }
+    } catch (error: any) {
+      console.error('Failed to activate user:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to activate user',
+        description: error.message || 'An error occurred while activating the user.',
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    try {
+      console.log(`Deleting user: ${userId}`);
+      
+      const { data, error } = await supabase.rpc('admin_soft_delete_user', {
+        target_user_id: userId
+      });
+
+      if (error) {
+        console.error('Error deleting user:', error);
+        throw error;
+      }
+
+      if (data) {
+        toast({
+          title: 'User deleted',
+          description: `${userEmail} has been deleted successfully.`,
+        });
+        refetch();
+      } else {
+        throw new Error('Failed to delete user - operation not allowed');
+      }
+    } catch (error: any) {
+      console.error('Failed to delete user:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to delete user',
+        description: error.message || 'An error occurred while deleting the user.',
+      });
+    }
+  };
+
+  const handleUserAction = (userId: string, action: string, user: UserProfile) => {
+    console.log(`Action ${action} for user ${userId}`);
+    
+    switch (action) {
+      case 'edit':
+        handleEditUser(user);
+        break;
+      case 'suspend':
+        if (user.status === 'suspended') {
+          setConfirmAction({
+            open: true,
+            title: 'Activate User',
+            description: `Are you sure you want to activate ${user.email}? They will regain access to the platform.`,
+            confirmText: 'Activate',
+            action: () => handleActivateUser(userId, user.email),
+          });
+        } else {
+          setConfirmAction({
+            open: true,
+            title: 'Suspend User',
+            description: `Are you sure you want to suspend ${user.email}? They will lose access to the platform.`,
+            confirmText: 'Suspend',
+            action: () => handleSuspendUser(userId, user.email),
+            variant: 'destructive',
+          });
+        }
+        break;
+      case 'delete':
+        setConfirmAction({
+          open: true,
+          title: 'Delete User',
+          description: `Are you sure you want to delete ${user.email}? This action cannot be undone and will remove all user data.`,
+          confirmText: 'Delete',
+          action: () => handleDeleteUser(userId, user.email),
+          variant: 'destructive',
+        });
+        break;
+      default:
+        console.warn(`Unknown action: ${action}`);
+    }
+  };
+
   const getRoleBadgeColor = (role: string | null) => {
     switch (role) {
       case 'admin':
@@ -160,9 +310,11 @@ const UserManagement = () => {
     }
   };
 
-  const handleUserAction = async (userId: string, action: string) => {
-    console.log(`Action ${action} for user ${userId}`);
-    // Implement user actions like suspend, activate, etc.
+  const getStatusBadge = (status: string | null) => {
+    if (status === 'suspended') {
+      return <Badge className="bg-yellow-100 text-yellow-800">Suspended</Badge>;
+    }
+    return <Badge className="bg-green-100 text-green-800">Active</Badge>;
   };
 
   const resellerCount = filteredUsers.filter(u => u.user_role === 'reseller').length;
@@ -183,16 +335,6 @@ const UserManagement = () => {
         <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
         <p className="text-muted-foreground">
           Manage all platform users including resellers and brands
-        </p>
-      </div>
-
-      {/* Debug Information */}
-      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-        <p className="text-sm text-yellow-800">
-          Debug Info: Total users in DB: {users?.length || 0} | Filtered users: {filteredUsers.length}
-        </p>
-        <p className="text-sm text-yellow-800">
-          Search term: "{searchTerm}" | Selected role: {selectedRole}
         </p>
       </div>
 
@@ -284,6 +426,7 @@ const UserManagement = () => {
                   <TableHead>User Details</TableHead>
                   <TableHead>Company</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -315,6 +458,9 @@ const UserManagement = () => {
                       <Badge className={`${getRoleBadgeColor(user.user_role)}`}>
                         {user.user_role || 'N/A'}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(user.status)}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
@@ -364,10 +510,14 @@ const UserManagement = () => {
                                     </Badge>
                                   </div>
                                   <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Status</label>
+                                    {getStatusBadge(selectedUser.status)}
+                                  </div>
+                                  <div>
                                     <label className="text-sm font-medium text-muted-foreground">Joined</label>
                                     <p className="font-medium">{new Date(selectedUser.created_at).toLocaleDateString()}</p>
                                   </div>
-                                  <div>
+                                  <div className="col-span-2">
                                     <label className="text-sm font-medium text-muted-foreground">User ID</label>
                                     <p className="font-mono text-xs">{selectedUser.id}</p>
                                   </div>
@@ -484,13 +634,17 @@ const UserManagement = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'edit')}>
+                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'edit', user)}>
                               Edit User
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'suspend')}>
-                              Suspend User
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'suspend', user)}>
+                              {user.status === 'suspended' ? 'Activate User' : 'Suspend User'}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleUserAction(user.id, 'delete')}>
+                            <DropdownMenuItem 
+                              onClick={() => handleUserAction(user.id, 'delete', user)}
+                              className="text-red-600 focus:text-red-600"
+                            >
                               Delete User
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -515,6 +669,24 @@ const UserManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialogs */}
+      <EditUserDialog
+        user={editUser}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onUserUpdated={refetch}
+      />
+
+      <ConfirmActionDialog
+        open={confirmAction.open}
+        onOpenChange={(open) => setConfirmAction({ ...confirmAction, open })}
+        title={confirmAction.title}
+        description={confirmAction.description}
+        confirmText={confirmAction.confirmText}
+        onConfirm={confirmAction.action}
+        variant={confirmAction.variant}
+      />
     </div>
   );
 };

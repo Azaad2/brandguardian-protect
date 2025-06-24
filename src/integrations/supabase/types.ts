@@ -388,6 +388,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          status: string | null
           updated_at: string
           user_role: string | null
         }
@@ -398,6 +399,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          status?: string | null
           updated_at?: string
           user_role?: string | null
         }
@@ -408,6 +410,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          status?: string | null
           updated_at?: string
           user_role?: string | null
         }
@@ -481,6 +484,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_activate_user: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       admin_add_brand: {
         Args: { brand_data: Json }
         Returns: string
@@ -492,6 +499,20 @@ export type Database = {
       admin_delete_brand: {
         Args: { p_brand_id: string }
         Returns: boolean
+      }
+      admin_get_all_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          email: string
+          full_name: string
+          company_name: string
+          user_role: string
+          created_at: string
+          updated_at: string
+          bio: string
+          status: string
+        }[]
       }
       admin_get_brands: {
         Args: Record<PropertyKey, never>
@@ -512,9 +533,26 @@ export type Database = {
         Args: { p_brand_id: string; p_reseller_id: string }
         Returns: boolean
       }
+      admin_soft_delete_user: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
+      admin_suspend_user: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       admin_update_brand: {
         Args: { brand_id: string; brand_data: Json }
         Returns: string
+      }
+      admin_update_user_profile: {
+        Args: {
+          target_user_id: string
+          new_full_name?: string
+          new_company_name?: string
+          new_user_role?: string
+        }
+        Returns: boolean
       }
       check_user_upload_access: {
         Args: { bucket_id: string; owner: string }
