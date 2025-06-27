@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,10 +40,21 @@ interface EditUserDialogProps {
 const EditUserDialog = ({ user, open, onOpenChange, onUserUpdated }: EditUserDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: user?.full_name || '',
-    company_name: user?.company_name || '',
-    user_role: user?.user_role || 'reseller',
+    full_name: '',
+    company_name: '',
+    user_role: 'reseller',
   });
+
+  // Reset form data when user changes or dialog opens
+  useEffect(() => {
+    if (user && open) {
+      setFormData({
+        full_name: user.full_name || '',
+        company_name: user.company_name || '',
+        user_role: user.user_role || 'reseller',
+      });
+    }
+  }, [user, open]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -52,7 +63,7 @@ const EditUserDialog = ({ user, open, onOpenChange, onUserUpdated }: EditUserDia
     try {
       console.log('Updating user profile:', user.id, formData);
 
-      const { error } = await supabase.rpc('admin_update_user_profile', {
+      const { data, error } = await supabase.rpc('admin_update_user_profile', {
         target_user_id: user.id,
         new_full_name: formData.full_name || null,
         new_company_name: formData.company_name || null,
@@ -64,13 +75,17 @@ const EditUserDialog = ({ user, open, onOpenChange, onUserUpdated }: EditUserDia
         throw error;
       }
 
-      toast({
-        title: 'User updated successfully',
-        description: `${user.email} has been updated.`,
-      });
+      if (data) {
+        toast({
+          title: 'User updated successfully',
+          description: `${user.email} has been updated.`,
+        });
 
-      onUserUpdated();
-      onOpenChange(false);
+        onUserUpdated();
+        onOpenChange(false);
+      } else {
+        throw new Error('Failed to update user - operation not allowed');
+      }
     } catch (error: any) {
       console.error('Failed to update user:', error);
       toast({

@@ -77,7 +77,7 @@ const UserManagement = () => {
     action: () => {},
   });
 
-  // Fetch all users
+  // Fetch all users using the RPC function
   const { data: users, isLoading, refetch } = useQuery({
     queryKey: ['admin-all-users'],
     queryFn: async () => {
@@ -98,11 +98,7 @@ const UserManagement = () => {
         throw new Error('Not authorized - admin access required');
       }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .neq('status', 'deleted')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.rpc('admin_get_all_users');
       
       if (error) {
         console.error('Error fetching users:', error);
@@ -155,6 +151,7 @@ const UserManagement = () => {
   };
 
   const handleEditUser = (user: UserProfile) => {
+    console.log('Opening edit dialog for user:', user.id);
     setEditUser(user);
     setIsEditDialogOpen(true);
   };
