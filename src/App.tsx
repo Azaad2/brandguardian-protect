@@ -80,41 +80,41 @@ function App() {
             
             {/* Protected dashboard routes */}
             <Route path="/admin/dashboard" element={
-              <AuthGuard allowedRoles={['admin']}>
+              <AuthGuard requiredRole="admin">
                 <AdminDashboard />
               </AuthGuard>
             } />
             <Route path="/brand/dashboard" element={
-              <AuthGuard allowedRoles={['brand']}>
+              <AuthGuard requiredRole="brand">
                 <BrandDashboard />
               </AuthGuard>
             } />
             <Route path="/reseller/dashboard" element={
-              <AuthGuard allowedRoles={['reseller']}>
+              <AuthGuard requiredRole="reseller">
                 <ResellerDashboard />
               </AuthGuard>
             } />
             
             {/* Protected portal routes */}
             <Route path="/brand/*" element={
-              <AuthGuard allowedRoles={['brand']}>
+              <AuthGuard requiredRole="brand">
                 <BrandPortal />
               </AuthGuard>
             } />
             <Route path="/reseller/*" element={
-              <AuthGuard allowedRoles={['reseller']}>
+              <AuthGuard requiredRole="reseller">
                 <ResellerPortal />
               </AuthGuard>
             } />
             
             {/* Protected admin routes */}
             <Route path="/admin/users" element={
-              <AuthGuard allowedRoles={['admin']}>
+              <AuthGuard requiredRole="admin">
                 <UserManagement />
               </AuthGuard>
             } />
             <Route path="/admin/reseller-registration" element={
-              <AuthGuard allowedRoles={['admin']}>
+              <AuthGuard requiredRole="admin">
                 <ResellerRegistration />
               </AuthGuard>
             } />
