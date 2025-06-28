@@ -80,16 +80,26 @@ function App() {
             
             {/* Protected dashboard routes */}
             <Route path="/admin/dashboard" element={
-              <AuthGuard requiredRole="admin">
-                <AdminDashboard />
-              </AuthGuard>
-            } />
+                  <AuthGuard requiredRole="admin">
+                    <AdminDashboard />
+                  </AuthGuard>
+                } />
+                <Route path="/admin/dashboard/*" element={
+                  <AuthGuard requiredRole="admin">
+                    <AdminDashboard />
+                  </AuthGuard>
+                } />
             <Route path="/brand/dashboard" element={
               <AuthGuard requiredRole="brand">
                 <BrandDashboard />
               </AuthGuard>
             } />
             <Route path="/reseller/dashboard" element={
+              <AuthGuard requiredRole="reseller">
+                <ResellerDashboard />
+              </AuthGuard>
+            } />
+            <Route path="/reseller/dashboard/*" element={
               <AuthGuard requiredRole="reseller">
                 <ResellerDashboard />
               </AuthGuard>
