@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -235,7 +234,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       console.log(`🔄 Requesting password reset for: ${email}`);
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/reset-password/confirm`,
       });
       
       if (error) {
@@ -245,18 +244,9 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       
       console.log('✅ Password reset email sent to:', email);
       
-      toast({
-        title: 'Password reset email sent',
-        description: 'Check your email for the password reset link.',
-      });
-      
     } catch (error: any) {
       console.error('❌ Password reset failed:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Password reset failed',
-        description: error.message,
-      });
+      throw error; // Re-throw to let the component handle the error
     } finally {
       setIsLoading(false);
     }

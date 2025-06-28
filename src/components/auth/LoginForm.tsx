@@ -176,7 +176,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
         
         <div className="text-right text-sm">
           <a
-            href="/reset-password"
+            href={`/reset-password?type=${userRole}`}
             className="text-primary hover:text-primary/80 hover:underline"
           >
             Forgot password?

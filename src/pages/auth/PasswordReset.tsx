@@ -39,6 +39,8 @@ const PasswordReset = () => {
     setIsSubmitting(true);
 
     try {
+      console.log(`🔄 Requesting password reset for: ${data.email} (${userType})`);
+      
       await resetPassword(data.email);
       
       toast({
@@ -47,13 +49,15 @@ const PasswordReset = () => {
         duration: 5000,
       });
 
+      console.log(`✅ Password reset email sent for: ${data.email}`);
+
       // Go back to login page after showing the toast
       setTimeout(() => {
         navigate(`/${userType}/login`);
-      }, 1000);
+      }, 2000);
       
     } catch (error) {
-      console.error('Password reset error:', error);
+      console.error('❌ Password reset error:', error);
       toast({
         title: 'Something went wrong',
         description: 'Please try again later.',
@@ -81,7 +85,7 @@ const PasswordReset = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue={userType} className="mb-4">
+            <Tabs value={userType} className="mb-4">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger 
                   value="brand"
