@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -233,12 +234,25 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       setIsLoading(true);
       console.log(`🔄 Requesting password reset for: ${email}`);
       
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      // Set a longer timeout and better error handling
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout - please try again')), 30000);
+      });
+
+      const resetPromise = supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password/confirm`,
       });
+
+      const { error } = await Promise.race([resetPromise, timeoutPromise]) as any;
       
       if (error) {
         console.error('❌ Password reset error:', error);
+        
+        // Handle specific Supabase errors
+        if (error.message?.includes('timeout') || error.status === 504) {
+          throw new Error('The request timed out. This might be due to high server load. Please try again in a few minutes.');
+        }
+        
         throw error;
       }
       
@@ -246,6 +260,16 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       
     } catch (error: any) {
       console.error('❌ Password reset failed:', error);
+      
+      // Provide user-friendly error messages
+      if (error.message?.includes('timeout') || error.message?.includes('504')) {
+        error.message = 'The password reset request timed out. Please try again in a few minutes.';
+      } else if (error.message?.includes('rate limit')) {
+        error.message = 'Too many password reset requests. Please wait before trying again.';
+      } else if (!error.message || error.message === 'Failed to fetch') {
+        error.message = 'Unable to send password reset email. Please check your internet connection and try again.';
+      }
+      
       throw error; // Re-throw to let the component handle the error
     } finally {
       setIsLoading(false);

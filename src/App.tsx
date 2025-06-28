@@ -1,158 +1,137 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useAnalytics } from "./hooks/use-analytics";
-import { HelmetProvider } from "react-helmet-async";
-import { AuthProvider } from "./hooks/use-auth";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Blog from "./pages/Blog";
-import NotFound from "./pages/NotFound";
-import ResellerHub from "./pages/ResellerHub";
-import BrandPortal from "./pages/brand/BrandPortal";
-import ResellerPortal from "./pages/reseller/ResellerPortal";
-import BrandLogin from "./pages/brand/BrandLogin";
-import ResellerLogin from "./pages/reseller/ResellerLogin";
-import BrandDashboard from "./pages/brand/BrandDashboard";
-import ResellerDashboard from "./pages/reseller/ResellerDashboard";
-import BrandSignup from "./pages/brand/BrandSignup";
-import ResellerSignup from "./pages/reseller/ResellerSignup";
-import PasswordReset from "./pages/auth/PasswordReset";
-import AuthGuard from "./components/auth/AuthGuard";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminSignup from "./pages/admin/AdminSignup";
-import RoleUpdater from "./pages/RoleUpdater";
-import EnforceMAPPolicyPreventUnauthorizedSellers from "./pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers";
-import PreventUnauthorizedSellersAmazon from "./pages/blog/PreventUnauthorizedSellersAmazon";
-import AmazonBrandRegistryBenefits from "./pages/blog/AmazonBrandRegistryBenefits";
-import IdentifyRemoveCounterfeitProducts from "./pages/blog/IdentifyRemoveCounterfeitProducts";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from '@/hooks/use-auth';
+import { Toaster } from '@/components/ui/toaster';
+import { Toaster as Sonner } from '@/components/ui/sonner';
+
+// Pages
+import Index from '@/pages/Index';
+import About from '@/pages/About';
+import Blog from '@/pages/Blog';
+import ResellerHub from '@/pages/ResellerHub';
+import NotFound from '@/pages/NotFound';
+
+// Auth pages
+import AdminLogin from '@/pages/admin/AdminLogin';
+import AdminSignup from '@/pages/admin/AdminSignup';
+import BrandLogin from '@/pages/brand/BrandLogin';
+import BrandSignup from '@/pages/brand/BrandSignup';
+import ResellerLogin from '@/pages/reseller/ResellerLogin';
+import ResellerSignup from '@/pages/reseller/ResellerSignup';
+import PasswordReset from '@/pages/auth/PasswordReset';
+import PasswordResetConfirm from '@/pages/auth/PasswordResetConfirm';
+
+// Dashboard pages
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import BrandDashboard from '@/pages/brand/BrandDashboard';
+import ResellerDashboard from '@/pages/reseller/ResellerDashboard';
+
+// Portal pages
+import BrandPortal from '@/pages/brand/BrandPortal';
+import ResellerPortal from '@/pages/reseller/ResellerPortal';
+import UserManagement from '@/pages/admin/UserManagement';
+import ResellerRegistration from '@/pages/admin/ResellerRegistration';
+
+// Blog pages
+import EnforceMAPPolicyPreventUnauthorizedSellers from '@/pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers';
+import PreventUnauthorizedSellersAmazon from '@/pages/blog/PreventUnauthorizedSellersAmazon';
+import IdentifyRemoveCounterfeitProducts from '@/pages/blog/IdentifyRemoveCounterfeitProducts';
+import AmazonBrandRegistryBenefits from '@/pages/blog/AmazonBrandRegistryBenefits';
+
+// Admin pages
+import Admin from '@/pages/Admin';
+import RoleUpdater from '@/pages/RoleUpdater';
+
+// Auth Guard
+import AuthGuard from '@/components/auth/AuthGuard';
+
+import './App.css';
 
 const queryClient = new QueryClient();
 
-// Analytics wrapper component to apply analytics to all routes
-const AnalyticsWrapper = ({ children }: { children: React.ReactNode }) => {
-  useAnalytics();
-  return <>{children}</>;
-};
-
-const App = () => (
-  <HelmetProvider>
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/reseller-hub" element={<ResellerHub />} />
+            
+            {/* Auth routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/signup" element={<AdminSignup />} />
+            <Route path="/brand/login" element={<BrandLogin />} />
+            <Route path="/brand/signup" element={<BrandSignup />} />
+            <Route path="/reseller/login" element={<ResellerLogin />} />
+            <Route path="/reseller/signup" element={<ResellerSignup />} />
+            <Route path="/reset-password" element={<PasswordReset />} />
+            <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
+            
+            {/* Blog routes */}
+            <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<EnforceMAPPolicyPreventUnauthorizedSellers />} />
+            <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<PreventUnauthorizedSellersAmazon />} />
+            <Route path="/blog/identify-remove-counterfeit-products" element={<IdentifyRemoveCounterfeitProducts />} />
+            <Route path="/blog/amazon-brand-registry-benefits" element={<AmazonBrandRegistryBenefits />} />
+            
+            {/* Protected dashboard routes */}
+            <Route path="/admin/dashboard" element={
+              <AuthGuard allowedRoles={['admin']}>
+                <AdminDashboard />
+              </AuthGuard>
+            } />
+            <Route path="/brand/dashboard" element={
+              <AuthGuard allowedRoles={['brand']}>
+                <BrandDashboard />
+              </AuthGuard>
+            } />
+            <Route path="/reseller/dashboard" element={
+              <AuthGuard allowedRoles={['reseller']}>
+                <ResellerDashboard />
+              </AuthGuard>
+            } />
+            
+            {/* Protected portal routes */}
+            <Route path="/brand/*" element={
+              <AuthGuard allowedRoles={['brand']}>
+                <BrandPortal />
+              </AuthGuard>
+            } />
+            <Route path="/reseller/*" element={
+              <AuthGuard allowedRoles={['reseller']}>
+                <ResellerPortal />
+              </AuthGuard>
+            } />
+            
+            {/* Protected admin routes */}
+            <Route path="/admin/users" element={
+              <AuthGuard allowedRoles={['admin']}>
+                <UserManagement />
+              </AuthGuard>
+            } />
+            <Route path="/admin/reseller-registration" element={
+              <AuthGuard allowedRoles={['admin']}>
+                <ResellerRegistration />
+              </AuthGuard>
+            } />
+            
+            {/* Legacy admin routes */}
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/role-updater" element={<RoleUpdater />} />
+            
+            {/* 404 route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <AnalyticsWrapper>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers-amazon" element={<EnforceMAPPolicyPreventUnauthorizedSellers />} />
-                <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<PreventUnauthorizedSellersAmazon />} />
-                <Route path="/blog/amazon-brand-registry-benefits" element={<AmazonBrandRegistryBenefits />} />
-                <Route path="/blog/identify-remove-counterfeit-products" element={<IdentifyRemoveCounterfeitProducts />} />
-                
-                {/* Temporary role updater page */}
-                <Route path="/update-role" element={<RoleUpdater />} />
-                
-                {/* Protected reseller hub - requires no auth but shows application form */}
-                <Route path="/reseller-hub" element={<ResellerHub />} />
-                
-                {/* Admin Routes - All protected */}
-                <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-                <Route path="/admin/login" element={
-                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/admin/dashboard">
-                    <AdminLogin />
-                  </AuthGuard>
-                } />
-                <Route path="/admin/signup" element={
-                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/admin/dashboard">
-                    <AdminSignup />
-                  </AuthGuard>
-                } />
-                <Route path="/admin/dashboard" element={
-                  <AuthGuard requiredRole="admin">
-                    <AdminDashboard />
-                  </AuthGuard>
-                } />
-                <Route path="/admin/dashboard/*" element={
-                  <AuthGuard requiredRole="admin">
-                    <AdminDashboard />
-                  </AuthGuard>
-                } />
-                
-                {/* Brand Portal Routes - All protected */}
-                <Route path="/brand" element={
-                  <AuthGuard bypassAuth={true}>
-                    <BrandPortal />
-                  </AuthGuard>
-                } />
-                <Route path="/brand/login" element={
-                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/brand/dashboard">
-                    <BrandLogin />
-                  </AuthGuard>
-                } />
-                <Route path="/brand/signup" element={
-                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/brand/dashboard">
-                    <BrandSignup />
-                  </AuthGuard>
-                } />
-                <Route path="/brand/dashboard" element={
-                  <AuthGuard requiredRole="brand">
-                    <BrandDashboard />
-                  </AuthGuard>
-                } />
-                <Route path="/brand/dashboard/*" element={
-                  <AuthGuard requiredRole="brand">
-                    <BrandDashboard />
-                  </AuthGuard>
-                } />
-                
-                {/* Reseller Portal Routes - All protected */}
-                <Route path="/reseller" element={
-                  <AuthGuard bypassAuth={true}>
-                    <ResellerPortal />
-                  </AuthGuard>
-                } />
-                <Route path="/reseller/login" element={
-                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/reseller/dashboard">
-                    <ResellerLogin />
-                  </AuthGuard>
-                } />
-                <Route path="/reseller/signup" element={
-                  <AuthGuard bypassAuth={false} requiredRole={null} redirectIfAuthenticated="/reseller/dashboard">
-                    <ResellerSignup />
-                  </AuthGuard>
-                } />
-                <Route path="/reseller/dashboard" element={
-                  <AuthGuard requiredRole="reseller">
-                    <ResellerDashboard />
-                  </AuthGuard>
-                } />
-                <Route path="/reseller/dashboard/*" element={
-                  <AuthGuard requiredRole="reseller">
-                    <ResellerDashboard />
-                  </AuthGuard>
-                } />
-                
-                {/* Shared Auth Routes */}
-                <Route path="/reset-password" element={<PasswordReset />} />
-                
-                {/* Catch-all route for 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AnalyticsWrapper>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
-  </HelmetProvider>
-);
+  );
+}
 
 export default App;
