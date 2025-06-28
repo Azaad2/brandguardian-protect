@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import BndBoxLogo from '@/components/branding/BndBoxLogo';
@@ -23,6 +23,7 @@ type PasswordResetFormValues = z.infer<typeof formSchema>;
 const PasswordReset = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [lastSubmittedEmail, setLastSubmittedEmail] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { resetPassword } = useAuth();
@@ -37,9 +38,8 @@ const PasswordReset = () => {
   });
 
   const onSubmit = async (data: PasswordResetFormValues) => {
-    if (emailSent) {
-      // Prevent multiple submissions
-      return;
+    if (isSubmitting) {
+      return; // Prevent multiple submissions
     }
 
     setIsSubmitting(true);
@@ -51,15 +51,20 @@ const PasswordReset = () => {
       
       console.log(`✅ Password reset request completed for: ${data.email}`);
       setEmailSent(true);
-
-      // Don't automatically redirect, let user choose
+      setLastSubmittedEmail(data.email);
       
     } catch (error) {
-      console.error('❌ Password reset error:', error);
-      // Error handling is done in the resetPassword function
+      console.error('❌ Password reset error in component:', error);
+      // Error is already handled in the resetPassword function
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleTryAgain = () => {
+    setEmailSent(false);
+    setLastSubmittedEmail('');
+    form.reset();
   };
 
   if (emailSent) {
@@ -76,26 +81,24 @@ const PasswordReset = () => {
             <CardHeader>
               <CardTitle className="text-xl">Check your email</CardTitle>
               <CardDescription>
-                If an account exists with that email address, we've sent you a password reset link.
+                If an account exists with <strong>{lastSubmittedEmail}</strong>, you will receive a password reset link shortly.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="text-sm text-muted-foreground">
-                  <p>• Check your spam folder if you don't see the email</p>
+                  <p>• Check your spam/junk folder if you don't see the email</p>
                   <p>• The link will expire in 1 hour</p>
-                  <p>• You can request a new link if needed</p>
+                  <p>• It may take a few minutes to arrive</p>
                 </div>
                 
                 <Button
-                  onClick={() => {
-                    setEmailSent(false);
-                    form.reset();
-                  }}
+                  onClick={handleTryAgain}
                   variant="outline"
                   className="w-full"
                 >
-                  Send another email
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Try with different email
                 </Button>
               </div>
             </CardContent>
@@ -156,7 +159,11 @@ const PasswordReset = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="you@example.com" {...field} />
+                        <Input 
+                          placeholder="you@example.com" 
+                          {...field} 
+                          disabled={isSubmitting}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -167,7 +174,7 @@ const PasswordReset = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending link...
+                      Sending reset link...
                     </>
                   ) : (
                     'Send reset link'
