@@ -22,6 +22,7 @@ type PasswordResetFormValues = z.infer<typeof formSchema>;
 
 const PasswordReset = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { resetPassword } = useAuth();
@@ -36,6 +37,11 @@ const PasswordReset = () => {
   });
 
   const onSubmit = async (data: PasswordResetFormValues) => {
+    if (emailSent) {
+      // Prevent multiple submissions
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -43,30 +49,69 @@ const PasswordReset = () => {
       
       await resetPassword(data.email);
       
-      toast({
-        title: 'Reset link sent',
-        description: 'If an account exists with that email, you will receive a password reset link.',
-        duration: 5000,
-      });
+      console.log(`✅ Password reset request completed for: ${data.email}`);
+      setEmailSent(true);
 
-      console.log(`✅ Password reset email sent for: ${data.email}`);
-
-      // Go back to login page after showing the toast
-      setTimeout(() => {
-        navigate(`/${userType}/login`);
-      }, 2000);
+      // Don't automatically redirect, let user choose
       
     } catch (error) {
       console.error('❌ Password reset error:', error);
-      toast({
-        title: 'Something went wrong',
-        description: 'Please try again later.',
-        variant: 'destructive',
-      });
+      // Error handling is done in the resetPassword function
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (emailSent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 px-4 py-12">
+        <div className="w-full max-w-md">
+          <div className="mb-6 flex justify-center">
+            <Link to="/" className="inline-block">
+              <BndBoxLogo className="h-12 w-auto" />
+            </Link>
+          </div>
+          
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl">Check your email</CardTitle>
+              <CardDescription>
+                If an account exists with that email address, we've sent you a password reset link.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-sm text-muted-foreground">
+                  <p>• Check your spam folder if you don't see the email</p>
+                  <p>• The link will expire in 1 hour</p>
+                  <p>• You can request a new link if needed</p>
+                </div>
+                
+                <Button
+                  onClick={() => {
+                    setEmailSent(false);
+                    form.reset();
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Send another email
+                </Button>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-center border-t border-slate-100 px-6 py-4">
+              <div className="text-center text-sm">
+                Remember your password?{' '}
+                <Link to={`/${userType}/login`} className="text-primary hover:text-primary/80 hover:underline">
+                  Go back to sign in
+                </Link>
+              </div>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 px-4 py-12">
