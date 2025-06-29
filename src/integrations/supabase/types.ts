@@ -528,6 +528,9 @@ export type Database = {
           logo_url: string
           categories: string[]
           is_active: boolean
+          department: string
+          approval_rate: number
+          response_time: number
           created_at: string
           updated_at: string
         }[]

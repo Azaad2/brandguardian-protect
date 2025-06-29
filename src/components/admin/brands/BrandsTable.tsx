@@ -20,6 +20,7 @@ const BrandsTable = ({ brands, onEdit, onToggleStatus, onDelete }: BrandsTablePr
       <TableHeader>
         <TableRow>
           <TableHead>Brand</TableHead>
+          <TableHead>Department</TableHead>
           <TableHead>Website</TableHead>
           <TableHead>Contact</TableHead>
           <TableHead>Categories</TableHead>
@@ -48,6 +49,15 @@ const BrandsTable = ({ brands, onEdit, onToggleStatus, onDelete }: BrandsTablePr
                   )}
                 </div>
               </div>
+            </TableCell>
+            <TableCell>
+              {brand.department ? (
+                <Badge variant="outline" className="text-xs">
+                  {brand.department}
+                </Badge>
+              ) : (
+                <span className="text-muted-foreground text-sm">No department</span>
+              )}
             </TableCell>
             <TableCell>
               {brand.website_url ? (
