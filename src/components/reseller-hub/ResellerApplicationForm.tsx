@@ -28,8 +28,9 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
   const { 
     isSubmitting, 
     submissionError, 
-    documentFile, 
-    setDocumentFile, 
+    documentFile,
+    documentError, 
+    setDocumentFile,
     handleSubmit: submitForm 
   } = useResellerFormSubmission({ onSubmissionSuccess });
 
@@ -81,7 +82,8 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <BusinessInformationSection 
               documentFile={documentFile} 
-              setDocumentFile={setDocumentFile} 
+              setDocumentFile={setDocumentFile}
+              documentError={documentError}
             />
             
             <MarketplaceProfilesSection />

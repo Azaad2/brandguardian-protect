@@ -11,6 +11,8 @@ import {
   sendApplicationEmail
 } from '../utils/formSubmissionHandlers';
 
+import { checkEmailExists } from '@/utils/checkEmailExists';
+
 type FormSubmissionProps = {
   onSubmissionSuccess: (email: string) => void;
 };
@@ -21,16 +23,36 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: FormSubmissio
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [submissionError, setSubmissionError] = useState(false);
+  const [documentError, setDocumentError] = useState<string | null>(null);
+
 
   const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     setSubmissionError(false);
     
     try {
+
+      if (!documentFile) {
+          setDocumentError("Please upload your EIN or resale certificate to proceed.");
+          setIsSubmitting(false);
+          return false;
+        } else {
+          setDocumentError(null); // Clear error if file exists
+        }
       // Submit application to Supabase
+      const emailExists = await checkEmailExists(values.email);
+        if (emailExists) {
+      toast({
+        variant: "destructive",
+        title: "Email already in use",
+        description: "An application with this email already exists. Please use a different email.",
+      });
+      setIsSubmitting(false);
+      return false;
+    }
+        
       const data = await submitApplication(values, user);
       
-      // Upload reseller document if provided
       if (documentFile && user) {
         try {
           await uploadDocument(documentFile, user.id);
@@ -87,6 +109,7 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: FormSubmissio
     isSubmitting,
     submissionError,
     documentFile,
+    documentError,
     setDocumentFile,
     handleSubmit
   };

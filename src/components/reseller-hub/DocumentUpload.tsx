@@ -6,9 +6,10 @@ import { useToast } from '@/hooks/use-toast';
 interface DocumentUploadProps {
   documentFile: File | null;
   setDocumentFile: (file: File | null) => void;
+  documentError?: string | null;
 }
 
-const DocumentUpload = ({ documentFile, setDocumentFile }: DocumentUploadProps) => {
+const DocumentUpload = ({ documentFile, setDocumentFile, documentError }: DocumentUploadProps) => {
   const { toast } = useToast();
   const maxFileSizeMB = 5;
 
@@ -85,7 +86,7 @@ const DocumentUpload = ({ documentFile, setDocumentFile }: DocumentUploadProps) 
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Note: Document upload is optional. You can submit your application without a document and provide it later if needed.
+              Note: Document upload is required to submit the application.
             </p>
           </div>
         ) : (
@@ -110,11 +111,16 @@ const DocumentUpload = ({ documentFile, setDocumentFile }: DocumentUploadProps) 
             </button>
           </div>
         )}
+
       </div>
       <p className="text-xs text-gray-500 mt-2">
         Your documents are used to verify your business credentials and are stored securely.
       </p>
+      {documentError && (
+        <p className="text-sm text-red-600 mt-2">{documentError}</p>
+      )}
     </div>
+    
   );
 };
 

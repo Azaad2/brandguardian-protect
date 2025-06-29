@@ -14,11 +14,13 @@ import { FormValues } from './ResellerFormSchema';
 interface BusinessInformationSectionProps {
   documentFile: File | null;
   setDocumentFile: (file: File | null) => void;
+  documentError?: string | null;
 }
 
 const BusinessInformationSection = ({ 
   documentFile, 
-  setDocumentFile 
+  setDocumentFile,
+  documentError
 }: BusinessInformationSectionProps) => {
   const form = useFormContext<FormValues>();
   
@@ -85,7 +87,8 @@ const BusinessInformationSection = ({
       
       <DocumentUpload 
         documentFile={documentFile} 
-        setDocumentFile={setDocumentFile} 
+        setDocumentFile={setDocumentFile}
+        documentError={documentError}
       />
     </div>
   );
