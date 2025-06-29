@@ -54,7 +54,7 @@ const ResellerBrands = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {error instanceof Error ? error.message : 'Failed to load available departments'}
+            {error instanceof Error ? error.message : 'Failed to load available brands'}
           </AlertDescription>
         </Alert>
       </div>
@@ -101,14 +101,19 @@ const ResellerBrands = () => {
                     {brand.logo_url && (
                       <img 
                         src={brand.logo_url} 
-                        alt={`${brand.department || 'Department'} logo`}
+                        alt={`${brand.name || 'Brand'} logo`}
                         className="w-12 h-12 rounded object-cover"
                       />
                     )}
                     <div>
                       <CardTitle className="text-lg">
-                        {brand.department || 'General Department'}
+                        {brand.name || 'Unknown Brand'}
                       </CardTitle>
+                      {brand.department && (
+                        <div className="text-sm text-muted-foreground">
+                          Department: {brand.department}
+                        </div>
+                      )}
                       {brand.approval_rate && (
                         <div className="text-sm text-muted-foreground">
                           Approval Rate: {brand.approval_rate}%
