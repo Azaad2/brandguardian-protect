@@ -11,6 +11,7 @@ interface EmailRequest {
   email: string;
   status: 'approved' | 'rejected';
   loginUrl?: string;
+  temporaryPassword?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -20,7 +21,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-    const { email, status, loginUrl }: EmailRequest = await req.json();
+    const { email, status, loginUrl, temporaryPassword }: EmailRequest = await req.json();
 
     console.log(`Processing reseller ${status} email for:`, email);
 
@@ -45,10 +46,24 @@ const handler = async (req: Request): Promise<Response> => {
               <h2 style="color: #10b981; text-align: center;">🎉 Congratulations!</h2>
               <p>Your reseller application has been <strong>approved</strong>! Welcome to the BndBox marketplace.</p>
               
+              ${temporaryPassword ? `
+                <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="margin-top: 0; color: #856404;">Your Login Credentials</h3>
+                  <p style="margin: 0; color: #856404;">
+                    <strong>Email:</strong> ${email}<br>
+                    <strong>Temporary Password:</strong> <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${temporaryPassword}</code>
+                  </p>
+                  <p style="margin: 10px 0 0 0; color: #856404; font-size: 14px;">
+                    <strong>Important:</strong> Please change this password after your first login for security.
+                  </p>
+                </div>
+              ` : ''}
+              
               <div style="background: #f0fdf4; border: 1px solid #10b981; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #065f46;">What's Next?</h3>
                 <ol style="color: #065f46; margin: 0; padding-left: 20px;">
                   <li>Click the login button below to access your dashboard</li>
+                  <li>Change your temporary password in Settings → Security</li>
                   <li>Complete your profile setup</li>
                   <li>Browse available brands and products</li>
                   <li>Start placing wholesale orders</li>

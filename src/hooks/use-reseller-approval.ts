@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { generateTemporaryPassword } from '@/hooks/reseller-applications/passwordUtils';
 
 interface ResellerApplication {
   id: string;
@@ -48,6 +48,9 @@ export const useResellerApproval = () => {
 
   const approveApplication = async (applicationId: string, userEmail: string) => {
     try {
+      // Generate temporary password
+      const temporaryPassword = generateTemporaryPassword();
+
       // Update application status
       const { error: updateError } = await supabase
         .from('reseller_applications')
@@ -56,12 +59,13 @@ export const useResellerApproval = () => {
 
       if (updateError) throw updateError;
 
-      // Send approval email via edge function
+      // Send approval email with temporary password via edge function
       const { error: emailError } = await supabase.functions.invoke('send-reseller-approval-email', {
         body: {
           email: userEmail,
           status: 'approved',
-          loginUrl: `${window.location.origin}/reseller/login`
+          loginUrl: `${window.location.origin}/reseller/login`,
+          temporaryPassword: temporaryPassword
         }
       });
 
@@ -72,7 +76,7 @@ export const useResellerApproval = () => {
 
       toast({
         title: 'Application approved',
-        description: 'Reseller has been notified via email and can now login.',
+        description: 'Reseller has been notified via email with login credentials and can now login.',
       });
 
       // Refresh applications list
