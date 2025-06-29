@@ -69,12 +69,15 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen w-64 border-r border-slate-200 bg-white transition-all duration-300 lg:static",
-        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0 lg:w-20"
+        "fixed left-0 top-0 z-40 h-screen border-r border-gray-200 bg-white transition-all duration-300 lg:static shadow-lg lg:shadow-none",
+        isOpen ? "w-72 translate-x-0" : "-translate-x-full lg:translate-x-0 lg:w-20"
       )}
     >
       {/* Sidebar Header */}
-      <div className="flex h-16 items-center justify-between px-4">
+      <div className={cn(
+        "flex h-16 sm:h-18 items-center border-b border-gray-100 px-6",
+        !isOpen && "lg:justify-center lg:px-4"
+      )}>
         <Link 
           to="/" 
           className={cn(
@@ -83,21 +86,25 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
           )}
         >
           <BndBoxLogo className={cn("h-8 w-auto", !isOpen && "lg:h-10")} />
-          {isOpen && <span className="ml-2 text-xl font-semibold lg:hidden">BndBox</span>}
+          {isOpen && (
+            <span className="ml-3 text-xl font-bold text-gray-900 lg:hidden">
+              BndBox
+            </span>
+          )}
         </Link>
         <Button 
           variant="ghost" 
           size="icon" 
-          className="lg:hidden" 
+          className="ml-auto lg:hidden h-10 w-10" 
           onClick={toggleSidebar}
         >
-          <X size={20} />
+          <X className="h-5 w-5" />
         </Button>
       </div>
-      <Separator />
+      <Separator className="bg-gray-100" />
 
-      {/* Navigation - Fixed using <Link> instead of <a> tags */}
-      <nav className="space-y-1 px-2 py-4">
+      {/* Navigation */}
+      <nav className="space-y-2 px-4 py-6">
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
@@ -105,19 +112,22 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
               key={item.href}
               to={item.href}
               className={cn(
-                "flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-100 hover:text-slate-900",
+                "flex items-center rounded-lg px-4 py-3 text-base font-medium transition-all duration-200 hover:bg-gray-50",
                 active
-                  ? "bg-primary/10 text-primary" 
-                  : "text-slate-700",
-                !isOpen && "lg:justify-center lg:px-0"
+                  ? "bg-primary/10 text-primary shadow-sm" 
+                  : "text-gray-700 hover:text-gray-900",
+                !isOpen && "lg:justify-center lg:px-3 lg:py-4"
               )}
             >
-              <item.icon className={cn("h-5 w-5", !isOpen && "lg:h-6 lg:w-6")} />
+              <item.icon className={cn(
+                "h-6 w-6 flex-shrink-0", 
+                !isOpen && "lg:h-7 lg:w-7"
+              )} />
               {isOpen && (
-                <div className="ml-3 flex flex-1 items-center justify-between lg:inline">
-                  <span>{item.title}</span>
+                <div className="ml-4 flex flex-1 items-center justify-between lg:inline">
+                  <span className="font-semibold">{item.title}</span>
                   {item.badge && (
-                    <Badge variant="secondary" className="ml-auto">
+                    <Badge variant="secondary" className="ml-auto font-medium">
                       {item.badge}
                     </Badge>
                   )}
@@ -127,7 +137,8 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
           );
         })}
       </nav>
-      <div className="border-t p-4">
+      
+      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-100 p-4 bg-gray-50">
         <LogoutButton userRole={userRole} sidebarOpen={isOpen} />
       </div>
     </aside>

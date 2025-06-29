@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import SidebarNav from './layout/SidebarNav';
@@ -117,31 +116,30 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   console.log('DashboardLayout - About to render children');
 
   return (
-    <div className="flex h-screen flex-col bg-slate-50">
-  <TopBar 
-    toggleSidebar={toggleSidebar} 
-    userRole={userRole} 
-    pendingApplicationsCount={pendingCount} 
-  />
+    <div className="flex h-screen flex-col bg-gray-50">
+      <TopBar 
+        toggleSidebar={toggleSidebar} 
+        userRole={userRole} 
+        pendingApplicationsCount={pendingCount} 
+      />
 
-  {/* Main area: Sidebar + Content */}
-  <div className="flex flex-1 overflow-hidden">
-    <SidebarNav
-      isOpen={isMobile ? isOpen : true}
-      setIsOpen={setIsOpen}
-      navItems={navItems}
-      userRole={userRole}
-    />
+      {/* Main area: Sidebar + Content */}
+      <div className="flex flex-1 overflow-hidden">
+        <SidebarNav
+          isOpen={isMobile ? isOpen : true}
+          setIsOpen={setIsOpen}
+          navItems={navItems}
+          userRole={userRole}
+        />
 
-    {/* Main content area scrolls */}
-    <main className="flex-1 overflow-auto p-4 md:p-6">
-      <div className="w-full max-w-7xl mx-auto">
-        {children}
+        {/* Main content area scrolls */}
+        <main className="flex-1 overflow-auto">
+          <div className="w-full max-w-7xl mx-auto p-6 sm:p-8 lg:p-10">
+            {children}
+          </div>
+        </main>
       </div>
-    </main>
-  </div>
-</div>
-
+    </div>
   );
 };
 

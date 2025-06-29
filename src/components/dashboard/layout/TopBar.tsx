@@ -58,26 +58,28 @@ const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount }: TopBarPro
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-4 lg:px-6">
+    <header className="flex h-16 sm:h-18 items-center justify-between border-b bg-white px-4 sm:px-6 shadow-sm">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden"
+          className="lg:hidden h-10 w-10"
           onClick={toggleSidebar}
         >
           <Menu className="h-6 w-6" />
         </Button>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 sm:gap-6">
         {userRole === 'admin' && pendingApplicationsCount !== undefined && pendingApplicationsCount > 0 && (
           <div className="flex items-center gap-2">
-            <Bell className="h-4 w-4" />
-            <Badge variant="destructive">{pendingApplicationsCount}</Badge>
+            <Bell className="h-5 w-5 text-gray-600" />
+            <Badge variant="destructive" className="font-semibold">
+              {pendingApplicationsCount}
+            </Badge>
           </div>
         )}
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="text-sm sm:text-base font-semibold text-gray-700 hidden sm:block">
           {getDisplayText()}
         </span>
       </div>
