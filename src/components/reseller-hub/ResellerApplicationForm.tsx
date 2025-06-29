@@ -31,7 +31,8 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
     documentFile,
     documentError, 
     setDocumentFile,
-    handleSubmit: submitForm 
+    handleSubmit: submitForm,
+    handleDocumentUploadComplete
   } = useResellerFormSubmission({ onSubmissionSuccess });
 
   const form = useForm<FormValues>({
@@ -84,6 +85,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
               documentFile={documentFile} 
               setDocumentFile={setDocumentFile}
               documentError={documentError}
+              onDocumentUploadComplete={handleDocumentUploadComplete}
             />
             
             <MarketplaceProfilesSection />

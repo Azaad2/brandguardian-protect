@@ -422,6 +422,7 @@ export type Database = {
           business_type: string
           company_name: string
           created_at: string
+          document_path: string | null
           ebay_seller_id: string | null
           ein_number: string
           email: string
@@ -442,6 +443,7 @@ export type Database = {
           business_type: string
           company_name: string
           created_at?: string
+          document_path?: string | null
           ebay_seller_id?: string | null
           ein_number: string
           email: string
@@ -462,6 +464,7 @@ export type Database = {
           business_type?: string
           company_name?: string
           created_at?: string
+          document_path?: string | null
           ebay_seller_id?: string | null
           ein_number?: string
           email?: string

@@ -2,15 +2,57 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, Loader2, FileText, Download } from 'lucide-react';
 import { useResellerApproval } from '@/hooks/use-reseller-approval';
 import { formatDistanceToNow } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const ResellerApprovalManager = () => {
   const { applications, loading, approveApplication, rejectApplication, refreshApplications } = useResellerApproval();
 
   console.log('🔍 ResellerApprovalManager - Applications:', applications);
   console.log('🔍 ResellerApprovalManager - Loading:', loading);
+
+  const downloadDocument = async (documentPath: string, companyName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .download(documentPath);
+
+      if (error) {
+        console.error('Error downloading document:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Download failed',
+          description: 'Failed to download document. Please try again.',
+        });
+        return;
+      }
+
+      // Create download link
+      const url = URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${companyName}_verification_document`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Document downloaded',
+        description: 'Verification document has been downloaded successfully.',
+      });
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Download failed',
+        description: 'Failed to download document. Please try again.',
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -64,6 +106,7 @@ const ResellerApprovalManager = () => {
                 {applications.map(app => (
                   <div key={app.id} className="text-xs">
                     {app.email} - Status: {app.status} - Created: {new Date(app.created_at).toLocaleDateString()}
+                    {(app as any).document_path && <span className="text-green-600 ml-2">📄 Document</span>}
                   </div>
                 ))}
               </div>
@@ -79,16 +122,35 @@ const ResellerApprovalManager = () => {
                       <CardTitle className="text-lg">{app.company_name}</CardTitle>
                       <CardDescription>{app.email}</CardDescription>
                     </div>
-                    <Badge variant={app.status === 'pending' ? 'default' : app.status === 'approved' ? 'secondary' : 'destructive'}>
-                      {app.status}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {(app as any).document_path && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => downloadDocument((app as any).document_path, app.company_name)}
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          View Document
+                        </Button>
+                      )}
+                      <Badge variant={app.status === 'pending' ? 'default' : app.status === 'approved' ? 'secondary' : 'destructive'}>
+                        {app.status}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">
-                      Applied {formatDistanceToNow(new Date(app.created_at))} ago
-                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">
+                        Applied {formatDistanceToNow(new Date(app.created_at))} ago
+                      </p>
+                      {!(app as any).document_path && (
+                        <p className="text-sm text-amber-600">
+                          ⚠️ No verification document uploaded
+                        </p>
+                      )}
+                    </div>
                     {app.status === 'pending' && (
                       <div className="flex gap-2">
                         <Button

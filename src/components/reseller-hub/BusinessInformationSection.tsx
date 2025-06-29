@@ -15,12 +15,14 @@ interface BusinessInformationSectionProps {
   documentFile: File | null;
   setDocumentFile: (file: File | null) => void;
   documentError?: string | null;
+  onDocumentUploadComplete?: (filePath: string) => void;
 }
 
 const BusinessInformationSection = ({ 
   documentFile, 
   setDocumentFile,
-  documentError
+  documentError,
+  onDocumentUploadComplete
 }: BusinessInformationSectionProps) => {
   const form = useFormContext<FormValues>();
   
@@ -89,6 +91,7 @@ const BusinessInformationSection = ({
         documentFile={documentFile} 
         setDocumentFile={setDocumentFile}
         documentError={documentError}
+        onUploadComplete={onDocumentUploadComplete}
       />
     </div>
   );

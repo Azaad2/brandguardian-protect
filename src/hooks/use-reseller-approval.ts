@@ -28,7 +28,8 @@ export const useResellerApproval = () => {
           email,
           company_name,
           status,
-          created_at
+          created_at,
+          document_path
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
