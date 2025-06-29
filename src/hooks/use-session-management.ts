@@ -13,43 +13,23 @@ export const useSessionManagement = (userRole: UserRole | null) => {
 
     let inactivityTimer: NodeJS.Timeout;
     
-    // Auto logout on browser/tab close or navigation away
-    const handleBeforeUnload = async () => {
-      await supabase.auth.signOut();
-      localStorage.clear();
-      sessionStorage.clear();
-    };
-
-    // Auto logout on page hide (when tab becomes inactive)
-    const handleVisibilityChange = async () => {
-      if (document.hidden) {
-        await supabase.auth.signOut();
-        localStorage.clear();
-        sessionStorage.clear();
-      }
-    };
-
-    // Auto logout after 30 minutes of inactivity
+    // Only auto logout after 2 hours of inactivity (much more reasonable)
     const resetInactivityTimer = () => {
       if (inactivityTimer) {
         clearTimeout(inactivityTimer);
       }
       
       inactivityTimer = setTimeout(async () => {
-        console.log('🚪 Auto logout due to inactivity');
+        console.log('🚪 Auto logout due to inactivity (2 hours)');
         await supabase.auth.signOut();
         localStorage.clear();
         sessionStorage.clear();
         window.location.href = '/';
-      }, 30 * 60 * 1000); // 30 minutes
+      }, 2 * 60 * 60 * 1000); // 2 hours instead of 30 minutes
     };
 
     // Events that reset the inactivity timer
     const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
-    // Add event listeners
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     
     // Add activity listeners
     activityEvents.forEach(event => {
@@ -61,9 +41,6 @@ export const useSessionManagement = (userRole: UserRole | null) => {
 
     // Cleanup
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      
       activityEvents.forEach(event => {
         document.removeEventListener(event, resetInactivityTimer, true);
       });
