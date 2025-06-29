@@ -101,24 +101,14 @@ const ResellerBrands = () => {
                     {brand.logo_url && (
                       <img 
                         src={brand.logo_url} 
-                        alt={`${brand.name || 'Brand'} logo`}
+                        alt="Department logo"
                         className="w-12 h-12 rounded object-cover"
                       />
                     )}
                     <div>
                       <CardTitle className="text-lg">
-                        {brand.department || brand.name || 'Unknown Brand'}
+                        {brand.department || 'Department'}
                       </CardTitle>
-                      {brand.department && brand.name && (
-                        <div className="text-sm text-muted-foreground">
-                          Brand: {brand.name}
-                        </div>
-                      )}
-                      {!brand.department && brand.name && (
-                        <div className="text-sm text-muted-foreground">
-                          Brand Name
-                        </div>
-                      )}
                       {brand.approval_rate && (
                         <div className="text-sm text-muted-foreground">
                           Approval Rate: {brand.approval_rate}%
