@@ -67,6 +67,8 @@ const handler = async (req: Request): Promise<Response> => {
         throw new Error(`Email mismatch: Application email (${application.email}) does not match provided email (${userEmail})`);
       }
 
+      let userId = application.user_id;
+
       // If no user_id exists, create the user account first
       if (!application.user_id) {
         console.log('👤 Creating new user account for:', userEmail);
@@ -86,11 +88,12 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
         console.log('✅ User account created successfully:', newUser.user?.id);
+        userId = newUser.user?.id;
 
         // Update application with new user_id
         const { error: updateUserIdError } = await supabaseAdmin
           .from('reseller_applications')
-          .update({ user_id: newUser.user?.id })
+          .update({ user_id: userId })
           .eq('id', applicationId);
 
         if (updateUserIdError) {
@@ -102,58 +105,102 @@ const handler = async (req: Request): Promise<Response> => {
       } else {
         console.log('👤 Updating existing user password for:', userEmail, 'User ID:', application.user_id);
         
-        // First, let's check if the user exists in auth.users
-        const { data: existingUser, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(application.user_id);
+        // Check if user exists by email first, not by user_id
+        const { data: existingUsers, error: listUsersError } = await supabaseAdmin.auth.admin.listUsers();
         
-        if (getUserError) {
-          console.error('❌ Error fetching existing user:', getUserError);
-          throw getUserError;
+        if (listUsersError) {
+          console.error('❌ Error listing users:', listUsersError);
+          throw listUsersError;
         }
 
-        console.log('👤 Existing user found:', { 
-          id: existingUser.user?.id, 
-          email: existingUser.user?.email,
-          confirmed: existingUser.user?.email_confirmed_at ? 'yes' : 'no'
-        });
-
-        // Validate that the user's email matches the application email
-        if (existingUser.user?.email !== application.email) {
-          console.error('❌ User email mismatch:', {
-            userEmail: existingUser.user?.email,
-            applicationEmail: application.email
-          });
-          throw new Error(`User email mismatch: User email (${existingUser.user?.email}) does not match application email (${application.email})`);
-        }
+        // Find user by email
+        const existingUser = existingUsers.users?.find(user => user.email === userEmail);
         
-        // Update existing user's password with more detailed logging
-        const { data: updateResult, error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(
-          application.user_id,
-          { 
-            password: temporaryPassword,
-            email_confirm: true // Ensure email is confirmed
-          }
-        );
-
-        if (passwordError) {
-          console.error('❌ Error updating user password:', {
-            error: passwordError,
-            userId: application.user_id,
+        if (!existingUser) {
+          console.log('👤 User not found by email, creating new user account for:', userEmail);
+          
+          const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
             email: userEmail,
-            passwordLength: temporaryPassword?.length
+            password: temporaryPassword,
+            email_confirm: true,
+            user_metadata: {
+              user_role: 'reseller'
+            }
           });
-          throw passwordError;
+
+          if (createError) {
+            console.error('❌ Error creating user account:', createError);
+            throw createError;
+          }
+
+          console.log('✅ New user account created successfully:', newUser.user?.id);
+          userId = newUser.user?.id;
+
+          // Update application with correct user_id
+          const { error: updateUserIdError } = await supabaseAdmin
+            .from('reseller_applications')
+            .update({ user_id: userId })
+            .eq('id', applicationId);
+
+          if (updateUserIdError) {
+            console.error('❌ Error updating application with user_id:', updateUserIdError);
+            throw updateUserIdError;
+          }
+        } else {
+          console.log('👤 Existing user found by email:', { 
+            id: existingUser.id, 
+            email: existingUser.email,
+            confirmed: existingUser.email_confirmed_at ? 'yes' : 'no'
+          });
+
+          userId = existingUser.id;
+          
+          // Update existing user's password
+          const { data: updateResult, error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(
+            existingUser.id,
+            { 
+              password: temporaryPassword,
+              email_confirm: true,
+              user_metadata: {
+                user_role: 'reseller'
+              }
+            }
+          );
+
+          if (passwordError) {
+            console.error('❌ Error updating user password:', {
+              error: passwordError,
+              userId: existingUser.id,
+              email: userEmail,
+              passwordLength: temporaryPassword?.length
+            });
+            throw passwordError;
+          }
+
+          console.log('✅ User password updated successfully:', {
+            userId: updateResult.user?.id,
+            email: updateResult.user?.email,
+            updatedAt: updateResult.user?.updated_at
+          });
+
+          // Update application with correct user_id if different
+          if (application.user_id !== existingUser.id) {
+            const { error: updateUserIdError } = await supabaseAdmin
+              .from('reseller_applications')
+              .update({ user_id: existingUser.id })
+              .eq('id', applicationId);
+
+            if (updateUserIdError) {
+              console.error('❌ Error updating application with correct user_id:', updateUserIdError);
+              throw updateUserIdError;
+            }
+          }
         }
-
-        console.log('✅ User password updated successfully:', {
-          userId: updateResult.user?.id,
-          email: updateResult.user?.email,
-          updatedAt: updateResult.user?.updated_at
-        });
-
-        // Add a small delay to ensure the password update is propagated
-        console.log('⏳ Waiting for password update to propagate...');
-        await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
       }
+
+      // Add a delay to ensure the password update is propagated
+      console.log('⏳ Waiting for password update to propagate...');
+      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
 
       // Update application status to approved
       const { error: updateError } = await supabaseAdmin
