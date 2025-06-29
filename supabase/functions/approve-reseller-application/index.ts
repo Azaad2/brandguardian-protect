@@ -58,6 +58,15 @@ const handler = async (req: Request): Promise<Response> => {
         userId: application.user_id 
       });
 
+      // Validate that the provided email matches the application email
+      if (application.email !== userEmail) {
+        console.error('❌ Email mismatch:', {
+          applicationEmail: application.email,
+          providedEmail: userEmail
+        });
+        throw new Error(`Email mismatch: Application email (${application.email}) does not match provided email (${userEmail})`);
+      }
+
       // If no user_id exists, create the user account first
       if (!application.user_id) {
         console.log('👤 Creating new user account for:', userEmail);
@@ -106,6 +115,15 @@ const handler = async (req: Request): Promise<Response> => {
           email: existingUser.user?.email,
           confirmed: existingUser.user?.email_confirmed_at ? 'yes' : 'no'
         });
+
+        // Validate that the user's email matches the application email
+        if (existingUser.user?.email !== application.email) {
+          console.error('❌ User email mismatch:', {
+            userEmail: existingUser.user?.email,
+            applicationEmail: application.email
+          });
+          throw new Error(`User email mismatch: User email (${existingUser.user?.email}) does not match application email (${application.email})`);
+        }
         
         // Update existing user's password with more detailed logging
         const { data: updateResult, error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(

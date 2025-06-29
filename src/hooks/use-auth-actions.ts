@@ -93,9 +93,8 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
     try {
       setIsLoading(true);
       console.log(`🔐 Starting sign in process for: ${email}`);
-      console.log(`🔑 Password provided: ${password ? `${password.length} characters` : 'none'}`);
       
-      // First, verify credentials with detailed logging
+      // Attempt to sign in with credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -106,46 +105,17 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         userId: data?.user?.id, 
         userEmail: data?.user?.email,
         sessionExists: !!data?.session,
-        sessionAccessToken: data?.session?.access_token ? 'present' : 'missing',
         errorMessage: error?.message,
-        errorCode: error?.code || 'none',
-        errorStatus: error?.status || 'none'
+        errorCode: error?.code || 'none'
       });
       
       if (error) {
-        console.error('❌ Sign in error - detailed analysis:', {
+        console.error('❌ Sign in error:', {
           message: error.message,
           code: error.code || 'unknown',
-          status: error.status || 'unknown',
           email: email,
-          passwordLength: password?.length || 0,
           timestamp: new Date().toISOString()
         });
-        
-        // Check if this might be a timing issue with recently updated passwords
-        if (error.code === 'invalid_credentials') {
-          console.log('🔍 Invalid credentials - checking if this is a recently approved reseller...');
-          
-          // Check if there's a recent reseller application for this email
-          const { data: resellerApp, error: appError } = await supabase
-            .from('reseller_applications')
-            .select('status, updated_at')
-            .eq('email', email)
-            .eq('status', 'approved')
-            .single();
-
-          if (resellerApp && !appError) {
-            const updatedAt = new Date(resellerApp.updated_at);
-            const now = new Date();
-            const timeDifference = (now.getTime() - updatedAt.getTime()) / 1000; // seconds
-            
-            console.log(`⏰ Reseller application was approved ${timeDifference} seconds ago`);
-            
-            if (timeDifference < 60) { // Less than 1 minute ago
-              throw new Error('Your account was just approved. Please wait a moment and try again, as password updates may take a few seconds to propagate.');
-            }
-          }
-        }
         
         throw error;
       }
@@ -181,7 +151,6 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
           console.log('📋 Reseller application status check:', { 
             applicationFound: !!resellerApp, 
             status: resellerApp?.status,
-            lastUpdated: resellerApp?.updated_at,
             checkError: appError?.message 
           });
 
@@ -211,12 +180,9 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       console.log('🎉 Sign in process completed successfully for:', email);
       
     } catch (error: any) {
-      console.error('❌ Complete sign in process failed for:', email, {
-        errorType: typeof error,
-        errorName: error?.name,
+      console.error('❌ Sign in process failed for:', email, {
         errorMessage: error?.message,
-        errorCode: error?.code,
-        errorStatus: error?.status
+        errorCode: error?.code
       });
       
       toast({
