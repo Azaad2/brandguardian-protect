@@ -29,17 +29,15 @@ const BrandCSVUpload = ({ onSuccess }: BrandCSVUploadProps) => {
   const handleUpload = async () => {
     if (!file) return;
     
-    const success = await uploadCSV(file);
-    if (success) {
-      setFile(null);
-      onSuccess();
-    }
+    uploadCSV(file);
+    setFile(null);
+    onSuccess();
   };
 
   const downloadTemplate = () => {
     const csvContent = `name,website_url,description,contact_email,logo_url,categories,approval_rate,response_time,department
-"Example Brand","https://example.com","Premium quality products","contact@example.com","https://example.com/logo.png","Electronics,Gadgets","95.5","12","Consumer Electronics"
-"Another Brand","https://anotherbrand.com","Sustainable fashion","hello@anotherbrand.com","","Fashion,Sustainable","88.2","24","Fashion & Apparel"`;
+"Example Brand","https://example.com","Premium quality products","contact@example.com","https://example.com/logo.png","Electronics;Gadgets","95.5","12","Consumer Electronics"
+"Another Brand","https://anotherbrand.com","Sustainable fashion","hello@anotherbrand.com","","Fashion;Sustainable","88.2","24","Fashion & Apparel"`;
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
