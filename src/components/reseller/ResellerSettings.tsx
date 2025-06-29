@@ -179,6 +179,7 @@ const ResellerSettings = () => {
               <SalesPerformanceCard 
                 profile={profile} 
                 formatSalesVolume={formatSalesVolume}
+                formatWholesaleBudget={formatWholesaleBudget}
               />
             </CardContent>
           </Card>
