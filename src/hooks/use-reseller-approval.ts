@@ -55,88 +55,22 @@ export const useResellerApproval = () => {
       const temporaryPassword = generateTemporaryPassword();
       console.log('🔐 Generated temporary password for:', userEmail);
 
-      // Get the application to check if user exists
-      const { data: application, error: appError } = await supabase
-        .from('reseller_applications')
-        .select('user_id')
-        .eq('id', applicationId)
-        .single();
-
-      if (appError) throw appError;
-
-      // If no user_id exists, create the user account first
-      if (!application.user_id) {
-        console.log('👤 No user account found, creating account for:', userEmail);
-        
-        const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-          email: userEmail,
-          password: temporaryPassword,
-          email_confirm: true, // Auto-confirm email
-          user_metadata: {
-            user_role: 'reseller'
-          }
-        });
-
-        if (createError) {
-          console.error('❌ Error creating user account:', createError);
-          throw createError;
-        }
-
-        console.log('✅ User account created successfully:', newUser.user?.id);
-
-        // Update application with new user_id
-        const { error: updateUserIdError } = await supabase
-          .from('reseller_applications')
-          .update({ user_id: newUser.user?.id })
-          .eq('id', applicationId);
-
-        if (updateUserIdError) {
-          console.error('❌ Error updating application with user_id:', updateUserIdError);
-          throw updateUserIdError;
-        }
-      } else {
-        console.log('👤 User account exists, updating password for:', userEmail);
-        
-        // Update existing user's password
-        const { error: passwordError } = await supabase.auth.admin.updateUserById(
-          application.user_id,
-          { password: temporaryPassword }
-        );
-
-        if (passwordError) {
-          console.error('❌ Error updating user password:', passwordError);
-          throw passwordError;
-        }
-
-        console.log('✅ User password updated successfully');
-      }
-
-      // Update application status to approved
-      const { error: updateError } = await supabase
-        .from('reseller_applications')
-        .update({ status: 'approved' })
-        .eq('id', applicationId);
-
-      if (updateError) throw updateError;
-
-      console.log('✅ Application status updated to approved');
-
-      // Send approval email with temporary password via edge function
-      const { error: emailError } = await supabase.functions.invoke('send-reseller-approval-email', {
+      // Call the edge function to handle the approval
+      const { data, error } = await supabase.functions.invoke('approve-reseller-application', {
         body: {
-          email: userEmail,
-          status: 'approved',
-          loginUrl: `${window.location.origin}/reseller/login`,
-          temporaryPassword: temporaryPassword
+          applicationId,
+          userEmail,
+          action: 'approve',
+          temporaryPassword
         }
       });
 
-      if (emailError) {
-        console.error('❌ Error sending approval email:', emailError);
-        // Don't throw here, application is still approved
-      } else {
-        console.log('✅ Approval email sent successfully');
+      if (error) {
+        console.error('❌ Error from approval function:', error);
+        throw error;
       }
+
+      console.log('✅ Application approved successfully:', data);
 
       toast({
         title: 'Application approved',
@@ -150,33 +84,30 @@ export const useResellerApproval = () => {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to approve application',
+        description: 'Failed to approve application. Please try again.',
       });
     }
   };
 
   const rejectApplication = async (applicationId: string, userEmail: string) => {
     try {
-      // Update application status
-      const { error: updateError } = await supabase
-        .from('reseller_applications')
-        .update({ status: 'rejected' })
-        .eq('id', applicationId);
+      console.log('🎯 Starting rejection process for:', userEmail);
 
-      if (updateError) throw updateError;
-
-      // Send rejection email via edge function
-      const { error: emailError } = await supabase.functions.invoke('send-reseller-approval-email', {
+      // Call the edge function to handle the rejection
+      const { data, error } = await supabase.functions.invoke('approve-reseller-application', {
         body: {
-          email: userEmail,
-          status: 'rejected',
-          loginUrl: null
+          applicationId,
+          userEmail,
+          action: 'reject'
         }
       });
 
-      if (emailError) {
-        console.error('Error sending rejection email:', emailError);
+      if (error) {
+        console.error('❌ Error from rejection function:', error);
+        throw error;
       }
+
+      console.log('✅ Application rejected successfully:', data);
 
       toast({
         title: 'Application rejected',
@@ -186,11 +117,11 @@ export const useResellerApproval = () => {
       // Refresh applications list
       await fetchPendingApplications();
     } catch (error) {
-      console.error('Error rejecting application:', error);
+      console.error('❌ Error rejecting application:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to reject application',
+        description: 'Failed to reject application. Please try again.',
       });
     }
   };
