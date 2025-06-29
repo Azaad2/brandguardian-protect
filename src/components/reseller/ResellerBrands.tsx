@@ -107,11 +107,16 @@ const ResellerBrands = () => {
                     )}
                     <div>
                       <CardTitle className="text-lg">
-                        {brand.department || 'General Department'}
+                        {brand.department || brand.name || 'Unknown Brand'}
                       </CardTitle>
-                      {brand.name && (
+                      {brand.department && brand.name && (
                         <div className="text-sm text-muted-foreground">
                           Brand: {brand.name}
+                        </div>
+                      )}
+                      {!brand.department && brand.name && (
+                        <div className="text-sm text-muted-foreground">
+                          Brand Name
                         </div>
                       )}
                       {brand.approval_rate && (
