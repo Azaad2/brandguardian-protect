@@ -36,6 +36,8 @@ export const useBrandApplications = () => {
     queryFn: async () => {
       if (!user) return [];
       
+      console.log('Fetching brand applications for user:', user.id);
+      
       const { data, error } = await supabase
         .from('brand_applications')
         .select(`
@@ -55,7 +57,12 @@ export const useBrandApplications = () => {
         .eq('reseller_id', user.id)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching brand applications:', error);
+        throw error;
+      }
+      
+      console.log('Brand applications fetched:', data);
       return data as BrandApplication[];
     },
     enabled: !!user,
@@ -65,6 +72,8 @@ export const useBrandApplications = () => {
   const applyToBrandMutation = useMutation({
     mutationFn: async ({ brandId, applicationData }: { brandId: string; applicationData?: any }) => {
       if (!user) throw new Error('User not authenticated');
+
+      console.log('Applying to brand:', brandId, 'for user:', user.id);
 
       // Generate unique email thread ID
       const emailThreadId = `app_${brandId}_${user.id}_${Date.now()}`;
@@ -94,34 +103,47 @@ export const useBrandApplications = () => {
         `)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error applying to brand:', error);
+        throw error;
+      }
+
+      console.log('Brand application created:', data);
 
       // Send email notification to brand if contact email exists
       if (data.brand?.contact_email) {
-        await supabase.functions.invoke('send-brand-application-email', {
-          body: {
-            brandEmail: data.brand.contact_email,
-            brandName: data.brand.name,
-            emailThreadId,
-            applicationId: data.id,
-            resellerInfo: {
-              id: user.id,
-              email: user.email,
+        try {
+          await supabase.functions.invoke('send-brand-application-email', {
+            body: {
+              brandEmail: data.brand.contact_email,
+              brandName: data.brand.name,
+              emailThreadId,
+              applicationId: data.id,
+              resellerInfo: {
+                id: user.id,
+                email: user.email,
+              }
             }
-          }
-        });
+          });
+          console.log('Application email sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send application email:', emailError);
+          // Don't throw error for email failure, application was still created
+        }
       }
 
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['brand-applications'] });
+      queryClient.invalidateQueries({ queryKey: ['available-brands'] });
       toast({
         title: 'Application Submitted!',
         description: 'Your application has been sent to the brand. You will receive updates in your messages.',
       });
     },
     onError: (error) => {
+      console.error('Brand application failed:', error);
       toast({
         title: 'Application Failed',
         description: error.message,
@@ -145,58 +167,94 @@ export const useAvailableBrands = () => {
   return useQuery({
     queryKey: ['available-brands', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        console.log('No user found, returning empty brands list');
+        return [];
+      }
 
-      // Get brands allocated to this reseller
-      const { data: allocatedBrands, error: allocationsError } = await supabase
-        .from('brand_reseller_allocations')
-        .select(`
-          brand_id,
-          brands_directory(
-            id,
-            name,
-            website_url,
-            description,
-            contact_email,
-            logo_url,
-            categories,
-            is_active,
-            department,
-            approval_rate,
-            response_time,
-            created_at,
-            updated_at
+      console.log('Fetching available brands for user:', user.id);
+
+      try {
+        // Get brands allocated to this reseller
+        const { data: allocatedBrands, error: allocationsError } = await supabase
+          .from('brand_reseller_allocations')
+          .select(`
+            brand_id,
+            brands_directory!inner(
+              id,
+              name,
+              website_url,
+              description,
+              contact_email,
+              logo_url,
+              categories,
+              is_active,
+              department,
+              approval_rate,
+              response_time,
+              created_at,
+              updated_at
+            )
+          `)
+          .eq('reseller_id', user.id);
+
+        if (allocationsError) {
+          console.error('Error fetching brand allocations:', allocationsError);
+          throw allocationsError;
+        }
+
+        console.log('Raw allocated brands data:', allocatedBrands);
+
+        // Filter out null brands and only include active ones
+        const activeBrands = allocatedBrands
+          ?.filter(allocation => 
+            allocation.brands_directory && 
+            allocation.brands_directory.is_active
           )
-        `)
-        .eq('reseller_id', user.id);
+          .map(allocation => allocation.brands_directory) || [];
 
-      if (allocationsError) throw allocationsError;
+        console.log('Active allocated brands:', activeBrands);
 
-      // Filter out null brands and only include active ones
-      const activeBrands = allocatedBrands
-        .filter(allocation => allocation.brands_directory && allocation.brands_directory.is_active)
-        .map(allocation => allocation.brands_directory);
+        if (activeBrands.length === 0) {
+          console.log('No active brands allocated to user');
+          return [];
+        }
 
-      // Get user's applications for these brands
-      const brandIds = activeBrands.map(brand => brand.id);
-      const { data: applications, error: appsError } = await supabase
-        .from('brand_applications')
-        .select('brand_id, status')
-        .eq('reseller_id', user.id)
-        .in('brand_id', brandIds);
+        // Get user's applications for these brands
+        const brandIds = activeBrands.map(brand => brand.id);
+        const { data: applications, error: appsError } = await supabase
+          .from('brand_applications')
+          .select('brand_id, status')
+          .eq('reseller_id', user.id)
+          .in('brand_id', brandIds);
 
-      if (appsError) throw appsError;
+        if (appsError) {
+          console.error('Error fetching applications:', appsError);
+          throw appsError;
+        }
 
-      // Map applications to brands
-      const applicationMap = new Map(
-        applications.map(app => [app.brand_id, app.status])
-      );
+        console.log('User applications:', applications);
 
-      return activeBrands.map(brand => ({
-        ...brand,
-        applicationStatus: applicationMap.get(brand.id) || null,
-      }));
+        // Map applications to brands
+        const applicationMap = new Map(
+          applications?.map(app => [app.brand_id, app.status]) || []
+        );
+
+        const brandsWithStatus = activeBrands.map(brand => ({
+          ...brand,
+          applicationStatus: applicationMap.get(brand.id) || null,
+        }));
+
+        console.log('Final brands with application status:', brandsWithStatus);
+        return brandsWithStatus;
+
+      } catch (error) {
+        console.error('Error in useAvailableBrands:', error);
+        throw error;
+      }
     },
     enabled: !!user,
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes
   });
 };
