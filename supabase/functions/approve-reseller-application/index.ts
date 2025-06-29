@@ -36,7 +36,6 @@ const handler = async (req: Request): Promise<Response> => {
     const { applicationId, userEmail, action, temporaryPassword }: ApprovalRequest = await req.json();
 
     console.log(`🎯 Processing ${action} for application:`, applicationId, userEmail);
-    console.log(`🔐 Temporary password provided:`, temporaryPassword ? `${temporaryPassword.length} characters` : 'none');
 
     if (action === 'approve') {
       // Get the application to check if user exists
@@ -58,19 +57,63 @@ const handler = async (req: Request): Promise<Response> => {
         userId: application.user_id 
       });
 
-      // Validate that the provided email matches the application email
-      if (application.email !== userEmail) {
-        console.error('❌ Email mismatch:', {
-          applicationEmail: application.email,
-          providedEmail: userEmail
-        });
-        throw new Error(`Email mismatch: Application email (${application.email}) does not match provided email (${userEmail})`);
-      }
-
       let userId = application.user_id;
 
-      // If no user_id exists, create the user account first
-      if (!application.user_id) {
+      // First, check if a user already exists with this email
+      const { data: existingUsers, error: listUsersError } = await supabaseAdmin.auth.admin.listUsers();
+      
+      if (listUsersError) {
+        console.error('❌ Error listing users:', listUsersError);
+        throw listUsersError;
+      }
+
+      const existingUser = existingUsers.users?.find(user => user.email === userEmail);
+      
+      if (existingUser) {
+        console.log('👤 User already exists:', { 
+          id: existingUser.id, 
+          email: existingUser.email,
+          confirmed: existingUser.email_confirmed_at ? 'yes' : 'no'
+        });
+
+        userId = existingUser.id;
+        
+        // Update existing user's password and metadata
+        const { data: updateResult, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+          existingUser.id,
+          { 
+            password: temporaryPassword,
+            email_confirm: true,
+            user_metadata: {
+              user_role: 'reseller'
+            }
+          }
+        );
+
+        if (updateError) {
+          console.error('❌ Error updating existing user:', updateError);
+          throw updateError;
+        }
+
+        console.log('✅ Existing user updated successfully:', {
+          userId: updateResult.user?.id,
+          email: updateResult.user?.email
+        });
+
+        // Update application with correct user_id if needed
+        if (application.user_id !== existingUser.id) {
+          const { error: updateAppError } = await supabaseAdmin
+            .from('reseller_applications')
+            .update({ user_id: existingUser.id })
+            .eq('id', applicationId);
+
+          if (updateAppError) {
+            console.error('❌ Error updating application user_id:', updateAppError);
+            throw updateAppError;
+          }
+        }
+
+      } else {
         console.log('👤 Creating new user account for:', userEmail);
         
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -100,107 +143,11 @@ const handler = async (req: Request): Promise<Response> => {
           console.error('❌ Error updating application with user_id:', updateUserIdError);
           throw updateUserIdError;
         }
-
-        console.log('✅ Application updated with user_id');
-      } else {
-        console.log('👤 Updating existing user password for:', userEmail, 'User ID:', application.user_id);
-        
-        // Check if user exists by email first, not by user_id
-        const { data: existingUsers, error: listUsersError } = await supabaseAdmin.auth.admin.listUsers();
-        
-        if (listUsersError) {
-          console.error('❌ Error listing users:', listUsersError);
-          throw listUsersError;
-        }
-
-        // Find user by email
-        const existingUser = existingUsers.users?.find(user => user.email === userEmail);
-        
-        if (!existingUser) {
-          console.log('👤 User not found by email, creating new user account for:', userEmail);
-          
-          const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-            email: userEmail,
-            password: temporaryPassword,
-            email_confirm: true,
-            user_metadata: {
-              user_role: 'reseller'
-            }
-          });
-
-          if (createError) {
-            console.error('❌ Error creating user account:', createError);
-            throw createError;
-          }
-
-          console.log('✅ New user account created successfully:', newUser.user?.id);
-          userId = newUser.user?.id;
-
-          // Update application with correct user_id
-          const { error: updateUserIdError } = await supabaseAdmin
-            .from('reseller_applications')
-            .update({ user_id: userId })
-            .eq('id', applicationId);
-
-          if (updateUserIdError) {
-            console.error('❌ Error updating application with user_id:', updateUserIdError);
-            throw updateUserIdError;
-          }
-        } else {
-          console.log('👤 Existing user found by email:', { 
-            id: existingUser.id, 
-            email: existingUser.email,
-            confirmed: existingUser.email_confirmed_at ? 'yes' : 'no'
-          });
-
-          userId = existingUser.id;
-          
-          // Update existing user's password
-          const { data: updateResult, error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(
-            existingUser.id,
-            { 
-              password: temporaryPassword,
-              email_confirm: true,
-              user_metadata: {
-                user_role: 'reseller'
-              }
-            }
-          );
-
-          if (passwordError) {
-            console.error('❌ Error updating user password:', {
-              error: passwordError,
-              userId: existingUser.id,
-              email: userEmail,
-              passwordLength: temporaryPassword?.length
-            });
-            throw passwordError;
-          }
-
-          console.log('✅ User password updated successfully:', {
-            userId: updateResult.user?.id,
-            email: updateResult.user?.email,
-            updatedAt: updateResult.user?.updated_at
-          });
-
-          // Update application with correct user_id if different
-          if (application.user_id !== existingUser.id) {
-            const { error: updateUserIdError } = await supabaseAdmin
-              .from('reseller_applications')
-              .update({ user_id: existingUser.id })
-              .eq('id', applicationId);
-
-            if (updateUserIdError) {
-              console.error('❌ Error updating application with correct user_id:', updateUserIdError);
-              throw updateUserIdError;
-            }
-          }
-        }
       }
 
       // Add a delay to ensure the password update is propagated
-      console.log('⏳ Waiting for password update to propagate...');
-      await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
+      console.log('⏳ Waiting for user update to propagate...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Update application status to approved
       const { error: updateError } = await supabaseAdmin
@@ -248,7 +195,7 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${window.location?.origin || 'https://your-app-domain.com'}/reseller/login" 
+                <a href="${Deno.env.get('SUPABASE_URL')?.replace('/supabase', '') || 'https://your-app-domain.com'}/reseller/login" 
                    style="background-color: #10b981; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px;">
                   🚀 Login to Your Dashboard
                 </a>
