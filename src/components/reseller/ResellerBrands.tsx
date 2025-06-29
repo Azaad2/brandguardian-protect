@@ -46,7 +46,7 @@ const ResellerBrands = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Available Departments</h1>
+          <h1 className="text-3xl font-bold">Available Brands</h1>
           <p className="text-muted-foreground">Discover and apply to wholesale opportunities</p>
         </div>
         
@@ -64,7 +64,7 @@ const ResellerBrands = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Available Departments</h1>
+        <h1 className="text-3xl font-bold">Available Brands</h1>
         <p className="text-muted-foreground">Discover and apply to wholesale opportunities with one click</p>
       </div>
 
@@ -87,7 +87,7 @@ const ResellerBrands = () => {
         <Card>
           <CardContent className="text-center py-8">
             <div className="text-muted-foreground">
-              No departments are currently available for applications. Check back later!
+              No brands are currently available for applications. Check back later!
             </div>
           </CardContent>
         </Card>
