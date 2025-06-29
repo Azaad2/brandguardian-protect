@@ -93,71 +93,104 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
     try {
       setIsLoading(true);
       console.log(`🔐 Starting sign in process for: ${email}`);
+      console.log(`🔑 Password provided: ${password ? `${password.length} characters` : 'none'}`);
       
-      // First, verify credentials
+      // First, verify credentials with detailed logging
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      console.log('🔐 Sign in response:', { 
-        user: data?.user?.id, 
-        session: !!data?.session,
-        error: error?.message 
+      console.log('🔐 Sign in response details:', { 
+        userExists: !!data?.user,
+        userId: data?.user?.id, 
+        userEmail: data?.user?.email,
+        sessionExists: !!data?.session,
+        sessionAccessToken: data?.session?.access_token ? 'present' : 'missing',
+        errorMessage: error?.message,
+        errorCode: error?.code || 'none',
+        errorStatus: error?.status || 'none'
       });
       
       if (error) {
-        console.error('❌ Sign in error details:', {
+        console.error('❌ Sign in error - detailed analysis:', {
           message: error.message,
           code: error.code || 'unknown',
-          status: error.status || 'unknown'
+          status: error.status || 'unknown',
+          email: email,
+          passwordLength: password?.length || 0,
+          timestamp: new Date().toISOString()
         });
+        
+        // Check if this might be a timing issue with recently updated passwords
+        if (error.code === 'invalid_credentials') {
+          console.log('🔍 Invalid credentials - checking if this is a recently approved reseller...');
+          
+          // Check if there's a recent reseller application for this email
+          const { data: resellerApp, error: appError } = await supabase
+            .from('reseller_applications')
+            .select('status, updated_at')
+            .eq('email', email)
+            .eq('status', 'approved')
+            .single();
+
+          if (resellerApp && !appError) {
+            const updatedAt = new Date(resellerApp.updated_at);
+            const now = new Date();
+            const timeDifference = (now.getTime() - updatedAt.getTime()) / 1000; // seconds
+            
+            console.log(`⏰ Reseller application was approved ${timeDifference} seconds ago`);
+            
+            if (timeDifference < 60) { // Less than 1 minute ago
+              throw new Error('Your account was just approved. Please wait a moment and try again, as password updates may take a few seconds to propagate.');
+            }
+          }
+        }
+        
         throw error;
       }
 
+      // If we get here, authentication was successful
+      console.log('✅ Authentication successful, checking user profile and permissions');
+
       // Check if user is a reseller and verify approval status
       if (data?.user) {
-        const { data: profile } = await supabase
+        console.log('👤 User authenticated, checking profile and role...');
+        
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('user_role')
+          .select('user_role, full_name')
           .eq('id', data.user.id)
           .single();
 
+        console.log('📋 Profile check result:', { 
+          profileFound: !!profile, 
+          userRole: profile?.user_role,
+          profileError: profileError?.message 
+        });
+
         if (profile?.user_role === 'reseller') {
-          console.log('🔍 Checking reseller approval status for:', email);
+          console.log('🔍 Reseller detected, checking approval status...');
           
           const { data: resellerApp, error: appError } = await supabase
             .from('reseller_applications')
-            .select('status')
+            .select('status, updated_at')
             .eq('user_id', data.user.id)
-            .maybeSingle();
+            .single();
 
-          console.log('📋 Reseller application check:', { 
-            found: !!resellerApp, 
+          console.log('📋 Reseller application status check:', { 
+            applicationFound: !!resellerApp, 
             status: resellerApp?.status,
-            error: appError?.message 
+            lastUpdated: resellerApp?.updated_at,
+            checkError: appError?.message 
           });
 
-          // If no application found, it might be a legacy account - allow login but show warning
-          if (!resellerApp && !appError) {
-            console.log('⚠️ No application found for reseller - allowing login with warning');
-            
-            toast({
-              title: 'Login successful',
-              description: 'Welcome! Please complete your profile setup if needed.',
-            });
-            
-            return; // Allow login
-          }
-
-          // If application exists but not approved
+          // If application exists and is not approved, block login
           if (resellerApp && resellerApp.status !== 'approved') {
-            console.log('⏳ Reseller application status:', resellerApp.status);
+            console.log('⛔ Blocking login - reseller application not approved');
             
-            // Sign out the user immediately to prevent any navigation
+            // Sign out the user immediately
             await supabase.auth.signOut();
-            localStorage.clear();
-            sessionStorage.clear();
             
             const statusMessage = resellerApp.status === 'rejected' 
               ? 'Your reseller application has been rejected. Please contact support for more information.'
@@ -166,22 +199,32 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
             throw new Error(statusMessage);
           }
 
-          console.log('✅ Reseller application approved, allowing login');
+          // If no application found, check if this is a legacy reseller account
+          if (!resellerApp && appError) {
+            console.log('⚠️ No reseller application found - might be legacy account, allowing login');
+          }
+
+          console.log('✅ Reseller login approved');
         }
       }
       
-      console.log('✅ Sign in successful for:', email);
-      
-      // Don't navigate here - let the auth state change handle routing
+      console.log('🎉 Sign in process completed successfully for:', email);
       
     } catch (error: any) {
-      console.error('❌ Sign in failed for:', email, error);
+      console.error('❌ Complete sign in process failed for:', email, {
+        errorType: typeof error,
+        errorName: error?.name,
+        errorMessage: error?.message,
+        errorCode: error?.code,
+        errorStatus: error?.status
+      });
+      
       toast({
         variant: 'destructive',
         title: 'Sign in failed',
         description: error.message,
       });
-      throw error; // Re-throw to allow the component to handle the error
+      throw error;
     } finally {
       setIsLoading(false);
     }

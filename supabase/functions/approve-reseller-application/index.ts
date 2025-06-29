@@ -35,21 +35,32 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { applicationId, userEmail, action, temporaryPassword }: ApprovalRequest = await req.json();
 
-    console.log(`Processing ${action} for application:`, applicationId, userEmail);
+    console.log(`🎯 Processing ${action} for application:`, applicationId, userEmail);
+    console.log(`🔐 Temporary password provided:`, temporaryPassword ? `${temporaryPassword.length} characters` : 'none');
 
     if (action === 'approve') {
       // Get the application to check if user exists
       const { data: application, error: appError } = await supabaseAdmin
         .from('reseller_applications')
-        .select('user_id')
+        .select('user_id, email')
         .eq('id', applicationId)
         .single();
 
-      if (appError) throw appError;
+      if (appError) {
+        console.error('❌ Error fetching application:', appError);
+        throw appError;
+      }
+
+      console.log('📋 Application data:', { 
+        applicationId, 
+        storedEmail: application.email, 
+        providedEmail: userEmail,
+        userId: application.user_id 
+      });
 
       // If no user_id exists, create the user account first
       if (!application.user_id) {
-        console.log('Creating new user account for:', userEmail);
+        console.log('👤 Creating new user account for:', userEmail);
         
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
           email: userEmail,
@@ -61,11 +72,11 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
         if (createError) {
-          console.error('Error creating user account:', createError);
+          console.error('❌ Error creating user account:', createError);
           throw createError;
         }
 
-        console.log('User account created successfully:', newUser.user?.id);
+        console.log('✅ User account created successfully:', newUser.user?.id);
 
         // Update application with new user_id
         const { error: updateUserIdError } = await supabaseAdmin
@@ -74,40 +85,78 @@ const handler = async (req: Request): Promise<Response> => {
           .eq('id', applicationId);
 
         if (updateUserIdError) {
-          console.error('Error updating application with user_id:', updateUserIdError);
+          console.error('❌ Error updating application with user_id:', updateUserIdError);
           throw updateUserIdError;
         }
+
+        console.log('✅ Application updated with user_id');
       } else {
-        console.log('Updating existing user password for:', userEmail);
+        console.log('👤 Updating existing user password for:', userEmail, 'User ID:', application.user_id);
         
-        // Update existing user's password
-        const { error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(
+        // First, let's check if the user exists in auth.users
+        const { data: existingUser, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(application.user_id);
+        
+        if (getUserError) {
+          console.error('❌ Error fetching existing user:', getUserError);
+          throw getUserError;
+        }
+
+        console.log('👤 Existing user found:', { 
+          id: existingUser.user?.id, 
+          email: existingUser.user?.email,
+          confirmed: existingUser.user?.email_confirmed_at ? 'yes' : 'no'
+        });
+        
+        // Update existing user's password with more detailed logging
+        const { data: updateResult, error: passwordError } = await supabaseAdmin.auth.admin.updateUserById(
           application.user_id,
-          { password: temporaryPassword }
+          { 
+            password: temporaryPassword,
+            email_confirm: true // Ensure email is confirmed
+          }
         );
 
         if (passwordError) {
-          console.error('Error updating user password:', passwordError);
+          console.error('❌ Error updating user password:', {
+            error: passwordError,
+            userId: application.user_id,
+            email: userEmail,
+            passwordLength: temporaryPassword?.length
+          });
           throw passwordError;
         }
 
-        console.log('User password updated successfully');
+        console.log('✅ User password updated successfully:', {
+          userId: updateResult.user?.id,
+          email: updateResult.user?.email,
+          updatedAt: updateResult.user?.updated_at
+        });
+
+        // Add a small delay to ensure the password update is propagated
+        console.log('⏳ Waiting for password update to propagate...');
+        await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
       }
 
       // Update application status to approved
       const { error: updateError } = await supabaseAdmin
         .from('reseller_applications')
-        .update({ status: 'approved' })
+        .update({ 
+          status: 'approved',
+          updated_at: new Date().toISOString()
+        })
         .eq('id', applicationId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('❌ Error updating application status:', updateError);
+        throw updateError;
+      }
 
-      console.log('Application status updated to approved');
+      console.log('✅ Application status updated to approved');
 
       // Send approval email
       const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
       
-      const { error: emailError } = await resend.emails.send({
+      const { data: emailResult, error: emailError } = await resend.emails.send({
         from: 'BndBox Team <applications@bndbox.com>',
         to: [userEmail],
         subject: 'Your Reseller Application Has Been Approved! 🎉',
@@ -134,9 +183,9 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${Deno.env.get('SUPABASE_URL')?.replace('https://flhqvkohslfxxfjzyzxy.supabase.co', window.location?.origin || 'http://localhost:3000')}/reseller/login" 
+                <a href="${window.location?.origin || 'https://your-app-domain.com'}/reseller/login" 
                    style="background-color: #10b981; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px;">
-                  🚀 Access Your Dashboard
+                  🚀 Login to Your Dashboard
                 </a>
               </div>
               
@@ -152,24 +201,32 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (emailError) {
-        console.error('Error sending approval email:', emailError);
+        console.error('❌ Error sending approval email:', emailError);
       } else {
-        console.log('Approval email sent successfully');
+        console.log('✅ Approval email sent successfully:', emailResult?.id);
       }
 
     } else if (action === 'reject') {
       // Update application status to rejected
       const { error: updateError } = await supabaseAdmin
         .from('reseller_applications')
-        .update({ status: 'rejected' })
+        .update({ 
+          status: 'rejected',
+          updated_at: new Date().toISOString()
+        })
         .eq('id', applicationId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('❌ Error updating application status to rejected:', updateError);
+        throw updateError;
+      }
+
+      console.log('✅ Application status updated to rejected');
 
       // Send rejection email
       const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
       
-      const { error: emailError } = await resend.emails.send({
+      const { data: emailResult, error: emailError } = await resend.emails.send({
         from: 'BndBox Team <applications@bndbox.com>',
         to: [userEmail],
         subject: 'Update on Your Reseller Application',
@@ -204,14 +261,17 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (emailError) {
-        console.error('Error sending rejection email:', emailError);
+        console.error('❌ Error sending rejection email:', emailError);
+      } else {
+        console.log('✅ Rejection email sent successfully:', emailResult?.id);
       }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Application ${action}d successfully`
+        message: `Application ${action}d successfully`,
+        timestamp: new Date().toISOString()
       }), 
       {
         status: 200,
@@ -220,11 +280,17 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error('Error in approve-reseller-application function:', error);
+    console.error('❌ Error in approve-reseller-application function:', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: `Failed to ${req.body ? 'process' : 'parse'} application`
+        details: `Failed to process reseller application`,
+        timestamp: new Date().toISOString()
       }),
       {
         status: 500,
