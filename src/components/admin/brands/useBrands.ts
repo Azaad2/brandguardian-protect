@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -45,27 +44,46 @@ export const useBrands = () => {
     mutationFn: async (brandData: Omit<Brand, 'id' | 'created_at' | 'updated_at'>) => {
       console.log('Adding brand with data:', brandData);
       
+      // Prepare the brand data object with all fields
+      const brandPayload = {
+        name: brandData.name,
+        website_url: brandData.website_url,
+        description: brandData.description,
+        contact_email: brandData.contact_email,
+        logo_url: brandData.logo_url,
+        categories: brandData.categories,
+        approval_rate: brandData.approval_rate,
+        response_time: brandData.response_time,
+        department: brandData.department, // Ensure department is included
+        is_active: brandData.is_active
+      };
+      
+      console.log('Brand payload being sent to RPC:', brandPayload);
+      
       const { data, error } = await supabase.rpc('admin_add_brand', {
-        brand_data: {
-          name: brandData.name,
-          website_url: brandData.website_url,
-          description: brandData.description,
-          contact_email: brandData.contact_email,
-          logo_url: brandData.logo_url,
-          categories: brandData.categories,
-          approval_rate: brandData.approval_rate,
-          response_time: brandData.response_time,
-          department: brandData.department, // Ensure department is included
-          is_active: brandData.is_active
-        }
+        brand_data: brandPayload
       });
       
       if (error) {
-        console.error('Error adding brand:', error);
-        throw error;
+        console.error('Error adding brand via RPC:', error);
+        
+        // Fallback to direct insert
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('brands_directory')
+          .insert([brandPayload])
+          .select()
+          .single();
+        
+        if (fallbackError) {
+          console.error('Fallback insert error:', fallbackError);
+          throw fallbackError;
+        }
+        
+        console.log('Brand added via fallback:', fallbackData);
+        return fallbackData;
       }
       
-      console.log('Brand added successfully:', data);
+      console.log('Brand added successfully via RPC:', data);
       return data;
     },
     onSuccess: () => {
@@ -90,29 +108,48 @@ export const useBrands = () => {
     mutationFn: async (brandData: Partial<Brand> & { id: string }) => {
       console.log('Updating brand with data:', brandData);
       
+      const updatePayload = {
+        name: brandData.name,
+        website_url: brandData.website_url,
+        description: brandData.description,
+        contact_email: brandData.contact_email,
+        logo_url: brandData.logo_url,
+        categories: brandData.categories,
+        approval_rate: brandData.approval_rate,
+        response_time: brandData.response_time,
+        department: brandData.department, // Ensure department is included
+        is_active: brandData.is_active,
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log('Update payload being sent:', updatePayload);
+      
       const { data, error } = await supabase.rpc('admin_update_brand', {
         brand_id: brandData.id,
-        brand_data: {
-          name: brandData.name,
-          website_url: brandData.website_url,
-          description: brandData.description,
-          contact_email: brandData.contact_email,
-          logo_url: brandData.logo_url,
-          categories: brandData.categories,
-          approval_rate: brandData.approval_rate,
-          response_time: brandData.response_time,
-          department: brandData.department, // Ensure department is included
-          is_active: brandData.is_active,
-          updated_at: new Date().toISOString()
-        }
+        brand_data: updatePayload
       });
       
       if (error) {
-        console.error('Error updating brand:', error);
-        throw error;
+        console.error('Error updating brand via RPC:', error);
+        
+        // Fallback to direct update
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('brands_directory')
+          .update(updatePayload)
+          .eq('id', brandData.id)
+          .select()
+          .single();
+        
+        if (fallbackError) {
+          console.error('Fallback update error:', fallbackError);
+          throw fallbackError;
+        }
+        
+        console.log('Brand updated via fallback:', fallbackData);
+        return fallbackData;
       }
       
-      console.log('Brand updated successfully:', data);
+      console.log('Brand updated successfully via RPC:', data);
       return data;
     },
     onSuccess: () => {

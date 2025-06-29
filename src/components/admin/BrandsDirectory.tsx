@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,6 +36,8 @@ const BrandsDirectory = () => {
   };
 
   const handleSubmit = (formData: BrandFormData) => {
+    console.log('Form data being submitted:', formData);
+    
     const categoriesArray = formData.categories
       ? formData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
       : [];
@@ -44,32 +45,28 @@ const BrandsDirectory = () => {
     const approvalRate = formData.approval_rate ? parseFloat(formData.approval_rate) : null;
     const responseTime = formData.response_time ? parseFloat(formData.response_time) : null;
     
+    const brandData = {
+      name: formData.name,
+      website_url: formData.website_url,
+      description: formData.description,
+      contact_email: formData.contact_email,
+      logo_url: formData.logo_url,
+      categories: categoriesArray,
+      approval_rate: approvalRate,
+      response_time: responseTime,
+      department: formData.department, // Ensure department is included
+      is_active: true,
+    };
+    
+    console.log('Brand data being sent:', brandData);
+    
     if (editingBrand) {
       updateBrandMutation.mutate({
         id: editingBrand.id,
-        name: formData.name,
-        website_url: formData.website_url,
-        description: formData.description,
-        contact_email: formData.contact_email,
-        logo_url: formData.logo_url,
-        categories: categoriesArray,
-        approval_rate: approvalRate,
-        response_time: responseTime,
-        department: formData.department,
+        ...brandData,
       });
     } else {
-      addBrandMutation.mutate({
-        name: formData.name,
-        website_url: formData.website_url,
-        description: formData.description,
-        contact_email: formData.contact_email,
-        logo_url: formData.logo_url,
-        categories: categoriesArray,
-        approval_rate: approvalRate,
-        response_time: responseTime,
-        department: formData.department,
-        is_active: true,
-      });
+      addBrandMutation.mutate(brandData);
     }
   };
 
