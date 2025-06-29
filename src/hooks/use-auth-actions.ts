@@ -94,7 +94,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       setIsLoading(true);
       console.log(`🔐 Starting sign in process for: ${email}`);
       
-      // First, verify credentials without signing in
+      // First, verify credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -115,7 +115,7 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         throw error;
       }
 
-      // Check if user is a reseller and if they're approved BEFORE allowing login
+      // Check if user is a reseller and verify approval status
       if (data?.user) {
         const { data: profile } = await supabase
           .from('profiles')
@@ -138,37 +138,16 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
             error: appError?.message 
           });
 
-          // If no application found, create a pending one
+          // If no application found, it might be a legacy account - allow login but show warning
           if (!resellerApp && !appError) {
-            console.log('📝 No application found, creating pending application');
+            console.log('⚠️ No application found for reseller - allowing login with warning');
             
-            const { error: createError } = await supabase
-              .from('reseller_applications')
-              .insert({
-                user_id: data.user.id,
-                email: data.user.email || email,
-                company_name: profile?.user_role || 'Unknown Company',
-                business_type: 'Unknown',
-                ein_number: 'Not Provided',
-                product_categories: ['General'],
-                sales_volume: 'Unknown',
-                wholesale_budget: 'Unknown',
-                phone: 'Not Provided',
-                status: 'pending'
-              });
-
-            if (createError) {
-              console.error('❌ Error creating reseller application:', createError);
-            } else {
-              console.log('✅ Created pending reseller application');
-            }
-
-            // Sign out the user and show pending message
-            await supabase.auth.signOut();
-            localStorage.clear();
-            sessionStorage.clear();
+            toast({
+              title: 'Login successful',
+              description: 'Welcome! Please complete your profile setup if needed.',
+            });
             
-            throw new Error('Your reseller account is pending approval. An application has been created for admin review. Please wait for admin approval before logging in.');
+            return; // Allow login
           }
 
           // If application exists but not approved

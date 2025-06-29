@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -48,16 +49,77 @@ export const useResellerApproval = () => {
 
   const approveApplication = async (applicationId: string, userEmail: string) => {
     try {
+      console.log('🎯 Starting approval process for:', userEmail);
+      
       // Generate temporary password
       const temporaryPassword = generateTemporaryPassword();
+      console.log('🔐 Generated temporary password for:', userEmail);
 
-      // Update application status
+      // Get the application to check if user exists
+      const { data: application, error: appError } = await supabase
+        .from('reseller_applications')
+        .select('user_id')
+        .eq('id', applicationId)
+        .single();
+
+      if (appError) throw appError;
+
+      // If no user_id exists, create the user account first
+      if (!application.user_id) {
+        console.log('👤 No user account found, creating account for:', userEmail);
+        
+        const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+          email: userEmail,
+          password: temporaryPassword,
+          email_confirm: true, // Auto-confirm email
+          user_metadata: {
+            user_role: 'reseller'
+          }
+        });
+
+        if (createError) {
+          console.error('❌ Error creating user account:', createError);
+          throw createError;
+        }
+
+        console.log('✅ User account created successfully:', newUser.user?.id);
+
+        // Update application with new user_id
+        const { error: updateUserIdError } = await supabase
+          .from('reseller_applications')
+          .update({ user_id: newUser.user?.id })
+          .eq('id', applicationId);
+
+        if (updateUserIdError) {
+          console.error('❌ Error updating application with user_id:', updateUserIdError);
+          throw updateUserIdError;
+        }
+      } else {
+        console.log('👤 User account exists, updating password for:', userEmail);
+        
+        // Update existing user's password
+        const { error: passwordError } = await supabase.auth.admin.updateUserById(
+          application.user_id,
+          { password: temporaryPassword }
+        );
+
+        if (passwordError) {
+          console.error('❌ Error updating user password:', passwordError);
+          throw passwordError;
+        }
+
+        console.log('✅ User password updated successfully');
+      }
+
+      // Update application status to approved
       const { error: updateError } = await supabase
         .from('reseller_applications')
         .update({ status: 'approved' })
         .eq('id', applicationId);
 
       if (updateError) throw updateError;
+
+      console.log('✅ Application status updated to approved');
 
       // Send approval email with temporary password via edge function
       const { error: emailError } = await supabase.functions.invoke('send-reseller-approval-email', {
@@ -70,8 +132,10 @@ export const useResellerApproval = () => {
       });
 
       if (emailError) {
-        console.error('Error sending approval email:', emailError);
+        console.error('❌ Error sending approval email:', emailError);
         // Don't throw here, application is still approved
+      } else {
+        console.log('✅ Approval email sent successfully');
       }
 
       toast({
@@ -82,7 +146,7 @@ export const useResellerApproval = () => {
       // Refresh applications list
       await fetchPendingApplications();
     } catch (error) {
-      console.error('Error approving application:', error);
+      console.error('❌ Error approving application:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
