@@ -85,15 +85,43 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
             !isOpen && "lg:justify-center"
           )}
         >
-          <BndBoxLogo className={cn("h-7 w-auto brightness-0 invert", !isOpen && "lg:h-8")} />
-          {isOpen && (
-            <div className="ml-3 flex flex-col">
-              <span className="text-lg font-bold text-white tracking-tight">
-                BndBox
-              </span>
-              <span className="text-xs text-blue-100 font-medium">
-                Connect. Protect. Grow.
-              </span>
+          {isOpen ? (
+            <BndBoxLogo />
+          ) : (
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-2">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M7 7H17"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M7 12H17"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M7 17H13"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
           )}
         </Link>

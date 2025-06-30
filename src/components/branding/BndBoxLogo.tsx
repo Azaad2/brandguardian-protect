@@ -8,7 +8,7 @@ interface BndBoxLogoProps {
 const BndBoxLogo: React.FC<BndBoxLogoProps> = ({ className = "" }) => {
   return (
     <div className={`flex items-center ${className}`}>
-      <div className="bg-bndbox-primary rounded-lg p-2 mr-2">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-2 mr-3">
         <svg
           width="24"
           height="24"
@@ -18,7 +18,7 @@ const BndBoxLogo: React.FC<BndBoxLogoProps> = ({ className = "" }) => {
         >
           <path
             d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
-            stroke="#FF9900"
+            stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -43,9 +43,9 @@ const BndBoxLogo: React.FC<BndBoxLogoProps> = ({ className = "" }) => {
           />
         </svg>
       </div>
-      <div>
-        <div className="font-bold text-bndbox-primary">BndBox</div>
-        <div className="text-xs text-bndbox-secondary">Connect. Protect. Grow.</div>
+      <div className="flex flex-col">
+        <div className="text-xl font-bold text-white tracking-tight">BndBox</div>
+        <div className="text-xs text-blue-100 font-medium">Connect. Protect. Grow.</div>
       </div>
     </div>
   );
