@@ -75,7 +75,7 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
     >
       {/* Sidebar Header */}
       <div className={cn(
-        "flex h-14 items-center border-b border-gray-100/80 px-4 bg-gradient-to-r from-blue-600 to-blue-700",
+        "flex h-14 items-center border-b border-gray-100/80 px-4 bg-white",
         !isOpen && "lg:justify-center lg:px-3"
       )}>
         <Link 
@@ -88,7 +88,7 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
           {isOpen ? (
             <BndBoxLogo />
           ) : (
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-2">
+            <div className="bg-bndbox-primary rounded-lg p-2">
               <svg
                 width="24"
                 height="24"
@@ -98,26 +98,26 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
               >
                 <path
                   d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
-                  stroke="white"
+                  stroke="#FF9900"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M7 7H17"
-                  stroke="white"
+                  stroke="#FF9900"
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
                 <path
                   d="M7 12H17"
-                  stroke="white"
+                  stroke="#FF9900"
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
                 <path
                   d="M7 17H13"
-                  stroke="white"
+                  stroke="#FF9900"
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
@@ -128,7 +128,7 @@ const SidebarNav = ({ navItems, isOpen, setIsOpen, userRole }: SidebarProps) => 
         <Button 
           variant="ghost" 
           size="icon" 
-          className="ml-auto lg:hidden h-8 w-8 text-white hover:bg-blue-800" 
+          className="ml-auto lg:hidden h-8 w-8 text-gray-600 hover:bg-gray-100" 
           onClick={toggleSidebar}
         >
           <X className="h-4 w-4" />
