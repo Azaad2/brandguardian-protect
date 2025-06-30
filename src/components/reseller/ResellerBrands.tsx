@@ -9,10 +9,31 @@ import { AlertCircle, Check, Clock, X, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAvailableBrands, useBrandApplications } from "@/hooks/use-brand-applications";
 
+// Function to generate random letters for brand names
+const generateRandomBrandName = (id: string) => {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const length = 6 + (hash % 4); // 6-9 characters
+  let result = '';
+  
+  for (let i = 0; i < length; i++) {
+    result += letters[Math.floor(Math.random() * letters.length)];
+  }
+  
+  return result;
+};
+
 const ResellerBrands = () => {
   const { data: brands = [], isLoading, isError, error } = useAvailableBrands();
   const { applyToBrand, isApplying } = useBrandApplications();
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Transform brands to use random names
+  const brandsWithRandomNames = brands.map(brand => ({
+    ...brand,
+    displayName: generateRandomBrandName(brand.id),
+    displayDepartment: brand.department ? generateRandomBrandName(brand.id + '_dept') : undefined
+  }));
 
   const getStatusIcon = (status: string | null) => {
     switch (status) {
@@ -44,9 +65,9 @@ const ResellerBrands = () => {
     await applyToBrand({ brandId });
   };
 
-  const filteredBrands = brands.filter(brand => 
-    brand.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    brand.department?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredBrands = brandsWithRandomNames.filter(brand => 
+    brand.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    brand.displayDepartment?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     brand.categories?.some(cat => cat.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
@@ -138,18 +159,18 @@ const ResellerBrands = () => {
                           <div className="flex-shrink-0">
                             <img 
                               src={brand.logo_url} 
-                              alt={`${brand.name} logo`}
+                              alt={`${brand.displayName} logo`}
                               className="w-16 h-16 rounded-xl object-cover border-2 border-gray-100"
                             />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-xl font-bold text-gray-900 mb-1 line-clamp-2">
-                            {brand.department || brand.name}
+                            {brand.displayDepartment || brand.displayName}
                           </CardTitle>
-                          {brand.department && brand.name !== brand.department && (
+                          {brand.displayDepartment && brand.displayDepartment !== brand.displayName && (
                             <p className="text-sm font-medium text-gray-500 mb-2">
-                              by {brand.name}
+                              by {brand.displayName}
                             </p>
                           )}
                           
