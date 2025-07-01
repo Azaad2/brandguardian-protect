@@ -1,9 +1,8 @@
-
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Building2, Globe, Mail, Clock, TrendingUp, Lock } from 'lucide-react';
-import { BrandStatusIcons } from './BrandStatusIcons';
+import { getStatusIcon } from './BrandStatusIcons';
 
 interface Brand {
   id: string;
@@ -43,7 +42,11 @@ const BrandCard = ({ brand, onApply, isApplying, canApply = true }: BrandCardPro
     if (hasApplied) {
       return (
         <Badge className={`${getStatusColor(brand.applicationStatus!)} font-medium`}>
-          <BrandStatusIcons status={brand.applicationStatus!} className="mr-1 h-3 w-3" />
+          {getStatusIcon(brand.applicationStatus!) && (
+            <span className="mr-1">
+              {getStatusIcon(brand.applicationStatus!)}
+            </span>
+          )}
           {brand.applicationStatus!.charAt(0).toUpperCase() + brand.applicationStatus!.slice(1)}
         </Badge>
       );
