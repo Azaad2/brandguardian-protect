@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
@@ -68,10 +67,59 @@ export const useBrandApplications = () => {
     enabled: !!user,
   });
 
-  // Apply to brand mutation
+  // Get subscription info for limit checking
+  const { data: subscription } = useQuery({
+    queryKey: ['subscription', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data: existingSubscription, error: fetchError } = await supabase
+        .from('subscribers')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+      
+      if (!existingSubscription) {
+        const { data: newSubscription, error: createError } = await supabase
+          .from('subscribers')
+          .insert([{
+            user_id: user.id,
+            email: user.email!,
+            subscribed: false,
+            subscription_tier: 'free',
+            brand_application_limit: 3
+          }])
+          .select()
+          .single();
+        
+        if (createError) throw createError;
+        return newSubscription;
+      }
+      
+      return existingSubscription;
+    },
+    enabled: !!user,
+  });
+
+  // Check if user can apply to more brands
+  const canApplyToMoreBrands = () => {
+    if (!subscription || !applications) return false;
+    return applications.length < subscription.brand_application_limit;
+  };
+
+  // Apply to brand mutation with limit checking
   const applyToBrandMutation = useMutation({
     mutationFn: async ({ brandId, applicationData }: { brandId: string; applicationData?: any }) => {
       if (!user) throw new Error('User not authenticated');
+
+      // Check subscription limits before applying
+      if (!canApplyToMoreBrands()) {
+        throw new Error(`You've reached your application limit of ${subscription?.brand_application_limit || 3} brands. Please upgrade your plan to apply to more brands.`);
+      }
 
       console.log('Applying to brand:', brandId, 'for user:', user.id);
 
@@ -158,6 +206,10 @@ export const useBrandApplications = () => {
     error,
     applyToBrand: applyToBrandMutation.mutate,
     isApplying: applyToBrandMutation.isPending,
+    canApplyToMoreBrands: canApplyToMoreBrands(),
+    applicationCount: applications?.length || 0,
+    applicationLimit: subscription?.brand_application_limit || 3,
+    subscriptionTier: subscription?.subscription_tier || 'free',
   };
 };
 
