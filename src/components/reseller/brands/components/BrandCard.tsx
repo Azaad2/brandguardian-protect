@@ -1,7 +1,8 @@
+
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Globe, Mail, Clock, TrendingUp, Lock } from 'lucide-react';
+import { Building2, Globe, Clock, TrendingUp, Lock } from 'lucide-react';
 import { getStatusIcon } from './BrandStatusIcons';
 
 interface Brand {
@@ -130,16 +131,13 @@ const BrandCard = ({ brand, onApply, isApplying, canApply = true }: BrandCardPro
             )}
           </div>
 
-          {/* Contact Info */}
-          <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t">
-            <div className="flex items-center">
-              <Mail className="h-4 w-4 mr-1" />
-              <span className="truncate">{brand.contact_email}</span>
+          {/* Website Info - Removed contact email display */}
+          {brand.website_url && (
+            <div className="flex items-center text-sm text-gray-500 pt-2 border-t">
+              <Globe className="h-4 w-4 mr-1 text-blue-500" />
+              <span className="text-blue-600 hover:text-blue-800">Visit Website</span>
             </div>
-            {brand.website_url && (
-              <Globe className="h-4 w-4 text-blue-500" />
-            )}
-          </div>
+          )}
 
           {/* Action Button */}
           <div className="pt-2">
