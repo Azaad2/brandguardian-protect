@@ -44,7 +44,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
       amazonStoreLink: '',
       walmartStoreLink: '',
       ebayStoreLink: '',
-      productCategories: ['other'], // Default value for product categories
+      productCategories: ['other'],
       salesVolume: 'under_10k',
       wholesaleBudget: 'under_5k',
       feedbackScore: '',

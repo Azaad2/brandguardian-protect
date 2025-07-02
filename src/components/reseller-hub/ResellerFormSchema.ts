@@ -6,7 +6,7 @@ export const formSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   businessType: z.enum(['individual', 'corporation', 'partnership', 'llc', 'other'] as const),
   einNumber: z.string().min(1, 'EIN number is required'),
-  amazonStoreLink: z.string().optional(),
+  amazonStoreLink: z.string().min(1, 'Amazon store link is required').url('Please enter a valid Amazon store URL'),
   walmartStoreLink: z.string().optional(),
   ebayStoreLink: z.string().optional(),
   productCategories: z.array(
@@ -14,7 +14,7 @@ export const formSchema = z.object({
       'electronics', 'beauty', 'home_goods', 'fashion', 'toys',
       'sports', 'automotive', 'health', 'grocery', 'books', 'other'
     ] as const)
-  ).default(['other']), // Changed to default instead of requiring selection
+  ).default(['other']),
   salesVolume: z.enum([
     'under_10k', '10k_50k', '50k_100k', '100k_500k', '500k_1m', 'over_1m'
   ] as const),

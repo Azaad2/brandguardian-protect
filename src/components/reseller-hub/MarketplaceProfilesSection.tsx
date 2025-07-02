@@ -19,7 +19,7 @@ const MarketplaceProfilesSection = () => {
           name="amazonStoreLink"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Amazon Store Link</FormLabel>
+              <FormLabel>Amazon Store Link *</FormLabel>
               <FormControl>
                 <Input placeholder="https://www.amazon.com/shops/your-store" {...field} />
               </FormControl>
