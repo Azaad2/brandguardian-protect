@@ -12,6 +12,11 @@ import Blog from '@/pages/Blog';
 import ResellerHub from '@/pages/ResellerHub';
 import NotFound from '@/pages/NotFound';
 
+// Legal pages
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import TermsOfService from '@/pages/TermsOfService';
+import CookiePolicy from '@/pages/CookiePolicy';
+
 // Auth pages
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminSignup from '@/pages/admin/AdminSignup';
@@ -61,6 +66,11 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/reseller-hub" element={<ResellerHub />} />
+            
+            {/* Legal routes */}
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
             
             {/* Auth routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
