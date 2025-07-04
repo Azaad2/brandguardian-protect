@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -108,39 +107,17 @@ const TermsOfService = () => {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">8. Refund and Cancellation Policy</h2>
-            
-            <h3 className="text-xl font-medium mb-3 text-gray-800">Subscription Cancellation</h3>
-            <ul className="list-disc pl-6 mb-4 text-gray-700">
-              <li>You may cancel your subscription at any time through your account settings</li>
-              <li>Cancellation takes effect at the end of your current billing period</li>
-              <li>You will retain access to paid features until the end of the billing period</li>
-              <li>No partial refunds for unused portions of billing periods</li>
-            </ul>
-
-            <h3 className="text-xl font-medium mb-3 text-gray-800">Refund Policy</h3>
-            <ul className="list-disc pl-6 mb-4 text-gray-700">
-              <li><strong>New Subscriptions:</strong> 7-day money-back guarantee for first-time subscribers</li>
-              <li><strong>Technical Issues:</strong> Refunds may be provided for service disruptions lasting more than 48 hours</li>
-              <li><strong>Billing Errors:</strong> We will correct and refund any billing errors within 30 days</li>
-              <li><strong>Account Suspension:</strong> No refunds for suspensions due to Terms violations</li>
-            </ul>
-
-            <h3 className="text-xl font-medium mb-3 text-gray-800">Refund Process</h3>
             <p className="text-gray-700 mb-4">
-              To request a refund, contact our support team at support@bndbox.com with your account details and reason for the refund request. Approved refunds will be processed within 5-10 business days to your original payment method.
+              For detailed information about subscription cancellations, refunds, and our money-back guarantee, please refer to our dedicated <a href="/cancellation-refund" className="text-brandguardian-600 hover:text-brandguardian-700 underline">Cancellation & Refund Policy</a> page.
             </p>
-
-            <h3 className="text-xl font-medium mb-3 text-gray-800">Pro-rated Refunds</h3>
             <p className="text-gray-700 mb-4">
-              In exceptional circumstances, we may provide pro-rated refunds at our sole discretion. This typically applies to service disruptions, billing errors, or other issues caused by BndBox.
+              Key points include:
             </p>
-
-            <h3 className="text-xl font-medium mb-3 text-gray-800">Auto-renewal and Cancellation</h3>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
-              <li>Subscriptions automatically renew unless cancelled</li>
-              <li>Cancel at least 24 hours before renewal to avoid next billing cycle</li>
-              <li>Annual subscriptions must be cancelled 30 days before renewal</li>
-              <li>You will receive renewal reminders via email</li>
+              <li>7-day money-back guarantee for new subscribers</li>
+              <li>Subscription cancellation available at any time through account settings</li>
+              <li>Refunds for technical issues and billing errors</li>
+              <li>Clear timelines for refund processing</li>
             </ul>
           </section>
 

@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/hooks/use-auth';
@@ -16,6 +15,7 @@ import NotFound from '@/pages/NotFound';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
 import CookiePolicy from '@/pages/CookiePolicy';
+import CancellationRefundPolicy from '@/pages/CancellationRefundPolicy';
 
 // Auth pages
 import AdminLogin from '@/pages/admin/AdminLogin';
@@ -71,6 +71,7 @@ function App() {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/cancellation-refund" element={<CancellationRefundPolicy />} />
             
             {/* Auth routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
