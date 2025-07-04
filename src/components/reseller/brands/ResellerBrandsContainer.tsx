@@ -28,7 +28,7 @@ const ResellerBrandsContainer = () => {
   }
 
   if (error) {
-    return <BrandsErrorState error={error.message || 'An error occurred'} />;
+    return <BrandsErrorState error={error} />;
   }
 
   const filteredBrands = brands?.filter(brand =>
