@@ -16,8 +16,8 @@ import { useResellerBrands } from '@/hooks/use-reseller-brands';
 const ResellerBrandsContainer = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
-  const { data: applications } = useBrandApplications();
-  const { data: brands, isLoading, error } = useResellerBrands();
+  const { applications } = useBrandApplications();
+  const { brands, isLoading, error } = useResellerBrands();
 
   const currentApplications = applications?.length || 0;
   const limit = subscription?.brand_application_limit || 3;
@@ -28,12 +28,12 @@ const ResellerBrandsContainer = () => {
   }
 
   if (error) {
-    return <BrandsErrorState error={error.message} />;
+    return <BrandsErrorState error={error.message || 'An error occurred'} />;
   }
 
   const filteredBrands = brands?.filter(brand =>
     brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    brand.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    brand.category?.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
   // Show upgrade component if user is at limit and on free plan
@@ -61,17 +61,20 @@ const ResellerBrandsContainer = () => {
         />
       ) : (
         <>
-          <BrandsSearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+          <BrandsSearchBar 
+            searchQuery={searchTerm} 
+            setSearchQuery={setSearchTerm}
+            filteredBrandsCount={filteredBrands.length}
+          />
           
           {filteredBrands.length === 0 ? (
-            <BrandsEmptyState hasSearchTerm={!!searchTerm} />
+            <BrandsEmptyState />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredBrands.map((brand) => (
                 <BrandCard 
-                  key={brand.id} 
-                  brand={brand} 
-                  isAtLimit={isAtLimit}
+                  key={brand.name} 
+                  brand={brand}
                 />
               ))}
             </div>
