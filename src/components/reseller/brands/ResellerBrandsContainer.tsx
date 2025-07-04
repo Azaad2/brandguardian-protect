@@ -39,6 +39,16 @@ const ResellerBrandsContainer = () => {
   // Show upgrade component if user is at limit and on free plan
   const showUpgrade = isAtLimit && (!subscription?.subscribed || subscription.subscription_tier === 'free');
 
+  // Transform brand data to match BrandCard interface
+  const transformedBrands = filteredBrands.map(brand => ({
+    id: brand.name, // Using name as ID since we don't have UUID
+    displayName: brand.name,
+    displayDepartment: brand.category,
+    contact_email: 'contact@brand.com', // Default email since not available
+    categories: [brand.category],
+    applicationStatus: null // Default status
+  }));
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <BrandsHeader />
@@ -68,13 +78,16 @@ const ResellerBrandsContainer = () => {
           />
           
           {filteredBrands.length === 0 ? (
-            <BrandsEmptyState />
+            <BrandsEmptyState searchQuery={searchTerm} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBrands.map((brand) => (
+              {transformedBrands.map((brand) => (
                 <BrandCard 
-                  key={brand.name} 
+                  key={brand.id} 
                   brand={brand}
+                  onApply={() => {}}
+                  isApplying={false}
+                  canApply={!isAtLimit}
                 />
               ))}
             </div>
