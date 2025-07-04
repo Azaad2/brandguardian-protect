@@ -3,15 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Zap, Crown, Building } from 'lucide-react';
+import { useRazorpay } from '@/hooks/use-razorpay';
 
 interface SubscriptionUpgradeProps {
   currentApplications: number;
   currentLimit: number;
-  onUpgrade: (tier: string) => void;
-  isUpgrading: boolean;
 }
 
-const SubscriptionUpgrade = ({ currentApplications, currentLimit, onUpgrade, isUpgrading }: SubscriptionUpgradeProps) => {
+const SubscriptionUpgrade = ({ currentApplications, currentLimit }: SubscriptionUpgradeProps) => {
+  const { createCheckoutSession, isLoading } = useRazorpay();
+
   const subscriptionTiers = [
     {
       name: 'Basic',
@@ -61,6 +62,16 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit, onUpgrade, isU
       popular: false
     }
   ];
+
+  const handleUpgrade = async (tier: string) => {
+    if (tier === 'enterprise') {
+      // Handle enterprise tier differently - maybe show contact form
+      window.open('mailto:sales@bndbox.com?subject=Enterprise Plan Inquiry', '_blank');
+      return;
+    }
+    
+    await createCheckoutSession(tier);
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -112,10 +123,10 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit, onUpgrade, isU
                 <Button 
                   className={`w-full ${tier.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                   variant={tier.popular ? 'default' : 'outline'}
-                  onClick={() => onUpgrade(tier.tier)}
-                  disabled={isUpgrading}
+                  onClick={() => handleUpgrade(tier.tier)}
+                  disabled={isLoading}
                 >
-                  {isUpgrading ? 'Processing...' : `Upgrade to ${tier.name}`}
+                  {isLoading ? 'Processing...' : `Upgrade to ${tier.name}`}
                 </Button>
               </CardContent>
             </Card>
@@ -125,7 +136,7 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit, onUpgrade, isU
       
       <div className="text-center mt-8 text-sm text-gray-500">
         <p>All plans include a 30-day money-back guarantee</p>
-        <p>Cancel anytime • No setup fees • Secure payment processing</p>
+        <p>Cancel anytime • No setup fees • Secure payment processing by Razorpay</p>
       </div>
     </div>
   );
