@@ -10,6 +10,7 @@ import About from '@/pages/About';
 import Blog from '@/pages/Blog';
 import ResellerHub from '@/pages/ResellerHub';
 import NotFound from '@/pages/NotFound';
+import ShippingDelivery from '@/pages/ShippingDelivery';
 
 // Legal pages
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
@@ -66,6 +67,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/reseller-hub" element={<ResellerHub />} />
+            <Route path="/shipping-delivery" element={<ShippingDelivery />} />
             
             {/* Legal routes */}
             <Route path="/privacy" element={<PrivacyPolicy />} />
