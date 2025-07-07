@@ -204,6 +204,7 @@ serve(async (req) => {
         try {
           const errorData = JSON.parse(responseText)
           errorMessage = errorData.error?.description || errorData.message || errorMessage
+          console.error('Razorpay error details:', errorData)
         } catch (parseError) {
           console.error('Failed to parse Razorpay error response:', parseError)
         }
