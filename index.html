@@ -34,13 +34,14 @@
     <link rel="preconnect" href="https://alb.reddit.com" crossorigin>
     <link rel="preconnect" href="https://flhqvkohslfxxfjzyzxy.supabase.co" crossorigin>
     <link rel="preconnect" href="https://checkout.razorpay.com" crossorigin>
+    <link rel="preconnect" href="https://lumberjack.razorpay.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Preload critical resources -->
     <link rel="preload" href="/src/index.css" as="style">
     
-    <!-- Updated Security headers to allow Razorpay payment system -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.gpteng.co https://static.cloudflareinsights.com https://alb.reddit.com https://www.redditstatic.com https://checkout.razorpay.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lovable.dev https://alb.reddit.com; connect-src 'self' https://www.google-analytics.com https://formspree.io https://formspree.io/f/xblogykb https://alb.reddit.com https://pixel-config.reddit.com https://www.redditstatic.com https://conversions-config.reddit.com https://*.supabase.co wss://*.supabase.co https://api.razorpay.com; form-action 'self' https://formspree.io;">
+    <!-- Updated Security headers to allow Razorpay payment system and tracking -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.gpteng.co https://static.cloudflareinsights.com https://alb.reddit.com https://www.redditstatic.com https://checkout.razorpay.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lovable.dev https://alb.reddit.com; connect-src 'self' https://www.google-analytics.com https://formspree.io https://formspree.io/f/xblogykb https://alb.reddit.com https://pixel-config.reddit.com https://www.redditstatic.com https://conversions-config.reddit.com https://*.supabase.co wss://*.supabase.co https://api.razorpay.com https://lumberjack.razorpay.com https://*.razorpay.com; form-action 'self' https://formspree.io;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     
