@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -153,21 +154,7 @@ export const useRazorpay = () => {
         currency: data.currency || 'INR'
       });
 
-      // Check if we're in a potentially blocked environment
-      const isBlocked = !window.navigator.onLine || 
-                       window.location.protocol === 'https:' && 
-                       (navigator.userAgent.includes('Chrome') || navigator.userAgent.includes('Firefox'));
-
-      if (isBlocked) {
-        toast({
-          title: 'Ad Blocker Detected',
-          description: 'Please disable your ad blocker or allow popups for this site to complete the payment. Then click the payment button again.',
-          variant: 'destructive',
-        });
-        throw new Error('Payment blocked by ad blocker. Please disable ad blocker and try again.');
-      }
-
-      // Open Razorpay checkout with minimal configuration to avoid blocking
+      // Create Razorpay checkout options
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -201,10 +188,38 @@ export const useRazorpay = () => {
         },
         theme: {
           color: '#3B82F6'
+        },
+        // Disable tracking to avoid ad blocker issues
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: 'All payment methods',
+                instruments: [
+                  {
+                    method: 'card'
+                  },
+                  {
+                    method: 'netbanking'
+                  },
+                  {
+                    method: 'wallet'
+                  },
+                  {
+                    method: 'upi'
+                  }
+                ]
+              }
+            },
+            sequence: ['block.banks'],
+            preferences: {
+              show_default_blocks: true
+            }
+          }
         }
       };
 
-      console.log('Creating Razorpay instance with minimal options:', options);
+      console.log('Creating Razorpay instance...');
       
       try {
         const razorpay = new window.Razorpay(options);
@@ -213,22 +228,27 @@ export const useRazorpay = () => {
       } catch (razorpayError: any) {
         console.error('Razorpay initialization error:', razorpayError);
         
-        // Show user-friendly message for blocked content
-        toast({
-          title: 'Payment System Blocked',
-          description: 'Your browser or ad blocker is preventing the payment window from opening. Please disable your ad blocker for this site and try again.',
-          variant: 'destructive',
-        });
-        
-        // Provide alternative instructions
-        setTimeout(() => {
+        // Check if it's a real blocking issue or just tracking
+        if (razorpayError.message && razorpayError.message.includes('blocked')) {
           toast({
-            title: 'Alternative Payment Method',
-            description: 'If the issue persists, please contact support at support@bndbox.com with your subscription request.',
+            title: 'Payment System Blocked',
+            description: 'Your ad blocker is preventing the payment window from opening. Please disable your ad blocker for this site and try again.',
+            variant: 'destructive',
           });
-        }, 3000);
-        
-        throw new Error('Payment system blocked by browser security settings or ad blocker.');
+          
+          // Provide alternative instructions
+          setTimeout(() => {
+            toast({
+              title: 'Alternative Payment Method',
+              description: 'If the issue persists, please contact support at support@bndbox.com with your subscription request.',
+            });
+          }, 3000);
+          
+          throw new Error('Payment system blocked by ad blocker.');
+        } else {
+          // For other errors, just re-throw
+          throw razorpayError;
+        }
       }
 
     } catch (error: any) {
