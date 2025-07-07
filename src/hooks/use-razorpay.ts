@@ -50,17 +50,17 @@ export const useRazorpay = () => {
     try {
       console.log('Requested tier:', tier);
       
-      // Get authenticated user with detailed error checking
+      // Get authenticated user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       console.log('Auth check result:', { user: !!user, userError });
       
       if (userError) {
         console.error('Auth error:', userError);
-        throw new Error('Authentication failed: ' + userError.message);
+        throw new Error(`Authentication failed: ${userError.message}`);
       }
       
       if (!user) {
-        console.error('No user found - user might not be logged in');
+        console.error('No user found');
         throw new Error('Please log in to continue with payment');
       }
 
@@ -73,15 +73,7 @@ export const useRazorpay = () => {
         throw new Error('Failed to load payment system. Please refresh the page and try again.');
       }
 
-      // Create checkout session via edge function
-      console.log('Calling create-razorpay-checkout function...');
-      const functionPayload = { 
-        tier, 
-        user_id: user.id 
-      };
-      console.log('Function payload:', functionPayload);
-
-      // Get the current session to ensure we have a valid token
+      // Get the current session
       const { data: { session } } = await supabase.auth.getSession();
       console.log('Session check:', { hasSession: !!session, hasAccessToken: !!session?.access_token });
 
@@ -89,10 +81,20 @@ export const useRazorpay = () => {
         throw new Error('No valid session found. Please log in again.');
       }
 
+      // Create checkout session via edge function
+      console.log('Calling create-razorpay-checkout function...');
+      const functionPayload = { 
+        tier, 
+        user_id: user.id 
+      };
+      console.log('Function payload:', functionPayload);
+      console.log('Authorization header will be included:', !!session.access_token);
+
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
         body: functionPayload,
         headers: {
           Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
         }
       });
 
@@ -107,12 +109,15 @@ export const useRazorpay = () => {
         
         if (error.message) {
           if (error.message.includes('Edge Function returned a non-2xx status code')) {
-            errorMessage = 'Payment service error. Please check your connection and try again.';
+            errorMessage = 'Payment service error. Please check the console logs and contact support if the issue persists.';
+          } else if (error.message.includes('Failed to send a request to the Edge Function')) {
+            errorMessage = 'Unable to connect to payment service. Please check your internet connection and try again.';
           } else {
             errorMessage = error.message;
           }
         }
         
+        console.error('Processed error message:', errorMessage);
         throw new Error(errorMessage);
       }
 
@@ -124,7 +129,6 @@ export const useRazorpay = () => {
       if (data.error) {
         console.error('Function returned error:', data.error);
         console.error('Debug info:', data.debug);
-        
         throw new Error(data.error);
       }
 
