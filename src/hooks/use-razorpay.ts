@@ -14,16 +14,43 @@ export const useRazorpay = () => {
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
+      // Check if Razorpay is already loaded
       if (window.Razorpay) {
+        console.log('Razorpay script already loaded');
         resolve(true);
         return;
       }
 
+      // Check if script is already being loaded
+      const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+      if (existingScript) {
+        existingScript.addEventListener('load', () => {
+          console.log('Existing Razorpay script loaded');
+          resolve(!!window.Razorpay);
+        });
+        existingScript.addEventListener('error', () => {
+          console.error('Existing Razorpay script failed to load');
+          resolve(false);
+        });
+        return;
+      }
+
+      console.log('Loading Razorpay script...');
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('Razorpay script loaded successfully');
+        resolve(!!window.Razorpay);
+      };
+      
+      script.onerror = (error) => {
+        console.error('Failed to load Razorpay script:', error);
+        resolve(false);
+      };
+      
+      document.head.appendChild(script);
     });
   };
 
@@ -33,23 +60,37 @@ export const useRazorpay = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Load Razorpay script
+      console.log('Starting checkout for tier:', tier);
+
+      // Load Razorpay script with better error handling
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        throw new Error('Failed to load Razorpay script');
+        throw new Error('Failed to load Razorpay payment system. Please check your internet connection and try again.');
       }
+
+      console.log('Razorpay script loaded, creating checkout session...');
 
       // Create checkout session
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
         body: { tier, user_id: user.id }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Checkout session creation error:', error);
+        throw error;
+      }
+
+      console.log('Checkout session created:', data);
+
+      if (!data.subscription_id) {
+        throw new Error('Invalid checkout session response');
+      }
 
       // Open Razorpay checkout
       const options = {
         subscription_id: data.subscription_id,
         handler: function (response: any) {
+          console.log('Payment successful:', response);
           toast({
             title: 'Payment Successful!',
             description: 'Your subscription has been activated.',
@@ -59,6 +100,7 @@ export const useRazorpay = () => {
         },
         modal: {
           ondismiss: function () {
+            console.log('Payment modal dismissed');
             toast({
               title: 'Payment Cancelled',
               description: 'You can try again anytime.',
@@ -70,6 +112,7 @@ export const useRazorpay = () => {
         }
       };
 
+      console.log('Opening Razorpay checkout with options:', options);
       const razorpay = new window.Razorpay(options);
       razorpay.open();
 
