@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -154,7 +153,21 @@ export const useRazorpay = () => {
         currency: data.currency || 'INR'
       });
 
-      // Open Razorpay checkout with enhanced options to handle blocked tracking
+      // Check if we're in a potentially blocked environment
+      const isBlocked = !window.navigator.onLine || 
+                       window.location.protocol === 'https:' && 
+                       (navigator.userAgent.includes('Chrome') || navigator.userAgent.includes('Firefox'));
+
+      if (isBlocked) {
+        toast({
+          title: 'Ad Blocker Detected',
+          description: 'Please disable your ad blocker or allow popups for this site to complete the payment. Then click the payment button again.',
+          variant: 'destructive',
+        });
+        throw new Error('Payment blocked by ad blocker. Please disable ad blocker and try again.');
+      }
+
+      // Open Razorpay checkout with minimal configuration to avoid blocking
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -165,33 +178,6 @@ export const useRazorpay = () => {
         prefill: {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
-        },
-        config: {
-          display: {
-            blocks: {
-              utib: {
-                name: 'Pay using Razorpay',
-                instruments: [
-                  {
-                    method: 'card'
-                  },
-                  {
-                    method: 'netbanking'
-                  },
-                  {
-                    method: 'wallet'
-                  },
-                  {
-                    method: 'upi'
-                  }
-                ]
-              }
-            },
-            sequence: ['block.utib'],
-            preferences: {
-              show_default_blocks: true
-            }
-          }
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
@@ -205,8 +191,6 @@ export const useRazorpay = () => {
           }, 2000);
         },
         modal: {
-          escape: false,
-          backdropclose: false,
           ondismiss: function () {
             console.log('Payment modal dismissed by user');
             toast({
@@ -216,41 +200,35 @@ export const useRazorpay = () => {
           }
         },
         theme: {
-          color: '#3B82F6',
-          backdrop_color: 'rgba(0, 0, 0, 0.6)'
-        },
-        retry: {
-          enabled: true,
-          max_count: 3
+          color: '#3B82F6'
         }
       };
 
-      console.log('Creating Razorpay instance with options:', options);
+      console.log('Creating Razorpay instance with minimal options:', options);
       
       try {
         const razorpay = new window.Razorpay(options);
         console.log('Opening Razorpay checkout...');
-        
-        // Handle potential tracking script blocks gracefully
-        razorpay.on('payment.failed', function (response: any) {
-          console.error('Payment failed:', response.error);
-          toast({
-            title: 'Payment Failed',
-            description: response.error.description || 'Please try again or contact support.',
-            variant: 'destructive',
-          });
-        });
-
         razorpay.open();
       } catch (razorpayError: any) {
         console.error('Razorpay initialization error:', razorpayError);
-        // Fallback for when Razorpay tracking is blocked
+        
+        // Show user-friendly message for blocked content
         toast({
-          title: 'Payment System Notice',
-          description: 'If you have an ad blocker enabled, please disable it for this site to complete the payment.',
+          title: 'Payment System Blocked',
+          description: 'Your browser or ad blocker is preventing the payment window from opening. Please disable your ad blocker for this site and try again.',
           variant: 'destructive',
         });
-        throw new Error('Payment system blocked. Please disable ad blocker and try again.');
+        
+        // Provide alternative instructions
+        setTimeout(() => {
+          toast({
+            title: 'Alternative Payment Method',
+            description: 'If the issue persists, please contact support at support@bndbox.com with your subscription request.',
+          });
+        }, 3000);
+        
+        throw new Error('Payment system blocked by browser security settings or ad blocker.');
       }
 
     } catch (error: any) {
