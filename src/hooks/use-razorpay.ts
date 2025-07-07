@@ -15,21 +15,27 @@ export const useRazorpay = () => {
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
       if (window.Razorpay) {
+        console.log('Razorpay already loaded');
         resolve(true);
         return;
       }
 
+      console.log('Loading Razorpay script...');
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.async = true;
       
       script.onload = () => {
+        console.log('Razorpay script loaded');
         setTimeout(() => {
-          resolve(!!window.Razorpay);
+          const loaded = !!window.Razorpay;
+          console.log('Razorpay available:', loaded);
+          resolve(loaded);
         }, 100);
       };
       
-      script.onerror = () => {
+      script.onerror = (error) => {
+        console.error('Failed to load Razorpay script:', error);
         resolve(false);
       };
       
@@ -39,44 +45,93 @@ export const useRazorpay = () => {
 
   const createCheckoutSession = async (tier: string) => {
     setIsLoading(true);
+    console.log('=== Starting Razorpay Checkout Process ===');
+    
     try {
-      console.log('Starting checkout session for tier:', tier);
+      console.log('Requested tier:', tier);
       
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get authenticated user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Auth error:', userError);
+        throw new Error('Authentication failed: ' + userError.message);
+      }
+      
       if (!user) {
+        console.error('No user found');
         throw new Error('Please log in to continue with payment');
       }
 
       console.log('User authenticated:', user.id);
 
       // Load Razorpay script
+      console.log('Loading Razorpay script...');
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        throw new Error('Failed to load payment system. Please refresh and try again.');
+        throw new Error('Failed to load payment system. Please refresh the page and try again.');
       }
 
-      console.log('Razorpay script loaded successfully');
-
-      // Create checkout session
+      // Create checkout session via edge function
       console.log('Calling create-razorpay-checkout function...');
+      const functionPayload = { 
+        tier, 
+        user_id: user.id 
+      };
+      console.log('Function payload:', functionPayload);
+
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
-        body: { tier, user_id: user.id }
+        body: functionPayload
       });
 
-      console.log('Function response:', data);
+      console.log('Function response data:', data);
       console.log('Function error:', error);
 
       if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Failed to create payment session');
+        console.error('Supabase function error details:', {
+          name: error.name,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        
+        // Try to provide more specific error messages
+        let errorMessage = 'Payment setup failed. Please try again.';
+        if (error.message.includes('not-2xx')) {
+          errorMessage = 'Payment service configuration error. Please contact support.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      if (!data || data.error) {
-        console.error('Function returned error:', data);
-        throw new Error(data?.error || 'Invalid response from payment service');
+      if (!data) {
+        console.error('No data received from function');
+        throw new Error('Invalid response from payment service. Please try again.');
       }
 
-      console.log('Opening Razorpay checkout with data:', data);
+      if (data.error) {
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error);
+      }
+
+      // Validate required Razorpay fields
+      const requiredFields = ['order_id', 'amount', 'key_id'];
+      const missingFields = requiredFields.filter(field => !data[field]);
+      
+      if (missingFields.length > 0) {
+        console.error('Missing required fields in response:', missingFields);
+        console.error('Full response data:', data);
+        throw new Error(`Invalid payment data received. Missing: ${missingFields.join(', ')}`);
+      }
+
+      console.log('Opening Razorpay checkout with data:', {
+        key_id: data.key_id,
+        order_id: data.order_id,
+        amount: data.amount,
+        currency: data.currency || 'INR'
+      });
 
       // Open Razorpay checkout
       const options = {
@@ -103,7 +158,7 @@ export const useRazorpay = () => {
         },
         modal: {
           ondismiss: function () {
-            console.log('Payment modal dismissed');
+            console.log('Payment modal dismissed by user');
             toast({
               title: 'Payment Cancelled',
               description: 'You can try again anytime.',
@@ -115,7 +170,9 @@ export const useRazorpay = () => {
         }
       };
 
+      console.log('Creating Razorpay instance with options:', options);
       const razorpay = new window.Razorpay(options);
+      console.log('Opening Razorpay checkout...');
       razorpay.open();
 
     } catch (error: any) {

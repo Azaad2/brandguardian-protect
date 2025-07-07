@@ -8,7 +8,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  console.log('=== Razorpay Checkout Function Started ===')
+  console.log('=== Create Razorpay Checkout Function Started ===')
   
   if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight request')
@@ -16,11 +16,28 @@ serve(async (req) => {
   }
 
   try {
-    const requestBody = await req.json()
-    console.log('Request body received:', requestBody)
+    // Parse request body
+    let requestBody;
+    try {
+      requestBody = await req.json()
+      console.log('Request body received:', requestBody)
+    } catch (error) {
+      console.error('Failed to parse request body:', error)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid request body. Please send valid JSON.',
+          details: error.message
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
 
     const { tier, user_id } = requestBody
     
+    // Validate required fields
     if (!tier || !user_id) {
       console.error('Missing required fields:', { tier: !!tier, user_id: !!user_id })
       return new Response(
@@ -34,15 +51,19 @@ serve(async (req) => {
       )
     }
 
-    // Get Razorpay credentials
+    // Get Razorpay credentials from environment
     const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID')
     const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
 
+    console.log('Checking Razorpay credentials...')
+    console.log('RAZORPAY_KEY_ID exists:', !!razorpayKeyId)
+    console.log('RAZORPAY_KEY_SECRET exists:', !!razorpayKeySecret)
+
     if (!razorpayKeyId || !razorpayKeySecret) {
-      console.error('Razorpay credentials not found')
+      console.error('Razorpay credentials not found in environment variables')
       return new Response(
         JSON.stringify({ 
-          error: 'Payment system not configured. Please contact support.',
+          error: 'Razorpay credentials not configured. Please contact support.',
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -51,7 +72,7 @@ serve(async (req) => {
       )
     }
 
-    console.log('Razorpay credentials found, key ID:', razorpayKeyId.substring(0, 10) + '...')
+    console.log('Razorpay Key ID (first 10 chars):', razorpayKeyId.substring(0, 10))
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -61,7 +82,7 @@ serve(async (req) => {
       console.error('Supabase credentials missing')
       return new Response(
         JSON.stringify({ 
-          error: 'Server configuration error'
+          error: 'Server configuration error - Supabase not configured properly'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -72,7 +93,7 @@ serve(async (req) => {
     
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Define pricing plans (amounts in paise - Indian currency)
+    // Define pricing plans (amounts in paise - multiply by 100 for Indian currency)
     const plans = {
       basic: { 
         amount: 290000, // ₹2900 in paise
@@ -104,18 +125,20 @@ serve(async (req) => {
 
     console.log('Selected plan:', selectedPlan)
 
-    // Get user profile
+    // Get user profile from Supabase
+    console.log('Fetching user profile for:', user_id)
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('email, full_name')
       .eq('id', user_id)
       .single()
 
-    if (profileError || !profile?.email) {
+    if (profileError) {
       console.error('Profile fetch error:', profileError)
       return new Response(
         JSON.stringify({ 
-          error: 'User profile not found. Please complete your profile and try again.'
+          error: 'User profile not found. Please complete your profile and try again.',
+          details: profileError.message
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -124,7 +147,20 @@ serve(async (req) => {
       )
     }
 
-    console.log('User profile found:', profile.email)
+    if (!profile?.email) {
+      console.error('No email found in profile:', profile)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Email not found in user profile. Please update your profile with an email address.'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
+
+    console.log('User profile found for email:', profile.email)
 
     // Create Razorpay order
     const orderPayload = {
@@ -139,59 +175,102 @@ serve(async (req) => {
       }
     }
 
-    console.log('Creating Razorpay order with payload:', orderPayload)
+    console.log('Creating Razorpay order with payload:', JSON.stringify(orderPayload, null, 2))
 
-    const authHeader = `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
+    // Create authorization header for Razorpay API
+    const authHeader = btoa(`${razorpayKeyId}:${razorpayKeySecret}`)
+    console.log('Authorization header created (length):', authHeader.length)
     
-    const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
-      method: 'POST',
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(orderPayload),
-    })
-
-    if (!orderResponse.ok) {
-      const errorText = await orderResponse.text()
-      console.error('Razorpay order creation failed:', {
-        status: orderResponse.status,
-        statusText: orderResponse.statusText,
-        error: errorText
+    try {
+      const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${authHeader}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload),
       })
+
+      console.log('Razorpay API response status:', orderResponse.status)
+      console.log('Razorpay API response headers:', Object.fromEntries(orderResponse.headers.entries()))
+
+      const responseText = await orderResponse.text()
+      console.log('Razorpay API response body:', responseText)
+
+      if (!orderResponse.ok) {
+        console.error('Razorpay order creation failed with status:', orderResponse.status)
+        let errorMessage = 'Payment order creation failed'
+        
+        try {
+          const errorData = JSON.parse(responseText)
+          errorMessage = errorData.error?.description || errorData.message || errorMessage
+        } catch (parseError) {
+          console.error('Failed to parse Razorpay error response:', parseError)
+        }
+
+        return new Response(
+          JSON.stringify({ 
+            error: `${errorMessage} (Status: ${orderResponse.status})`,
+            razorpay_error: responseText
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        )
+      }
+
+      let order
+      try {
+        order = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error('Failed to parse Razorpay success response:', parseError)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid response from payment gateway',
+            details: 'Failed to parse payment gateway response'
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
+          }
+        )
+      }
+
+      console.log('Successfully created Razorpay order:', order.id)
+
+      // Return the order details for frontend
+      const response = {
+        order_id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        key_id: razorpayKeyId,
+        user_email: profile.email,
+        user_name: profile.full_name || 'User'
+      }
+
+      console.log('Returning success response:', JSON.stringify(response, null, 2))
+      return new Response(
+        JSON.stringify(response),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      )
+
+    } catch (fetchError) {
+      console.error('Fetch error when calling Razorpay API:', fetchError)
       return new Response(
         JSON.stringify({ 
-          error: `Payment order creation failed. Status: ${orderResponse.status}`,
-          details: errorText
+          error: 'Failed to connect to payment gateway',
+          details: fetchError.message
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
+          status: 500,
         }
       )
     }
-
-    const order = await orderResponse.json()
-    console.log('Successfully created Razorpay order:', order.id)
-
-    // Return the order details for frontend
-    const response = {
-      order_id: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      key_id: razorpayKeyId,
-      user_email: profile.email,
-      user_name: profile.full_name || 'User'
-    }
-
-    console.log('Returning successful response')
-    return new Response(
-      JSON.stringify(response),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
 
   } catch (error) {
     console.error('Unexpected error in create-razorpay-checkout:', error)
