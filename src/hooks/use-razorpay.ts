@@ -50,15 +50,17 @@ export const useRazorpay = () => {
     try {
       console.log('Requested tier:', tier);
       
-      // Get authenticated user
+      // Get authenticated user with detailed error checking
       const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('Auth check result:', { user: !!user, userError });
+      
       if (userError) {
         console.error('Auth error:', userError);
         throw new Error('Authentication failed: ' + userError.message);
       }
       
       if (!user) {
-        console.error('No user found');
+        console.error('No user found - user might not be logged in');
         throw new Error('Please log in to continue with payment');
       }
 
@@ -79,8 +81,19 @@ export const useRazorpay = () => {
       };
       console.log('Function payload:', functionPayload);
 
+      // Get the current session to ensure we have a valid token
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session check:', { hasSession: !!session, hasAccessToken: !!session?.access_token });
+
+      if (!session?.access_token) {
+        throw new Error('No valid session found. Please log in again.');
+      }
+
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
-        body: functionPayload
+        body: functionPayload,
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        }
       });
 
       console.log('Function response data:', data);
@@ -94,7 +107,7 @@ export const useRazorpay = () => {
         
         if (error.message) {
           if (error.message.includes('Edge Function returned a non-2xx status code')) {
-            errorMessage = 'Payment service error. Please check the console logs and contact support if the issue persists.';
+            errorMessage = 'Payment service error. Please check your connection and try again.';
           } else {
             errorMessage = error.message;
           }
@@ -111,15 +124,8 @@ export const useRazorpay = () => {
       if (data.error) {
         console.error('Function returned error:', data.error);
         console.error('Debug info:', data.debug);
-        console.error('Razorpay error:', data.razorpay_error);
         
-        // Show detailed error for debugging
-        let errorMessage = data.error;
-        if (data.debug) {
-          console.error('Additional debug info:', data.debug);
-        }
-        
-        throw new Error(errorMessage);
+        throw new Error(data.error);
       }
 
       // Validate required Razorpay fields
