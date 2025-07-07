@@ -211,11 +211,19 @@ serve(async (req) => {
 
     console.log('User profile found:', { email: profile.email, name: profile.full_name })
 
+    // Generate a short receipt ID (max 40 characters)
+    // Format: rcpt_[first8ofuserid]_[timestamp] (e.g., rcpt_1d742f33_1234567890)
+    const shortUserId = user_id.substring(0, 8)
+    const timestamp = Date.now().toString().substring(-8) // Last 8 digits of timestamp
+    const receiptId = `rcpt_${shortUserId}_${timestamp}`
+    
+    console.log('Generated receipt ID:', receiptId, 'Length:', receiptId.length)
+
     // Create Razorpay order
     const orderPayload = {
       amount: selectedPlan.amount,
       currency: selectedPlan.currency,
-      receipt: `receipt_${user_id}_${Date.now()}`,
+      receipt: receiptId,
       notes: {
         user_id: user_id,
         tier: tier,
