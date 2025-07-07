@@ -154,7 +154,7 @@ export const useRazorpay = () => {
         currency: data.currency || 'INR'
       });
 
-      // Open Razorpay checkout
+      // Open Razorpay checkout with enhanced options to handle blocked tracking
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -165,6 +165,33 @@ export const useRazorpay = () => {
         prefill: {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
+        },
+        config: {
+          display: {
+            blocks: {
+              utib: {
+                name: 'Pay using Razorpay',
+                instruments: [
+                  {
+                    method: 'card'
+                  },
+                  {
+                    method: 'netbanking'
+                  },
+                  {
+                    method: 'wallet'
+                  },
+                  {
+                    method: 'upi'
+                  }
+                ]
+              }
+            },
+            sequence: ['block.utib'],
+            preferences: {
+              show_default_blocks: true
+            }
+          }
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
@@ -178,6 +205,8 @@ export const useRazorpay = () => {
           }, 2000);
         },
         modal: {
+          escape: false,
+          backdropclose: false,
           ondismiss: function () {
             console.log('Payment modal dismissed by user');
             toast({
@@ -187,14 +216,42 @@ export const useRazorpay = () => {
           }
         },
         theme: {
-          color: '#3B82F6'
+          color: '#3B82F6',
+          backdrop_color: 'rgba(0, 0, 0, 0.6)'
+        },
+        retry: {
+          enabled: true,
+          max_count: 3
         }
       };
 
       console.log('Creating Razorpay instance with options:', options);
-      const razorpay = new window.Razorpay(options);
-      console.log('Opening Razorpay checkout...');
-      razorpay.open();
+      
+      try {
+        const razorpay = new window.Razorpay(options);
+        console.log('Opening Razorpay checkout...');
+        
+        // Handle potential tracking script blocks gracefully
+        razorpay.on('payment.failed', function (response: any) {
+          console.error('Payment failed:', response.error);
+          toast({
+            title: 'Payment Failed',
+            description: response.error.description || 'Please try again or contact support.',
+            variant: 'destructive',
+          });
+        });
+
+        razorpay.open();
+      } catch (razorpayError: any) {
+        console.error('Razorpay initialization error:', razorpayError);
+        // Fallback for when Razorpay tracking is blocked
+        toast({
+          title: 'Payment System Notice',
+          description: 'If you have an ad blocker enabled, please disable it for this site to complete the payment.',
+          variant: 'destructive',
+        });
+        throw new Error('Payment system blocked. Please disable ad blocker and try again.');
+      }
 
     } catch (error: any) {
       console.error('Checkout session creation error:', error);
