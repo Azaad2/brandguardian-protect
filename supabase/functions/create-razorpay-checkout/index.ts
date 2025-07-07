@@ -79,9 +79,24 @@ serve(async (req) => {
 
     // Define pricing plans (amounts in paise - Indian currency)
     const plans = {
-      basic: { amount: 290000, name: 'Basic Plan', limit: 99 }, // ₹2900
-      premium: { amount: 790000, name: 'Premium Plan', limit: 199 }, // ₹7900
-      enterprise: { amount: 0, name: 'Enterprise Plan', limit: 999 } // Custom pricing
+      basic: { 
+        amount: 290000, // ₹2900 in paise
+        name: 'Basic Plan', 
+        limit: 99,
+        currency: 'INR'
+      },
+      premium: { 
+        amount: 790000, // ₹7900 in paise
+        name: 'Premium Plan', 
+        limit: 199,
+        currency: 'INR'
+      },
+      enterprise: { 
+        amount: 0, 
+        name: 'Enterprise Plan', 
+        limit: 999,
+        currency: 'INR'
+      }
     }
 
     const selectedPlan = plans[tier as keyof typeof plans]
@@ -138,7 +153,7 @@ serve(async (req) => {
       )
     }
 
-    if (!profile || !profile.email) {
+    if (!profile?.email) {
       console.error('No profile or email found for user:', user_id)
       return new Response(
         JSON.stringify({ 
@@ -153,15 +168,16 @@ serve(async (req) => {
 
     console.log('Profile found successfully:', { email: profile.email, name: profile.full_name })
 
-    // Create a simple Razorpay order
+    // Create Razorpay order payload
     const orderPayload = {
       amount: selectedPlan.amount,
-      currency: 'INR',
+      currency: selectedPlan.currency,
       receipt: `receipt_${user_id}_${Date.now()}`,
       notes: {
         user_id: user_id,
         tier: tier,
-        plan_name: selectedPlan.name
+        plan_name: selectedPlan.name,
+        user_email: profile.email
       }
     }
 
@@ -169,52 +185,84 @@ serve(async (req) => {
 
     const authHeader = `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
     
-    const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
-      method: 'POST',
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(orderPayload),
-    })
+    try {
+      const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload),
+      })
 
-    const orderResponseText = await orderResponse.text()
-    console.log('Razorpay order creation response status:', orderResponse.status)
-    console.log('Razorpay order creation response body:', orderResponseText)
+      const orderResponseText = await orderResponse.text()
+      console.log('Razorpay order creation response status:', orderResponse.status)
+      console.log('Razorpay order creation response body:', orderResponseText)
 
-    if (!orderResponse.ok) {
-      console.error('Order creation failed with status:', orderResponse.status)
+      if (!orderResponse.ok) {
+        console.error('Razorpay order creation failed:', {
+          status: orderResponse.status,
+          statusText: orderResponse.statusText,
+          body: orderResponseText
+        })
+        
+        let errorMessage = 'Failed to create payment order'
+        try {
+          const errorData = JSON.parse(orderResponseText)
+          errorMessage = errorData.error?.description || errorData.error || errorMessage
+        } catch (e) {
+          console.log('Could not parse error response as JSON')
+        }
+        
+        return new Response(
+          JSON.stringify({ 
+            error: `Payment order creation failed: ${errorMessage}`,
+            razorpay_status: orderResponse.status
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        )
+      }
+
+      const order = JSON.parse(orderResponseText)
+      console.log('Successfully created Razorpay order:', order.id)
+
+      // Return the order details for frontend
+      const response = {
+        order_id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        key_id: razorpayKeyId,
+        user_email: profile.email,
+        user_name: profile.full_name || 'User'
+      }
+
+      console.log('Returning successful response:', response)
+      console.log('=== Razorpay Checkout Function Completed Successfully ===')
+
+      return new Response(
+        JSON.stringify(response),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      )
+
+    } catch (fetchError) {
+      console.error('Network error calling Razorpay API:', fetchError)
       return new Response(
         JSON.stringify({ 
-          error: `Failed to create payment order. Status: ${orderResponse.status}. Response: ${orderResponseText}`
+          error: 'Network error connecting to payment service. Please try again.',
+          details: fetchError.message
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
+          status: 500,
         }
       )
     }
-
-    const order = JSON.parse(orderResponseText)
-    console.log('Created order with ID:', order.id)
-
-    const response = {
-      order_id: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      key_id: razorpayKeyId
-    }
-
-    console.log('Returning successful response:', response)
-    console.log('=== Razorpay Checkout Function Completed Successfully ===')
-
-    return new Response(
-      JSON.stringify(response),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
 
   } catch (error) {
     console.error('=== UNEXPECTED ERROR ===')
@@ -225,8 +273,9 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: 'Internal server error: ' + error.message,
+        error: 'Internal server error occurred. Please try again.',
         type: error.constructor.name,
+        details: error.message
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

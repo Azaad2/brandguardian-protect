@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -97,40 +98,47 @@ export const useRazorpay = () => {
 
       console.log('Razorpay script loaded successfully, creating checkout session...');
 
-      // Create checkout session
+      // Create checkout session with improved error handling
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
         body: { tier, user_id: user.id }
       });
 
+      console.log('Function response:', { data, error });
+
       if (error) {
         console.error('Checkout session creation error:', error);
-        throw error;
+        // Extract meaningful error message
+        const errorMessage = error.message || 'Failed to create checkout session';
+        throw new Error(errorMessage);
+      }
+
+      if (!data) {
+        throw new Error('No response data received from checkout service');
+      }
+
+      // Check if the response contains an error
+      if (data.error) {
+        console.error('Server returned error:', data.error);
+        throw new Error(data.error);
       }
 
       console.log('Checkout session created:', data);
 
-      if (!data || (!data.order_id && !data.subscription_id)) {
-        throw new Error('Invalid checkout session response - no order ID received');
+      if (!data.order_id || !data.key_id) {
+        throw new Error('Invalid checkout session response - missing order ID or key');
       }
-
-      // Get user profile for checkout
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('email, full_name')
-        .eq('id', user.id)
-        .single();
 
       // Open Razorpay checkout with order details
       const options = {
         key: data.key_id,
         amount: data.amount,
         currency: data.currency || 'INR',
-        order_id: data.order_id || data.subscription_id,
+        order_id: data.order_id,
         name: 'BndBox',
         description: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan Subscription`,
         prefill: {
-          name: profile?.full_name || 'User',
-          email: profile?.email || user.email,
+          name: data.user_name || 'User',
+          email: data.user_email || user.email,
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
@@ -161,9 +169,16 @@ export const useRazorpay = () => {
 
     } catch (error: any) {
       console.error('Checkout error:', error);
+      
+      // Show more specific error messages
+      let errorMessage = 'Failed to create checkout session';
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: 'Checkout Failed',
-        description: error.message || 'Failed to create checkout session',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
