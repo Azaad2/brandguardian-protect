@@ -88,16 +88,12 @@ export const useRazorpay = () => {
         user_id: user.id 
       };
       console.log('Function payload:', functionPayload);
-      console.log('Authorization header will be included:', !!session.access_token);
 
       console.log('Making supabase.functions.invoke call...');
       const startTime = Date.now();
       
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
-        body: JSON.stringify(functionPayload),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        body: functionPayload
       });
 
       const endTime = Date.now();
