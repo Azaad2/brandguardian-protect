@@ -15,6 +15,8 @@ serve(async (req) => {
   try {
     const { tier, user_id } = await req.json()
     
+    console.log('Creating checkout for tier:', tier, 'user:', user_id)
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -25,13 +27,16 @@ serve(async (req) => {
     const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
 
     if (!razorpayKeyId || !razorpayKeySecret) {
+      console.error('Razorpay credentials not found')
       throw new Error('Razorpay credentials not configured')
     }
 
-    // Define pricing plans
+    console.log('Razorpay credentials found')
+
+    // Define pricing plans (amounts in paise - Indian currency)
     const plans = {
-      basic: { amount: 2900, name: 'Basic Plan', limit: 99 },
-      premium: { amount: 7900, name: 'Premium Plan', limit: 199 },
+      basic: { amount: 290000, name: 'Basic Plan', limit: 99 }, // ₹2900
+      premium: { amount: 790000, name: 'Premium Plan', limit: 199 }, // ₹7900
       enterprise: { amount: 0, name: 'Enterprise Plan', limit: 999 } // Custom pricing
     }
 
@@ -39,6 +44,8 @@ serve(async (req) => {
     if (!selectedPlan) {
       throw new Error('Invalid subscription tier')
     }
+
+    console.log('Selected plan:', selectedPlan)
 
     // Get or create customer
     const { data: subscriber } = await supabaseClient
@@ -51,6 +58,8 @@ serve(async (req) => {
 
     // Create Razorpay customer if doesn't exist
     if (!customerId) {
+      console.log('Creating new Razorpay customer')
+      
       const { data: profile } = await supabaseClient
         .from('profiles')
         .select('email, full_name')
@@ -69,8 +78,15 @@ serve(async (req) => {
         }),
       })
 
+      if (!customerResponse.ok) {
+        const error = await customerResponse.json()
+        console.error('Customer creation failed:', error)
+        throw new Error(`Failed to create customer: ${error.error?.description || 'Unknown error'}`)
+      }
+
       const customer = await customerResponse.json()
       customerId = customer.id
+      console.log('Created customer:', customerId)
 
       // Update subscriber with customer ID
       await supabaseClient
@@ -85,37 +101,41 @@ serve(async (req) => {
         })
     }
 
-    // Create Razorpay subscription
-    const subscriptionResponse = await fetch('https://api.razorpay.com/v1/subscriptions', {
+    console.log('Using customer ID:', customerId)
+
+    // For now, create a simple payment instead of subscription for testing
+    // This will help us verify the integration works
+    const paymentResponse = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        plan_id: `plan_${tier}`, // You'll need to create these in Razorpay dashboard
-        customer_id: customerId,
-        total_count: 12, // 12 months
-        quantity: 1,
+        amount: selectedPlan.amount,
+        currency: 'INR',
+        receipt: `receipt_${user_id}_${Date.now()}`,
         notes: {
           user_id: user_id,
-          tier: tier
+          tier: tier,
+          plan_name: selectedPlan.name
         }
       }),
     })
 
-    const subscription = await subscriptionResponse.json()
-
-    if (!subscriptionResponse.ok) {
-      throw new Error(subscription.error?.description || 'Failed to create subscription')
+    if (!paymentResponse.ok) {
+      const error = await paymentResponse.json()
+      console.error('Payment creation failed:', error)
+      throw new Error(`Failed to create payment: ${error.error?.description || 'Unknown error'}`)
     }
 
-    // Update subscriber with subscription details
+    const payment = await paymentResponse.json()
+    console.log('Created payment order:', payment)
+
+    // Update subscriber with plan details
     await supabaseClient
       .from('subscribers')
       .update({
-        razorpay_subscription_id: subscription.id,
-        razorpay_plan_id: `plan_${tier}`,
         subscription_tier: tier,
         brand_application_limit: selectedPlan.limit
       })
@@ -123,8 +143,11 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        subscription_id: subscription.id,
-        short_url: subscription.short_url,
+        subscription_id: payment.id, // Using order ID as subscription_id for now
+        order_id: payment.id,
+        amount: payment.amount,
+        currency: payment.currency,
+        key_id: razorpayKeyId
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -135,7 +158,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error creating Razorpay checkout:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Check the edge function logs for more information'
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

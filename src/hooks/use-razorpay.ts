@@ -82,13 +82,29 @@ export const useRazorpay = () => {
 
       console.log('Checkout session created:', data);
 
-      if (!data.subscription_id) {
-        throw new Error('Invalid checkout session response');
+      if (!data.subscription_id && !data.order_id) {
+        throw new Error('Invalid checkout session response - no order ID received');
       }
 
-      // Open Razorpay checkout
+      // Get user profile for checkout
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email, full_name')
+        .eq('id', user.id)
+        .single();
+
+      // Open Razorpay checkout with order details
       const options = {
-        subscription_id: data.subscription_id,
+        key: data.key_id,
+        amount: data.amount,
+        currency: data.currency || 'INR',
+        order_id: data.order_id || data.subscription_id,
+        name: 'BndBox',
+        description: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan Subscription`,
+        prefill: {
+          name: profile?.full_name || 'User',
+          email: profile?.email || user.email,
+        },
         handler: function (response: any) {
           console.log('Payment successful:', response);
           toast({
