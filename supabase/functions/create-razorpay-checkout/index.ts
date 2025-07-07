@@ -124,16 +124,45 @@ serve(async (req) => {
 
     console.log('Selected plan:', selectedPlan)
 
+    // Handle enterprise tier differently
+    if (tier === 'enterprise') {
+      console.log('Enterprise tier requested - returning contact info')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Enterprise tier requires custom pricing',
+          details: 'Please contact sales@bndbox.com for enterprise pricing'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
+
     // Get user profile first
     console.log('Fetching user profile...')
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('email, full_name')
       .eq('id', user_id)
-      .single()
+      .maybeSingle()
 
     if (profileError) {
       console.error('Profile fetch error:', profileError)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to fetch user profile',
+          details: profileError.message
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
+
+    if (!profile) {
+      console.error('No profile found for user:', user_id)
       return new Response(
         JSON.stringify({ 
           error: 'User profile not found',
@@ -146,8 +175,8 @@ serve(async (req) => {
       )
     }
 
-    if (!profile || !profile.email) {
-      console.error('Profile missing or no email:', profile)
+    if (!profile.email) {
+      console.error('Profile missing email:', profile)
       return new Response(
         JSON.stringify({ 
           error: 'User profile incomplete',
@@ -168,7 +197,7 @@ serve(async (req) => {
       .from('subscribers')
       .select('*')
       .eq('user_id', user_id)
-      .single()
+      .maybeSingle()
 
     let customerId = subscriber?.razorpay_customer_id
 
