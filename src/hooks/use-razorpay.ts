@@ -14,66 +14,26 @@ export const useRazorpay = () => {
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
-      // Check if Razorpay is already loaded
       if (window.Razorpay) {
-        console.log('Razorpay script already loaded');
         resolve(true);
         return;
       }
 
-      // Remove any existing failed scripts
-      const existingScripts = document.querySelectorAll('script[src*="razorpay"]');
-      existingScripts.forEach(script => {
-        if (script.hasAttribute('data-failed')) {
-          script.remove();
-        }
-      });
-
-      // Check if script is already being loaded (and not failed)
-      const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]:not([data-failed])');
-      if (existingScript) {
-        console.log('Razorpay script is already loading, waiting...');
-        existingScript.addEventListener('load', () => {
-          console.log('Existing Razorpay script loaded');
-          resolve(!!window.Razorpay);
-        });
-        existingScript.addEventListener('error', () => {
-          console.error('Existing Razorpay script failed to load');
-          existingScript.setAttribute('data-failed', 'true');
-          resolve(false);
-        });
-        return;
-      }
-
-      console.log('Loading new Razorpay script...');
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.async = true;
       
       script.onload = () => {
-        console.log('Razorpay script loaded successfully');
-        // Give it a moment to initialize
         setTimeout(() => {
           resolve(!!window.Razorpay);
         }, 100);
       };
       
-      script.onerror = (error) => {
-        console.error('Failed to load Razorpay script:', error);
-        script.setAttribute('data-failed', 'true');
+      script.onerror = () => {
         resolve(false);
       };
       
       document.head.appendChild(script);
-
-      // Add timeout as fallback
-      setTimeout(() => {
-        if (!window.Razorpay) {
-          console.error('Razorpay script load timeout');
-          script.setAttribute('data-failed', 'true');
-          resolve(false);
-        }
-      }, 10000); // 10 second timeout
     });
   };
 
@@ -83,52 +43,27 @@ export const useRazorpay = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      console.log('Starting checkout for tier:', tier);
-
-      // Load Razorpay script with better error handling
-      console.log('Attempting to load Razorpay script...');
+      // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        throw new Error('Failed to load Razorpay payment system. Please check your internet connection and try again.');
+        throw new Error('Failed to load Razorpay payment system.');
       }
 
-      if (!window.Razorpay) {
-        throw new Error('Razorpay is not available. Please refresh the page and try again.');
-      }
-
-      console.log('Razorpay script loaded successfully, creating checkout session...');
-
-      // Create checkout session with improved error handling
+      // Create checkout session
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
         body: { tier, user_id: user.id }
       });
 
-      console.log('Function response:', { data, error });
-
       if (error) {
-        console.error('Checkout session creation error:', error);
-        // Extract meaningful error message
-        const errorMessage = error.message || 'Failed to create checkout session';
-        throw new Error(errorMessage);
+        console.error('Function error:', error);
+        throw new Error(error.message || 'Failed to create checkout session');
       }
 
-      if (!data) {
-        throw new Error('No response data received from checkout service');
+      if (!data || data.error) {
+        throw new Error(data?.error || 'Invalid response from checkout service');
       }
 
-      // Check if the response contains an error
-      if (data.error) {
-        console.error('Server returned error:', data.error);
-        throw new Error(data.error);
-      }
-
-      console.log('Checkout session created:', data);
-
-      if (!data.order_id || !data.key_id) {
-        throw new Error('Invalid checkout session response - missing order ID or key');
-      }
-
-      // Open Razorpay checkout with order details
+      // Open Razorpay checkout
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -146,12 +81,10 @@ export const useRazorpay = () => {
             title: 'Payment Successful!',
             description: 'Your subscription has been activated.',
           });
-          // Refresh the page or update subscription status
           window.location.reload();
         },
         modal: {
           ondismiss: function () {
-            console.log('Payment modal dismissed');
             toast({
               title: 'Payment Cancelled',
               description: 'You can try again anytime.',
@@ -163,22 +96,15 @@ export const useRazorpay = () => {
         }
       };
 
-      console.log('Opening Razorpay checkout with options:', options);
       const razorpay = new window.Razorpay(options);
       razorpay.open();
 
     } catch (error: any) {
       console.error('Checkout error:', error);
       
-      // Show more specific error messages
-      let errorMessage = 'Failed to create checkout session';
-      if (error.message) {
-        errorMessage = error.message;
-      }
-      
       toast({
         title: 'Checkout Failed',
-        description: errorMessage,
+        description: error.message || 'Failed to create checkout session',
         variant: 'destructive',
       });
     } finally {
