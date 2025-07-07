@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -90,6 +89,9 @@ export const useRazorpay = () => {
       console.log('Function payload:', functionPayload);
       console.log('Authorization header will be included:', !!session.access_token);
 
+      console.log('Making supabase.functions.invoke call...');
+      const startTime = Date.now();
+      
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
         body: functionPayload,
         headers: {
@@ -98,11 +100,18 @@ export const useRazorpay = () => {
         }
       });
 
+      const endTime = Date.now();
+      console.log(`Function call completed in ${endTime - startTime}ms`);
       console.log('Function response data:', data);
       console.log('Function error:', error);
 
       if (error) {
         console.error('Supabase function error details:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        console.error('Error hint:', error.hint);
+        console.error('Error code:', error.code);
         
         // Enhanced error handling with more specific messages
         let errorMessage = 'Payment setup failed. Please try again.';
@@ -193,6 +202,9 @@ export const useRazorpay = () => {
 
     } catch (error: any) {
       console.error('Checkout session creation error:', error);
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
       
       let errorMessage = 'Payment setup failed. Please try again.';
       
@@ -205,6 +217,8 @@ export const useRazorpay = () => {
         description: errorMessage,
         variant: 'destructive',
       });
+      
+      throw error; // Re-throw to allow caller to handle if needed
     } finally {
       setIsLoading(false);
     }

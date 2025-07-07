@@ -11,7 +11,6 @@ serve(async (req) => {
   console.log('=== Create Razorpay Checkout Function Started ===')
   console.log('Request method:', req.method)
   console.log('Request URL:', req.url)
-  console.log('Request headers:', Object.fromEntries(req.headers.entries()))
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -32,16 +31,13 @@ serve(async (req) => {
     console.log('- RAZORPAY_KEY_ID:', razorpayKeyId ? 'SET' : 'MISSING')
     console.log('- RAZORPAY_KEY_SECRET:', razorpayKeySecret ? 'SET' : 'MISSING')
 
-    // Check if all required environment variables are present
+    // Early return if missing environment variables
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Missing Supabase environment variables')
       return new Response(
         JSON.stringify({ 
           error: 'Server configuration error - Supabase credentials missing',
-          debug: {
-            supabaseUrl: !!supabaseUrl,
-            supabaseServiceKey: !!supabaseServiceKey
-          }
+          debug: 'Missing Supabase credentials'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -55,10 +51,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'Payment service not configured - Razorpay credentials missing',
-          debug: {
-            razorpayKeyId: !!razorpayKeyId,
-            razorpayKeySecret: !!razorpayKeySecret
-          }
+          debug: 'Missing Razorpay credentials'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -85,7 +78,7 @@ serve(async (req) => {
       )
     }
 
-    // Parse request body with detailed error handling
+    // Parse request body with comprehensive error handling
     let requestBody;
     try {
       const bodyText = await req.text()
@@ -250,7 +243,6 @@ serve(async (req) => {
     })
 
     console.log('Razorpay API response status:', orderResponse.status)
-    console.log('Razorpay API response headers:', Object.fromEntries(orderResponse.headers.entries()))
 
     const responseText = await orderResponse.text()
     console.log('Razorpay API response body:', responseText)
@@ -328,6 +320,8 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Unexpected error in create-razorpay-checkout:', error)
+    console.error('Error name:', error.name)
+    console.error('Error message:', error.message)
     console.error('Error stack:', error.stack)
     
     return new Response(
@@ -336,7 +330,7 @@ serve(async (req) => {
         debug: {
           errorName: error.name,
           errorMessage: error.message,
-          errorStack: error.stack?.substring(0, 500) // Limit stack trace length
+          timestamp: new Date().toISOString()
         }
       }),
       {
