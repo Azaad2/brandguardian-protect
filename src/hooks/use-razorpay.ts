@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -93,9 +94,8 @@ export const useRazorpay = () => {
       const startTime = Date.now();
       
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
-        body: functionPayload,
+        body: JSON.stringify(functionPayload),
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         }
       });
