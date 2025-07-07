@@ -42,7 +42,7 @@ serve(async (req) => {
       console.error('Razorpay credentials not found')
       return new Response(
         JSON.stringify({ 
-          error: 'Razorpay credentials not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in edge function secrets.',
+          error: 'Payment system not configured. Please contact support.',
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -50,6 +50,8 @@ serve(async (req) => {
         }
       )
     }
+
+    console.log('Razorpay credentials found, key ID:', razorpayKeyId.substring(0, 10) + '...')
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -83,12 +85,6 @@ serve(async (req) => {
         name: 'Premium Plan', 
         limit: 199,
         currency: 'INR'
-      },
-      enterprise: { 
-        amount: 0, 
-        name: 'Enterprise Plan', 
-        limit: 999,
-        currency: 'INR'
       }
     }
 
@@ -97,7 +93,7 @@ serve(async (req) => {
       console.error('Invalid tier selected:', tier)
       return new Response(
         JSON.stringify({ 
-          error: `Invalid subscription tier: ${tier}. Available tiers: ${Object.keys(plans).join(', ')}`
+          error: `Invalid subscription tier: ${tier}. Available tiers: basic, premium`
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -106,19 +102,7 @@ serve(async (req) => {
       )
     }
 
-    // Handle enterprise tier differently
-    if (tier === 'enterprise') {
-      console.log('Enterprise tier requested - returning contact info')
-      return new Response(
-        JSON.stringify({ 
-          error: 'Enterprise tier requires custom pricing. Please contact sales@bndbox.com for enterprise pricing'
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
-        }
-      )
-    }
+    console.log('Selected plan:', selectedPlan)
 
     // Get user profile
     const { data: profile, error: profileError } = await supabaseClient
@@ -131,7 +115,7 @@ serve(async (req) => {
       console.error('Profile fetch error:', profileError)
       return new Response(
         JSON.stringify({ 
-          error: 'User profile not found or missing email. Please complete your profile and try again.'
+          error: 'User profile not found. Please complete your profile and try again.'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -139,6 +123,8 @@ serve(async (req) => {
         }
       )
     }
+
+    console.log('User profile found:', profile.email)
 
     // Create Razorpay order
     const orderPayload = {
@@ -153,6 +139,8 @@ serve(async (req) => {
       }
     }
 
+    console.log('Creating Razorpay order with payload:', orderPayload)
+
     const authHeader = `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
     
     const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
@@ -166,10 +154,15 @@ serve(async (req) => {
 
     if (!orderResponse.ok) {
       const errorText = await orderResponse.text()
-      console.error('Razorpay order creation failed:', errorText)
+      console.error('Razorpay order creation failed:', {
+        status: orderResponse.status,
+        statusText: orderResponse.statusText,
+        error: errorText
+      })
       return new Response(
         JSON.stringify({ 
-          error: `Payment order creation failed: ${errorText}`,
+          error: `Payment order creation failed. Status: ${orderResponse.status}`,
+          details: errorText
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -191,6 +184,7 @@ serve(async (req) => {
       user_name: profile.full_name || 'User'
     }
 
+    console.log('Returning successful response')
     return new Response(
       JSON.stringify(response),
       {
@@ -200,7 +194,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error('Unexpected error in create-razorpay-checkout:', error)
     
     return new Response(
       JSON.stringify({ 

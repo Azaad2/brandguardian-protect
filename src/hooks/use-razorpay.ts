@@ -40,28 +40,43 @@ export const useRazorpay = () => {
   const createCheckoutSession = async (tier: string) => {
     setIsLoading(true);
     try {
+      console.log('Starting checkout session for tier:', tier);
+      
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) {
+        throw new Error('Please log in to continue with payment');
+      }
+
+      console.log('User authenticated:', user.id);
 
       // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        throw new Error('Failed to load Razorpay payment system.');
+        throw new Error('Failed to load payment system. Please refresh and try again.');
       }
 
+      console.log('Razorpay script loaded successfully');
+
       // Create checkout session
+      console.log('Calling create-razorpay-checkout function...');
       const { data, error } = await supabase.functions.invoke('create-razorpay-checkout', {
         body: { tier, user_id: user.id }
       });
 
+      console.log('Function response:', data);
+      console.log('Function error:', error);
+
       if (error) {
-        console.error('Function error:', error);
-        throw new Error(error.message || 'Failed to create checkout session');
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to create payment session');
       }
 
       if (!data || data.error) {
-        throw new Error(data?.error || 'Invalid response from checkout service');
+        console.error('Function returned error:', data);
+        throw new Error(data?.error || 'Invalid response from payment service');
       }
+
+      console.log('Opening Razorpay checkout with data:', data);
 
       // Open Razorpay checkout
       const options = {
@@ -81,10 +96,14 @@ export const useRazorpay = () => {
             title: 'Payment Successful!',
             description: 'Your subscription has been activated.',
           });
-          window.location.reload();
+          // Reload to update subscription status
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         },
         modal: {
           ondismiss: function () {
+            console.log('Payment modal dismissed');
             toast({
               title: 'Payment Cancelled',
               description: 'You can try again anytime.',
@@ -100,11 +119,17 @@ export const useRazorpay = () => {
       razorpay.open();
 
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error('Checkout session creation error:', error);
+      
+      let errorMessage = 'Payment setup failed. Please try again.';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      }
       
       toast({
         title: 'Checkout Failed',
-        description: error.message || 'Failed to create checkout session',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
