@@ -11,6 +11,7 @@ serve(async (req) => {
   console.log('=== Create Razorpay Checkout Function Started ===')
   console.log('Request method:', req.method)
   console.log('Request URL:', req.url)
+  console.log('Request headers:', Object.fromEntries(req.headers.entries()))
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -81,8 +82,12 @@ serve(async (req) => {
     // Parse request body with comprehensive error handling
     let requestBody;
     try {
+      const contentType = req.headers.get('content-type') || '';
+      console.log('Content-Type:', contentType);
+      
       const bodyText = await req.text()
       console.log('Raw request body:', bodyText)
+      console.log('Body length:', bodyText.length)
       
       if (!bodyText || bodyText.trim() === '') {
         console.error('Empty request body received')
@@ -214,8 +219,8 @@ serve(async (req) => {
     // Generate a short receipt ID (max 40 characters)
     // Format: rcpt_[first8ofuserid]_[timestamp] (e.g., rcpt_1d742f33_1234567890)
     const shortUserId = user_id.substring(0, 8)
-    const timestamp = Date.now().toString().substring(-8) // Last 8 digits of timestamp
-    const receiptId = `rcpt_${shortUserId}_${timestamp}`
+    const shortTimestamp = Date.now().toString().slice(-8) // Last 8 digits of timestamp
+    const receiptId = `rcpt_${shortUserId}_${shortTimestamp}`
     
     console.log('Generated receipt ID:', receiptId, 'Length:', receiptId.length)
 
