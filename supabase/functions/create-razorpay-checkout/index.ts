@@ -9,6 +9,8 @@ const corsHeaders = {
 
 serve(async (req) => {
   console.log('=== Create Razorpay Checkout Function Started ===')
+  console.log('Request method:', req.method)
+  console.log('Request headers:', Object.fromEntries(req.headers.entries()))
   
   if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight request')
@@ -19,8 +21,10 @@ serve(async (req) => {
     // Parse request body
     let requestBody;
     try {
-      requestBody = await req.json()
-      console.log('Request body received:', requestBody)
+      const bodyText = await req.text()
+      console.log('Raw request body:', bodyText)
+      requestBody = JSON.parse(bodyText)
+      console.log('Parsed request body:', requestBody)
     } catch (error) {
       console.error('Failed to parse request body:', error)
       return new Response(
@@ -78,6 +82,9 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
+    console.log('Supabase URL exists:', !!supabaseUrl)
+    console.log('Supabase Service Key exists:', !!supabaseServiceKey)
+    
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Supabase credentials missing')
       return new Response(
@@ -133,6 +140,8 @@ serve(async (req) => {
       .eq('id', user_id)
       .single()
 
+    console.log('Profile query result:', { profile, profileError })
+
     if (profileError) {
       console.error('Profile fetch error:', profileError)
       return new Response(
@@ -178,10 +187,13 @@ serve(async (req) => {
     console.log('Creating Razorpay order with payload:', JSON.stringify(orderPayload, null, 2))
 
     // Create authorization header for Razorpay API
-    const authHeader = btoa(`${razorpayKeyId}:${razorpayKeySecret}`)
+    const authString = `${razorpayKeyId}:${razorpayKeySecret}`
+    const authHeader = btoa(authString)
+    console.log('Auth string length:', authString.length)
     console.log('Authorization header created (length):', authHeader.length)
     
     try {
+      console.log('Making request to Razorpay API...')
       const orderResponse = await fetch('https://api.razorpay.com/v1/orders', {
         method: 'POST',
         headers: {
@@ -192,13 +204,18 @@ serve(async (req) => {
       })
 
       console.log('Razorpay API response status:', orderResponse.status)
+      console.log('Razorpay API response statusText:', orderResponse.statusText)
       console.log('Razorpay API response headers:', Object.fromEntries(orderResponse.headers.entries()))
 
       const responseText = await orderResponse.text()
       console.log('Razorpay API response body:', responseText)
 
       if (!orderResponse.ok) {
-        console.error('Razorpay order creation failed with status:', orderResponse.status)
+        console.error('Razorpay order creation failed')
+        console.error('Status:', orderResponse.status)
+        console.error('StatusText:', orderResponse.statusText)
+        console.error('Response body:', responseText)
+        
         let errorMessage = 'Payment order creation failed'
         
         try {
@@ -212,7 +229,14 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             error: `${errorMessage} (Status: ${orderResponse.status})`,
-            razorpay_error: responseText
+            razorpay_error: responseText,
+            debug: {
+              status: orderResponse.status,
+              statusText: orderResponse.statusText,
+              authHeaderLength: authHeader.length,
+              keyIdLength: razorpayKeyId.length,
+              keySecretLength: razorpayKeySecret.length
+            }
           }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -224,6 +248,7 @@ serve(async (req) => {
       let order
       try {
         order = JSON.parse(responseText)
+        console.log('Successfully parsed Razorpay order:', order.id)
       } catch (parseError) {
         console.error('Failed to parse Razorpay success response:', parseError)
         return new Response(
@@ -237,8 +262,6 @@ serve(async (req) => {
           }
         )
       }
-
-      console.log('Successfully created Razorpay order:', order.id)
 
       // Return the order details for frontend
       const response = {
@@ -260,11 +283,21 @@ serve(async (req) => {
       )
 
     } catch (fetchError) {
-      console.error('Fetch error when calling Razorpay API:', fetchError)
+      console.error('Network error when calling Razorpay API:', fetchError)
+      console.error('Error details:', {
+        name: fetchError.name,
+        message: fetchError.message,
+        stack: fetchError.stack
+      })
+      
       return new Response(
         JSON.stringify({ 
           error: 'Failed to connect to payment gateway',
-          details: fetchError.message
+          details: fetchError.message,
+          debug: {
+            errorName: fetchError.name,
+            errorMessage: fetchError.message
+          }
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -275,11 +308,20 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Unexpected error in create-razorpay-checkout:', error)
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    })
     
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error occurred. Please try again.',
-        details: error.message
+        details: error.message,
+        debug: {
+          errorName: error.name,
+          errorMessage: error.message
+        }
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

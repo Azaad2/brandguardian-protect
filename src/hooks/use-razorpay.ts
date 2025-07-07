@@ -87,20 +87,17 @@ export const useRazorpay = () => {
       console.log('Function error:', error);
 
       if (error) {
-        console.error('Supabase function error details:', {
-          name: error.name,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+        console.error('Supabase function error details:', error);
         
-        // Try to provide more specific error messages
+        // Enhanced error handling with more specific messages
         let errorMessage = 'Payment setup failed. Please try again.';
-        if (error.message.includes('not-2xx')) {
-          errorMessage = 'Payment service configuration error. Please contact support.';
-        } else if (error.message) {
-          errorMessage = error.message;
+        
+        if (error.message) {
+          if (error.message.includes('Edge Function returned a non-2xx status code')) {
+            errorMessage = 'Payment service error. Please check the console logs and contact support if the issue persists.';
+          } else {
+            errorMessage = error.message;
+          }
         }
         
         throw new Error(errorMessage);
@@ -113,7 +110,16 @@ export const useRazorpay = () => {
 
       if (data.error) {
         console.error('Function returned error:', data.error);
-        throw new Error(data.error);
+        console.error('Debug info:', data.debug);
+        console.error('Razorpay error:', data.razorpay_error);
+        
+        // Show detailed error for debugging
+        let errorMessage = data.error;
+        if (data.debug) {
+          console.error('Additional debug info:', data.debug);
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Validate required Razorpay fields
