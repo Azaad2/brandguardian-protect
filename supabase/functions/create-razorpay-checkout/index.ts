@@ -26,9 +26,21 @@ serve(async (req) => {
     const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID')
     const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
 
+    console.log('Razorpay Key ID exists:', !!razorpayKeyId)
+    console.log('Razorpay Key Secret exists:', !!razorpayKeySecret)
+
     if (!razorpayKeyId || !razorpayKeySecret) {
       console.error('Razorpay credentials not found')
-      throw new Error('Razorpay credentials not configured')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Razorpay credentials not configured',
+          details: 'Please configure RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in the edge function secrets'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
     }
 
     console.log('Razorpay credentials found')
@@ -42,7 +54,17 @@ serve(async (req) => {
 
     const selectedPlan = plans[tier as keyof typeof plans]
     if (!selectedPlan) {
-      throw new Error('Invalid subscription tier')
+      console.error('Invalid tier selected:', tier)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid subscription tier',
+          details: `Available tiers: ${Object.keys(plans).join(', ')}`
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
     }
 
     console.log('Selected plan:', selectedPlan)
@@ -66,6 +88,22 @@ serve(async (req) => {
         .eq('id', user_id)
         .single()
 
+      if (!profile) {
+        console.error('Profile not found for user:', user_id)
+        return new Response(
+          JSON.stringify({ 
+            error: 'User profile not found',
+            details: 'Please ensure your profile is complete'
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        )
+      }
+
+      console.log('Creating customer for profile:', profile.email)
+
       const customerResponse = await fetch('https://api.razorpay.com/v1/customers', {
         method: 'POST',
         headers: {
@@ -78,13 +116,31 @@ serve(async (req) => {
         }),
       })
 
+      const customerResponseText = await customerResponse.text()
+      console.log('Razorpay customer creation response status:', customerResponse.status)
+      console.log('Razorpay customer creation response:', customerResponseText)
+
       if (!customerResponse.ok) {
-        const error = await customerResponse.json()
+        let error
+        try {
+          error = JSON.parse(customerResponseText)
+        } catch {
+          error = { description: customerResponseText }
+        }
         console.error('Customer creation failed:', error)
-        throw new Error(`Failed to create customer: ${error.error?.description || 'Unknown error'}`)
+        return new Response(
+          JSON.stringify({ 
+            error: `Failed to create customer: ${error.error?.description || 'Unknown error'}`,
+            details: customerResponseText
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        )
       }
 
-      const customer = await customerResponse.json()
+      const customer = JSON.parse(customerResponseText)
       customerId = customer.id
       console.log('Created customer:', customerId)
 
@@ -103,33 +159,54 @@ serve(async (req) => {
 
     console.log('Using customer ID:', customerId)
 
-    // For now, create a simple payment instead of subscription for testing
-    // This will help us verify the integration works
+    // Create a Razorpay order for the payment
+    const orderPayload = {
+      amount: selectedPlan.amount,
+      currency: 'INR',
+      receipt: `receipt_${user_id}_${Date.now()}`,
+      notes: {
+        user_id: user_id,
+        tier: tier,
+        plan_name: selectedPlan.name
+      }
+    }
+
+    console.log('Creating Razorpay order with payload:', orderPayload)
+
     const paymentResponse = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        amount: selectedPlan.amount,
-        currency: 'INR',
-        receipt: `receipt_${user_id}_${Date.now()}`,
-        notes: {
-          user_id: user_id,
-          tier: tier,
-          plan_name: selectedPlan.name
-        }
-      }),
+      body: JSON.stringify(orderPayload),
     })
 
+    const paymentResponseText = await paymentResponse.text()
+    console.log('Razorpay order creation response status:', paymentResponse.status)
+    console.log('Razorpay order creation response:', paymentResponseText)
+
     if (!paymentResponse.ok) {
-      const error = await paymentResponse.json()
+      let error
+      try {
+        error = JSON.parse(paymentResponseText)
+      } catch {
+        error = { description: paymentResponseText }
+      }
       console.error('Payment creation failed:', error)
-      throw new Error(`Failed to create payment: ${error.error?.description || 'Unknown error'}`)
+      return new Response(
+        JSON.stringify({ 
+          error: `Failed to create payment: ${error.error?.description || 'Unknown error'}`,
+          details: paymentResponseText
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
     }
 
-    const payment = await paymentResponse.json()
+    const payment = JSON.parse(paymentResponseText)
     console.log('Created payment order:', payment)
 
     // Update subscriber with plan details
@@ -141,14 +218,18 @@ serve(async (req) => {
       })
       .eq('user_id', user_id)
 
+    const response = {
+      subscription_id: payment.id, // Using order ID as subscription_id for now
+      order_id: payment.id,
+      amount: payment.amount,
+      currency: payment.currency,
+      key_id: razorpayKeyId
+    }
+
+    console.log('Returning successful response:', response)
+
     return new Response(
-      JSON.stringify({
-        subscription_id: payment.id, // Using order ID as subscription_id for now
-        order_id: payment.id,
-        amount: payment.amount,
-        currency: payment.currency,
-        key_id: razorpayKeyId
-      }),
+      JSON.stringify(response),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -164,7 +245,7 @@ serve(async (req) => {
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: 500,
       }
     )
   }
