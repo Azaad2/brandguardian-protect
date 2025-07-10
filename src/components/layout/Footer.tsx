@@ -50,10 +50,8 @@ const Footer = () => {
             <ul className="space-y-3">
               <li><a href="/privacy" className="text-gray-600 hover:text-brandguardian-600">Privacy Policy</a></li>
               <li><a href="/terms" className="text-gray-600 hover:text-brandguardian-600">Terms of Service</a></li>
-              <li><a href="/cancellation-refund" className="text-gray-600 hover:text-brandguardian-600">Cancellation & Refund Policy</a></li>
-              <li><a href="/cookies" className="text-gray-600 hover:text-brandguardian-600">Cookie Policy</a></li>
+              <li><a href="/cancellation-refund" className="text-gray-600 hover:text-brandguardian-600">Cancellation & Refund</a></li>
               <li><a href="/shipping-delivery" className="text-gray-600 hover:text-brandguardian-600">Shipping & Delivery</a></li>
-              <li><a href="#contact" className="text-gray-600 hover:text-brandguardian-600">Contact Us</a></li>
             </ul>
           </div>
         </div>
