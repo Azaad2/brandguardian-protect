@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 border-t">
       <div className="container mx-auto py-12 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="col-span-1">
             <div className="mb-4">
               <BndBoxLogo className="h-10" />
@@ -44,16 +44,6 @@ const Footer = () => {
             </ul>
           </div>
           
-          <div className="col-span-1">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Resources</h3>
-            <ul className="space-y-3">
-              <li><a href="/documentation" className="text-gray-600 hover:text-brandguardian-600">Documentation</a></li>
-              <li><a href="/help" className="text-gray-600 hover:text-brandguardian-600">Help Center</a></li>
-              <li><a href="/guides" className="text-gray-600 hover:text-brandguardian-600">Guides</a></li>
-              <li><a href="/shipping-delivery" className="text-gray-600 hover:text-brandguardian-600">Shipping & Delivery</a></li>
-              <li><a href="/status" className="text-gray-600 hover:text-brandguardian-600">API Status</a></li>
-            </ul>
-          </div>
           
           <div className="col-span-1">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Legal</h3>
@@ -62,6 +52,7 @@ const Footer = () => {
               <li><a href="/terms" className="text-gray-600 hover:text-brandguardian-600">Terms of Service</a></li>
               <li><a href="/cancellation-refund" className="text-gray-600 hover:text-brandguardian-600">Cancellation & Refund Policy</a></li>
               <li><a href="/cookies" className="text-gray-600 hover:text-brandguardian-600">Cookie Policy</a></li>
+              <li><a href="/shipping-delivery" className="text-gray-600 hover:text-brandguardian-600">Shipping & Delivery</a></li>
               <li><a href="#contact" className="text-gray-600 hover:text-brandguardian-600">Contact Us</a></li>
             </ul>
           </div>
