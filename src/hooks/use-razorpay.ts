@@ -151,14 +151,14 @@ export const useRazorpay = () => {
         key_id: data.key_id,
         order_id: data.order_id,
         amount: data.amount,
-        currency: data.currency || 'INR'
+        currency: data.currency
       });
 
       // Create Razorpay checkout options
       const options = {
         key: data.key_id,
         amount: data.amount,
-        currency: data.currency || 'INR',
+        currency: data.currency,
         order_id: data.order_id,
         name: 'BndBox',
         description: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan Subscription`,

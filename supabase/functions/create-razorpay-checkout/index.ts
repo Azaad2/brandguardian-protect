@@ -142,17 +142,17 @@ serve(async (req) => {
     console.log('Initializing Supabase client...')
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Define pricing plans
+    // Define pricing plans in USD
     const plans = {
       basic: { 
-        amount: 290000, // ₹2900 in paise
+        amount: 3500, // $35 USD in cents
         name: 'Basic Plan', 
-        currency: 'INR'
+        currency: 'USD'
       },
       premium: { 
-        amount: 790000, // ₹7900 in paise
+        amount: 9500, // $95 USD in cents
         name: 'Premium Plan', 
-        currency: 'INR'
+        currency: 'USD'
       }
     }
 
