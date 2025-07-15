@@ -166,6 +166,12 @@ export const useRazorpay = () => {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
         },
+        // Enable billing address collection
+        customer_details: {
+          billing_address: {
+            required: true
+          }
+        },
         handler: function (response: any) {
           console.log('Payment successful:', response);
           toast({
@@ -189,7 +195,7 @@ export const useRazorpay = () => {
         theme: {
           color: '#3B82F6'
         },
-        // Disable tracking to avoid ad blocker issues
+        // Enhanced config with billing address display
         config: {
           display: {
             blocks: {
@@ -214,6 +220,12 @@ export const useRazorpay = () => {
             sequence: ['block.banks'],
             preferences: {
               show_default_blocks: true
+            }
+          },
+          customer: {
+            billing_address: {
+              required_fields: ['line1', 'city', 'state', 'postal_code', 'country'],
+              optional_fields: ['line2']
             }
           }
         }
