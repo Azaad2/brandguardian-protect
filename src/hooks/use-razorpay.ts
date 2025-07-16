@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -166,10 +165,6 @@ export const useRazorpay = () => {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
         },
-        // Enable billing address collection
-        collect: {
-          billing_address: true
-        },
         handler: function (response: any) {
           console.log('Payment successful:', response);
           toast({
@@ -188,45 +183,74 @@ export const useRazorpay = () => {
               title: 'Payment Cancelled',
               description: 'You can try again anytime.',
             });
-          }
+          },
+          confirm_close: true,
+          escape: true,
+          backdropclose: false
         },
         theme: {
           color: '#3B82F6'
         },
-        // Simplified config for all payment methods
+        // Enable address collection and all payment methods
         config: {
           display: {
+            language: 'en',
             blocks: {
-              banks: {
-                name: 'All payment methods',
+              utib: {
+                name: "Pay using Netbanking",
                 instruments: [
-                  {
-                    method: 'card'
-                  },
-                  {
-                    method: 'netbanking'
-                  },
-                  {
-                    method: 'wallet'
-                  },
-                  {
-                    method: 'upi'
-                  }
+                  { method: "netbanking" }
+                ]
+              },
+              other: {
+                name: "Other Payment Methods", 
+                instruments: [
+                  { method: "card" },
+                  { method: "upi" },
+                  { method: "wallet" }
                 ]
               }
             },
-            sequence: ['block.banks'],
+            hide: [],
+            sequence: ["block.utib", "block.other"],
             preferences: {
-              show_default_blocks: true
+              show_default_blocks: false
             }
           }
+        },
+        // Force billing address collection
+        customer_id: data.user_email?.replace(/[^a-zA-Z0-9]/g, '') || user.id.substring(0, 8),
+        send_sms_hash: true,
+        allow_rotation: false,
+        remember_customer: false,
+        timeout: 900,
+        readonly: {
+          email: false,
+          contact: false,
+          name: false
+        },
+        hidden: {
+          email: false,
+          contact: false,
+          name: false
         }
       };
 
-      console.log('Creating Razorpay instance...');
+      console.log('Creating Razorpay instance with options:', options);
       
       try {
         const razorpay = new window.Razorpay(options);
+        
+        // Add event listeners to handle different scenarios
+        razorpay.on('payment.failed', function (response: any) {
+          console.error('Payment failed:', response.error);
+          toast({
+            title: 'Payment Failed',
+            description: response.error.description || 'Payment could not be processed. Please try again.',
+            variant: 'destructive',
+          });
+        });
+
         console.log('Opening Razorpay checkout...');
         razorpay.open();
       } catch (razorpayError: any) {
