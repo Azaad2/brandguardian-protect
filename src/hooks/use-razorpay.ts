@@ -154,7 +154,7 @@ export const useRazorpay = () => {
         currency: data.currency
       });
 
-      // Create Razorpay checkout options with billing address collection enabled
+      // Create Razorpay checkout options optimized for billing address collection
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -162,47 +162,23 @@ export const useRazorpay = () => {
         order_id: data.order_id,
         name: 'BndBox',
         description: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan Subscription`,
+        image: 'https://your-logo-url.com/logo.png', // Optional: Add your logo
         prefill: {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
         },
-        // Enable billing address collection
-        config: {
-          display: {
-            blocks: {
-              banks: {
-                name: 'Pay via Net Banking',
-                instruments: [
-                  {
-                    method: 'netbanking'
-                  }
-                ]
-              },
-              other: {
-                name: 'Other Payment Methods',
-                instruments: [
-                  {
-                    method: 'card'
-                  },
-                  {
-                    method: 'upi'
-                  },
-                  {
-                    method: 'wallet'
-                  }
-                ]
-              }
-            },
-            sequence: ['block.banks', 'block.other'],
-            preferences: {
-              show_default_blocks: true
-            }
-          }
-        },
-        // Collect billing address
+        // Force billing address collection
         collect: {
           billing_address: true,
           shipping_address: false
+        },
+        // Payment method preferences to ensure billing address is collected
+        method: {
+          card: true,
+          netbanking: true,
+          wallet: true,
+          upi: true,
+          paylater: true
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
@@ -225,21 +201,29 @@ export const useRazorpay = () => {
           },
           confirm_close: true,
           escape: true,
-          backdropclose: false
+          backdropclose: false,
+          animation: true
         },
         theme: {
-          color: '#3B82F6'
+          color: '#3B82F6',
+          backdrop_color: 'rgba(0,0,0,0.6)'
         },
-        // Additional options to ensure fresh start on retry
+        // Ensure fresh start on each attempt
         remember_customer: false,
+        customer_id: undefined, // Force fresh customer data
         readonly: {
           email: false,
           contact: false,
           name: false
+        },
+        // Additional options to force billing address collection
+        notes: {
+          billing_address_required: 'true',
+          subscription_type: tier
         }
       };
 
-      console.log('Creating Razorpay instance with billing address collection enabled:', options);
+      console.log('Creating Razorpay instance with enhanced billing address collection:', options);
       
       try {
         const razorpay = new window.Razorpay(options);
