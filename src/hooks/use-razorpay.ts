@@ -154,7 +154,7 @@ export const useRazorpay = () => {
         currency: data.currency
       });
 
-      // Create Razorpay checkout options with mandatory billing address
+      // Create simplified Razorpay checkout options that forces billing address
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -166,59 +166,10 @@ export const useRazorpay = () => {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
         },
-        // Configuration to enforce billing address collection
-        config: {
-          display: {
-            blocks: {
-              card: {
-                name: 'Credit/Debit Card',
-                instruments: [
-                  {
-                    method: 'card'
-                  }
-                ]
-              },
-              netbanking: {
-                name: 'Net Banking',
-                instruments: [
-                  {
-                    method: 'netbanking'
-                  }
-                ]
-              },
-              wallet: {
-                name: 'Wallet',
-                instruments: [
-                  {
-                    method: 'wallet'
-                  }
-                ]
-              },
-              upi: {
-                name: 'UPI',
-                instruments: [
-                  {
-                    method: 'upi'
-                  }
-                ]
-              }
-            },
-            sequence: ['block.card', 'block.netbanking', 'block.wallet', 'block.upi'],
-            preferences: {
-              show_default_blocks: false
-            }
-          }
-        },
-        // Mandatory billing address collection
-        collect: {
-          billing_address: true,
-          shipping_address: false
-        },
-        // Address fields configuration
-        customer: {
-          billing_address: {
-            required: true
-          }
+        // This is the key setting for billing address
+        "billing_address": {
+          "required": true,
+          "hide": false
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
@@ -248,19 +199,11 @@ export const useRazorpay = () => {
           color: '#3B82F6',
           backdrop_color: 'rgba(0,0,0,0.6)'
         },
-        // Force fresh customer data on each attempt
-        remember_customer: false,
-        readonly: {
-          email: false,
-          contact: false,
-          name: false
-        },
-        // Additional billing address enforcement
-        send_sms_hash: true,
-        allow_rotation: false
+        // Ensure fresh session
+        remember_customer: false
       };
 
-      console.log('Creating Razorpay instance with mandatory billing address collection:', options);
+      console.log('Creating Razorpay instance with billing address enforcement:', options);
       
       try {
         const razorpay = new window.Razorpay(options);
