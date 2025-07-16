@@ -154,7 +154,7 @@ export const useRazorpay = () => {
         currency: data.currency
       });
 
-      // Create Razorpay checkout options optimized for billing address collection
+      // Create Razorpay checkout options with mandatory billing address
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -162,23 +162,63 @@ export const useRazorpay = () => {
         order_id: data.order_id,
         name: 'BndBox',
         description: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan Subscription`,
-        image: 'https://your-logo-url.com/logo.png', // Optional: Add your logo
         prefill: {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
         },
-        // Force billing address collection
+        // Configuration to enforce billing address collection
+        config: {
+          display: {
+            blocks: {
+              card: {
+                name: 'Credit/Debit Card',
+                instruments: [
+                  {
+                    method: 'card'
+                  }
+                ]
+              },
+              netbanking: {
+                name: 'Net Banking',
+                instruments: [
+                  {
+                    method: 'netbanking'
+                  }
+                ]
+              },
+              wallet: {
+                name: 'Wallet',
+                instruments: [
+                  {
+                    method: 'wallet'
+                  }
+                ]
+              },
+              upi: {
+                name: 'UPI',
+                instruments: [
+                  {
+                    method: 'upi'
+                  }
+                ]
+              }
+            },
+            sequence: ['block.card', 'block.netbanking', 'block.wallet', 'block.upi'],
+            preferences: {
+              show_default_blocks: false
+            }
+          }
+        },
+        // Mandatory billing address collection
         collect: {
           billing_address: true,
           shipping_address: false
         },
-        // Payment method preferences to ensure billing address is collected
-        method: {
-          card: true,
-          netbanking: true,
-          wallet: true,
-          upi: true,
-          paylater: true
+        // Address fields configuration
+        customer: {
+          billing_address: {
+            required: true
+          }
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
@@ -208,22 +248,19 @@ export const useRazorpay = () => {
           color: '#3B82F6',
           backdrop_color: 'rgba(0,0,0,0.6)'
         },
-        // Ensure fresh start on each attempt
+        // Force fresh customer data on each attempt
         remember_customer: false,
-        customer_id: undefined, // Force fresh customer data
         readonly: {
           email: false,
           contact: false,
           name: false
         },
-        // Additional options to force billing address collection
-        notes: {
-          billing_address_required: 'true',
-          subscription_type: tier
-        }
+        // Additional billing address enforcement
+        send_sms_hash: true,
+        allow_rotation: false
       };
 
-      console.log('Creating Razorpay instance with enhanced billing address collection:', options);
+      console.log('Creating Razorpay instance with mandatory billing address collection:', options);
       
       try {
         const razorpay = new window.Razorpay(options);
