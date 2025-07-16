@@ -167,12 +167,8 @@ export const useRazorpay = () => {
           email: data.user_email || user.email,
         },
         // Enable billing address collection
-        customer: {
-          contact: user.phone || '',
-          email: data.user_email || user.email,
-        },
-        billing_address: {
-          required: true
+        collect: {
+          billing_address: true
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
