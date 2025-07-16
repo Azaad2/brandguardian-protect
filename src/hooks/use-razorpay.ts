@@ -154,7 +154,7 @@ export const useRazorpay = () => {
         currency: data.currency
       });
 
-      // Create Razorpay checkout options with minimal, valid configuration
+      // Create Razorpay checkout options with billing address collection enabled
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -165,6 +165,44 @@ export const useRazorpay = () => {
         prefill: {
           name: data.user_name || 'User',
           email: data.user_email || user.email,
+        },
+        // Enable billing address collection
+        config: {
+          display: {
+            blocks: {
+              banks: {
+                name: 'Pay via Net Banking',
+                instruments: [
+                  {
+                    method: 'netbanking'
+                  }
+                ]
+              },
+              other: {
+                name: 'Other Payment Methods',
+                instruments: [
+                  {
+                    method: 'card'
+                  },
+                  {
+                    method: 'upi'
+                  },
+                  {
+                    method: 'wallet'
+                  }
+                ]
+              }
+            },
+            sequence: ['block.banks', 'block.other'],
+            preferences: {
+              show_default_blocks: true
+            }
+          }
+        },
+        // Collect billing address
+        collect: {
+          billing_address: true,
+          shipping_address: false
         },
         handler: function (response: any) {
           console.log('Payment successful:', response);
@@ -191,10 +229,17 @@ export const useRazorpay = () => {
         },
         theme: {
           color: '#3B82F6'
+        },
+        // Additional options to ensure fresh start on retry
+        remember_customer: false,
+        readonly: {
+          email: false,
+          contact: false,
+          name: false
         }
       };
 
-      console.log('Creating Razorpay instance with simplified options:', options);
+      console.log('Creating Razorpay instance with billing address collection enabled:', options);
       
       try {
         const razorpay = new window.Razorpay(options);
