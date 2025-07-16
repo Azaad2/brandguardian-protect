@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -153,7 +154,7 @@ export const useRazorpay = () => {
         currency: data.currency
       });
 
-      // Create Razorpay checkout options
+      // Create Razorpay checkout options with minimal, valid configuration
       const options = {
         key: data.key_id,
         amount: data.amount,
@@ -190,53 +191,10 @@ export const useRazorpay = () => {
         },
         theme: {
           color: '#3B82F6'
-        },
-        // Enable address collection and all payment methods
-        config: {
-          display: {
-            language: 'en',
-            blocks: {
-              utib: {
-                name: "Pay using Netbanking",
-                instruments: [
-                  { method: "netbanking" }
-                ]
-              },
-              other: {
-                name: "Other Payment Methods", 
-                instruments: [
-                  { method: "card" },
-                  { method: "upi" },
-                  { method: "wallet" }
-                ]
-              }
-            },
-            hide: [],
-            sequence: ["block.utib", "block.other"],
-            preferences: {
-              show_default_blocks: false
-            }
-          }
-        },
-        // Force billing address collection
-        customer_id: data.user_email?.replace(/[^a-zA-Z0-9]/g, '') || user.id.substring(0, 8),
-        send_sms_hash: true,
-        allow_rotation: false,
-        remember_customer: false,
-        timeout: 900,
-        readonly: {
-          email: false,
-          contact: false,
-          name: false
-        },
-        hidden: {
-          email: false,
-          contact: false,
-          name: false
         }
       };
 
-      console.log('Creating Razorpay instance with options:', options);
+      console.log('Creating Razorpay instance with simplified options:', options);
       
       try {
         const razorpay = new window.Razorpay(options);
