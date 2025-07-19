@@ -88,12 +88,23 @@ export const useBrandCSVUpload = () => {
 
               const brandData: any = {};
               headers.forEach((header, index) => {
-                brandData[header.toLowerCase()] = values[index] || null;
+                // Clean and normalize header names
+                const cleanHeader = header.toLowerCase().trim().replace(/['"]/g, '');
+                brandData[cleanHeader] = values[index] ? values[index].replace(/^["']|["']$/g, '').trim() : null;
               });
 
-              // Validate required fields
-              if (!brandData.name || !brandData.contact_email) {
-                return { row: rowIndex, error: 'Missing required fields (name, contact_email)' };
+              console.log(`Row ${rowIndex} - Parsed data:`, { 
+                name: brandData.name, 
+                contact_email: brandData.contact_email,
+                headers: headers.map(h => h.toLowerCase().trim().replace(/['"]/g, ''))
+              });
+
+              // Validate required fields with better error messages
+              if (!brandData.name || brandData.name === '') {
+                return { row: rowIndex, error: 'Missing required field: name' };
+              }
+              if (!brandData.contact_email || brandData.contact_email === '') {
+                return { row: rowIndex, error: 'Missing required field: contact_email' };
               }
 
               // Process categories

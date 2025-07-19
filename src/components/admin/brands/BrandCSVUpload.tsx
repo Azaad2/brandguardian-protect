@@ -106,12 +106,15 @@ const BrandCSVUpload = ({ onSuccess }: BrandCSVUploadProps) => {
         )}
 
         {uploadResult?.errors && uploadResult.errors.length > 0 && (
-          <div className="max-h-32 overflow-y-auto text-sm">
-            <p className="font-medium mb-2">Errors:</p>
+          <div className="max-h-64 overflow-y-auto text-sm border rounded p-3">
+            <p className="font-medium mb-2">Errors ({uploadResult.errors.length} total):</p>
             <ul className="space-y-1 text-red-600">
-              {uploadResult.errors.map((error, index) => (
-                <li key={index}>Row {error.row}: {error.message}</li>
+              {uploadResult.errors.slice(0, 20).map((error, index) => (
+                <li key={index} className="break-words">Row {error.row}: {error.message}</li>
               ))}
+              {uploadResult.errors.length > 20 && (
+                <li className="text-gray-500 italic">... and {uploadResult.errors.length - 20} more errors</li>
+              )}
             </ul>
           </div>
         )}
