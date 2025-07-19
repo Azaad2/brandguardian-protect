@@ -95,7 +95,11 @@ export const useBrandCSVUpload = () => {
               const values = parseCSVLine(dataLines[i]);
               
               if (values.length !== headers.length) {
-                return { row: rowIndex, error: 'Column count mismatch' };
+                console.log(`Row ${rowIndex} MISMATCH - Headers: ${headers.length} columns, Data: ${values.length} columns`);
+                console.log(`Headers:`, headers);
+                console.log(`Values:`, values);
+                console.log(`Raw line:`, dataLines[i]);
+                return { row: rowIndex, error: `Column count mismatch: expected ${headers.length} columns, got ${values.length}` };
               }
 
               const brandData: any = {};
