@@ -17,8 +17,13 @@ export const useBrandCSVUpload = () => {
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File): Promise<CSVUploadResult> => {
+      console.log('Starting CSV upload for file:', file.name, 'Size:', file.size, 'bytes');
+      
       const text = await file.text();
       const lines = text.split('\n').filter(line => line.trim());
+      
+      console.log('Total lines in file:', lines.length);
+      console.log('First few lines:', lines.slice(0, 3));
       
       if (lines.length < 2) {
         throw new Error('CSV file must contain at least a header row and one data row');
@@ -157,6 +162,7 @@ export const useBrandCSVUpload = () => {
       };
     },
     onSuccess: (result) => {
+      console.log('Upload completed with result:', result);
       setUploadResult(result);
       queryClient.invalidateQueries({ queryKey: ['brands-directory'] });
       toast({
