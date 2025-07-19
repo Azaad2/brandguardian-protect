@@ -107,7 +107,7 @@ export const useBrandCSVUpload = () => {
                 return { row: rowIndex, error: 'Missing required field: contact_email' };
               }
 
-              // Process categories
+              // Process categories - convert semicolon-separated string to array
               const categories = brandData.categories 
                 ? brandData.categories.split(';').map((c: string) => c.trim()).filter((c: string) => c.length > 0)
                 : [];
@@ -116,7 +116,9 @@ export const useBrandCSVUpload = () => {
               const approval_rate = brandData.approval_rate ? parseFloat(brandData.approval_rate) : null;
               const response_time = brandData.response_time ? parseFloat(brandData.response_time) : null;
 
-              // Insert brand using admin function
+              console.log(`Row ${rowIndex} - Categories processed:`, categories);
+
+              // Insert brand using admin function - send categories as proper array
               const { error } = await supabase.rpc('admin_add_brand', {
                 brand_data: {
                   name: brandData.name,
@@ -124,7 +126,7 @@ export const useBrandCSVUpload = () => {
                   description: brandData.description || null,
                   contact_email: brandData.contact_email,
                   logo_url: brandData.logo_url || null,
-                  categories: categories.length > 0 ? categories : null,
+                  categories: categories, // Send as array, not string
                   approval_rate: approval_rate,
                   response_time: response_time,
                   department: brandData.department || null,
