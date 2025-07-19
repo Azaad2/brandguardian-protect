@@ -31,31 +31,43 @@ export const useBrandCSVUpload = () => {
 
       console.log(`Processing CSV with ${lines.length - 1} data rows`);
 
-      // Better CSV parsing that handles quoted fields
+      // Robust CSV parsing that handles quoted fields and embedded content
       const parseCSVLine = (line: string): string[] => {
         const result: string[] = [];
         let current = '';
         let inQuotes = false;
+        let i = 0;
         
-        for (let i = 0; i < line.length; i++) {
+        while (i < line.length) {
           const char = line[i];
-          const nextChar = line[i + 1];
           
           if (char === '"') {
-            if (inQuotes && nextChar === '"') {
-              current += '"';
-              i++; // Skip next quote
+            if (inQuotes) {
+              // Check if this is an escaped quote (double quote)
+              if (i + 1 < line.length && line[i + 1] === '"') {
+                current += '"';
+                i += 2; // Skip both quotes
+                continue;
+              } else {
+                // End of quoted field
+                inQuotes = false;
+              }
             } else {
-              inQuotes = !inQuotes;
+              // Start of quoted field
+              inQuotes = true;
             }
           } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
+            // Field separator outside quotes
+            result.push(current.trim().replace(/^["']|["']$/g, ''));
             current = '';
           } else {
             current += char;
           }
+          i++;
         }
-        result.push(current.trim());
+        
+        // Add the last field
+        result.push(current.trim().replace(/^["']|["']$/g, ''));
         return result;
       };
 
