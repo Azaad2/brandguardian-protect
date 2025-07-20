@@ -71,55 +71,66 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
   };
 
   const handleDeleteSelected = async () => {
+    if (selectedBrands.size === 0) {
+      toast.error('No brands selected for deletion');
+      return;
+    }
+
+    console.log('=== DELETION PROCESS STARTING ===');
+    console.log('Selected brands for deletion:', Array.from(selectedBrands));
+    console.log('Delete mutation available:', !!deleteBrandMutation);
+    console.log('Delete mutation status:', deleteBrandMutation?.status);
+
     try {
-      console.log('Starting bulk deletion of brands:', Array.from(selectedBrands));
-      console.log('Mutation available:', !!deleteBrandMutation);
-      
-      // Delete brands one by one to see individual results
       const results = [];
+      let successCount = 0;
+      let failCount = 0;
+
       for (const brandId of selectedBrands) {
+        console.log(`Attempting to delete brand: ${brandId}`);
+        
         try {
-          console.log('About to delete brand:', brandId);
-          console.log('Mutation status before delete:', deleteBrandMutation.status);
-          
-          const result = await deleteBrandMutation.mutateAsync(brandId);
-          results.push({ brandId, success: true, result });
-          console.log('Successfully deleted brand:', brandId, 'Result:', result);
+          await deleteBrandMutation.mutateAsync(brandId);
+          console.log(`✅ Successfully deleted brand: ${brandId}`);
+          successCount++;
+          results.push({ brandId, success: true });
         } catch (error) {
-          console.error('Failed to delete brand:', brandId, 'Error details:', error);
+          console.error(`❌ Failed to delete brand ${brandId}:`, error);
+          failCount++;
           results.push({ brandId, success: false, error });
         }
       }
       
-      console.log('Deletion results summary:', results);
+      console.log('=== DELETION PROCESS COMPLETED ===');
+      console.log(`Total processed: ${selectedBrands.size}`);
+      console.log(`Successful deletions: ${successCount}`);
+      console.log(`Failed deletions: ${failCount}`);
+      console.log('Detailed results:', results);
       
-      const successCount = results.filter(r => r.success).length;
-      const failCount = results.filter(r => !r.success).length;
-      
-      console.log(`Success count: ${successCount}, Fail count: ${failCount}`);
-      
+      // Show appropriate toast messages
       if (successCount > 0) {
-        toast.success(`Successfully deleted ${successCount} duplicate brands`);
+        toast.success(`Successfully deleted ${successCount} duplicate brand${successCount > 1 ? 's' : ''}`);
       }
       if (failCount > 0) {
-        toast.error(`Failed to delete ${failCount} brands. Check console for details.`);
-        // Log failed deletions
-        results.filter(r => !r.success).forEach(result => {
-          console.error(`Failed to delete brand ${result.brandId}:`, result.error);
-        });
+        toast.error(`Failed to delete ${failCount} brand${failCount > 1 ? 's' : ''}. Check console for details.`);
       }
       
+      // Reset state
       setSelectedBrands(new Set());
       setShowConfirmDialog(false);
       
+      // Close dialog and refresh if any deletions were successful
       if (successCount > 0) {
         setOpen(false);
-        // Force refresh of the page data
-        window.location.reload();
+        // The query should be invalidated by the mutation, but let's force a reload as backup
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
+      
     } catch (error) {
-      console.error('Error in bulk deletion handler:', error);
-      toast.error('Failed to delete some brands. Please try again.');
+      console.error('=== UNEXPECTED ERROR IN DELETION HANDLER ===', error);
+      toast.error('An unexpected error occurred during deletion. Please try again.');
     }
   };
 
