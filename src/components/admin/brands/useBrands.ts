@@ -219,11 +219,25 @@ export const useBrands = () => {
       });
       
       if (error) {
-        console.error('Error deleting brand:', error);
-        throw error;
+        console.error('Error deleting brand via RPC:', error);
+        
+        // Fallback to direct delete
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('brands_directory')
+          .delete()
+          .eq('id', brandId)
+          .select();
+          
+        if (fallbackError) {
+          console.error('Fallback delete error:', fallbackError);
+          throw fallbackError;
+        }
+        
+        console.log('Brand deleted via fallback:', fallbackData);
+        return fallbackData;
       }
       
-      console.log('Brand deleted successfully:', data);
+      console.log('Brand deleted successfully via RPC:', data);
       return data;
     },
     onSuccess: () => {
