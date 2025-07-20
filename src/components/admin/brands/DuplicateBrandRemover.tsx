@@ -168,18 +168,43 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
     try {
       let successCount = 0;
       let failCount = 0;
-
-      for (const brandId of allDuplicates) {
-        try {
-          await deleteBrandMutation.mutateAsync(brandId);
-          successCount++;
-        } catch (error) {
-          console.error(`Failed to delete brand ${brandId}:`, error);
-          failCount++;
+      const brandsArray = Array.from(allDuplicates);
+      const batchSize = 50; // Process in batches of 50
+      
+      // Process in batches to avoid overwhelming the server
+      for (let i = 0; i < brandsArray.length; i += batchSize) {
+        const batch = brandsArray.slice(i, i + batchSize);
+        console.log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(brandsArray.length / batchSize)}: ${batch.length} brands`);
+        
+        // Process batch concurrently
+        const batchPromises = batch.map(async (brandId) => {
+          try {
+            await deleteBrandMutation.mutateAsync(brandId);
+            return { brandId, success: true };
+          } catch (error) {
+            console.error(`Failed to delete brand ${brandId}:`, error);
+            return { brandId, success: false, error };
+          }
+        });
+        
+        const batchResults = await Promise.all(batchPromises);
+        
+        // Count results for this batch
+        const batchSuccess = batchResults.filter(r => r.success).length;
+        const batchFail = batchResults.filter(r => !r.success).length;
+        
+        successCount += batchSuccess;
+        failCount += batchFail;
+        
+        console.log(`Batch completed: ${batchSuccess} success, ${batchFail} failed`);
+        
+        // Small delay between batches to prevent overwhelming the server
+        if (i + batchSize < brandsArray.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
       
-      console.log(`Deletion completed: ${successCount} success, ${failCount} failed`);
+      console.log(`All batches completed: ${successCount} total success, ${failCount} total failed`);
       
       if (successCount > 0) {
         toast.success(`Successfully deleted ${successCount} duplicate brands`);
