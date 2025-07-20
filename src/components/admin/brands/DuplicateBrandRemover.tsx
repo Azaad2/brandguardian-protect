@@ -73,39 +73,52 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
   const handleDeleteSelected = async () => {
     try {
       console.log('Starting bulk deletion of brands:', Array.from(selectedBrands));
+      console.log('Mutation available:', !!deleteBrandMutation);
       
       // Delete brands one by one to see individual results
       const results = [];
       for (const brandId of selectedBrands) {
         try {
-          console.log('Deleting brand:', brandId);
+          console.log('About to delete brand:', brandId);
+          console.log('Mutation status before delete:', deleteBrandMutation.status);
+          
           const result = await deleteBrandMutation.mutateAsync(brandId);
           results.push({ brandId, success: true, result });
-          console.log('Successfully deleted brand:', brandId, result);
+          console.log('Successfully deleted brand:', brandId, 'Result:', result);
         } catch (error) {
-          console.error('Failed to delete brand:', brandId, error);
+          console.error('Failed to delete brand:', brandId, 'Error details:', error);
           results.push({ brandId, success: false, error });
         }
       }
       
+      console.log('Deletion results summary:', results);
+      
       const successCount = results.filter(r => r.success).length;
       const failCount = results.filter(r => !r.success).length;
+      
+      console.log(`Success count: ${successCount}, Fail count: ${failCount}`);
       
       if (successCount > 0) {
         toast.success(`Successfully deleted ${successCount} duplicate brands`);
       }
       if (failCount > 0) {
         toast.error(`Failed to delete ${failCount} brands. Check console for details.`);
+        // Log failed deletions
+        results.filter(r => !r.success).forEach(result => {
+          console.error(`Failed to delete brand ${result.brandId}:`, result.error);
+        });
       }
       
       setSelectedBrands(new Set());
       setShowConfirmDialog(false);
-      setOpen(false);
       
-      // Force refresh of the page data
-      window.location.reload();
+      if (successCount > 0) {
+        setOpen(false);
+        // Force refresh of the page data
+        window.location.reload();
+      }
     } catch (error) {
-      console.error('Error deleting brands:', error);
+      console.error('Error in bulk deletion handler:', error);
       toast.error('Failed to delete some brands. Please try again.');
     }
   };
