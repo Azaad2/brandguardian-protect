@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { BillingAddress } from '@/components/reseller/subscription/BillingAddressForm';
 
 declare global {
   interface Window {
@@ -43,7 +44,7 @@ export const useRazorpay = () => {
     });
   };
 
-  const createCheckoutSession = async (tier: string) => {
+  const createCheckoutSession = async (tier: string, billingAddress?: BillingAddress) => {
     setIsLoading(true);
     console.log('=== Starting Razorpay Checkout Process ===');
     
@@ -85,7 +86,8 @@ export const useRazorpay = () => {
       console.log('Calling create-razorpay-checkout function...');
       const functionPayload = { 
         tier, 
-        user_id: user.id 
+        user_id: user.id,
+        billing_address: billingAddress
       };
       console.log('Function payload:', functionPayload);
 

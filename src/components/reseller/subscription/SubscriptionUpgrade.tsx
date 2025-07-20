@@ -1,9 +1,11 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Zap, Crown, Building } from 'lucide-react';
 import { useRazorpay } from '@/hooks/use-razorpay';
+import { BillingAddressForm, BillingAddress } from './BillingAddressForm';
 
 interface SubscriptionUpgradeProps {
   currentApplications: number;
@@ -12,6 +14,13 @@ interface SubscriptionUpgradeProps {
 
 const SubscriptionUpgrade = ({ currentApplications, currentLimit }: SubscriptionUpgradeProps) => {
   const { createCheckoutSession, isLoading } = useRazorpay();
+  const [showBillingForm, setShowBillingForm] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<{
+    name: string;
+    tier: string;
+    price: string;
+    period: string;
+  } | null>(null);
 
   const subscriptionTiers = [
     {
@@ -70,8 +79,40 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
       return;
     }
     
-    await createCheckoutSession(tier);
+    // Find the selected tier details
+    const tierDetails = subscriptionTiers.find(t => t.tier === tier);
+    if (tierDetails) {
+      setSelectedTier({
+        name: tierDetails.name,
+        tier: tier,
+        price: tierDetails.price,
+        period: tierDetails.period
+      });
+      setShowBillingForm(true);
+    }
   };
+
+  const handleBillingSubmit = async (billingAddress: BillingAddress) => {
+    if (!selectedTier) return;
+    
+    await createCheckoutSession(selectedTier.tier, billingAddress);
+  };
+
+  const handleBackToPlans = () => {
+    setShowBillingForm(false);
+    setSelectedTier(null);
+  };
+
+  if (showBillingForm && selectedTier) {
+    return (
+      <BillingAddressForm
+        onSubmit={handleBillingSubmit}
+        onBack={handleBackToPlans}
+        isLoading={isLoading}
+        selectedTier={selectedTier}
+      />
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">

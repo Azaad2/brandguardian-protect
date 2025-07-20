@@ -119,7 +119,7 @@ serve(async (req) => {
       )
     }
 
-    const { tier, user_id } = requestBody
+    const { tier, user_id, billing_address } = requestBody
     
     // Validate required fields
     if (!tier || !user_id) {
@@ -224,17 +224,33 @@ serve(async (req) => {
     
     console.log('Generated receipt ID:', receiptId, 'Length:', receiptId.length)
 
-    // Create Razorpay order
+    // Create Razorpay order with billing address in notes
+    const orderNotes = {
+      user_id: user_id,
+      tier: tier,
+      plan_name: selectedPlan.name,
+      user_email: profile.email
+    }
+
+    // Add billing address to notes if provided
+    if (billing_address) {
+      orderNotes.billing_first_name = billing_address.firstName
+      orderNotes.billing_last_name = billing_address.lastName
+      orderNotes.billing_email = billing_address.email
+      orderNotes.billing_phone = billing_address.phone
+      orderNotes.billing_address = billing_address.address
+      orderNotes.billing_city = billing_address.city
+      orderNotes.billing_state = billing_address.state
+      orderNotes.billing_zip = billing_address.zipCode
+      orderNotes.billing_country = billing_address.country
+      console.log('Billing address added to order notes')
+    }
+
     const orderPayload = {
       amount: selectedPlan.amount,
       currency: selectedPlan.currency,
       receipt: receiptId,
-      notes: {
-        user_id: user_id,
-        tier: tier,
-        plan_name: selectedPlan.name,
-        user_email: profile.email
-      }
+      notes: orderNotes
     }
 
     console.log('Creating Razorpay order with payload:', orderPayload)
