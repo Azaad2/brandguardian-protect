@@ -156,6 +156,28 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
             </DialogDescription>
           </DialogHeader>
           
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-sm text-gray-600">
+              {duplicates.reduce((acc, group) => acc + group.brands.length - 1, 0)} total duplicates found
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const newSelected = new Set<string>();
+                duplicates.forEach(group => {
+                  // Select all brands except the first one (the one to keep)
+                  group.brands.slice(1).forEach(brand => {
+                    newSelected.add(brand.id);
+                  });
+                });
+                setSelectedBrands(newSelected);
+              }}
+              className="gap-2"
+            >
+              Select All Duplicates
+            </Button>
+          </div>
+          
           <div className="space-y-6">
             {duplicates.map((group, index) => (
               <div key={group.key} className="border rounded-lg p-4">
