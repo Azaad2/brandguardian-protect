@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Copy, Trash2 } from 'lucide-react';
 import { Brand } from './types';
 import { useBrands } from './useBrands';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface DuplicateGroup {
@@ -23,13 +24,61 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
   const [open, setOpen] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [allBrands, setAllBrands] = useState<Brand[]>([]);
+  const [isLoadingAllBrands, setIsLoadingAllBrands] = useState(false);
   const { deleteBrandMutation } = useBrands();
 
-  // Find duplicates based on name and contact_email
+  // Fetch ALL brands from database for comprehensive duplicate detection
+  const fetchAllBrands = async () => {
+    setIsLoadingAllBrands(true);
+    try {
+      console.log('Fetching ALL brands for duplicate detection...');
+      
+      // Try using the RPC function first
+      const { data: rpcData, error: rpcError } = await supabase.rpc('admin_get_brands' as any);
+      
+      if (rpcError) {
+        console.warn('RPC failed, using direct query:', rpcError);
+        // Fallback to direct query
+        const { data: directData, error: directError } = await supabase
+          .from('brands_directory')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (directError) {
+          console.error('Failed to fetch all brands:', directError);
+          throw directError;
+        }
+        
+        console.log(`Fetched ${directData?.length || 0} brands via direct query`);
+        setAllBrands(directData as Brand[] || []);
+      } else {
+        console.log(`Fetched ${rpcData?.length || 0} brands via RPC`);
+        setAllBrands(rpcData as Brand[] || []);
+      }
+    } catch (error) {
+      console.error('Error fetching all brands:', error);
+      toast.error('Failed to fetch all brands for duplicate detection');
+      // Fallback to passed brands
+      setAllBrands(brands);
+    } finally {
+      setIsLoadingAllBrands(false);
+    }
+  };
+
+  // Load all brands when component mounts
+  useEffect(() => {
+    fetchAllBrands();
+  }, []);
+
+  // Find duplicates based on name and contact_email using ALL brands
   const findDuplicates = (): DuplicateGroup[] => {
+    const brandsToCheck = allBrands.length > 0 ? allBrands : brands;
     const groupMap = new Map<string, Brand[]>();
     
-    brands.forEach(brand => {
+    console.log(`Finding duplicates in ${brandsToCheck.length} brands...`);
+    
+    brandsToCheck.forEach(brand => {
       const key = `${brand.name.toLowerCase().trim()}-${brand.contact_email.toLowerCase().trim()}`;
       if (!groupMap.has(key)) {
         groupMap.set(key, []);
@@ -38,9 +87,14 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
     });
 
     // Only return groups with more than one brand (duplicates)
-    return Array.from(groupMap.entries())
+    const duplicateGroups = Array.from(groupMap.entries())
       .filter(([_, brands]) => brands.length > 1)
       .map(([key, brands]) => ({ key, brands }));
+    
+    const totalDuplicates = duplicateGroups.reduce((acc, group) => acc + group.brands.length - 1, 0);
+    console.log(`Found ${duplicateGroups.length} duplicate groups with ${totalDuplicates} total duplicates`);
+    
+    return duplicateGroups;
   };
 
   const duplicates = findDuplicates();
