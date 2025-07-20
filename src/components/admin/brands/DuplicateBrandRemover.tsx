@@ -72,16 +72,38 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
 
   const handleDeleteSelected = async () => {
     try {
-      const deletionPromises = Array.from(selectedBrands).map(brandId => 
-        deleteBrandMutation.mutateAsync(brandId)
-      );
+      console.log('Starting bulk deletion of brands:', Array.from(selectedBrands));
       
-      await Promise.all(deletionPromises);
+      // Delete brands one by one to see individual results
+      const results = [];
+      for (const brandId of selectedBrands) {
+        try {
+          console.log('Deleting brand:', brandId);
+          const result = await deleteBrandMutation.mutateAsync(brandId);
+          results.push({ brandId, success: true, result });
+          console.log('Successfully deleted brand:', brandId, result);
+        } catch (error) {
+          console.error('Failed to delete brand:', brandId, error);
+          results.push({ brandId, success: false, error });
+        }
+      }
       
-      toast.success(`Successfully deleted ${selectedBrands.size} duplicate brands`);
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
+      
+      if (successCount > 0) {
+        toast.success(`Successfully deleted ${successCount} duplicate brands`);
+      }
+      if (failCount > 0) {
+        toast.error(`Failed to delete ${failCount} brands. Check console for details.`);
+      }
+      
       setSelectedBrands(new Set());
       setShowConfirmDialog(false);
       setOpen(false);
+      
+      // Force refresh of the page data
+      window.location.reload();
     } catch (error) {
       console.error('Error deleting brands:', error);
       toast.error('Failed to delete some brands. Please try again.');
