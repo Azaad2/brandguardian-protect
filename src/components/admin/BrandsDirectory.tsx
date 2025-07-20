@@ -10,6 +10,7 @@ import BrandForm from './brands/BrandForm';
 import BrandsTable from './brands/BrandsTable';
 import BrandCSVUpload from './brands/BrandCSVUpload';
 import BulkBrandAllocationManager from './brands/BulkBrandAllocationManager';
+import DuplicateBrandRemover from './brands/DuplicateBrandRemover';
 
 const BrandsDirectory = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -95,6 +96,7 @@ const BrandsDirectory = () => {
         </div>
         
         <div className="flex gap-2">
+          <DuplicateBrandRemover brands={brands} />
           <BulkBrandAllocationManager />
           
           <Dialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen}>
