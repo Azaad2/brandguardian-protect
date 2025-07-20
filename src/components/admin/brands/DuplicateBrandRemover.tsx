@@ -81,21 +81,37 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
     console.log('Delete mutation available:', !!deleteBrandMutation);
     console.log('Delete mutation status:', deleteBrandMutation?.status);
 
+    // Check if mutation function exists
+    if (!deleteBrandMutation || !deleteBrandMutation.mutateAsync) {
+      console.error('❌ Delete mutation is not available!');
+      toast.error('Delete function is not available. Please refresh the page.');
+      return;
+    }
+
     try {
       const results = [];
       let successCount = 0;
       let failCount = 0;
 
       for (const brandId of selectedBrands) {
-        console.log(`Attempting to delete brand: ${brandId}`);
+        console.log(`🗑️ Attempting to delete brand: ${brandId}`);
         
         try {
-          await deleteBrandMutation.mutateAsync(brandId);
-          console.log(`✅ Successfully deleted brand: ${brandId}`);
+          // Call the mutation
+          console.log(`Calling deleteBrandMutation.mutateAsync(${brandId})`);
+          const deleteResult = await deleteBrandMutation.mutateAsync(brandId);
+          console.log(`✅ Delete mutation completed for brand ${brandId}:`, deleteResult);
+          
           successCount++;
-          results.push({ brandId, success: true });
+          results.push({ brandId, success: true, result: deleteResult });
         } catch (error) {
           console.error(`❌ Failed to delete brand ${brandId}:`, error);
+          console.error(`Error details:`, {
+            name: error?.name,
+            message: error?.message,
+            stack: error?.stack
+          });
+          
           failCount++;
           results.push({ brandId, success: false, error });
         }
@@ -122,10 +138,8 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
       // Close dialog and refresh if any deletions were successful
       if (successCount > 0) {
         setOpen(false);
-        // The query should be invalidated by the mutation, but let's force a reload as backup
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // Force immediate refresh
+        window.location.reload();
       }
       
     } catch (error) {
