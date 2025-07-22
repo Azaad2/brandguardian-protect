@@ -26,33 +26,35 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
     {
       name: 'Basic',
       tier: 'basic',
-      price: '$29',
+      price: '$35',
       period: '/month',
+      costPerApp: '$0.35/application',
       icon: Zap,
-      limit: 99,
+      limit: 109,
       features: [
-        'Apply to up to 99 brands',
+        'Apply to up to 109 brands',
         'Priority customer support',
         'Advanced brand analytics',
         'Custom wholesale terms'
       ],
-      popular: true
+      popular: false
     },
     {
       name: 'Premium',
       tier: 'premium',
-      price: '$79',
+      price: '$99',
       period: '/month',
+      costPerApp: '$0.25/application',
       icon: Crown,
-      limit: 199,
+      limit: 399,
       features: [
-        'Apply to up to 199 brands',
+        'Apply to up to 399 brands',
         'Dedicated account manager',
         'Advanced reporting & insights',
         'Custom wholesale terms',
         'Early access to new brands'
       ],
-      popular: false
+      popular: true
     },
     {
       name: 'Enterprise',
@@ -146,6 +148,11 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
                   <span className="text-3xl font-bold">{tier.price}</span>
                   <span className="text-gray-500 ml-1">{tier.period}</span>
                 </div>
+                {tier.costPerApp && (
+                  <div className="text-sm text-gray-400 font-light mt-1">
+                    {tier.costPerApp}
+                  </div>
+                )}
                 <CardDescription>
                   Up to {tier.limit === 999 ? 'unlimited' : tier.limit} brand applications
                 </CardDescription>
