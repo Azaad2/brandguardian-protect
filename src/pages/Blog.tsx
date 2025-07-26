@@ -13,6 +13,18 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
+      title: "Unlock Amazon Wholesale Success: How BndBox Supercharges Your Brand Approvals",
+      excerpt: "Discover how BndBox revolutionizes the Amazon wholesale reseller experience with access to 1 million brands and streamlined approval processes. Transform your brand outreach from manual headache to competitive advantage.",
+      date: "December 26, 2024",
+      author: "BndBox Team",
+      slug: "unlock-amazon-wholesale-success-bndbox-brand-approvals",
+      image: "photo-1556742049-0cfed4f6a45d",
+      alt: "Amazon wholesale reseller dashboard showing BndBox brand approval system and directory access",
+      readTime: "8 min read",
+      category: "Wholesale Success"
+    },
+    {
+      id: 2,
       title: "How to Enforce MAP Policy and Prevent Unauthorized Sellers on Amazon in 2025",
       excerpt: "Comprehensive guide to MAP policy enforcement and unauthorized seller prevention. Learn how leading brands protect their reputation and pricing with proven strategies and connect with authorized resellers.",
       date: "May 24, 2025",
@@ -24,7 +36,7 @@ const Blog = () => {
       category: "Brand Protection"
     },
     {
-      id: 2,
+      id: 3,
       title: "Complete Guide to Preventing Unauthorized Sellers on Amazon in 2025",
       excerpt: "Learn proven strategies to identify, remove, and prevent unauthorized sellers on Amazon. Protect your brand integrity with our comprehensive 2025 guide.",
       date: "May 24, 2025",
@@ -36,7 +48,7 @@ const Blog = () => {
       category: "Brand Protection"
     },
     {
-      id: 3,
+      id: 4,
       title: "Amazon Brand Registry Benefits: Complete Protection Guide for Brands",
       excerpt: "Discover how Amazon Brand Registry protects your brand and learn advanced strategies to maximize its effectiveness for comprehensive brand protection.",
       date: "May 24, 2025",
@@ -48,7 +60,7 @@ const Blog = () => {
       category: "Brand Protection"
     },
     {
-      id: 4,
+      id: 5,
       title: "How to Identify and Remove Counterfeit Products on Amazon",
       excerpt: "Complete guide to detecting, reporting, and removing counterfeit products on Amazon. Protect your brand with proven identification and removal strategies.",
       date: "May 24, 2025",
@@ -60,14 +72,16 @@ const Blog = () => {
       category: "Brand Protection"
     },
     {
-      id: 5,
+      id: 6,
       title: "Brand Wholesale Approval: What Every Reseller Needs to Know",
       excerpt: "Essential insights into the brand approval process and how to position your reseller business for success.",
       date: "March 1, 2025",
       author: "Brand Relations Team",
       slug: "brand-wholesale-approval-guide",
       image: "photo-1519389950473-47ba0277781c",
-      alt: "Business meeting between brand representatives and resellers"
+      alt: "Business meeting between brand representatives and resellers",
+      readTime: "12 min read",
+      category: "Wholesale Success"
     },
   ];
 

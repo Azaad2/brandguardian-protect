@@ -40,6 +40,7 @@ import UserManagement from '@/pages/admin/UserManagement';
 import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 
 // Blog pages
+import UnlockAmazonWholesaleSuccess from '@/pages/blog/UnlockAmazonWholesaleSuccess';
 import EnforceMAPPolicyPreventUnauthorizedSellers from '@/pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers';
 import PreventUnauthorizedSellersAmazon from '@/pages/blog/PreventUnauthorizedSellersAmazon';
 import IdentifyRemoveCounterfeitProducts from '@/pages/blog/IdentifyRemoveCounterfeitProducts';
@@ -86,6 +87,7 @@ function App() {
             <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
             
             {/* Blog routes */}
+            <Route path="/blog/unlock-amazon-wholesale-success-bndbox-brand-approvals" element={<UnlockAmazonWholesaleSuccess />} />
             <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<EnforceMAPPolicyPreventUnauthorizedSellers />} />
             <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<PreventUnauthorizedSellersAmazon />} />
             <Route path="/blog/identify-remove-counterfeit-products" element={<IdentifyRemoveCounterfeitProducts />} />
