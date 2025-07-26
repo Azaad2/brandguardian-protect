@@ -76,12 +76,11 @@ const Blog = () => {
     trackPageView(window.location.pathname);
     
     // Track Core Web Vitals
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(({ name, delta, value }) => trackWebVitals(name, delta, value));
-      getFID(({ name, delta, value }) => trackWebVitals(name, delta, value));
-      getFCP(({ name, delta, value }) => trackWebVitals(name, delta, value));
-      getLCP(({ name, delta, value }) => trackWebVitals(name, delta, value));
-      getTTFB(({ name, delta, value }) => trackWebVitals(name, delta, value));
+    import('web-vitals').then(({ onCLS, onFCP, onLCP, onTTFB }) => {
+      onCLS(({ name, delta, value }) => trackWebVitals(name, delta, value));
+      onFCP(({ name, delta, value }) => trackWebVitals(name, delta, value));
+      onLCP(({ name, delta, value }) => trackWebVitals(name, delta, value));
+      onTTFB(({ name, delta, value }) => trackWebVitals(name, delta, value));
     }).catch(() => {
       // Silently handle if web-vitals is not available
     });
