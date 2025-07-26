@@ -71,3 +71,33 @@ export const trackSEOInteraction = (interactionType: string, elementType: string
     label: `${elementType}: ${content}`
   });
 };
+
+// Track Core Web Vitals
+export const trackWebVitals = (name: string, delta: number, value: number) => {
+  ReactGA.event({
+    category: 'Web Vitals',
+    action: name,
+    value: Math.round(value),
+    label: `delta: ${Math.round(delta)}`
+  });
+};
+
+// Track search interactions
+export const trackSearch = (query: string, results: number) => {
+  ReactGA.event({
+    category: 'Search',
+    action: 'Query',
+    label: query,
+    value: results
+  });
+};
+
+// Track content interactions
+export const trackContentInteraction = (type: string, content: string, position?: number) => {
+  ReactGA.event({
+    category: 'Content',
+    action: type,
+    label: content,
+    ...(position && { value: position })
+  });
+};

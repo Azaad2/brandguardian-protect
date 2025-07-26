@@ -1,10 +1,13 @@
 import React, { useEffect } from "react";
-import { Helmet } from "react-helmet";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BreadcrumbNav from "@/components/navigation/BreadcrumbNav";
-import { trackPageView, trackSEOInteraction } from "@/lib/analytics";
+import { trackPageView, trackSEOInteraction, trackWebVitals } from "@/lib/analytics";
 import { Link } from "react-router-dom";
+import AdvancedSEO from "@/components/seo/AdvancedSEO";
+import { SchemaGenerator } from "@/components/seo/SchemaGenerator";
+import { Badge } from "@/components/ui/badge";
+import { Clock, TrendingUp, Calendar } from "lucide-react";
 
 const Blog = () => {
   const blogPosts = [
@@ -68,9 +71,20 @@ const Blog = () => {
     },
   ];
 
-  // Track page view with enhanced analytics
+  // Track page view with enhanced analytics and Core Web Vitals
   useEffect(() => {
     trackPageView(window.location.pathname);
+    
+    // Track Core Web Vitals
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(({ name, delta, value }) => trackWebVitals(name, delta, value));
+      getFID(({ name, delta, value }) => trackWebVitals(name, delta, value));
+      getFCP(({ name, delta, value }) => trackWebVitals(name, delta, value));
+      getLCP(({ name, delta, value }) => trackWebVitals(name, delta, value));
+      getTTFB(({ name, delta, value }) => trackWebVitals(name, delta, value));
+    }).catch(() => {
+      // Silently handle if web-vitals is not available
+    });
   }, []);
 
   // Track blog post click for SEO analytics
@@ -155,24 +169,26 @@ const Blog = () => {
     return JSON.stringify(breadcrumbSchema);
   };
 
+  const organizationSchema = SchemaGenerator.generateOrganizationSchema();
+  const websiteSchema = SchemaGenerator.generateWebsiteSchema();
+  const blogListingSchema = generateBlogSchema();
+  const breadcrumbSchema = generateBreadcrumbSchema();
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Helmet>
-        <title>Amazon Brand Approval Guide & Resources | BndBox Blog</title>
-        <meta name="description" content="Expert articles and guides on Amazon wholesale brand approval, reseller application process, MAP policies, and e-commerce marketplace strategies." />
-        <meta name="keywords" content="amazon brand approval, wholesale approval guides, reseller application process, MAP policy enforcement, amazon reseller guides" />
-        <link rel="canonical" href="https://bndbox.com/blog" />
-        <meta name="robots" content="index, follow, max-image-preview:large" />
-        
-        {/* Schema.org JSON-LD structured data */}
-        <script type="application/ld+json">
-          {generateBlogSchema()}
-        </script>
-        
-        <script type="application/ld+json">
-          {generateBreadcrumbSchema()}
-        </script>
-      </Helmet>
+      <AdvancedSEO
+        title="Amazon Brand Approval Guide & Resources | BndBox Blog"
+        description="Expert articles and guides on Amazon wholesale brand approval, reseller application process, MAP policies, and e-commerce marketplace strategies. Get insider tips from industry experts."
+        canonicalUrl="https://bndbox.com/blog"
+        keywords="amazon brand approval, wholesale approval guides, reseller application process, MAP policy enforcement, amazon reseller guides, brand protection, unauthorized sellers"
+        schema={[organizationSchema, websiteSchema, blogListingSchema, breadcrumbSchema]}
+        ogImage="https://bndbox.com/blog-og-image.jpg"
+        additionalMeta={[
+          { name: "author", content: "BndBox Team" },
+          { property: "article:publisher", content: "https://www.facebook.com/bndbox" },
+          { name: "twitter:site", content: "@BndBox" }
+        ]}
+      />
       
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -180,29 +196,105 @@ const Blog = () => {
           <BreadcrumbNav />
         </div>
         
-        <h1 className="text-4xl font-bold mb-8">Brand Wholesale Approval Resources</h1>
+        <div className="mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+            Brand Wholesale Approval Resources
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl">
+            Expert insights, proven strategies, and comprehensive guides to help brands and resellers succeed on Amazon and other marketplaces.
+          </p>
+          
+          {/* Blog Stats */}
+          <div className="flex flex-wrap items-center gap-6 mt-6 text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-sm font-medium">{blogPosts.length} Expert Articles</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span className="text-sm font-medium">Updated Weekly</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-medium">15-25 min reads</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Featured Post */}
+        {blogPosts.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-4">
+              <Badge variant="default" className="bg-primary">Featured</Badge>
+              <span className="text-sm text-muted-foreground">Most Popular Guide</span>
+            </div>
+            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-lg p-6 lg:p-8">
+              <div className="grid lg:grid-cols-3 gap-6 items-center">
+                <div className="lg:col-span-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge variant="secondary">{blogPosts[0].category}</Badge>
+                    <span className="text-sm text-muted-foreground">{blogPosts[0].readTime}</span>
+                  </div>
+                  <h2 className="text-2xl lg:text-3xl font-bold mb-3 text-foreground">
+                    <Link 
+                      to={`/blog/${blogPosts[0].slug}`}
+                      onClick={() => handleBlogPostClick(blogPosts[0].title)}
+                      className="hover:text-primary transition-colors"
+                    >
+                      {blogPosts[0].title}
+                    </Link>
+                  </h2>
+                  <p className="text-muted-foreground mb-4 text-lg">
+                    {blogPosts[0].excerpt}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>{blogPosts[0].author}</span>
+                    <span>•</span>
+                    <time>{blogPosts[0].date}</time>
+                  </div>
+                </div>
+                <div className="aspect-video lg:aspect-square overflow-hidden rounded-lg">
+                  <img
+                    src={`https://images.unsplash.com/${blogPosts[0].image}?w=400&h=400&auto=format`}
+                    alt={blogPosts[0].alt}
+                    className="w-full h-full object-cover"
+                    loading="eager"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-6">All Articles</h2>
+        </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogPosts.map((post) => (
-            <article key={post.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow" itemScope itemType="https://schema.org/BlogPosting">
+          {blogPosts.slice(1).map((post) => (
+            <article key={post.id} className="group border rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1" itemScope itemType="https://schema.org/BlogPosting">
               <div className="aspect-video bg-gray-100 overflow-hidden">
                 <img 
                   src={`https://images.unsplash.com/${post.image}?w=600&h=400&auto=format`}
                   alt={post.alt}
                   loading="lazy"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   width="600"
                   height="400"
                   itemProp="image"
                 />
               </div>
               <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm text-gray-500" itemProp="articleSection">{post.category}</span>
-                  <span className="text-sm text-gray-400">•</span>
-                  <span className="text-sm text-gray-500">{post.readTime}</span>
+                <div className="flex items-center justify-between mb-3">
+                  <Badge variant="secondary" className="text-xs">
+                    <span itemProp="articleSection">{post.category}</span>
+                  </Badge>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="w-3 h-3" />
+                    <span>{post.readTime}</span>
+                  </div>
                 </div>
-                <h2 className="text-xl font-semibold mb-3 line-clamp-2 hover:text-blue-600 transition-colors" itemProp="headline">
+                <h2 className="text-xl font-semibold mb-3 line-clamp-2 group-hover:text-primary transition-colors" itemProp="headline">
                   <Link 
                     to={`/blog/${post.slug}`}
                     onClick={() => handleBlogPostClick(post.title)}
@@ -210,8 +302,8 @@ const Blog = () => {
                     {post.title}
                   </Link>
                 </h2>
-                <p className="text-gray-600 mb-4 line-clamp-3" itemProp="description">{post.excerpt}</p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
+                <p className="text-muted-foreground mb-4 line-clamp-3" itemProp="description">{post.excerpt}</p>
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
                   <span itemProp="author" itemScope itemType="https://schema.org/Person">
                     <span itemProp="name">{post.author}</span>
                   </span>
