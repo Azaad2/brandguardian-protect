@@ -27,16 +27,12 @@ const DocumentUpload = ({
     try {
       setIsUploading(true);
       
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
-      // Create file path: userId/filename_timestamp
+      // For reseller applications, create anonymous upload path
+      // Generate unique identifier for this session
+      const sessionId = crypto.randomUUID();
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${file.name}`;
-      const filePath = `${user.id}/${fileName}`;
+      const filePath = `reseller-applications/${sessionId}/${fileName}`;
 
       // Upload file to storage
       const { data, error } = await supabase.storage
