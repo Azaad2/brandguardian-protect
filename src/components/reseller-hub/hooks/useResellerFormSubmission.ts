@@ -33,6 +33,12 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
       }
 
       console.log('🎯 Submitting reseller application with document path:', documentPath);
+      console.log('📊 Application data to submit:', {
+        company_name: values.companyName,
+        business_type: values.businessType,
+        email: values.email,
+        document_path: documentPath
+      });
 
       const applicationData = {
         company_name: values.companyName,
@@ -48,10 +54,11 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         email: values.email,
         phone: values.phone,
         linkedin: values.linkedIn || null,
-        document_path: documentPath, // Include the uploaded document path
+        document_path: documentPath,
         status: 'pending'
       };
 
+      console.log('🔄 Making database insert request...');
       const { data, error } = await supabase
         .from('reseller_applications')
         .insert([applicationData])
@@ -59,8 +66,13 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         .single();
 
       if (error) {
-        console.error('❌ Error submitting application:', error);
-        throw error;
+        console.error('❌ Database error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw new Error(`Database error: ${error.message} (${error.code})`);
       }
 
       console.log('✅ Application submitted successfully:', data);
