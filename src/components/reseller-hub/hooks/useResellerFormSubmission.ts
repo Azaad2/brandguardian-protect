@@ -58,6 +58,10 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         .single();
 
       if (error) {
+        // Check for duplicate email error
+        if (error.message.includes('A reseller application with this email already exists')) {
+          throw new Error('A reseller application with this email already exists. Please use a different email address.');
+        }
         throw new Error(`Database error: ${error.message} (${error.code})`);
       }
 
