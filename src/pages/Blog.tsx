@@ -13,6 +13,18 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
+      title: "Master Your Amazon Reseller Business: Strategies for Profitability, Sourcing, and Growth",
+      excerpt: "Discover advanced strategies to maximize profitability, optimize sourcing, and scale your Amazon FBA reseller business with expert insights on inventory management, growth hacks, and essential tools for 2025.",
+      date: "January 28, 2025",
+      author: "BndBox Team",
+      slug: "master-amazon-reseller-business-strategies-profitability-sourcing-growth",
+      image: "photo-1560472354-b33ff0c44a43",
+      alt: "Amazon FBA reseller workspace showing profit analysis, inventory management, and business growth strategies",
+      readTime: "12 min read",
+      category: "Amazon FBA"
+    },
+    {
+      id: 2,
       title: "Unlock Amazon Wholesale Success: How BndBox Supercharges Your Brand Approvals",
       excerpt: "Discover how BndBox revolutionizes the Amazon wholesale reseller experience with access to 1 million brands and streamlined approval processes. Transform your brand outreach from manual headache to competitive advantage.",
       date: "December 26, 2024",
@@ -24,7 +36,7 @@ const Blog = () => {
       category: "Wholesale Success"
     },
     {
-      id: 2,
+      id: 3,
       title: "How to Enforce MAP Policy and Prevent Unauthorized Sellers on Amazon in 2025",
       excerpt: "Comprehensive guide to MAP policy enforcement and unauthorized seller prevention. Learn how leading brands protect their reputation and pricing with proven strategies and connect with authorized resellers.",
       date: "May 24, 2025",
@@ -36,7 +48,7 @@ const Blog = () => {
       category: "Brand Protection"
     },
     {
-      id: 3,
+      id: 4,
       title: "Complete Guide to Preventing Unauthorized Sellers on Amazon in 2025",
       excerpt: "Learn proven strategies to identify, remove, and prevent unauthorized sellers on Amazon. Protect your brand integrity with our comprehensive 2025 guide.",
       date: "May 24, 2025",
@@ -48,7 +60,7 @@ const Blog = () => {
       category: "Brand Protection"
     },
     {
-      id: 4,
+      id: 5,
       title: "Amazon Brand Registry Benefits: Complete Protection Guide for Brands",
       excerpt: "Discover how Amazon Brand Registry protects your brand and learn advanced strategies to maximize its effectiveness for comprehensive brand protection.",
       date: "May 24, 2025",
@@ -60,7 +72,7 @@ const Blog = () => {
       category: "Brand Protection"
     },
     {
-      id: 5,
+      id: 6,
       title: "How to Identify and Remove Counterfeit Products on Amazon",
       excerpt: "Complete guide to detecting, reporting, and removing counterfeit products on Amazon. Protect your brand with proven identification and removal strategies.",
       date: "May 24, 2025",
