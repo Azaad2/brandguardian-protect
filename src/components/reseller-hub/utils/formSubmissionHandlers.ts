@@ -97,6 +97,11 @@ export const submitApplication = async (values: FormValues, user: User | null) =
         linkedin: values.linkedIn || '',
         status: 'pending'
       })
+
+    console.log('Insert payload:', {
+  user_id: user?.id,
+  // ...other fields
+});
     
     if (error) {
       console.error('Supabase error:', error);
