@@ -74,34 +74,36 @@ export const sendFormWithoutDocument = async (values: FormValues): Promise<boole
 // Submit application to Supabase
 export const submitApplication = async (values: FormValues, user: User | null) => {
   console.log('Form submission values:', values);
+
+  const insertPayload = {
+  company_name: values.companyName,
+  business_type: values.businessType,
+  ein_number: values.einNumber,
+  amazon_seller_id: values.amazonStoreLink || null,
+  walmart_seller_id: values.walmartStoreLink || null,
+  ebay_seller_id: values.ebayStoreLink || null,
+  product_categories: values.productCategories,
+  sales_volume: values.salesVolume,
+  wholesale_budget: values.wholesaleBudget,
+  feedback_score: values.feedbackScore || '',
+  email: values.email,
+  phone: values.phone,
+  linkedin: values.linkedIn || '',
+  status: 'pending',
+};
+
+// Only add user_id if it exists
+if (user?.id) {
+  insertPayload.user_id = user.id;
+}
   
   try {
     // Insert data into Supabase
     const { data, error } = await supabase
       .from('reseller_applications')
-      .insert({
-        // user_id: user?.id, // Link to user if authenticated
-        company_name: values.companyName,
-        business_type: values.businessType,
-        ein_number: values.einNumber,
-        // Using seller_id fields instead of store_link fields
-        amazon_seller_id: values.amazonStoreLink || null,
-        walmart_seller_id: values.walmartStoreLink || null,
-        ebay_seller_id: values.ebayStoreLink || null,
-        product_categories: values.productCategories,
-        sales_volume: values.salesVolume,
-        wholesale_budget: values.wholesaleBudget,
-        feedback_score: values.feedbackScore || '',
-        email: values.email,
-        phone: values.phone,
-        linkedin: values.linkedIn || '',
-        status: 'pending'
-      })
+      .insert(insertPayload)
 
-    console.log('Insert payload:', {
-  user_id: user?.id,
-  // ...other fields
-});
+
     
     if (error) {
       console.error('Supabase error:', error);
