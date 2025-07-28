@@ -43,7 +43,6 @@ const DocumentUpload = ({
         });
 
       if (error) {
-        console.error('Upload error:', error);
         throw error;
       }
 
@@ -56,7 +55,6 @@ const DocumentUpload = ({
       });
 
     } catch (error: any) {
-      console.error('Error uploading file:', error);
       toast({
         variant: "destructive",
         title: "Upload failed",

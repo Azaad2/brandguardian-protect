@@ -11,9 +11,6 @@ import { toast } from '@/hooks/use-toast';
 const ResellerApprovalManager = () => {
   const { applications, loading, approveApplication, rejectApplication, refreshApplications } = useResellerApproval();
 
-  console.log('🔍 ResellerApprovalManager - Applications:', applications);
-  console.log('🔍 ResellerApprovalManager - Loading:', loading);
-
   const downloadDocument = async (documentPath: string, companyName: string) => {
     try {
       const { data, error } = await supabase.storage
@@ -21,7 +18,6 @@ const ResellerApprovalManager = () => {
         .download(documentPath);
 
       if (error) {
-        console.error('Error downloading document:', error);
         toast({
           variant: 'destructive',
           title: 'Download failed',
@@ -45,7 +41,6 @@ const ResellerApprovalManager = () => {
         description: 'Verification document has been downloaded successfully.',
       });
     } catch (error) {
-      console.error('Error downloading document:', error);
       toast({
         variant: 'destructive',
         title: 'Download failed',
@@ -64,7 +59,6 @@ const ResellerApprovalManager = () => {
 
   // Filter for pending applications specifically
   const pendingApplications = applications.filter(app => app.status === 'pending');
-  console.log('🔍 Pending applications:', pendingApplications);
 
   return (
     <div className="space-y-6">

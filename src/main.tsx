@@ -15,8 +15,6 @@ const reportWebVitals = () => {
     const lcpEntry = paintEntries.find(entry => entry.name === 'first-contentful-paint');
     
     if (lcpEntry) {
-      console.log(`First Contentful Paint: ${lcpEntry.startTime}ms`);
-      
       // In a production environment, you would send this to Google Analytics
       // ReactGA.event({
       //   category: 'Web Vitals',
@@ -32,9 +30,6 @@ const reportWebVitals = () => {
 const idleCallback = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
 
 idleCallback(() => {
-  // Log initialization for debugging
-  console.log('BndBox application initializing');
-  
   // Render the app after initialization
   createRoot(document.getElementById("root")!).render(<App />);
   

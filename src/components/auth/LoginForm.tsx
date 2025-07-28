@@ -41,12 +41,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const onSubmit = async (data: LoginFormValues) => {
     setIsAuthenticating(true);
     try {
-      console.log(`🔐 Attempting to sign in as ${userRole} with email: ${data.email}`);
-      console.log(`🔑 Password length: ${data.password.length} characters`);
-      
       await signIn(data.email, data.password);
-      
-      console.log(`✅ Sign in successful for ${data.email}`);
       
       // Success toast
       toast({
@@ -56,7 +51,6 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
 
       // Navigate based on user role after successful login
       setTimeout(() => {
-        console.log(`🚀 Navigating to ${userRole} dashboard`);
         if (userRole === 'admin') {
           navigate('/admin/dashboard');
         } else if (userRole === 'brand') {
@@ -67,15 +61,6 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
       }, 1000);
       
     } catch (error: any) {
-      console.error('❌ Login error details:', {
-        error,
-        message: error?.message,
-        code: error?.code,
-        status: error?.status,
-        email: data.email,
-        userRole
-      });
-      
       // Handle different error types with more specific messaging
       let errorMessage = 'Login failed. Please check your credentials and try again.';
       let errorTitle = 'Sign in failed';
@@ -83,8 +68,6 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
       if (typeof error === 'object' && error !== null) {
         const errorCode = error.code || error.error_code;
         const errorMsg = error.message || '';
-        
-        console.log(`🔍 Error analysis - Code: ${errorCode}, Message: ${errorMsg}`);
         
         if (errorMsg.includes('pending approval')) {
           errorMessage = 'Your reseller account is pending approval. Please wait for admin approval before logging in.';

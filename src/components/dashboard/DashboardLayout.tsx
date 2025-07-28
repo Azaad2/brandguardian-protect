@@ -21,49 +21,36 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [pendingCount, setPendingCount] = useState(0);
   const location = useLocation();
 
-  console.log('DashboardLayout rendering with location:', location);
-
   // Determine which nav items to use based on the current URL path
   const getNavItemsFromPath = (): { navItems: NavItem[], userRole: UserRole } => {
     const path = location.pathname;
     
-    console.log('DashboardLayout - Current path:', path);
-    console.log('DashboardLayout - Location object:', location);
-    
     // Check for admin portal first (most specific)
     if (path.startsWith('/admin')) {
-      console.log('Detected admin portal from path:', path);
       return { navItems: adminNavItems, userRole: 'admin' };
     }
     
     // Check for brand portal
     if (path.startsWith('/brand')) {
-      console.log('Detected brand portal from path:', path);
       return { navItems: brandNavItems, userRole: 'brand' };
     }
     
     // Check for reseller portal
     if (path.startsWith('/reseller')) {
-      console.log('Detected reseller portal from path:', path);
       return { navItems: resellerNavItems, userRole: 'reseller' };
     }
     
     // Legacy fallback for /dashboard routes (default to reseller)
     if (path.startsWith('/dashboard')) {
-      console.log('Detected legacy dashboard route, defaulting to reseller. Path:', path);
       return { navItems: resellerNavItems, userRole: 'reseller' };
     }
     
-    // If we can't determine from path, log warning and default to reseller
-    console.warn('Could not determine portal type from path:', path);
+    // If we can't determine from path, default to reseller
     return { navItems: resellerNavItems, userRole: 'reseller' };
   };
   
   // Get the appropriate nav items for the current path
   const { navItems, userRole } = getNavItemsFromPath();
-
-  console.log('DashboardLayout - Determined userRole:', userRole, 'from path:', location.pathname);
-  console.log('DashboardLayout - Using navItems:', navItems);
 
   // Close sidebar on mobile when route changes
   const toggleSidebar = () => {
@@ -81,13 +68,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             .eq('status', 'pending');
             
           if (error) {
-            console.error('Error fetching pending applications count:', error);
             return;
           }
           
           setPendingCount(data?.length || 0);
         } catch (error) {
-          console.error('Error in pendingCount fetch:', error);
+          // Silent error handling
         }
       }
     };
@@ -112,9 +98,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       };
     }
   }, [userRole]);
-
-  console.log('DashboardLayout - About to render with userRole:', userRole);
-  console.log('DashboardLayout - About to render children');
 
   return (
     <div className="flex h-screen w-full bg-gray-50/30 overflow-hidden">

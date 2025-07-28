@@ -22,7 +22,6 @@ export const useAuthState = () => {
         if (!mounted) return;
         
         if (error) {
-          console.error('Error getting initial session:', error);
           setIsLoading(false);
           return;
         }
@@ -43,7 +42,7 @@ export const useAuthState = () => {
                 setUserRole(dbRole);
               }
             }).catch(error => {
-              console.error('Background role verification failed:', error);
+              // Silent error handling
             });
           } else {
             // Fallback to database lookup
@@ -54,7 +53,6 @@ export const useAuthState = () => {
                 setIsLoading(false);
               }
             } catch (error) {
-              console.error('Error fetching initial user role:', error);
               if (mounted) {
                 setUserRole(null);
                 setIsLoading(false);
@@ -65,7 +63,6 @@ export const useAuthState = () => {
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Error in getInitialSession:', error);
         if (mounted) {
           setIsLoading(false);
         }
@@ -76,8 +73,6 @@ export const useAuthState = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
-        
-        console.log('Auth state changed:', event, session?.user?.id || 'no user');
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -96,7 +91,7 @@ export const useAuthState = () => {
                   setUserRole(dbRole);
                 }
               }).catch(error => {
-                console.error('Background role verification failed:', error);
+                // Silent error handling
               });
             } else {
               try {
@@ -105,7 +100,6 @@ export const useAuthState = () => {
                   setUserRole(role);
                 }
               } catch (error) {
-                console.error(`Error fetching user role on ${event}:`, error);
                 if (mounted) {
                   setUserRole(null);
                 }

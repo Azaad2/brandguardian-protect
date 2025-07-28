@@ -26,19 +26,8 @@ const AuthGuard = ({
   const [hasCheckedAccess, setHasCheckedAccess] = useState(false);
   
   useEffect(() => {
-    console.log('AuthGuard check:', { 
-      user: !!user, 
-      userRole, 
-      isLoading, 
-      requiredRole, 
-      bypassAuth,
-      redirectIfAuthenticated,
-      hasCheckedAccess
-    });
-    
     // If bypassing auth, grant access immediately
     if (bypassAuth) {
-      console.log('Bypassing auth, granting access');
       setAccessGranted(true);
       setHasCheckedAccess(true);
       return;
@@ -46,13 +35,11 @@ const AuthGuard = ({
     
     // Wait for authentication to complete
     if (isLoading) {
-      console.log('Still loading auth, waiting...');
       return;
     }
 
     // Handle redirectIfAuthenticated (for login/signup pages)
     if (redirectIfAuthenticated && user) {
-      console.log('User is authenticated, redirecting away from login/signup page to:', redirectIfAuthenticated);
       if (!hasCheckedAccess) {
         navigate(redirectIfAuthenticated);
         setHasCheckedAccess(true);
@@ -62,7 +49,6 @@ const AuthGuard = ({
 
     // If no user and we need authentication, redirect to login
     if (!user && requiredRole !== null) {
-      console.log('No user found, redirecting based on required role:', requiredRole);
       if (!hasCheckedAccess) {
         if (requiredRole === 'admin') {
           navigate('/admin/login');
@@ -82,31 +68,24 @@ const AuthGuard = ({
     if (requiredRole === 'admin' && user) {
       const verifyAdminRole = async () => {
         try {
-          console.log('Verifying admin role for user:', user.email);
-          
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('user_role')
             .eq('id', user.id)
             .maybeSingle();
           
-          console.log('Admin verification result:', { profileData, profileError });
-          
           // Check if user has admin role in profile or metadata
           const hasAdminRole = profileData?.user_role === 'admin' || user.user_metadata?.user_role === 'admin';
           
           if (hasAdminRole) {
-            console.log('Admin role verified, granting access');
             setAccessGranted(true);
           } else {
-            console.log('User is not admin, redirecting to login');
             if (!hasCheckedAccess) {
               navigate('/admin/login');
             }
           }
           setHasCheckedAccess(true);
         } catch (error) {
-          console.error('Error verifying admin role:', error);
           if (!hasCheckedAccess) {
             navigate('/admin/login');
             setHasCheckedAccess(true);
@@ -126,10 +105,7 @@ const AuthGuard = ({
         ? requiredRole.includes(userRole)
         : userRole === requiredRole;
       
-      console.log('Role check:', { userRole, requiredRole, hasRequiredRole });
-      
       if (!hasRequiredRole) {
-        console.log('User does not have required role, redirecting based on their role');
         if (!hasCheckedAccess) {
           // Redirect based on user's actual role
           if (userRole === 'brand') {
@@ -148,7 +124,6 @@ const AuthGuard = ({
     }
     
     // If we got here, access is granted
-    console.log('Access granted!');
     setAccessGranted(true);
     setHasCheckedAccess(true);
   }, [user, userRole, isLoading, requiredRole, navigate, redirectTo, bypassAuth, redirectIfAuthenticated, hasCheckedAccess]);

@@ -21,14 +21,12 @@ const VisitorTypeDialog = ({ open, setOpen, onVisitorTypeSelected }: VisitorType
   const navigate = useNavigate();
 
   const handleBrandSelect = () => {
-    console.log('Brand selected - staying on homepage');
     // Brands stay on homepage
     setOpen(false);
     onVisitorTypeSelected?.();
   };
 
   const handleResellerSelect = () => {
-    console.log('Reseller selected - navigating to reseller hub');
     // Resellers go to reseller hub to fill form
     navigate("/reseller-hub");
     setOpen(false);
@@ -37,11 +35,9 @@ const VisitorTypeDialog = ({ open, setOpen, onVisitorTypeSelected }: VisitorType
 
   // Prevent closing the dialog when clicking outside or pressing escape
   const handleOpenChange = (newOpen: boolean) => {
-    console.log('Dialog open change attempted:', newOpen);
     // Only allow the dialog to close if we're explicitly setting it to close
     // through one of our buttons
     if (!newOpen) {
-      console.log('Preventing dialog close - must select an option');
       return; // Prevent dialog from closing
     }
     setOpen(newOpen);

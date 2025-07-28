@@ -32,13 +32,6 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         return false;
       }
 
-      console.log('🎯 Submitting reseller application with document path:', documentPath);
-      console.log('📊 Application data to submit:', {
-        company_name: values.companyName,
-        business_type: values.businessType,
-        email: values.email,
-        document_path: documentPath
-      });
 
       const applicationData = {
         company_name: values.companyName,
@@ -58,7 +51,6 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         status: 'pending'
       };
 
-      console.log('🔄 Making database insert request...');
       const { data, error } = await supabase
         .from('reseller_applications')
         .insert([applicationData])
@@ -66,16 +58,8 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         .single();
 
       if (error) {
-        console.error('❌ Database error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
         throw new Error(`Database error: ${error.message} (${error.code})`);
       }
-
-      console.log('✅ Application submitted successfully:', data);
 
       toast({
         title: "Application Submitted Successfully! 🎉",
@@ -93,7 +77,6 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
       return true;
 
     } catch (error: any) {
-      console.error('❌ Submission failed:', error);
       setSubmissionError(error.message || 'Failed to submit application');
       
       toast({

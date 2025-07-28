@@ -34,7 +34,6 @@ const CreateTestAccount = ({ userRole }: { userRole: UserRole }) => {
         });
       }
     } catch (error) {
-      console.error('Error creating test account:', error);
       toast({
         variant: "destructive",
         title: "Failed to create test account",

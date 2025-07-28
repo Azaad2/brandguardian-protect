@@ -64,8 +64,6 @@ const AddResellerDialog = ({ onAddApplication, isOfflineMode = false }: AddResel
       setNewCompanyName('');
       setDialogOpen(false);
     } catch (error: any) {
-      console.error('Error in handleAddApplication:', error);
-      
       if (error.message && error.message.includes('Failed to fetch')) {
         setNetworkError(true);
         toast({

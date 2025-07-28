@@ -94,7 +94,6 @@ const SecuritySettings = () => {
       setErrors({});
 
     } catch (error: any) {
-      console.error('Password change error:', error);
       toast({
         variant: 'destructive',
         title: 'Failed to change password',

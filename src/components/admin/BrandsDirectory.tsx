@@ -37,8 +37,6 @@ const BrandsDirectory = () => {
   };
 
   const handleSubmit = (formData: BrandFormData) => {
-    console.log('Form data being submitted:', formData);
-    
     const categoriesArray = formData.categories
       ? formData.categories.split(',').map(c => c.trim()).filter(c => c.length > 0)
       : [];
@@ -58,8 +56,6 @@ const BrandsDirectory = () => {
       department: formData.department, // Ensure department is included
       is_active: true,
     };
-    
-    console.log('Brand data being sent:', brandData);
     
     if (editingBrand) {
       updateBrandMutation.mutate({

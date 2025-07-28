@@ -21,7 +21,6 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
   ) => {
     try {
       setIsLoading(true);
-      console.log(`📝 Attempting to sign up user: ${email} with role: ${metadata.user_role}`);
       
       // For resellers, create account but keep it inactive until admin approval
       if (metadata.user_role === 'reseller') {
@@ -37,11 +36,8 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         });
         
         if (error) {
-          console.error('❌ Signup error:', error);
           throw error;
         }
-        
-        console.log('✅ Reseller signup successful, pending approval:', email);
         
         toast({
           title: 'Application submitted',
@@ -62,11 +58,8 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         });
         
         if (error) {
-          console.error('❌ Signup error:', error);
           throw error;
         }
-        
-        console.log('✅ Signup successful for:', email);
         
         toast({
           title: 'Account created',
@@ -78,7 +71,6 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
       }
       
     } catch (error: any) {
-      console.error('❌ Signup failed:', error);
       toast({
         variant: 'destructive',
         title: 'Sign up failed',
@@ -92,7 +84,6 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      console.log(`🔐 Starting sign in process for: ${email}`);
       
       // Attempt to sign in with credentials
       const { data, error } = await supabase.auth.signInWithPassword({

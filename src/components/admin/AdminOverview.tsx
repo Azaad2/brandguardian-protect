@@ -28,8 +28,6 @@ interface RecentActivity {
 }
 
 const AdminOverview = () => {
-  console.log('AdminOverview component rendering');
-  
   const [stats, setStats] = useState<AdminStats>({
     totalResellers: 0,
     totalBrands: 0,
@@ -43,11 +41,8 @@ const AdminOverview = () => {
   const { data: adminData, isLoading, error } = useQuery({
     queryKey: ['admin-overview'],
     queryFn: async () => {
-      console.log('Fetching admin overview data...');
-      
       // Check current user session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('Current session:', session?.user?.id, 'Session error:', sessionError);
       
       // Get all profiles — count resellers by user_role
       const { data: profiles, error: profilesError } = await supabase
@@ -57,14 +52,9 @@ const AdminOverview = () => {
 
       let totalResellers = 0;
       let totalBrands = 0;
-      console.log('sdsdsd',profiles)
       if (profiles && !profilesError) {
         totalResellers = profiles.filter((profile) => profile.user_role === 'reseller' && !!profile.email).length;
         totalBrands = profiles.filter((profile) => profile.user_role === 'brand' && !!profile.email).length;
-        console.log('Profiles (for counts):', profiles);
-        console.log('Total resellers:', totalResellers, ' - Total brands:', totalBrands);
-      } else {
-        console.error('Failed to fetch profiles:', profilesError);
       }
 
       // Fetch products count
@@ -72,14 +62,10 @@ const AdminOverview = () => {
         .from('products')
         .select('id');
 
-      console.log('Products query result:', { count: products?.length || 0, productsError });
-
       // Fetch orders count
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select('id');
-
-      console.log('Orders query result:', { count: orders?.length || 0, ordersError });
 
       // Fetch pending reseller applications WITH email/company/status
       const { data: pendingApps, error: pendingAppsError } = await supabase
@@ -88,15 +74,11 @@ const AdminOverview = () => {
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      console.log('Pending applications (full):', pendingApps, pendingAppsError);
-
       // Fetch pending product uploads
       const { data: pendingUploads, error: pendingUploadsError } = await supabase
         .from('product_uploads')
         .select('id')
         .eq('status', 'pending');
-
-      console.log('Pending uploads query result:', { pendingUploads, pendingUploadsError });
 
       const result = {
         totalResellers,
@@ -108,7 +90,6 @@ const AdminOverview = () => {
         pendingApplicationsList: pendingApps || [],
       };
       
-      console.log('Final admin stats:', result);
       return result;
     },
   });
@@ -179,7 +160,6 @@ const AdminOverview = () => {
 
   useEffect(() => {
     if (adminData) {
-      console.log('Setting admin stats:', adminData);
       setStats(adminData);
     }
   }, [adminData]);
@@ -211,7 +191,6 @@ const AdminOverview = () => {
   };
 
   if (isLoading) {
-    console.log('AdminOverview is loading...');
     return (
       <div className="flex h-96 w-full items-center justify-center">
         <div className="h-32 w-32 animate-spin rounded-full border-t-2 border-b-2 border-primary"></div>
@@ -220,7 +199,6 @@ const AdminOverview = () => {
   }
 
   if (error) {
-    console.error('AdminOverview error:', error);
     return (
       <div className="flex h-96 w-full items-center justify-center">
         <div className="text-center">
@@ -230,8 +208,6 @@ const AdminOverview = () => {
       </div>
     );
   }
-
-  console.log('AdminOverview rendering main content with stats:', stats);
 
   return (
     <div className="space-y-6 w-full">

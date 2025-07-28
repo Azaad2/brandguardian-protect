@@ -61,8 +61,6 @@ const EditUserDialog = ({ user, open, onOpenChange, onUserUpdated }: EditUserDia
 
     setIsLoading(true);
     try {
-      console.log('Updating user profile:', user.id, formData);
-
       const { data, error } = await supabase.rpc('admin_update_user_profile', {
         target_user_id: user.id,
         new_full_name: formData.full_name || null,
@@ -71,7 +69,6 @@ const EditUserDialog = ({ user, open, onOpenChange, onUserUpdated }: EditUserDia
       });
 
       if (error) {
-        console.error('Error updating user:', error);
         throw error;
       }
 
@@ -87,7 +84,6 @@ const EditUserDialog = ({ user, open, onOpenChange, onUserUpdated }: EditUserDia
         throw new Error('Failed to update user - operation not allowed');
       }
     } catch (error: any) {
-      console.error('Failed to update user:', error);
       toast({
         variant: 'destructive',
         title: 'Failed to update user',
