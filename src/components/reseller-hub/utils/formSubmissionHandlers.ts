@@ -97,7 +97,8 @@ export const submitApplication = async (values: FormValues, user: User | null) =
     // Insert data into Supabase
     const { data, error } = await supabase
       .from('reseller_applications')
-      .insert(insertPayload)
+      .insert([insertPayload])
+      .select()
 
 
     
