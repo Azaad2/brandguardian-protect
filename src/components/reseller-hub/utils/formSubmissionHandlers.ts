@@ -76,21 +76,33 @@ export const submitApplication = async (values: FormValues, user: User | null) =
   console.log('Form submission values:', values);
 
   const insertPayload = {
-  company_name: values.companyName,
-  business_type: values.businessType,
-  ein_number: values.einNumber,
-  amazon_seller_id: values.amazonStoreLink,
-  walmart_seller_id: values.walmartStoreLink || null,
-  ebay_seller_id: values.ebayStoreLink || null,
-  product_categories: values.productCategories,
-  sales_volume: values.salesVolume,
-  wholesale_budget: values.wholesaleBudget,
-  feedback_score: values.feedbackScore || '',
-  email: values.email,
-  phone: values.phone,
-  linkedin: values.linkedIn || '',
-  status: 'pending',
-  user_id: user?.id || null,
+  // company_name: values.companyName,
+  // business_type: values.businessType,
+  // ein_number: values.einNumber,
+  // amazon_seller_id: values.amazonStoreLink,
+  // walmart_seller_id: values.walmartStoreLink || null,
+  // ebay_seller_id: values.ebayStoreLink || null,
+  // product_categories: values.productCategories,
+  // sales_volume: values.salesVolume,
+  // wholesale_budget: values.wholesaleBudget,
+  // feedback_score: values.feedbackScore || '',
+  // email: values.email,
+  // phone: values.phone,
+  // linkedin: values.linkedIn || '',
+  // status: 'pending',
+  // user_id: user?.id || null,
+
+    company_name: "Test Co",
+      business_type: "individual",
+      ein_number: "123456",
+      amazon_seller_id: "https://amazon.com",
+      product_categories: ["other"],
+      sales_volume: "under_10k",
+      wholesale_budget: "under_5k",
+      email: "someone@example.com",
+      phone: "1234567890",
+      document_path: "some/path.png",
+      status: "pending"
   };
   
   try {
