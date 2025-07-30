@@ -79,7 +79,7 @@ export const submitApplication = async (values: FormValues, user: User | null) =
   company_name: values.companyName,
   business_type: values.businessType,
   ein_number: values.einNumber,
-  amazon_seller_id: values.amazonStoreLink || null,
+  amazon_seller_id: values.amazonStoreLink,
   walmart_seller_id: values.walmartStoreLink || null,
   ebay_seller_id: values.ebayStoreLink || null,
   product_categories: values.productCategories,
