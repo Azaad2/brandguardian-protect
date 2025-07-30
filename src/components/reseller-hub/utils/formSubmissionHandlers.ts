@@ -90,12 +90,8 @@ export const submitApplication = async (values: FormValues, user: User | null) =
   phone: values.phone,
   linkedin: values.linkedIn || '',
   status: 'pending',
-};
-
-// Only add user_id if it exists
-if (user?.id) {
-  insertPayload.user_id = user.id;
-}
+  user_id: user?.id || null,
+  };
   
   try {
     // Insert data into Supabase
