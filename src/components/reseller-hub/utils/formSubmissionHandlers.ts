@@ -33,7 +33,7 @@ export const sendFormWithoutDocument = async (values: FormValues): Promise<boole
     formData.append('amazonStoreLink', values.amazonStoreLink || 'N/A');
     formData.append('walmartStoreLink', values.walmartStoreLink || 'N/A');
     formData.append('ebayStoreLink', values.ebayStoreLink || 'N/A');
-    formData.append('productCategories', values.productCategories.join(', '));
+    formData.append('productCategories', values.productCategories.join(', ') || []);
     formData.append('salesVolume', values.salesVolume);
     formData.append('wholesaleBudget', values.wholesaleBudget);
     formData.append('feedbackScore', values.feedbackScore || 'N/A');
