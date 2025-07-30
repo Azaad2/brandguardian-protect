@@ -26,21 +26,30 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
       setSubmissionError(null);
       setDocumentError(null);
 
+      console.log('Starting form submission with values:', values);
+      console.log('Document file:', documentFile);
+      console.log('Document path:', documentPath);
+
       // Validate document upload
       if (!documentFile || !documentPath) {
         setDocumentError('Please upload a verification document before submitting.');
+        console.error('Document validation failed - missing file or path');
         return false;
       }
 
+      // Get current user (might be null for anonymous users)
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user:', user?.id || 'anonymous');
 
+      // Prepare application data with proper types and null handling
       const applicationData = {
         company_name: values.companyName,
         business_type: values.businessType,
         ein_number: values.einNumber,
-        amazon_seller_id: values.amazonStoreLink || null,
+        amazon_seller_id: values.amazonStoreLink,
         walmart_seller_id: values.walmartStoreLink || null,
         ebay_seller_id: values.ebayStoreLink || null,
-        product_categories: values.productCategories,
+        product_categories: values.productCategories || ['other'],
         sales_volume: values.salesVolume,
         wholesale_budget: values.wholesaleBudget,
         feedback_score: values.feedbackScore || null,
@@ -48,8 +57,11 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         phone: values.phone,
         linkedin: values.linkedIn || null,
         document_path: documentPath,
-        status: 'pending'
+        status: 'pending',
+        user_id: user?.id || null // Allow null for anonymous users
       };
+
+      console.log('Prepared application data:', applicationData);
 
       const { data, error } = await supabase
         .from('reseller_applications')
@@ -58,12 +70,25 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
         .single();
 
       if (error) {
-        // Check for duplicate email error
-        if (error.message.includes('A reseller application with this email already exists')) {
+        console.error('Database insertion error:', error);
+        
+        // Handle specific error cases
+        if (error.message?.includes('duplicate key') || error.message?.includes('already exists')) {
           throw new Error('A reseller application with this email already exists. Please use a different email address.');
         }
+        
+        if (error.message?.includes('violates row-level security')) {
+          throw new Error('Permission denied. Please try again or contact support.');
+        }
+
+        if (error.message?.includes('violates not-null constraint')) {
+          throw new Error('Missing required information. Please check all fields are filled correctly.');
+        }
+        
         throw new Error(`Database error: ${error.message} (${error.code})`);
       }
+
+      console.log('Application submitted successfully:', data);
 
       toast({
         title: "Application Submitted Successfully! 🎉",
@@ -81,12 +106,13 @@ export const useResellerFormSubmission = ({ onSubmissionSuccess }: UseResellerFo
       return true;
 
     } catch (error: any) {
+      console.error('Form submission error:', error);
       setSubmissionError(error.message || 'Failed to submit application');
       
       toast({
         variant: "destructive",
         title: "Submission Failed",
-        description: "There was an error submitting your application. Please try again.",
+        description: error.message || "There was an error submitting your application. Please try again.",
         duration: 5000,
       });
       

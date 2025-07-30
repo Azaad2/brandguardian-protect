@@ -56,6 +56,16 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
   });
 
   const onSubmit = async (values: FormValues) => {
+    console.log('Form validation passed, submitting:', values);
+    
+    // Additional validation for document
+    if (!documentFile) {
+      form.setError('root', {
+        message: 'Please upload a verification document before submitting.'
+      });
+      return;
+    }
+
     const success = await submitForm(values);
     if (success) {
       form.reset();
@@ -73,7 +83,25 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
         <Alert variant="destructive" className="mb-6">
           <AlertTitle>Submission failed</AlertTitle>
           <AlertDescription>
-            There was a problem with your submission. Please try again or contact us directly at help@bndbox.com.
+            {submissionError}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {documentError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTitle>Document Required</AlertTitle>
+          <AlertDescription>
+            {documentError}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {form.formState.errors.root && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTitle>Validation Error</AlertTitle>
+          <AlertDescription>
+            {form.formState.errors.root.message}
           </AlertDescription>
         </Alert>
       )}
