@@ -1,4 +1,3 @@
-
 import { ContactForm } from './contact/ContactForm';
 import { InfoPanel } from './contact/InfoPanel';
 import type { ContactSubmission } from '@/types/contact';
@@ -16,8 +15,6 @@ const ContactSection = () => {
     setIsSubmitting(true);
     
     try {
-      console.log('ContactSection: sending email with data:', data);
-      
       // Ensure we have a timestamp
       if (!data.createdAt) {
         data.createdAt = new Date().toISOString();
@@ -25,7 +22,6 @@ const ContactSection = () => {
       
       // Attempt to send the email
       const success = await sendEmail(data);
-      console.log('ContactSection: email send result:', success);
       
       if (success) {
         toast({
@@ -42,8 +38,6 @@ const ContactSection = () => {
         return false;
       }
     } catch (error) {
-      console.error('Error sending contact form:', error);
-      
       toast({
         title: "Submission error",
         description: "There was a problem sending your message. Please contact us directly at help@bndbox.com",

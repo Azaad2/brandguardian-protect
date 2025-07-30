@@ -14,12 +14,9 @@ export const useBrands = () => {
   } = useQuery({
     queryKey: ['brands-directory'],
     queryFn: async () => {
-      console.log('Fetching brands directory...');
-      
       const { data, error } = await supabase.rpc('admin_get_brands' as any);
       
       if (error) {
-        console.error('Error fetching brands via RPC:', error);
         // Fallback to direct query
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('brands_directory')
@@ -27,14 +24,11 @@ export const useBrands = () => {
           .order('created_at', { ascending: false });
         
         if (fallbackError) {
-          console.error('Fallback error:', fallbackError);
           throw fallbackError;
         }
-        console.log('Brands fetched via fallback:', fallbackData);
         return fallbackData as Brand[];
       }
       
-      console.log('Brands fetched via RPC:', data);
       return data as Brand[];
     },
   });
@@ -42,8 +36,6 @@ export const useBrands = () => {
   // Add brand mutation
   const addBrandMutation = useMutation({
     mutationFn: async (brandData: Omit<Brand, 'id' | 'created_at' | 'updated_at'>) => {
-      console.log('Adding brand with data:', brandData);
-      
       // Prepare the brand data object with all fields
       const brandPayload = {
         name: brandData.name,
@@ -58,15 +50,11 @@ export const useBrands = () => {
         is_active: brandData.is_active
       };
       
-      console.log('Brand payload being sent to RPC:', brandPayload);
-      
       const { data, error } = await supabase.rpc('admin_add_brand', {
         brand_data: brandPayload
       });
       
       if (error) {
-        console.error('Error adding brand via RPC:', error);
-        
         // Fallback to direct insert
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('brands_directory')
@@ -75,15 +63,12 @@ export const useBrands = () => {
           .single();
         
         if (fallbackError) {
-          console.error('Fallback insert error:', fallbackError);
           throw fallbackError;
         }
         
-        console.log('Brand added via fallback:', fallbackData);
         return fallbackData;
       }
       
-      console.log('Brand added successfully via RPC:', data);
       return data;
     },
     onSuccess: () => {
@@ -94,7 +79,6 @@ export const useBrands = () => {
       });
     },
     onError: (error) => {
-      console.error('Add brand error:', error);
       toast({
         title: 'Error',
         description: `Failed to add brand: ${error.message}`,
@@ -106,8 +90,6 @@ export const useBrands = () => {
   // Update brand mutation
   const updateBrandMutation = useMutation({
     mutationFn: async (brandData: Partial<Brand> & { id: string }) => {
-      console.log('Updating brand with data:', brandData);
-      
       const updatePayload = {
         name: brandData.name,
         website_url: brandData.website_url,
@@ -122,16 +104,12 @@ export const useBrands = () => {
         updated_at: new Date().toISOString()
       };
       
-      console.log('Update payload being sent:', updatePayload);
-      
       const { data, error } = await supabase.rpc('admin_update_brand', {
         brand_id: brandData.id,
         brand_data: updatePayload
       });
       
       if (error) {
-        console.error('Error updating brand via RPC:', error);
-        
         // Fallback to direct update
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('brands_directory')
@@ -141,15 +119,12 @@ export const useBrands = () => {
           .single();
         
         if (fallbackError) {
-          console.error('Fallback update error:', fallbackError);
           throw fallbackError;
         }
         
-        console.log('Brand updated via fallback:', fallbackData);
         return fallbackData;
       }
       
-      console.log('Brand updated successfully via RPC:', data);
       return data;
     },
     onSuccess: () => {
@@ -161,7 +136,6 @@ export const useBrands = () => {
       });
     },
     onError: (error) => {
-      console.error('Update brand error:', error);
       toast({
         title: 'Error',
         description: `Failed to update brand: ${error.message}`,
@@ -173,8 +147,6 @@ export const useBrands = () => {
   // Toggle status mutation
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      console.log('Toggling brand status:', { id, is_active });
-      
       const { data, error } = await supabase.rpc('admin_update_brand', {
         brand_id: id,
         brand_data: {
@@ -184,11 +156,9 @@ export const useBrands = () => {
       });
       
       if (error) {
-        console.error('Error toggling brand status:', error);
         throw error;
       }
       
-      console.log('Brand status toggled successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -200,7 +170,6 @@ export const useBrands = () => {
       });
     },
     onError: (error) => {
-      console.error('Toggle status error:', error);
       toast({
         title: 'Error',
         description: `Failed to update status: ${error.message}`,
@@ -212,15 +181,11 @@ export const useBrands = () => {
   // Delete brand mutation
   const deleteBrandMutation = useMutation({
     mutationFn: async (brandId: string) => {
-      console.log('Deleting brand:', brandId);
-      
       const { data, error } = await supabase.rpc('admin_delete_brand', {
         p_brand_id: brandId
       });
       
       if (error) {
-        console.error('Error deleting brand via RPC:', error);
-        
         // Fallback to direct delete
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('brands_directory')
@@ -229,15 +194,12 @@ export const useBrands = () => {
           .select();
           
         if (fallbackError) {
-          console.error('Fallback delete error:', fallbackError);
           throw fallbackError;
         }
         
-        console.log('Brand deleted via fallback:', fallbackData);
         return fallbackData;
       }
       
-      console.log('Brand deleted successfully via RPC:', data);
       return data;
     },
     onSuccess: () => {
@@ -249,7 +211,6 @@ export const useBrands = () => {
       });
     },
     onError: (error) => {
-      console.error('Delete brand error:', error);
       toast({
         title: 'Error',
         description: `Failed to delete brand: ${error.message}`,

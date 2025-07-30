@@ -45,14 +45,12 @@ const BulkBrandAllocationManager = () => {
       const { data, error } = await supabase.rpc('admin_get_brands' as any);
       
       if (error) {
-        console.error('Error fetching brands via RPC:', error);
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('brands_directory')
           .select('*')
           .order('created_at', { ascending: false });
         
         if (fallbackError) {
-          console.error('Fallback error:', fallbackError);
           throw fallbackError;
         }
         return fallbackData as Brand[];

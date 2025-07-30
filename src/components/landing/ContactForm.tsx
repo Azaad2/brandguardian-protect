@@ -83,7 +83,7 @@ export const ContactForm = ({ onSubmit }: { onSubmit: (data: ContactSubmission) 
         throw new Error("Failed to send email");
       }
     } catch (error) {
-      console.error("Form submission error:", error);
+      
       toast({
         title: "Something went wrong.",
         description: "Your form was not submitted. Please try again.",

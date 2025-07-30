@@ -32,13 +32,10 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
   const fetchAllBrands = async () => {
     setIsLoadingAllBrands(true);
     try {
-      console.log('Fetching ALL brands for duplicate detection...');
-      
       // Try using the RPC function first
       const { data: rpcData, error: rpcError } = await supabase.rpc('admin_get_brands' as any);
       
       if (rpcError) {
-        console.warn('RPC failed, using direct query:', rpcError);
         // Fallback to direct query
         const { data: directData, error: directError } = await supabase
           .from('brands_directory')
@@ -46,18 +43,14 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
           .order('created_at', { ascending: false });
         
         if (directError) {
-          console.error('Failed to fetch all brands:', directError);
           throw directError;
         }
         
-        console.log(`Fetched ${directData?.length || 0} brands via direct query`);
         setAllBrands(directData as Brand[] || []);
       } else {
-        console.log(`Fetched ${rpcData?.length || 0} brands via RPC`);
         setAllBrands(rpcData as Brand[] || []);
       }
     } catch (error) {
-      console.error('Error fetching all brands:', error);
       toast.error('Failed to fetch all brands for duplicate detection');
       // Fallback to passed brands
       setAllBrands(brands);
@@ -76,8 +69,6 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
     const brandsToCheck = allBrands.length > 0 ? allBrands : brands;
     const groupMap = new Map<string, Brand[]>();
     
-    console.log(`Finding duplicates in ${brandsToCheck.length} brands...`);
-    
     brandsToCheck.forEach(brand => {
       const key = `${brand.name.toLowerCase().trim()}-${brand.contact_email.toLowerCase().trim()}`;
       if (!groupMap.has(key)) {
@@ -90,9 +81,6 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
     const duplicateGroups = Array.from(groupMap.entries())
       .filter(([_, brands]) => brands.length > 1)
       .map(([key, brands]) => ({ key, brands }));
-    
-    const totalDuplicates = duplicateGroups.reduce((acc, group) => acc + group.brands.length - 1, 0);
-    console.log(`Found ${duplicateGroups.length} duplicate groups with ${totalDuplicates} total duplicates`);
     
     return duplicateGroups;
   };
@@ -130,14 +118,8 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
       return;
     }
 
-    console.log('=== DELETION PROCESS STARTING ===');
-    console.log('Selected brands for deletion:', Array.from(selectedBrands));
-    console.log('Delete mutation available:', !!deleteBrandMutation);
-    console.log('Delete mutation status:', deleteBrandMutation?.status);
-
     // Check if mutation function exists
     if (!deleteBrandMutation || !deleteBrandMutation.mutateAsync) {
-      console.error('❌ Delete mutation is not available!');
       toast.error('Delete function is not available. Please refresh the page.');
       return;
     }
@@ -148,41 +130,24 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
       let failCount = 0;
 
       for (const brandId of selectedBrands) {
-        console.log(`🗑️ Attempting to delete brand: ${brandId}`);
-        
         try {
           // Call the mutation
-          console.log(`Calling deleteBrandMutation.mutateAsync(${brandId})`);
           const deleteResult = await deleteBrandMutation.mutateAsync(brandId);
-          console.log(`✅ Delete mutation completed for brand ${brandId}:`, deleteResult);
           
           successCount++;
           results.push({ brandId, success: true, result: deleteResult });
         } catch (error) {
-          console.error(`❌ Failed to delete brand ${brandId}:`, error);
-          console.error(`Error details:`, {
-            name: error?.name,
-            message: error?.message,
-            stack: error?.stack
-          });
-          
           failCount++;
           results.push({ brandId, success: false, error });
         }
       }
-      
-      console.log('=== DELETION PROCESS COMPLETED ===');
-      console.log(`Total processed: ${selectedBrands.size}`);
-      console.log(`Successful deletions: ${successCount}`);
-      console.log(`Failed deletions: ${failCount}`);
-      console.log('Detailed results:', results);
       
       // Show appropriate toast messages
       if (successCount > 0) {
         toast.success(`Successfully deleted ${successCount} duplicate brand${successCount > 1 ? 's' : ''}`);
       }
       if (failCount > 0) {
-        toast.error(`Failed to delete ${failCount} brand${failCount > 1 ? 's' : ''}. Check console for details.`);
+        toast.error(`Failed to delete ${failCount} brand${failCount > 1 ? 's' : ''}.`);
       }
       
       // Reset state
@@ -197,7 +162,6 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
       }
       
     } catch (error) {
-      console.error('=== UNEXPECTED ERROR IN DELETION HANDLER ===', error);
       toast.error('An unexpected error occurred during deletion. Please try again.');
     }
   };
@@ -216,9 +180,6 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
       return;
     }
 
-    console.log('=== BULK DELETE ALL DUPLICATES ===');
-    console.log(`Total duplicates to delete: ${allDuplicates.size}`);
-
     try {
       let successCount = 0;
       let failCount = 0;
@@ -228,7 +189,6 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
       // Process in batches to avoid overwhelming the server
       for (let i = 0; i < brandsArray.length; i += batchSize) {
         const batch = brandsArray.slice(i, i + batchSize);
-        console.log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(brandsArray.length / batchSize)}: ${batch.length} brands`);
         
         // Process batch concurrently
         const batchPromises = batch.map(async (brandId) => {
@@ -236,7 +196,6 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
             await deleteBrandMutation.mutateAsync(brandId);
             return { brandId, success: true };
           } catch (error) {
-            console.error(`Failed to delete brand ${brandId}:`, error);
             return { brandId, success: false, error };
           }
         });
@@ -250,15 +209,11 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
         successCount += batchSuccess;
         failCount += batchFail;
         
-        console.log(`Batch completed: ${batchSuccess} success, ${batchFail} failed`);
-        
         // Small delay between batches to prevent overwhelming the server
         if (i + batchSize < brandsArray.length) {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
-      
-      console.log(`All batches completed: ${successCount} total success, ${failCount} total failed`);
       
       if (successCount > 0) {
         toast.success(`Successfully deleted ${successCount} duplicate brands`);
@@ -271,7 +226,6 @@ const DuplicateBrandRemover = ({ brands }: DuplicateBrandRemoverProps) => {
       window.location.reload();
       
     } catch (error) {
-      console.error('Error in bulk deletion:', error);
       toast.error('An error occurred during bulk deletion');
     }
   };

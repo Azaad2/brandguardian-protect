@@ -29,7 +29,6 @@ const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount }: TopBarPro
           .maybeSingle();
 
         if (error) {
-          console.error('Error fetching company name:', error);
           return;
         }
 
@@ -37,7 +36,7 @@ const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount }: TopBarPro
           setCompanyName(data.company_name);
         }
       } catch (err) {
-        console.error('Error:', err);
+        // Silent error handling
       }
     };
 

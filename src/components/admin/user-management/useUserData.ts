@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { UserProfile, ResellerApplication } from './types';
@@ -8,8 +7,6 @@ export const useUserData = () => {
   const { data: users, isLoading, refetch } = useQuery({
     queryKey: ['admin-all-users'],
     queryFn: async () => {
-      console.log('Fetching all users for admin...');
-      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('Not authenticated');
@@ -28,11 +25,9 @@ export const useUserData = () => {
       const { data, error } = await supabase.rpc('admin_get_all_users');
       
       if (error) {
-        console.error('Error fetching users:', error);
         throw error;
       }
 
-      console.log('Successfully fetched users:', data);
       return data as UserProfile[];
     },
   });
@@ -47,7 +42,6 @@ export const useUserData = () => {
         .maybeSingle();
       
       if (error) {
-        console.error('Error fetching reseller details:', error);
         return null;
       }
       return data;

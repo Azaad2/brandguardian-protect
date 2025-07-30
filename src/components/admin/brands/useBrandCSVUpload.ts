@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,19 +16,12 @@ export const useBrandCSVUpload = () => {
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File): Promise<CSVUploadResult> => {
-      console.log('Starting CSV upload for file:', file.name, 'Size:', file.size, 'bytes');
-      
       const text = await file.text();
       const lines = text.split('\n').filter(line => line.trim());
-      
-      console.log('Total lines in file:', lines.length);
-      console.log('First few lines:', lines.slice(0, 3));
       
       if (lines.length < 2) {
         throw new Error('CSV file must contain at least a header row and one data row');
       }
-
-      console.log(`Processing CSV with ${lines.length - 1} data rows`);
 
       // Robust CSV parsing that handles quoted fields and embedded content
       const parseCSVLine = (line: string): string[] => {
@@ -75,15 +67,12 @@ export const useBrandCSVUpload = () => {
       const errors: Array<{ row: number; message: string }> = [];
       let added = 0;
 
-      console.log('CSV Headers detected:', headers);
-
       // Process in batches to avoid timeouts
       const BATCH_SIZE = 50;
       const dataLines = lines.slice(1);
       
       for (let batchStart = 0; batchStart < dataLines.length; batchStart += BATCH_SIZE) {
         const batchEnd = Math.min(batchStart + BATCH_SIZE, dataLines.length);
-        console.log(`Processing batch ${Math.floor(batchStart / BATCH_SIZE) + 1}: rows ${batchStart + 2} to ${batchEnd + 1}`);
         
         const batchPromises = [];
         
@@ -95,10 +84,6 @@ export const useBrandCSVUpload = () => {
               const values = parseCSVLine(dataLines[i]);
               
               if (values.length !== headers.length) {
-                console.log(`Row ${rowIndex} MISMATCH - Headers: ${headers.length} columns, Data: ${values.length} columns`);
-                console.log(`Headers:`, headers);
-                console.log(`Values:`, values);
-                console.log(`Raw line:`, dataLines[i]);
                 return { row: rowIndex, error: `Column count mismatch: expected ${headers.length} columns, got ${values.length}` };
               }
 
@@ -107,12 +92,6 @@ export const useBrandCSVUpload = () => {
                 // Clean and normalize header names
                 const cleanHeader = header.toLowerCase().trim().replace(/['"]/g, '');
                 brandData[cleanHeader] = values[index] ? values[index].replace(/^["']|["']$/g, '').trim() : null;
-              });
-
-              console.log(`Row ${rowIndex} - Parsed data:`, { 
-                name: brandData.name, 
-                contact_email: brandData.contact_email,
-                headers: headers.map(h => h.toLowerCase().trim().replace(/['"]/g, ''))
               });
 
               // Validate required fields with better error messages
@@ -132,8 +111,6 @@ export const useBrandCSVUpload = () => {
               const approval_rate = brandData.approval_rate ? parseFloat(brandData.approval_rate) : null;
               const response_time = brandData.response_time ? parseFloat(brandData.response_time) : null;
 
-              console.log(`Row ${rowIndex} - Categories processed:`, categories);
-
               // Insert brand using admin function - send categories as proper array
               const { error } = await supabase.rpc('admin_add_brand', {
                 brand_data: {
@@ -151,13 +128,11 @@ export const useBrandCSVUpload = () => {
               });
 
               if (error) {
-                console.error(`Error inserting brand at row ${rowIndex}:`, error);
                 return { row: rowIndex, error: error.message };
               } else {
                 return { row: rowIndex, success: true };
               }
             } catch (error) {
-              console.error(`Exception processing row ${rowIndex}:`, error);
               return { row: rowIndex, error: error instanceof Error ? error.message : 'Unknown error' };
             }
           };
@@ -191,7 +166,6 @@ export const useBrandCSVUpload = () => {
       };
     },
     onSuccess: (result) => {
-      console.log('Upload completed with result:', result);
       setUploadResult(result);
       queryClient.invalidateQueries({ queryKey: ['brands-directory'] });
       toast({

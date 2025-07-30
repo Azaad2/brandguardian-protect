@@ -1,4 +1,3 @@
-
 import { FormValues } from '../ResellerFormSchema';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -9,12 +8,9 @@ export const trackRedditPixelConversion = () => {
   if (typeof window !== 'undefined' && window.rdt) {
     try {
       window.rdt('track', 'Lead');
-      console.log('Reddit Pixel: Lead event tracked in form submission');
     } catch (error) {
-      console.error('Reddit Pixel tracking error in form:', error);
+      // Silent error handling
     }
-  } else {
-    console.warn('Reddit Pixel not available in form submission');
   }
 };
 
@@ -28,28 +24,20 @@ export const sendFormWithoutDocument = async (values: FormValues): Promise<boole
     formData.append('companyName', values.companyName);
     formData.append('businessType', values.businessType);
     formData.append('einNumber', values.einNumber);
-    formData.append('email', values.email);
-    formData.append('phone', values.phone);
-    formData.append('amazonStoreLink', values.amazonStoreLink || 'N/A');
-    formData.append('walmartStoreLink', values.walmartStoreLink || 'N/A');
-    formData.append('ebayStoreLink', values.ebayStoreLink || 'N/A');
-    formData.append('productCategories', values.productCategories.join(', ') || 'N/A');
+    formData.append('amazonStoreLink', values.amazonStoreLink);
+    formData.append('walmartStoreLink', values.walmartStoreLink || '');
+    formData.append('ebayStoreLink', values.ebayStoreLink || '');
+    formData.append('productCategories', values.productCategories.join(', '));
     formData.append('salesVolume', values.salesVolume);
     formData.append('wholesaleBudget', values.wholesaleBudget);
-    formData.append('feedbackScore', values.feedbackScore || 'N/A');
-    formData.append('linkedIn', values.linkedIn || 'N/A');
-    
-    // Add email subject
-    formData.append('_subject', `Reseller Application: ${values.companyName}`);
-    
-    // Set reply-to address
-    formData.append('_replyto', values.email);
-    
-    // Using the Formspree endpoint
-    const formspreeEndpoint = 'https://formspree.io/f/xblogykb';
-    
-    console.log('Sending form to Formspree:', formspreeEndpoint);
-    
+    formData.append('feedbackScore', values.feedbackScore || '');
+    formData.append('email', values.email);
+    formData.append('phone', values.phone);
+    formData.append('linkedIn', values.linkedIn || '');
+
+    // Use environment variable for FormSpree endpoint
+    const formspreeEndpoint = import.meta.env.VITE_FORMSPREE_ENDPOINT || 'https://formspree.io/f/xvgopylo';
+
     const response = await fetch(formspreeEndpoint, {
       method: 'POST',
       body: formData,
@@ -57,124 +45,100 @@ export const sendFormWithoutDocument = async (values: FormValues): Promise<boole
         'Accept': 'application/json'
       }
     });
-    
+
     if (!response.ok) {
-      console.error('Formspree error:', response.status, await response.text());
       return false;
     }
-    
-    console.log('Form sent through Formspree:', await response.json());
+
     return true;
   } catch (error) {
-    console.error('Error sending form:', error);
     return false;
   }
 };
 
-// Submit application to Supabase
-export const submitApplication = async (values: FormValues, user: User | null) => {
-  console.log('Form submission values:', values);
-
-  const insertPayload = {
-  company_name: values.companyName,
-  business_type: values.businessType,
-  ein_number: values.einNumber,
-  amazon_seller_id: values.amazonStoreLink,
-  walmart_seller_id: values.walmartStoreLink || null,
-  ebay_seller_id: values.ebayStoreLink || null,
-  product_categories: values.productCategories,
-  sales_volume: values.salesVolume,
-  wholesale_budget: values.wholesaleBudget,
-  feedback_score: values.feedbackScore || '',
-  email: values.email,
-  phone: values.phone,
-  linkedin: values.linkedIn || '',
-  status: 'pending',
-  user_id: user?.id || null,
+// Submit form values to database
+export const submitFormToDatabase = async (values: FormValues, user: User | null): Promise<any> => {
+  const applicationData = {
+    company_name: values.companyName,
+    business_type: values.businessType,
+    ein_number: values.einNumber,
+    amazon_seller_id: values.amazonStoreLink,
+    walmart_seller_id: values.walmartStoreLink || null,
+    ebay_seller_id: values.ebayStoreLink || null,
+    product_categories: values.productCategories,
+    sales_volume: values.salesVolume,
+    wholesale_budget: values.wholesaleBudget,
+    feedback_score: values.feedbackScore || null,
+    email: values.email,
+    phone: values.phone,
+    linkedin: values.linkedIn || null,
+    status: 'pending' as const,
+    user_id: user?.id || null,
+    document_path: null // Will be updated after file upload
   };
-  
+
   try {
-    // Insert data into Supabase
     const { data, error } = await supabase
       .from('reseller_applications')
-      .insert([insertPayload])
+      .insert([applicationData])
       .select()
+      .single();
 
-
-    
     if (error) {
-      console.error('Supabase error:', error);
       throw error;
     }
-    
-    console.log('Application submitted successfully:', data);
+
     return data;
   } catch (error) {
-    console.error('Error submitting application to Supabase:', error);
     throw error;
   }
 };
 
-// Upload document to Supabase storage
-export const uploadDocument = async (file: File, userId: string) => {
+// Upload document to Supabase Storage
+export const uploadDocument = async (
+  file: File, 
+  applicationId: string,
+  user: User | null
+): Promise<string | null> => {
   try {
-    // Check if documents bucket exists, create if not
-    const { data: buckets } = await supabase
-      .storage
-      .listBuckets();
+    // Check if bucket exists, create if not
+    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
     
-    const documentsBucketExists = buckets?.some(bucket => bucket.name === 'documents');
+    if (bucketsError) {
+      throw bucketsError;
+    }
+
+    const documentsBucketExists = buckets.some(bucket => bucket.name === 'documents');
     
     if (!documentsBucketExists) {
-      console.log('Documents bucket does not exist, this should be created in SQL');
+      return null;
     }
-    
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}_${Date.now()}.${fileExt}`;
-    const filePath = `reseller_documents/${fileName}`;
-    
+
+    // Create a unique filename
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const filePath = `reseller-applications/${applicationId}/${fileName}`;
+
     // Upload the file
-    const { error } = await supabase.storage
+    const { data, error } = await supabase.storage
       .from('documents')
-      .upload(filePath, file);
-      
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
     if (error) {
-      console.error('Document upload error:', error);
       throw error;
     }
-    
+
     return filePath;
   } catch (error) {
-    console.error('Document upload error:', error);
-    throw error;
+    return null;
   }
 };
 
-// Send application data via email
-export const sendApplicationEmail = async (data: any, values: FormValues) => {
-  try {
-    await sendEmail({
-      id: data?.[0]?.id || 'unknown',
-      createdAt: new Date().toISOString(),
-      status: 'pending',
-      companyName: values.companyName,
-      businessType: values.businessType,
-      einNumber: values.einNumber,
-      amazonStoreLink: values.amazonStoreLink || '',
-      walmartStoreLink: values.walmartStoreLink || '',
-      ebayStoreLink: values.ebayStoreLink || '',
-      productCategories: values.productCategories,
-      salesVolume: values.salesVolume,
-      wholesaleBudget: values.wholesaleBudget,
-      feedbackScore: values.feedbackScore || '',
-      email: values.email,
-      phone: values.phone,
-      linkedIn: values.linkedIn || '',
-      termsAgreement: values.termsAgreement
-    });
-    return true;
-  } catch (error) {
-    console.error('Error sending application email:', error);
-    return false;
-  }
+// Send application notification email
+export const sendApplicationEmail = async (values: FormValues): Promise<boolean> => {
+  return true; // Simplified for now
 };

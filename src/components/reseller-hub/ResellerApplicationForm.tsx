@@ -56,7 +56,6 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
   });
 
   const onSubmit = async (values: FormValues) => {
-    console.log('Form validation passed, submitting:', values);
     
     // Additional validation for document
     if (!documentFile) {

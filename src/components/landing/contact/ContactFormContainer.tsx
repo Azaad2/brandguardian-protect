@@ -58,13 +58,10 @@ export const ContactForm = ({ onSubmit }: ContactFormProps) => {
         productCount: "N/A" // Default value for Admin.tsx compatibility
       };
       
-      console.log("Submitting form data:", submission);
-      
       // Send email directly 
       const success = await sendEmail(submission);
       
       if (success) {
-        console.log("Form submitted successfully");
         toast({
           title: "Thank you for your message!",
           description: "We'll be in touch with you shortly.",
@@ -78,7 +75,6 @@ export const ContactForm = ({ onSubmit }: ContactFormProps) => {
         throw new Error("Failed to send email");
       }
     } catch (error) {
-      console.error("Form submission error:", error);
       toast({
         title: "Submission failed",
         description: "There was a problem submitting your form. Please try again or contact us directly at help@bndbox.com.",
