@@ -7,7 +7,7 @@ import { trackRedditPixelConversion } from '../utils/formSubmissionHandlers';
 export interface UseResellerFormSubmissionProps {
   documentFile: File | null;
   documentPath: string | null;
-  onSubmissionSuccess: () => void;
+  onSubmissionSuccess: (email: string) => void;
 }
 
 export const useResellerFormSubmission = ({ 
@@ -15,11 +15,11 @@ export const useResellerFormSubmission = ({
   documentPath, 
   onSubmissionSuccess 
 }: UseResellerFormSubmissionProps) => {
-  const [documentFileState, setDocumentFile] = useState<File | null>(documentFile);
-  const [documentPathState, setDocumentPath] = useState<string | null>(documentPath);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [documentError, setDocumentError] = useState<string | null>(null);
+  const [documentFileState, setDocumentFile] = useState<File | null>(documentFile);
+  const [documentPathState, setDocumentPath] = useState<string | null>(documentPath);
 
   const resetErrors = () => {
     setSubmissionError(null);
@@ -33,7 +33,7 @@ export const useResellerFormSubmission = ({
       setDocumentError(null);
 
       // Validate document upload
-      if (!documentFile || !documentPath) {
+      if (!documentFileState || !documentPathState) {
         setDocumentError('Please upload a verification document before submitting.');
         return false;
       }
@@ -56,7 +56,7 @@ export const useResellerFormSubmission = ({
         email: values.email,
         phone: values.phone,
         linkedin: values.linkedIn || null,
-        document_path: documentPath,
+        document_path: documentPathState,
         status: 'pending' as const,
         user_id: user?.id || null
       };
@@ -83,7 +83,7 @@ export const useResellerFormSubmission = ({
         description: 'Thank you for your application. We will review it and get back to you within 24 hours.',
       });
 
-      onSubmissionSuccess();
+      onSubmissionSuccess(values.email);
       return true;
 
     } catch (error: any) {

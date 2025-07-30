@@ -33,7 +33,11 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
     setDocumentFile,
     handleSubmit: submitForm,
     handleDocumentUploadComplete
-  } = useResellerFormSubmission({ onSubmissionSuccess });
+  } = useResellerFormSubmission({ 
+    documentFile: null,
+    documentPath: null,
+    onSubmissionSuccess 
+  });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
