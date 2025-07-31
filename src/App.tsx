@@ -40,6 +40,7 @@ import UserManagement from '@/pages/admin/UserManagement';
 import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 
 // Blog pages
+import HowToGetUngatedAnyBrandAmazon2025 from '@/pages/blog/HowToGetUngatedAnyBrandAmazon2025';
 import MasterAmazonResellerBusiness from '@/pages/blog/MasterAmazonResellerBusiness';
 import UnlockAmazonWholesaleSuccess from '@/pages/blog/UnlockAmazonWholesaleSuccess';
 import EnforceMAPPolicyPreventUnauthorizedSellers from '@/pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers';
@@ -88,6 +89,7 @@ function App() {
             <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
             
             {/* Blog routes */}
+            <Route path="/blog/how-to-get-ungated-any-brand-amazon-2025-ultimate-guide" element={<HowToGetUngatedAnyBrandAmazon2025 />} />
             <Route path="/blog/master-amazon-reseller-business-strategies-profitability-sourcing-growth" element={<MasterAmazonResellerBusiness />} />
             <Route path="/blog/unlock-amazon-wholesale-success-bndbox-brand-approvals" element={<UnlockAmazonWholesaleSuccess />} />
             <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<EnforceMAPPolicyPreventUnauthorizedSellers />} />
