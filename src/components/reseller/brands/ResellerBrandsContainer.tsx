@@ -16,7 +16,7 @@ import { useResellerBrands } from '@/hooks/use-reseller-brands';
 const ResellerBrandsContainer = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
-  const { applications } = useBrandApplications();
+  const { applications, applyToBrand, isApplying } = useBrandApplications();
   const { brands, isLoading, error } = useResellerBrands();
 
   const currentApplications = applications?.length || 0;
@@ -85,8 +85,8 @@ const ResellerBrandsContainer = () => {
                 <BrandCard 
                   key={brand.id} 
                   brand={brand}
-                  onApply={() => {}}
-                  isApplying={false}
+                  onApply={(brandId) => applyToBrand({ brandId })}
+                  isApplying={isApplying}
                   canApply={!isAtLimit}
                 />
               ))}
