@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useSubscription } from '@/hooks/use-subscription';
-import { useBrandApplications } from '@/hooks/use-brand-applications';
+import { useBrandApplications, useAvailableBrands } from '@/hooks/use-brand-applications';
 import UsageIndicator from '@/components/reseller/subscription/UsageIndicator';
 import SubscriptionUpgrade from '@/components/reseller/subscription/SubscriptionUpgrade';
 import SubscriptionManager from '@/components/reseller/subscription/SubscriptionManager';
@@ -11,13 +11,12 @@ import BrandCard from './components/BrandCard';
 import BrandsLoadingState from './components/BrandsLoadingState';
 import BrandsErrorState from './components/BrandsErrorState';
 import BrandsEmptyState from './components/BrandsEmptyState';
-import { useResellerBrands } from '@/hooks/use-reseller-brands';
 
 const ResellerBrandsContainer = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
   const { applications, applyToBrand, isApplying } = useBrandApplications();
-  const { brands, isLoading, error } = useResellerBrands();
+  const { data: availableBrands, isLoading, error } = useAvailableBrands();
 
   const currentApplications = applications?.length || 0;
   const limit = subscription?.brand_application_limit || 3;
@@ -31,9 +30,10 @@ const ResellerBrandsContainer = () => {
     return <BrandsErrorState error={error} />;
   }
 
-  const filteredBrands = brands?.filter(brand =>
+  const filteredBrands = availableBrands?.filter(brand =>
     brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    brand.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    brand.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    brand.categories?.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
   ) || [];
 
   // Show upgrade component if user is at limit and on free plan
@@ -41,12 +41,15 @@ const ResellerBrandsContainer = () => {
 
   // Transform brand data to match BrandCard interface
   const transformedBrands = filteredBrands.map(brand => ({
-    id: brand.name, // Using name as ID since we don't have UUID
+    id: brand.id, // Use the actual brand ID from database
     displayName: brand.name,
-    displayDepartment: brand.category,
-    contact_email: 'contact@brand.com', // Default email since not available
-    categories: [brand.category],
-    applicationStatus: null // Default status
+    displayDepartment: brand.department || brand.categories?.[0],
+    contact_email: brand.contact_email,
+    categories: brand.categories || [],
+    description: brand.description,
+    approval_rate: brand.approval_rate,
+    response_time: brand.response_time,
+    applicationStatus: brand.applicationStatus
   }));
 
   return (
