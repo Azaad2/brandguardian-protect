@@ -13,6 +13,18 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
+      title: "Amazon Wholesale vs. Private Label: Which Path is Right for Your E-commerce Journey?",
+      excerpt: "Confused between Amazon Wholesale and Private Label? This in-depth guide breaks down the pros, cons, and key differences to help you choose the best e-commerce strategy for your business.",
+      date: "August 3, 2025",
+      author: "BndBox Team",
+      slug: "amazon-wholesale-vs-private-label",
+      image: "photo-1556742049-0cfed4f6a45d",
+      alt: "Amazon FBA business comparison between wholesale and private label selling strategies",
+      readTime: "12 min read",
+      category: "E-commerce Strategy"
+    },
+    {
+      id: 2,
       title: "How To Get UNGATED In ANY Brand On Amazon In 2025: Your Ultimate Guide",
       excerpt: "Master the complete ungating process on Amazon with proven strategies for 2025. Learn the invoice method, LOA process, distributor relationships, and automated solutions to unlock any brand and scale your FBA business.",
       date: "January 31, 2025",
