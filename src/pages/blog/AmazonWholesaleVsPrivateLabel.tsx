@@ -226,35 +226,35 @@ const AmazonWholesaleVsPrivateLabel = () => {
 
             <div className="grid gap-4">
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-200 mb-2">1. Full Control Over Branding, Packaging, and Customer Experience</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">1. Full Control Over Branding, Packaging, and Customer Experience</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   With private label, you dictate every aspect of your product's presentation and customer interaction. This allows for a consistent brand message and a unique unboxing experience, fostering customer loyalty.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-200 mb-2">2. Opportunity to Create Unique and Innovative Products</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">2. Opportunity to Create Unique and Innovative Products</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   You have the freedom to identify market gaps, develop products that address specific customer needs, and continuously innovate based on feedback. This leads to a stronger competitive advantage.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-200 mb-2">3. Higher Profit Margins</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">3. Higher Profit Margins</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Since you control the entire supply chain, from manufacturing costs to retail pricing, private label generally offers significantly higher profit margins compared to wholesale. You're not sharing the pie with other resellers.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-200 mb-2">4. Build a Recognizable Brand Identity and Customer Loyalty</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">4. Build a Recognizable Brand Identity and Customer Loyalty</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   By investing in your brand, you create a valuable asset that resonates with customers. A strong brand can command premium pricing and lead to repeat purchases and word-of-mouth referrals.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-200 mb-2">5. Greater Potential for Long-Term Scalability and Brand Growth</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">5. Greater Potential for Long-Term Scalability and Brand Growth</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   As your brand grows, you can expand your product lines, enter new markets, and even explore other sales channels beyond Amazon. The value of your business increases with the strength of your brand.
                 </p>
@@ -271,35 +271,35 @@ const AmazonWholesaleVsPrivateLabel = () => {
 
             <div className="grid gap-4">
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-orange-200 dark:border-orange-800">
-                <h4 className="text-lg font-semibold text-orange-700 dark:text-orange-200 mb-2">1. Higher Risk and Investment</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">1. Higher Risk and Investment</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Private label requires a substantial upfront investment in product research, development, manufacturing, branding, and marketing. There's a higher risk associated with product failure if market demand isn't accurately assessed or product quality falls short.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-orange-200 dark:border-orange-800">
-                <h4 className="text-lg font-semibold text-orange-700 dark:text-orange-200 mb-2">2. Requires More Effort and Resources for Product Development</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">2. Requires More Effort and Resources for Product Development</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   From ideation to sourcing suppliers and quality control, the product development process is complex and demanding. It requires significant time, effort, and expertise.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-orange-200 dark:border-orange-800">
-                <h4 className="text-lg font-semibold text-orange-700 dark:text-orange-200 mb-2">3. Higher Level of Competition and Market Saturation</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">3. Higher Level of Competition and Market Saturation</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   While you own your brand, you're still competing within broader product categories. The market can be saturated with similar products, making it challenging to stand out without effective marketing.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-orange-200 dark:border-orange-800">
-                <h4 className="text-lg font-semibold text-orange-700 dark:text-orange-200 mb-2">4. More Complex Inventory Management and Supply Chain Coordination</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">4. More Complex Inventory Management and Supply Chain Coordination</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   You are solely responsible for managing inventory levels, coordinating with manufacturers, and ensuring a smooth supply chain. This can be complex, especially for new sellers.
                 </p>
               </div>
 
               <div className="bg-white dark:bg-card rounded-lg p-4 border border-orange-200 dark:border-orange-800">
-                <h4 className="text-lg font-semibold text-orange-700 dark:text-orange-200 mb-2">5. Requires Substantial Market Research and Targeted Marketing Efforts</h4>
+                <h4 className="text-lg font-semibold text-foreground mb-2">5. Requires Substantial Market Research and Targeted Marketing Efforts</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Success in private label hinges on thorough market research to identify profitable niches and effective marketing strategies to reach your target audience. This often involves significant advertising spend.
                 </p>
