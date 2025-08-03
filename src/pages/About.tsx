@@ -4,6 +4,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BreadcrumbNav from "@/components/navigation/BreadcrumbNav";
 import { Helmet } from "react-helmet";
+import InternalLinks from "@/components/seo/InternalLinks";
+import { Link } from "react-router-dom";
 
 const About = () => {
   return (
@@ -32,7 +34,14 @@ const About = () => {
           <p>
             Our mission is to create a transparent ecosystem where brands can safely expand their e-commerce
             presence through verified resellers who are committed to maintaining brand standards and pricing policies.
-            We simplify the wholesale approval process for both brands and resellers.
+            We simplify the wholesale approval process for both brands and resellers. Learn more about our{" "}
+            <Link to="/reseller-hub" className="text-bndbox-600 hover:text-bndbox-700 underline">
+              reseller application process
+            </Link>{" "}
+            and how we help brands{" "}
+            <Link to="/blog/prevent-unauthorized-sellers-amazon" className="text-bndbox-600 hover:text-bndbox-700 underline">
+              prevent unauthorized sellers
+            </Link>.
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">Our Team</h2>
@@ -52,6 +61,21 @@ const About = () => {
             <li>Approved resellers receive wholesale access and pricing</li>
             <li>Our platform monitors compliance with brand policies and MAP pricing</li>
           </ol>
+          
+          <p className="mt-6">
+            Ready to get started? Check out our comprehensive guides on{" "}
+            <Link to="/blog/amazon-wholesale-vs-private-label" className="text-bndbox-600 hover:text-bndbox-700 underline">
+              Amazon wholesale vs private label
+            </Link>{" "}
+            or learn{" "}
+            <Link to="/blog/how-to-get-ungated-any-brand-amazon-2025" className="text-bndbox-600 hover:text-bndbox-700 underline">
+              how to get ungated on Amazon
+            </Link>.
+          </p>
+        </div>
+        
+        <div className="mt-12">
+          <InternalLinks currentPage="/about" category="company" />
         </div>
         
         {/* Company schema structured data */}

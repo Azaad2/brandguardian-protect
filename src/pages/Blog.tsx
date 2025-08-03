@@ -8,6 +8,7 @@ import AdvancedSEO from "@/components/seo/AdvancedSEO";
 import { SchemaGenerator } from "@/components/seo/SchemaGenerator";
 import { Badge } from "@/components/ui/badge";
 import { Clock, TrendingUp, Calendar } from "lucide-react";
+import InternalLinks from "@/components/seo/InternalLinks";
 
 const Blog = () => {
   const blogPosts = [
@@ -396,6 +397,31 @@ const Blog = () => {
               Reseller Tips
             </Link>
           </div>
+        </div>
+        
+        <div className="mt-16 bg-gray-50 rounded-lg p-8">
+          <h2 className="text-2xl font-bold mb-4">Ready to Get Started?</h2>
+          <p className="text-muted-foreground mb-6">
+            Join thousands of successful resellers who use BndBox to get approved by top brands.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link 
+              to="/reseller-hub" 
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors text-center"
+            >
+              Apply as Reseller
+            </Link>
+            <Link 
+              to="/about" 
+              className="border border-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors text-center"
+            >
+              Learn About BndBox
+            </Link>
+          </div>
+        </div>
+        
+        <div className="mt-12">
+          <InternalLinks currentPage="/blog" category="amazon" />
         </div>
       </main>
       <Footer />

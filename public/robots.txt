@@ -1,5 +1,5 @@
 
-# BndBox.com Robots.txt - Updated 2025-05-12
+# BndBox.com Robots.txt - Updated 2025-08-03
 # Optimized for search engine crawling and indexing
 
 User-agent: Googlebot
@@ -10,28 +10,45 @@ User-agent: Bingbot
 Allow: /
 Crawl-delay: 2
 
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /api/
+Disallow: /_app/
 Disallow: /*?filter=
 Disallow: /*?sort=
 Disallow: /*?page=
 Disallow: /*?query=
+Disallow: /*?utm_
+Disallow: /*?ref=
 Allow: /*.js$
 Allow: /*.css$
 Allow: /*.png$
 Allow: /*.jpg$
+Allow: /*.jpeg$
 Allow: /*.svg$
 Allow: /*.webp$
+Allow: /*.ico$
 
 # Sitemap location
 Sitemap: https://bndbox.com/sitemap.xml
 
 # Rate limits to prevent server overload
-Crawl-delay: 5
+Crawl-delay: 3

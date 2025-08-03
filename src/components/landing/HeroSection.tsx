@@ -49,6 +49,20 @@ const HeroSection = () => {
                   <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </a>
               </Button>
+              <Button variant="outline" size="lg" asChild>
+                <a href="/reseller-hub">
+                  Join as Reseller
+                </a>
+              </Button>
+            </div>
+            
+            <div className="flex flex-wrap gap-4 pt-4 text-sm">
+              <a href="/blog" className="text-bndbox-600 hover:text-bndbox-700 underline">
+                Latest Amazon Strategies →
+              </a>
+              <a href="/about" className="text-bndbox-600 hover:text-bndbox-700 underline">
+                About BndBox →
+              </a>
             </div>
             
             <div className="pt-6">
