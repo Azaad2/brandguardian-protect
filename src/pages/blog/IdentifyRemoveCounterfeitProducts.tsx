@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BreadcrumbNav from '@/components/navigation/BreadcrumbNav';
+import BlogReturnLink from '@/components/navigation/BlogReturnLink';
 import TableOfContents from '@/components/blog/TableOfContents';
 import PullQuote from '@/components/blog/PullQuote';
 import { trackPageView, trackSEOInteraction } from '@/lib/analytics';
@@ -71,6 +72,10 @@ const IdentifyRemoveCounterfeitProducts = () => {
       <main className="flex-grow container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-6">
           <BreadcrumbNav />
+        </div>
+        
+        <div className="mb-6">
+          <BlogReturnLink />
         </div>
 
         <article className="prose prose-lg max-w-none" itemScope itemType="https://schema.org/BlogPosting">

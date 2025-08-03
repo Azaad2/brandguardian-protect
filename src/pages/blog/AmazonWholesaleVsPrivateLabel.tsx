@@ -2,6 +2,7 @@ import React from 'react';
 import AdvancedSEO from '@/components/seo/AdvancedSEO';
 import { SchemaGenerator } from '@/components/seo/SchemaGenerator';
 import EnhancedBlogPost from '@/components/blog/EnhancedBlogPost';
+import BlogReturnLink from '@/components/navigation/BlogReturnLink';
 
 const AmazonWholesaleVsPrivateLabel = () => {
   const publishedTime = "2025-08-03T15:00:00.000Z";
@@ -77,6 +78,9 @@ const AmazonWholesaleVsPrivateLabel = () => {
       />
       
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+        <div className="mb-6">
+          <BlogReturnLink />
+        </div>
         {/* Introduction Section */}
         <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-8 border border-primary/10">
           <p className="text-xl text-foreground mb-6 leading-relaxed font-medium">

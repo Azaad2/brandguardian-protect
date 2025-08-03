@@ -1,5 +1,6 @@
 import React from 'react';
 import EnhancedBlogPost from '@/components/blog/EnhancedBlogPost';
+import BlogReturnLink from '@/components/navigation/BlogReturnLink';
 
 const MasterAmazonResellerBusiness = () => {
   const blogPostData = {
@@ -219,7 +220,14 @@ const MasterAmazonResellerBusiness = () => {
     slug: "master-amazon-reseller-business-strategies-profitability-sourcing-growth"
   };
 
-  return <EnhancedBlogPost {...blogPostData} />;
+  return (
+    <div>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <BlogReturnLink />
+      </div>
+      <EnhancedBlogPost {...blogPostData} />
+    </div>
+  );
 };
 
 export default MasterAmazonResellerBusiness;

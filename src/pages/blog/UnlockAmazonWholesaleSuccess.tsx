@@ -1,5 +1,6 @@
 import React from "react";
 import EnhancedBlogPost from "@/components/blog/EnhancedBlogPost";
+import BlogReturnLink from "@/components/navigation/BlogReturnLink";
 
 const UnlockAmazonWholesaleSuccess = () => {
   const blogPostData = {
@@ -299,7 +300,14 @@ const UnlockAmazonWholesaleSuccess = () => {
     slug: "unlock-amazon-wholesale-success-bndbox-brand-approvals"
   };
 
-  return <EnhancedBlogPost {...blogPostData} />;
+  return (
+    <div>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <BlogReturnLink />
+      </div>
+      <EnhancedBlogPost {...blogPostData} />
+    </div>
+  );
 };
 
 export default UnlockAmazonWholesaleSuccess;
