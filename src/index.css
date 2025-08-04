@@ -68,15 +68,57 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
+    font-display: swap;
+    /* Optimize for mobile performance */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+    /* Prevent layout shifts */
+    line-height: 1.5;
+  }
+  
+  /* Performance optimizations */
+  img, video {
+    /* Prevent layout shifts */
+    height: auto;
+    max-width: 100%;
+    /* Optimize rendering */
+    image-rendering: auto;
+  }
+  
+  /* Optimize animations for mobile */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Critical loading states */
+  .loading-skeleton {
+    background: linear-gradient(90deg, transparent, hsl(var(--muted)) 50%, transparent);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
 
+/* Performance-optimized gradients using GPU acceleration */
 .gradient-bg {
   background: linear-gradient(135deg, hsl(217, 64%, 41%) 0%, hsl(217, 77%, 21%) 100%);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .marketplace-badge {
   background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .text-gradient {
@@ -84,5 +126,42 @@
   -webkit-background-clip: text;
   color: transparent;
   background-image: linear-gradient(90deg, #3b82f6, #2563eb);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Mobile-optimized animations */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Optimized scroll behavior */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Critical performance utilities */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.contain-layout {
+  contain: layout style paint;
+}
+
+/* Optimize for touch interactions */
+.touch-optimized {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 

@@ -36,7 +36,8 @@
     <link rel="preconnect" href="https://flhqvkohslfxxfjzyzxy.supabase.co" crossorigin>
     <link rel="preconnect" href="https://checkout.razorpay.com" crossorigin>
     <link rel="preconnect" href="https://lumberjack.razorpay.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'; this.onload=null;">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
     <!-- Preload critical resources -->
     <link rel="preload" href="/src/index.css" as="style">
@@ -87,22 +88,7 @@
       }
     </script>
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-020LLVRLDW"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-020LLVRLDW');
-    </script>
-    
-    <!-- Reddit Pixel Code - UPDATED -->
-    <script>
-      !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
-      rdt('init','a2_glm8olkamn82');
-      rdt('track', 'PageVisit');
-    </script>
-    <!-- END Reddit Pixel Code -->
+    <!-- Performance optimized scripts will load after page paint -->
   </head>
 
   <body>
@@ -110,5 +96,29 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx" defer></script>
+    
+    <!-- Load analytics and tracking scripts after page paint -->
+    <script>
+      // Load analytics after page load to prevent render blocking
+      window.addEventListener('load', function() {
+        // Google Analytics
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-020LLVRLDW';
+        document.head.appendChild(script);
+        
+        script.onload = function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-020LLVRLDW');
+        };
+        
+        // Reddit Pixel
+        !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+        rdt('init','a2_glm8olkamn82');
+        rdt('track', 'PageVisit');
+      });
+    </script>
   </body>
 </html>
