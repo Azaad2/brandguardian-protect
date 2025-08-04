@@ -14,6 +14,18 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
+      title: "How to Outreach 1000 Brands in 10 Minutes for Your Amazon Wholesale Business?",
+      excerpt: "Discover how to revolutionize your Amazon wholesale business by outreaching to thousands of brands in minutes instead of weeks. Learn the automated approach that transforms manual brand applications into a streamlined, efficient process using BndBox.",
+      date: "January 4, 2025",
+      author: "BndBox Team",
+      slug: "outreach-thousand-brands-amazon-wholesale",
+      image: "photo-1460925895917-afdab827c52f",
+      alt: "Amazon wholesale reseller using BndBox dashboard to apply to multiple brands efficiently",
+      readTime: "15 min read",
+      category: "Amazon Wholesale"
+    },
+    {
+      id: 2,
       title: "Amazon Wholesale vs. Private Label: Which Path is Right for Your E-commerce Journey?",
       excerpt: "Confused between Amazon Wholesale and Private Label? This in-depth guide breaks down the pros, cons, and key differences to help you choose the best e-commerce strategy for your business.",
       date: "August 3, 2025",
