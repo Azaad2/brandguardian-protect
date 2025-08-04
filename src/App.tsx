@@ -1,8 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/hooks/use-auth';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
+import { usePerformanceMonitoring } from '@/hooks/use-performance';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 // Pages
 import Index from '@/pages/Index';
@@ -55,108 +58,139 @@ import RoleUpdater from '@/pages/RoleUpdater';
 
 // Auth Guard
 import AuthGuard from '@/components/auth/AuthGuard';
+import { 
+  LazyBlog, LazyAbout, LazyResellerHub, 
+  LazyResellerDashboard, LazyBrandDashboard, LazyAdminDashboard,
+  LazyUserManagement,
+  LazyAmazonBrandRegistryBenefits,
+  LazyAmazonWholesaleVsPrivateLabel,
+  LazyEnforceMAPPolicyPreventUnauthorizedSellers,
+  LazyHowToGetUngatedAnyBrandAmazon2025,
+  LazyIdentifyRemoveCounterfeitProducts,
+  LazyMasterAmazonResellerBusiness,
+  LazyPreventUnauthorizedSellersAmazon,
+  LazyUnlockAmazonWholesaleSuccess
+} from '@/components/LazyComponents';
 
 import './App.css';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
+const AppContent = () => {
+  useAnalytics();
+  usePerformanceMonitoring();
+  
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Index />} />
+        <Route path="/about" element={<LazyAbout />} />
+        <Route path="/blog" element={<LazyBlog />} />
+        <Route path="/reseller-hub" element={<LazyResellerHub />} />
+        <Route path="/shipping-delivery" element={<ShippingDelivery />} />
+        
+        {/* Legal routes */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/cookies" element={<CookiePolicy />} />
+        <Route path="/cancellation-refund" element={<CancellationRefundPolicy />} />
+        
+        {/* Auth routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/signup" element={<AdminSignup />} />
+        <Route path="/brand/login" element={<BrandLogin />} />
+        <Route path="/brand/signup" element={<BrandSignup />} />
+        <Route path="/reseller/login" element={<ResellerLogin />} />
+        <Route path="/reseller/signup" element={<ResellerSignup />} />
+        <Route path="/reset-password" element={<PasswordReset />} />
+        <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
+        
+        {/* Blog routes with lazy loading */}
+        <Route path="/blog/amazon-wholesale-vs-private-label" element={<LazyAmazonWholesaleVsPrivateLabel />} />
+        <Route path="/blog/how-to-get-ungated-any-brand-amazon-2025-ultimate-guide" element={<LazyHowToGetUngatedAnyBrandAmazon2025 />} />
+        <Route path="/blog/master-amazon-reseller-business-strategies-profitability-sourcing-growth" element={<LazyMasterAmazonResellerBusiness />} />
+        <Route path="/blog/unlock-amazon-wholesale-success-bndbox-brand-approvals" element={<LazyUnlockAmazonWholesaleSuccess />} />
+        <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<LazyEnforceMAPPolicyPreventUnauthorizedSellers />} />
+        <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<LazyPreventUnauthorizedSellersAmazon />} />
+        <Route path="/blog/identify-remove-counterfeit-products" element={<LazyIdentifyRemoveCounterfeitProducts />} />
+        <Route path="/blog/amazon-brand-registry-benefits" element={<LazyAmazonBrandRegistryBenefits />} />
+        
+        {/* Protected dashboard routes with lazy loading */}
+        <Route path="/admin/dashboard" element={
+          <AuthGuard requiredRole="admin">
+            <LazyAdminDashboard />
+          </AuthGuard>
+        } />
+        <Route path="/admin/dashboard/*" element={
+          <AuthGuard requiredRole="admin">
+            <LazyAdminDashboard />
+          </AuthGuard>
+        } />
+        <Route path="/brand/dashboard" element={
+          <AuthGuard requiredRole="brand">
+            <LazyBrandDashboard />
+          </AuthGuard>
+        } />
+        <Route path="/reseller/dashboard" element={
+          <AuthGuard requiredRole="reseller">
+            <LazyResellerDashboard />
+          </AuthGuard>
+        } />
+        <Route path="/reseller/dashboard/*" element={
+          <AuthGuard requiredRole="reseller">
+            <LazyResellerDashboard />
+          </AuthGuard>
+        } />
+        
+        {/* Protected portal routes */}
+        <Route path="/brand/*" element={
+          <AuthGuard requiredRole="brand">
+            <BrandPortal />
+          </AuthGuard>
+        } />
+        <Route path="/reseller/*" element={
+          <AuthGuard requiredRole="reseller">
+            <ResellerPortal />
+          </AuthGuard>
+        } />
+        
+        {/* Protected admin routes */}
+        <Route path="/admin/users" element={
+          <AuthGuard requiredRole="admin">
+            <LazyUserManagement />
+          </AuthGuard>
+        } />
+        <Route path="/admin/reseller-registration" element={
+          <AuthGuard requiredRole="admin">
+            <ResellerRegistration />
+          </AuthGuard>
+        } />
+        
+        {/* Legacy admin routes */}
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/role-updater" element={<RoleUpdater />} />
+        
+        {/* 404 route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
+  );
+};
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/reseller-hub" element={<ResellerHub />} />
-            <Route path="/shipping-delivery" element={<ShippingDelivery />} />
-            
-            {/* Legal routes */}
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/cookies" element={<CookiePolicy />} />
-            <Route path="/cancellation-refund" element={<CancellationRefundPolicy />} />
-            
-            {/* Auth routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/signup" element={<AdminSignup />} />
-            <Route path="/brand/login" element={<BrandLogin />} />
-            <Route path="/brand/signup" element={<BrandSignup />} />
-            <Route path="/reseller/login" element={<ResellerLogin />} />
-            <Route path="/reseller/signup" element={<ResellerSignup />} />
-            <Route path="/reset-password" element={<PasswordReset />} />
-            <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
-            
-            {/* Blog routes */}
-            <Route path="/blog/amazon-wholesale-vs-private-label" element={<AmazonWholesaleVsPrivateLabel />} />
-            <Route path="/blog/how-to-get-ungated-any-brand-amazon-2025-ultimate-guide" element={<HowToGetUngatedAnyBrandAmazon2025 />} />
-            <Route path="/blog/master-amazon-reseller-business-strategies-profitability-sourcing-growth" element={<MasterAmazonResellerBusiness />} />
-            <Route path="/blog/unlock-amazon-wholesale-success-bndbox-brand-approvals" element={<UnlockAmazonWholesaleSuccess />} />
-            <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<EnforceMAPPolicyPreventUnauthorizedSellers />} />
-            <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<PreventUnauthorizedSellersAmazon />} />
-            <Route path="/blog/identify-remove-counterfeit-products" element={<IdentifyRemoveCounterfeitProducts />} />
-            <Route path="/blog/amazon-brand-registry-benefits" element={<AmazonBrandRegistryBenefits />} />
-            
-            {/* Protected dashboard routes */}
-            <Route path="/admin/dashboard" element={
-                  <AuthGuard requiredRole="admin">
-                    <AdminDashboard />
-                  </AuthGuard>
-                } />
-                <Route path="/admin/dashboard/*" element={
-                  <AuthGuard requiredRole="admin">
-                    <AdminDashboard />
-                  </AuthGuard>
-                } />
-            <Route path="/brand/dashboard" element={
-              <AuthGuard requiredRole="brand">
-                <BrandDashboard />
-              </AuthGuard>
-            } />
-            <Route path="/reseller/dashboard" element={
-              <AuthGuard requiredRole="reseller">
-                <ResellerDashboard />
-              </AuthGuard>
-            } />
-            <Route path="/reseller/dashboard/*" element={
-              <AuthGuard requiredRole="reseller">
-                <ResellerDashboard />
-              </AuthGuard>
-            } />
-            
-            {/* Protected portal routes */}
-            <Route path="/brand/*" element={
-              <AuthGuard requiredRole="brand">
-                <BrandPortal />
-              </AuthGuard>
-            } />
-            <Route path="/reseller/*" element={
-              <AuthGuard requiredRole="reseller">
-                <ResellerPortal />
-              </AuthGuard>
-            } />
-            
-            {/* Protected admin routes */}
-            <Route path="/admin/users" element={
-              <AuthGuard requiredRole="admin">
-                <UserManagement />
-              </AuthGuard>
-            } />
-            <Route path="/admin/reseller-registration" element={
-              <AuthGuard requiredRole="admin">
-                <ResellerRegistration />
-              </AuthGuard>
-            } />
-            
-            {/* Legacy admin routes */}
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/role-updater" element={<RoleUpdater />} />
-            
-            {/* 404 route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppContent />
           <Toaster />
           <Sonner />
         </AuthProvider>

@@ -14,7 +14,6 @@ export const initializeAnalytics = () => {
 
 export const trackPageView = (path: string) => {
   // Track page views with full URL path
-  console.log('Tracking page view:', path);
   ReactGA.send({
     hitType: 'pageview',
     page: path
@@ -37,7 +36,6 @@ export const trackPageView = (path: string) => {
 };
 
 export const trackEvent = (category: string, action: string, label?: string, value?: number) => {
-  console.log('Tracking event:', category, action, label);
   ReactGA.event({
     category,
     action,
