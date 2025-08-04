@@ -69,7 +69,8 @@ import {
   LazyIdentifyRemoveCounterfeitProducts,
   LazyMasterAmazonResellerBusiness,
   LazyPreventUnauthorizedSellersAmazon,
-  LazyUnlockAmazonWholesaleSuccess
+  LazyUnlockAmazonWholesaleSuccess,
+  LazyOutreachThousandBrandsAmazonWholesale
 } from '@/components/LazyComponents';
 
 import './App.css';
@@ -122,6 +123,7 @@ const AppContent = () => {
         <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<LazyPreventUnauthorizedSellersAmazon />} />
         <Route path="/blog/identify-remove-counterfeit-products" element={<LazyIdentifyRemoveCounterfeitProducts />} />
         <Route path="/blog/amazon-brand-registry-benefits" element={<LazyAmazonBrandRegistryBenefits />} />
+        <Route path="/blog/outreach-thousand-brands-amazon-wholesale" element={<LazyOutreachThousandBrandsAmazonWholesale />} />
         
         {/* Protected dashboard routes with lazy loading */}
         <Route path="/admin/dashboard" element={
