@@ -3,6 +3,8 @@ import { FormValues } from '../ResellerFormSchema';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { trackRedditPixelConversion } from '../utils/formSubmissionHandlers';
+import { sendEmail } from '@/utils/email';
+import type { ResellerSubmission } from '@/types/resellerSubmission';
 
 export interface UseResellerFormSubmissionProps {
   documentFile: File | null;
@@ -77,6 +79,35 @@ export const useResellerFormSubmission = ({
 
       // Track conversion
       trackRedditPixelConversion();
+
+      // Send email notification (non-blocking)
+      try {
+        const resellerSubmission: ResellerSubmission = {
+          id: data.id,
+          createdAt: data.created_at,
+          status: data.status as 'pending' | 'approved' | 'rejected',
+          companyName: values.companyName,
+          businessType: values.businessType,
+          einNumber: values.einNumber,
+          amazonStoreLink: values.amazonStoreLink,
+          walmartStoreLink: values.walmartStoreLink,
+          ebayStoreLink: values.ebayStoreLink,
+          productCategories: values.productCategories,
+          salesVolume: values.salesVolume,
+          wholesaleBudget: values.wholesaleBudget,
+          feedbackScore: values.feedbackScore,
+          email: values.email,
+          phone: values.phone,
+          linkedIn: values.linkedIn,
+          termsAgreement: values.termsAgreement
+        };
+
+        await sendEmail(resellerSubmission);
+        console.log('Email notification sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError);
+        // Don't block the form submission if email fails
+      }
 
       toast({
         title: 'Application Submitted!',
