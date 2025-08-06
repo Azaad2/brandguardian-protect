@@ -216,11 +216,11 @@ export const useAvailableBrands = () => {
     queryKey: ['available-brands', user?.id],
     queryFn: async () => {
       if (!user) {
-        console.log('No user found, returning empty brands list');
+        console.log('useAvailableBrands: No user found, returning empty brands list');
         return [];
       }
 
-      console.log('Fetching available brands for user:', user.id);
+      console.log('useAvailableBrands: Fetching available brands for user:', user.id);
 
       try {
         // Get brands allocated to this reseller
@@ -247,11 +247,16 @@ export const useAvailableBrands = () => {
           .eq('reseller_id', user.id);
 
         if (allocationsError) {
-          console.error('Error fetching brand allocations:', allocationsError);
+          console.error('useAvailableBrands: Error fetching brand allocations:', allocationsError);
+          console.error('useAvailableBrands: Error details:', {
+            message: allocationsError.message,
+            code: allocationsError.code,
+            details: allocationsError.details
+          });
           throw allocationsError;
         }
 
-        console.log('Raw allocated brands data:', allocatedBrands);
+        console.log('useAvailableBrands: Raw allocated brands data:', allocatedBrands);
 
         // Filter out null brands and only include active ones
         const activeBrands = allocatedBrands
@@ -261,10 +266,10 @@ export const useAvailableBrands = () => {
           )
           .map(allocation => allocation.brands_directory) || [];
 
-        console.log('Active allocated brands:', activeBrands);
+        console.log('useAvailableBrands: Active allocated brands:', activeBrands);
 
         if (activeBrands.length === 0) {
-          console.log('No active brands allocated to user');
+          console.log('useAvailableBrands: No active brands allocated to user - this might be the issue!');
           return [];
         }
 
@@ -297,7 +302,8 @@ export const useAvailableBrands = () => {
         return brandsWithStatus;
 
       } catch (error) {
-        console.error('Error in useAvailableBrands:', error);
+        console.error('useAvailableBrands: Error in useAvailableBrands:', error);
+        console.error('useAvailableBrands: Full error object:', JSON.stringify(error, null, 2));
         throw error;
       }
     },
