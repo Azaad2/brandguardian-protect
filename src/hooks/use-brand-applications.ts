@@ -91,7 +91,7 @@ export const useBrandApplications = () => {
             email: user.email!,
             subscribed: false,
             subscription_tier: 'free',
-            brand_application_limit: 3
+            brand_application_limit: 999999
           }])
           .select()
           .single();
@@ -105,10 +105,9 @@ export const useBrandApplications = () => {
     enabled: !!user,
   });
 
-  // Check if user can apply to more brands
+  // Check if user can apply to more brands - now always true (unlimited)
   const canApplyToMoreBrands = () => {
-    if (!subscription || !applications) return false;
-    return applications.length < subscription.brand_application_limit;
+    return true; // Unlimited applications for all users
   };
 
   // Apply to brand mutation with limit checking
@@ -116,10 +115,7 @@ export const useBrandApplications = () => {
     mutationFn: async ({ brandId, applicationData }: { brandId: string; applicationData?: any }) => {
       if (!user) throw new Error('User not authenticated');
 
-      // Check subscription limits before applying
-      if (!canApplyToMoreBrands()) {
-        throw new Error(`You've reached your application limit of ${subscription?.brand_application_limit || 3} brands. Please upgrade your plan to apply to more brands.`);
-      }
+      // No application limits - users can apply to unlimited brands
 
       console.log('Applying to brand:', brandId, 'for user:', user.id);
 
@@ -208,7 +204,7 @@ export const useBrandApplications = () => {
     isApplying: applyToBrandMutation.isPending,
     canApplyToMoreBrands: canApplyToMoreBrands(),
     applicationCount: applications?.length || 0,
-    applicationLimit: subscription?.brand_application_limit || 3,
+    applicationLimit: 999999, // Unlimited applications
     subscriptionTier: subscription?.subscription_tier || 'free',
   };
 };

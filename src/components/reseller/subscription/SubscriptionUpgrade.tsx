@@ -28,14 +28,13 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
       tier: 'basic',
       price: '$35',
       period: '/month',
-      costPerApp: '$0.35/application',
       icon: Zap,
-      limit: 109,
       features: [
-        'Apply to up to 109 brands',
         'Priority customer support',
         'Advanced brand analytics',
-        'Custom wholesale terms'
+        'Custom wholesale terms',
+        'Email templates & automation',
+        'Performance tracking'
       ],
       popular: false
     },
@@ -44,15 +43,14 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
       tier: 'premium',
       price: '$99',
       period: '/month',
-      costPerApp: '$0.25/application',
       icon: Crown,
-      limit: 399,
       features: [
-        'Apply to up to 399 brands',
         'Dedicated account manager',
         'Advanced reporting & insights',
         'Custom wholesale terms',
-        'Early access to new brands'
+        'Early access to new brands',
+        'Brand relationship management',
+        'Priority brand introductions'
       ],
       popular: true
     },
@@ -62,13 +60,13 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
       price: 'Custom',
       period: '',
       icon: Building,
-      limit: 999,
       features: [
-        'Unlimited brand applications',
         'White-label solution',
         'API access',
         'Custom integrations',
-        'Dedicated support team'
+        'Dedicated support team',
+        'Custom branding',
+        'Advanced automation'
       ],
       popular: false
     }
@@ -119,12 +117,12 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold mb-4">Upgrade Your Plan</h2>
+        <h2 className="text-3xl font-bold mb-4">Unlock Premium Features</h2>
         <p className="text-gray-600 mb-2">
-          You've used {currentApplications} of your {currentLimit} free brand applications
+          You currently have unlimited brand applications with our free plan!
         </p>
         <p className="text-gray-600">
-          Upgrade to continue applying to more brands and unlock premium features
+          Upgrade to unlock premium features, dedicated support, and advanced tools to grow your business faster
         </p>
       </div>
 
@@ -148,13 +146,8 @@ const SubscriptionUpgrade = ({ currentApplications, currentLimit }: Subscription
                   <span className="text-3xl font-bold">{tier.price}</span>
                   <span className="text-gray-500 ml-1">{tier.period}</span>
                 </div>
-                {tier.costPerApp && (
-                  <div className="text-sm text-gray-400 font-light mt-1">
-                    {tier.costPerApp}
-                  </div>
-                )}
                 <CardDescription>
-                  Up to {tier.limit === 999 ? 'unlimited' : tier.limit} brand applications
+                  Premium features and enhanced support
                 </CardDescription>
               </CardHeader>
               

@@ -51,7 +51,7 @@ export const useSubscription = () => {
             email: user.email!,
             subscribed: false,
             subscription_tier: 'free',
-            brand_application_limit: 3
+            brand_application_limit: 999999
           }])
           .select()
           .single();

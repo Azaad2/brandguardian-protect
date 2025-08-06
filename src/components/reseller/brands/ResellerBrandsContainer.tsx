@@ -19,8 +19,8 @@ const ResellerBrandsContainer = () => {
   const { data: availableBrands, isLoading, error } = useAvailableBrands();
 
   const currentApplications = applications?.length || 0;
-  const limit = subscription?.brand_application_limit || 3;
-  const isAtLimit = currentApplications >= limit;
+  const limit = 999999; // Unlimited applications
+  const isAtLimit = false; // Never at limit
 
   if (subscriptionLoading || isLoading) {
     return <BrandsLoadingState />;
@@ -36,8 +36,8 @@ const ResellerBrandsContainer = () => {
     brand.categories?.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
   ) || [];
 
-  // Show upgrade component if user is at limit and on free plan
-  const showUpgrade = isAtLimit && (!subscription?.subscribed || subscription.subscription_tier === 'free');
+  // Show upgrade component for premium features, not application limits
+  const showUpgrade = !subscription?.subscribed && subscription?.subscription_tier === 'free';
 
   // Transform brand data to match BrandCard interface
   const transformedBrands = filteredBrands.map(brand => ({
@@ -56,46 +56,39 @@ const ResellerBrandsContainer = () => {
     <div className="container mx-auto p-6 space-y-6">
       <BrandsHeader />
       
-      {/* Subscription Status */}
-      <UsageIndicator 
-        currentApplications={currentApplications}
-        limit={limit}
-        subscriptionTier={subscription?.subscription_tier || 'free'}
-      />
-      
       {/* Subscription Management */}
       {subscription?.subscribed && <SubscriptionManager />}
       
-      {/* Upgrade Component */}
-      {showUpgrade ? (
-        <SubscriptionUpgrade 
-          currentApplications={currentApplications}
-          currentLimit={limit}
-        />
-      ) : (
-        <>
-          <BrandsSearchBar 
-            searchQuery={searchTerm} 
-            setSearchQuery={setSearchTerm}
-            filteredBrandsCount={filteredBrands.length}
+      {/* Upgrade Component for Premium Features */}
+      {showUpgrade && (
+        <div className="mb-6">
+          <SubscriptionUpgrade 
+            currentApplications={currentApplications}
+            currentLimit={limit}
           />
-          
-          {filteredBrands.length === 0 ? (
-            <BrandsEmptyState searchQuery={searchTerm} />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {transformedBrands.map((brand) => (
-                <BrandCard 
-                  key={brand.id} 
-                  brand={brand}
-                  onApply={(brandId) => applyToBrand({ brandId })}
-                  isApplying={isApplying}
-                  canApply={!isAtLimit}
-                />
-              ))}
-            </div>
-          )}
-        </>
+        </div>
+      )}
+      
+      <BrandsSearchBar 
+        searchQuery={searchTerm} 
+        setSearchQuery={setSearchTerm}
+        filteredBrandsCount={filteredBrands.length}
+      />
+      
+      {filteredBrands.length === 0 ? (
+        <BrandsEmptyState searchQuery={searchTerm} />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {transformedBrands.map((brand) => (
+            <BrandCard 
+              key={brand.id} 
+              brand={brand}
+              onApply={(brandId) => applyToBrand({ brandId })}
+              isApplying={isApplying}
+              canApply={true} // Always allow applications
+            />
+          ))}
+        </div>
       )}
     </div>
   );
