@@ -5,19 +5,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import ResellerProfileHeader from './settings/ResellerProfileHeader';
-import ContactInformationCard from './settings/ContactInformationCard';
-import BusinessInformationCard from './settings/BusinessInformationCard';
-import MarketplaceInformationCard from './settings/MarketplaceInformationCard';
-import SalesPerformanceCard from './settings/SalesPerformanceCard';
+import EditableContactForm from './settings/EditableContactForm';
+import EditableBusinessForm from './settings/EditableBusinessForm';
+import EditableMarketplaceForm from './settings/EditableMarketplaceForm';
+import EditableSalesVolumeForm from './settings/EditableSalesVolumeForm';
+import EditableBudgetForm from './settings/EditableBudgetForm';
 import ProductCategoriesCard from './settings/ProductCategoriesCard';
 import PasswordChangeCard from './settings/PasswordChangeCard';
 import { getStatusBadge } from './settings/utils/statusHelpers';
-import { 
-  formatBusinessType, 
-  formatSalesVolume, 
-  formatWholesaleBudget, 
-  formatProductCategories 
-} from './settings/utils/formatters';
+import { formatProductCategories } from './settings/utils/formatters';
 
 interface ResellerProfile {
   id: string;
@@ -29,7 +25,7 @@ interface ResellerProfile {
   ebay_seller_id?: string;
   product_categories: string[];
   sales_volume: string;
-  wholesale_budget?: string;
+  wholesale_budget: string;
   feedback_score?: string;
   email: string;
   phone: string;
@@ -41,8 +37,7 @@ const ResellerSettings = () => {
   const [profile, setProfile] = useState<ResellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchResellerProfile = async () => {
+  const fetchResellerProfile = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -97,7 +92,7 @@ const ResellerSettings = () => {
           ebay_seller_id: applicationData.ebay_seller_id,
           product_categories: applicationData.product_categories || [],
           sales_volume: applicationData.sales_volume,
-          wholesale_budget: applicationData.wholesale_budget,
+          wholesale_budget: applicationData.wholesale_budget || 'under_5k',
           feedback_score: applicationData.feedback_score,
           email: applicationData.email,
           phone: applicationData.phone,
@@ -115,8 +110,13 @@ const ResellerSettings = () => {
       } finally {
         setLoading(false);
       }
-    };
+  };
 
+  const handleProfileUpdate = () => {
+    fetchResellerProfile();
+  };
+
+  useEffect(() => {
     fetchResellerProfile();
   }, []);
 
@@ -153,36 +153,14 @@ const ResellerSettings = () => {
         </TabsList>
         
         <TabsContent value="profile" className="space-y-6">
-          <Card>
-            <CardContent className="p-6">
-              <ContactInformationCard profile={profile} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <MarketplaceInformationCard profile={profile} />
-            </CardContent>
-          </Card>
+          <EditableContactForm profile={profile} onUpdate={handleProfileUpdate} />
+          <EditableMarketplaceForm profile={profile} onUpdate={handleProfileUpdate} />
         </TabsContent>
         
         <TabsContent value="business" className="space-y-6">
-          <Card>
-            <CardContent className="p-6">
-              <BusinessInformationCard 
-                profile={profile} 
-                formatBusinessType={formatBusinessType} 
-              />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <SalesPerformanceCard 
-                profile={profile} 
-                formatSalesVolume={formatSalesVolume}
-                formatWholesaleBudget={formatWholesaleBudget}
-              />
-            </CardContent>
-          </Card>
+          <EditableBusinessForm profile={profile} onUpdate={handleProfileUpdate} />
+          <EditableSalesVolumeForm profile={profile} onUpdate={handleProfileUpdate} />
+          <EditableBudgetForm profile={profile} onUpdate={handleProfileUpdate} />
           <Card>
             <CardContent className="p-6">
               <ProductCategoriesCard 
