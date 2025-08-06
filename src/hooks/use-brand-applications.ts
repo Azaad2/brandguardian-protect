@@ -273,24 +273,33 @@ export const useAvailableBrands = () => {
           return [];
         }
 
-        // Get user's applications for these brands
+        // Get ALL applications for this reseller (avoid URL length issues)
+        // Then filter client-side instead of using .in() which creates massive URLs
         const brandIds = activeBrands.map(brand => brand.id);
-        const { data: applications, error: appsError } = await supabase
+        console.log('useAvailableBrands: Brand IDs to filter by:', brandIds.length, 'brands');
+
+        const { data: allApplications, error: appsError } = await supabase
           .from('brand_applications')
           .select('brand_id, status')
-          .eq('reseller_id', user.id)
-          .in('brand_id', brandIds);
+          .eq('reseller_id', user.id);
 
         if (appsError) {
-          console.error('Error fetching applications:', appsError);
+          console.error('useAvailableBrands: Error fetching applications:', appsError);
           throw appsError;
         }
 
-        console.log('User applications:', applications);
+        console.log('useAvailableBrands: Fetched all applications:', allApplications?.length || 0);
+
+        // Filter applications to only include those for allocated brands
+        const relevantApplications = allApplications?.filter(app => 
+          brandIds.includes(app.brand_id)
+        ) || [];
+
+        console.log('useAvailableBrands: Relevant applications after filtering:', relevantApplications.length);
 
         // Map applications to brands
         const applicationMap = new Map(
-          applications?.map(app => [app.brand_id, app.status]) || []
+          relevantApplications.map(app => [app.brand_id, app.status])
         );
 
         const brandsWithStatus = activeBrands.map(brand => ({
