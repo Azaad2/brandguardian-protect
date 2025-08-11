@@ -7,11 +7,8 @@ import { Toaster as Sonner } from '@/components/ui/sonner';
 import { usePerformanceMonitoring } from '@/hooks/use-performance';
 import { useAnalytics } from '@/hooks/use-analytics';
 
-// Pages
+// Core pages (only import essential landing pages directly)
 import Index from '@/pages/Index';
-import About from '@/pages/About';
-import Blog from '@/pages/Blog';
-import ResellerHub from '@/pages/ResellerHub';
 import NotFound from '@/pages/NotFound';
 import ShippingDelivery from '@/pages/ShippingDelivery';
 
@@ -21,7 +18,7 @@ import TermsOfService from '@/pages/TermsOfService';
 import CookiePolicy from '@/pages/CookiePolicy';
 import CancellationRefundPolicy from '@/pages/CancellationRefundPolicy';
 
-// Auth pages
+// Auth pages (these are small and need to be immediately accessible)
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminSignup from '@/pages/admin/AdminSignup';
 import BrandLogin from '@/pages/brand/BrandLogin';
@@ -31,28 +28,12 @@ import ResellerSignup from '@/pages/reseller/ResellerSignup';
 import PasswordReset from '@/pages/auth/PasswordReset';
 import PasswordResetConfirm from '@/pages/auth/PasswordResetConfirm';
 
-// Dashboard pages
-import AdminDashboard from '@/pages/admin/AdminDashboard';
-import BrandDashboard from '@/pages/brand/BrandDashboard';
-import ResellerDashboard from '@/pages/reseller/ResellerDashboard';
-
-// Portal pages
+// Portal pages (small routing components)
 import BrandPortal from '@/pages/brand/BrandPortal';
 import ResellerPortal from '@/pages/reseller/ResellerPortal';
-import UserManagement from '@/pages/admin/UserManagement';
 import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 
-// Blog pages
-import AmazonWholesaleVsPrivateLabel from '@/pages/blog/AmazonWholesaleVsPrivateLabel';
-import HowToGetUngatedAnyBrandAmazon2025 from '@/pages/blog/HowToGetUngatedAnyBrandAmazon2025';
-import MasterAmazonResellerBusiness from '@/pages/blog/MasterAmazonResellerBusiness';
-import UnlockAmazonWholesaleSuccess from '@/pages/blog/UnlockAmazonWholesaleSuccess';
-import EnforceMAPPolicyPreventUnauthorizedSellers from '@/pages/blog/EnforceMAPPolicyPreventUnauthorizedSellers';
-import PreventUnauthorizedSellersAmazon from '@/pages/blog/PreventUnauthorizedSellersAmazon';
-import IdentifyRemoveCounterfeitProducts from '@/pages/blog/IdentifyRemoveCounterfeitProducts';
-import AmazonBrandRegistryBenefits from '@/pages/blog/AmazonBrandRegistryBenefits';
-
-// Admin pages
+// Legacy admin pages
 import Admin from '@/pages/Admin';
 import RoleUpdater from '@/pages/RoleUpdater';
 

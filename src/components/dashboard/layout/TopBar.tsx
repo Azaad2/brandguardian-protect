@@ -22,21 +22,26 @@ const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount }: TopBarPro
       if (!user || userRole !== 'reseller') return;
 
       try {
-        const { data, error } = await supabase
-          .from('reseller_applications')
-          .select('company_name')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        // First verify the user has a valid profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_role')
+          .eq('id', user.id)
+          .single();
+          
+        if (profile?.user_role === 'reseller') {
+          const { data, error } = await supabase
+            .from('reseller_applications')
+            .select('company_name')
+            .eq('user_id', user.id)
+            .maybeSingle();
 
-        if (error) {
-          return;
-        }
-
-        if (data?.company_name) {
-          setCompanyName(data.company_name);
+          if (!error && data?.company_name) {
+            setCompanyName(data.company_name);
+          }
         }
       } catch (err) {
-        // Silent error handling
+        console.error('Error fetching company name:', err);
       }
     };
 

@@ -60,28 +60,39 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   // Fetch pending applications count for admin users
   useEffect(() => {
     const fetchPendingCount = async () => {
-      if (userRole === 'admin') {
+      // Only fetch if user is authenticated and has admin role
+      if (userRole === 'admin' && user) {
         try {
-          const { data, error } = await supabase
-            .from('reseller_applications')
-            .select('id')
-            .eq('status', 'pending');
+          // Verify user has admin role in the database before querying
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('user_role')
+            .eq('id', user.id)
+            .single();
             
-          if (error) {
-            return;
+          if (profile?.user_role === 'admin') {
+            const { data, error } = await supabase
+              .from('reseller_applications')
+              .select('id')
+              .eq('status', 'pending');
+              
+            if (!error && data) {
+              setPendingCount(data.length);
+            }
           }
-          
-          setPendingCount(data?.length || 0);
         } catch (error) {
-          // Silent error handling
+          console.error('Error fetching pending count:', error);
+          setPendingCount(0);
         }
+      } else {
+        setPendingCount(0);
       }
     };
     
     fetchPendingCount();
     
-    // Set up subscription for real-time updates if admin
-    if (userRole === 'admin') {
+    // Set up subscription for real-time updates if admin and authenticated
+    if (userRole === 'admin' && user) {
       const channel = supabase
         .channel('reseller-applications-changes')
         .on('postgres_changes', 
@@ -97,7 +108,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         supabase.removeChannel(channel);
       };
     }
-  }, [userRole]);
+  }, [userRole, user]);
 
   return (
     <div className="flex h-screen w-full bg-gray-50/30 overflow-hidden">
