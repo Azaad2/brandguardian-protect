@@ -32,7 +32,9 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
     documentError, 
     setDocumentFile,
     handleSubmit: submitForm,
-    handleDocumentUploadComplete
+    handleDocumentUploadComplete,
+    handleDocumentUploadStart,
+    uploadInProgress
   } = useResellerFormSubmission({ 
     documentFile: null,
     documentPath: null,
@@ -111,6 +113,7 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
               setDocumentFile={setDocumentFile}
               documentError={documentError}
               onDocumentUploadComplete={handleDocumentUploadComplete}
+              onDocumentUploadStart={handleDocumentUploadStart}
             />
             
             <MarketplaceProfilesSection />
@@ -127,9 +130,14 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
               <Button 
                 type="submit" 
                 className="w-full md:w-auto"
-                disabled={isSubmitting}
+                disabled={isSubmitting || uploadInProgress}
               >
-                {isSubmitting ? "Submitting..." : "Submit Your Application Now"}
+                {isSubmitting 
+                  ? "Submitting..." 
+                  : uploadInProgress 
+                    ? "Uploading Document..." 
+                    : "Submit Your Application Now"
+                }
               </Button>
               <p className="text-sm text-gray-500 mt-4">
                 Join our network today and start growing your sales with trusted brands.

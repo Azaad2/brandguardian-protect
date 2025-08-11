@@ -178,12 +178,33 @@ const sendEmailViaFormspree = async (
       }
     });
     
+    console.log('Formspree response status:', response.status);
+    
     if (!response.ok) {
-      console.error('Formspree error:', response.status, await response.text());
+      const errorText = await response.text();
+      console.error('Formspree error details:', {
+        status: response.status,
+        statusText: response.statusText,
+        responseBody: errorText,
+        endpoint: formspreeEndpoint
+      });
+      
+      // Check if it's a configuration issue
+      if (response.status === 404) {
+        console.error('Formspree form not found - check form ID xblogykb');
+      } else if (response.status === 422) {
+        console.error('Formspree validation error - check required fields');
+      }
+      
       return false;
     }
     
-    console.log('Email sent through Formspree:', await response.json());
+    const responseData = await response.json();
+    console.log('Email sent successfully through Formspree:', {
+      endpoint: formspreeEndpoint,
+      response: responseData,
+      subject: emailSubject
+    });
     return true;
   } catch (error) {
     console.error('Formspree error:', error);

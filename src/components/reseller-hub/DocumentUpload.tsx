@@ -10,13 +10,15 @@ interface DocumentUploadProps {
   setDocumentFile: (file: File | null) => void;
   documentError?: string | null;
   onUploadComplete?: (filePath: string) => void;
+  onUploadStart?: () => void;
 }
 
 const DocumentUpload = ({ 
   documentFile, 
   setDocumentFile, 
   documentError,
-  onUploadComplete 
+  onUploadComplete,
+  onUploadStart 
 }: DocumentUploadProps) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
@@ -26,6 +28,7 @@ const DocumentUpload = ({
   const uploadFile = async (file: File) => {
     try {
       setIsUploading(true);
+      onUploadStart?.(); // Notify parent that upload started
       
       // For reseller applications, create anonymous upload path
       // Generate unique identifier for this session
@@ -55,11 +58,14 @@ const DocumentUpload = ({
       });
 
     } catch (error: any) {
+      console.error('Document upload error:', error);
       toast({
         variant: "destructive",
         title: "Upload failed",
         description: error.message || "Failed to upload document. Please try again.",
       });
+      // Clear uploaded path on error
+      setUploadedPath(null);
     } finally {
       setIsUploading(false);
     }

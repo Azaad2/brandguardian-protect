@@ -22,6 +22,7 @@ export const useResellerFormSubmission = ({
   const [documentError, setDocumentError] = useState<string | null>(null);
   const [documentFileState, setDocumentFile] = useState<File | null>(documentFile);
   const [documentPathState, setDocumentPath] = useState<string | null>(documentPath);
+  const [uploadInProgress, setUploadInProgress] = useState(false);
 
   const resetErrors = () => {
     setSubmissionError(null);
@@ -40,15 +41,21 @@ export const useResellerFormSubmission = ({
         formValues: values 
       });
 
-      // Validate document upload - only check for file, path is set after upload
+      // Validate document upload - check for both file and upload completion
       if (!documentFileState) {
         setDocumentError('Please upload a verification document before submitting.');
         return false;
       }
 
-      // If we have a file but no path, the upload might still be in progress
+      // Check if upload is still in progress
+      if (uploadInProgress) {
+        setDocumentError('Document upload is still in progress. Please wait for the upload to complete.');
+        return false;
+      }
+
+      // If we have a file but no path, the upload failed or hasn't completed
       if (!documentPathState) {
-        setDocumentError('Document upload is still in progress. Please wait a moment and try again.');
+        setDocumentError('Document upload failed or is incomplete. Please try uploading your document again.');
         return false;
       }
 
@@ -114,11 +121,17 @@ export const useResellerFormSubmission = ({
           termsAgreement: values.termsAgreement
         };
 
-        await sendEmail(resellerSubmission);
-        console.log('Email notification sent successfully');
+        const emailSent = await sendEmail(resellerSubmission);
+        if (emailSent) {
+          console.log('Email notification sent successfully to help@bndbox.com');
+        } else {
+          console.warn('Email delivery may have failed - check Formspree configuration');
+          // Still show success to user since database submission worked
+        }
       } catch (emailError) {
         console.error('Failed to send email notification:', emailError);
-        // Don't block the form submission if email fails
+        // Don't block the form submission if email fails, but log it clearly
+        console.warn('Email service error - form was saved but notification may not have been sent');
       }
 
       toast({
@@ -149,6 +162,13 @@ export const useResellerFormSubmission = ({
     console.log('Document upload completed', { path });
     setDocumentPath(path);
     setDocumentError(null); // Clear any previous document errors
+    setUploadInProgress(false); // Mark upload as complete
+  };
+
+  const handleDocumentUploadStart = () => {
+    console.log('Document upload started');
+    setUploadInProgress(true);
+    setDocumentError(null);
   };
 
   return {
@@ -160,5 +180,7 @@ export const useResellerFormSubmission = ({
     documentFile: documentFileState,
     setDocumentFile,
     handleDocumentUploadComplete,
+    handleDocumentUploadStart,
+    uploadInProgress,
   };
 };
