@@ -83,11 +83,9 @@ export const useResellerFormSubmission = ({
       };
 
       // Insert the application
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('reseller_applications')
-        .insert([applicationData])
-        .select()
-        .single();
+        .insert([applicationData]);
 
       if (error) {
         if (error.code === '42501') {
@@ -102,9 +100,9 @@ export const useResellerFormSubmission = ({
       // Send email notification (non-blocking)
       try {
         const resellerSubmission: ResellerSubmission = {
-          id: data.id,
-          createdAt: data.created_at,
-          status: data.status as 'pending' | 'approved' | 'rejected',
+          id: crypto.randomUUID(), // Generate a temporary ID for email
+          createdAt: new Date().toISOString(),
+          status: 'pending' as const,
           companyName: values.companyName,
           businessType: values.businessType,
           einNumber: values.einNumber,
