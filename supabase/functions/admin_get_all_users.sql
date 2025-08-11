@@ -8,7 +8,8 @@ RETURNS TABLE(
   user_role text,
   created_at timestamp with time zone,
   updated_at timestamp with time zone,
-  bio text
+  bio text,
+  status text
 )
 LANGUAGE sql
 SECURITY DEFINER
@@ -23,7 +24,8 @@ AS $$
     p.user_role,
     p.created_at,
     p.updated_at,
-    p.bio
+    p.bio,
+    COALESCE(p.status, 'active') as status
   FROM public.profiles p
   WHERE EXISTS (
     SELECT * FROM public.profiles admin_check 

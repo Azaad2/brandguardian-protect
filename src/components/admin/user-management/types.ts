@@ -6,6 +6,7 @@ export interface UserProfile {
   company_name: string | null;
   user_role: string | null;
   created_at: string;
+  updated_at: string;
   bio: string | null;
   status: string | null;
 }
