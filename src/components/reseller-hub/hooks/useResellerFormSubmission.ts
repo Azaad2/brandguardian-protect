@@ -62,6 +62,22 @@ export const useResellerFormSubmission = ({
       // Get current user (might be null for anonymous users)
       const { data: { user } } = await supabase.auth.getUser();
 
+      console.log('Form submission - user data:', { 
+        user: user, 
+        userId: user?.id, 
+        userIdType: typeof user?.id 
+      });
+
+      // Ensure user_id is either a valid UUID or null (never a string like "anonymous")
+      let validUserId: string | null = null;
+      if (user?.id && typeof user.id === 'string' && user.id !== 'anonymous') {
+        // Basic UUID format validation
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (uuidRegex.test(user.id)) {
+          validUserId = user.id;
+        }
+      }
+
       // Prepare application data with proper types and null handling
       const applicationData = {
         company_name: values.companyName,
@@ -79,8 +95,13 @@ export const useResellerFormSubmission = ({
         linkedin: values.linkedIn || null,
         document_path: documentPathState,
         status: 'pending' as const,
-        user_id: user?.id || null
+        user_id: validUserId
       };
+
+      console.log('Application data prepared:', { 
+        user_id: applicationData.user_id, 
+        user_id_type: typeof applicationData.user_id 
+      });
 
       // Insert the application
       const { error } = await supabase
