@@ -60,15 +60,9 @@ const ResellerApplicationForm = ({ onSubmissionSuccess }: ResellerApplicationFor
   });
 
   const onSubmit = async (values: FormValues) => {
+    console.log('Form onSubmit called', { hasDocumentFile: !!documentFile, values });
     
-    // Additional validation for document
-    if (!documentFile) {
-      form.setError('root', {
-        message: 'Please upload a verification document before submitting.'
-      });
-      return;
-    }
-
+    // Let the hook handle all validation including document validation
     const success = await submitForm(values);
     if (success) {
       form.reset();

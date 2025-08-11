@@ -34,9 +34,21 @@ export const useResellerFormSubmission = ({
       setSubmissionError(null);
       setDocumentError(null);
 
-      // Validate document upload
-      if (!documentFileState || !documentPathState) {
+      console.log('Form submission started', { 
+        hasDocumentFile: !!documentFileState, 
+        documentPath: documentPathState,
+        formValues: values 
+      });
+
+      // Validate document upload - only check for file, path is set after upload
+      if (!documentFileState) {
         setDocumentError('Please upload a verification document before submitting.');
+        return false;
+      }
+
+      // If we have a file but no path, the upload might still be in progress
+      if (!documentPathState) {
+        setDocumentError('Document upload is still in progress. Please wait a moment and try again.');
         return false;
       }
 
@@ -134,7 +146,9 @@ export const useResellerFormSubmission = ({
   };
 
   const handleDocumentUploadComplete = (path: string) => {
+    console.log('Document upload completed', { path });
     setDocumentPath(path);
+    setDocumentError(null); // Clear any previous document errors
   };
 
   return {
