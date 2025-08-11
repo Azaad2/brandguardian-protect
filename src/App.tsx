@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/hooks/use-auth';
+import { PublicAuthProvider } from '@/hooks/use-public-auth';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { usePerformanceMonitoring } from '@/hooks/use-performance';
@@ -37,8 +37,8 @@ import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 import Admin from '@/pages/Admin';
 import RoleUpdater from '@/pages/RoleUpdater';
 
-// Auth Guard
-import AuthGuard from '@/components/auth/AuthGuard';
+// Protected Route Component  
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { 
   LazyBlog, LazyAbout, LazyResellerHub, 
   LazyResellerDashboard, LazyBrandDashboard, LazyAdminDashboard,
@@ -108,53 +108,53 @@ const AppContent = () => {
         
         {/* Protected dashboard routes with lazy loading */}
         <Route path="/admin/dashboard" element={
-          <AuthGuard requiredRole="admin">
+          <ProtectedRoute requiredRole="admin">
             <LazyAdminDashboard />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         <Route path="/admin/dashboard/*" element={
-          <AuthGuard requiredRole="admin">
+          <ProtectedRoute requiredRole="admin">
             <LazyAdminDashboard />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         <Route path="/brand/dashboard" element={
-          <AuthGuard requiredRole="brand">
+          <ProtectedRoute requiredRole="brand">
             <LazyBrandDashboard />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         <Route path="/reseller/dashboard" element={
-          <AuthGuard requiredRole="reseller">
+          <ProtectedRoute requiredRole="reseller">
             <LazyResellerDashboard />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         <Route path="/reseller/dashboard/*" element={
-          <AuthGuard requiredRole="reseller">
+          <ProtectedRoute requiredRole="reseller">
             <LazyResellerDashboard />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         
         {/* Protected portal routes */}
         <Route path="/brand/*" element={
-          <AuthGuard requiredRole="brand">
+          <ProtectedRoute requiredRole="brand">
             <BrandPortal />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         <Route path="/reseller/*" element={
-          <AuthGuard requiredRole="reseller">
+          <ProtectedRoute requiredRole="reseller">
             <ResellerPortal />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         
         {/* Protected admin routes */}
         <Route path="/admin/users" element={
-          <AuthGuard requiredRole="admin">
+          <ProtectedRoute requiredRole="admin">
             <LazyUserManagement />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         <Route path="/admin/reseller-registration" element={
-          <AuthGuard requiredRole="admin">
+          <ProtectedRoute requiredRole="admin">
             <ResellerRegistration />
-          </AuthGuard>
+          </ProtectedRoute>
         } />
         
         {/* Legacy admin routes */}
@@ -172,11 +172,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <AuthProvider>
+        <PublicAuthProvider>
           <AppContent />
           <Toaster />
           <Sonner />
-        </AuthProvider>
+        </PublicAuthProvider>
       </Router>
     </QueryClientProvider>
   );
