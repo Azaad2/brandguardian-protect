@@ -62,19 +62,24 @@ export const useResellerFormSubmission = ({
       // Get current user (might be null for anonymous users)
       const { data: { user } } = await supabase.auth.getUser();
 
-      console.log('Form submission - user data:', { 
+      console.log('Form submission - raw auth response:', { 
         user: user, 
         userId: user?.id, 
         userIdType: typeof user?.id 
       });
 
-      // Ensure user_id is either a valid UUID or null (never a string like "anonymous")
+      // Force clear any corrupted auth state and ensure user_id is always null for anonymous users
       let validUserId: string | null = null;
-      if (user?.id && typeof user.id === 'string' && user.id !== 'anonymous') {
-        // Basic UUID format validation
+      
+      // Only accept valid UUIDs, reject everything else including "anonymous", undefined, etc.
+      if (user?.id && typeof user.id === 'string') {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         if (uuidRegex.test(user.id)) {
           validUserId = user.id;
+        } else {
+          console.warn('Invalid user ID detected, forcing to null:', user.id);
+          // Clear any corrupted session
+          await supabase.auth.signOut();
         }
       }
 
@@ -109,10 +114,23 @@ export const useResellerFormSubmission = ({
         .insert([applicationData]);
 
       if (error) {
+        console.error('Database submission error:', error);
+        
+        // Handle specific database errors with helpful messages
         if (error.code === '42501') {
-          throw new Error('Permission denied. Please try again or contact support.');
+          throw new Error('Permission denied. Please contact us at help@bndbox.com with your application details.');
         }
-        throw error;
+        
+        if (error.message?.includes('invalid input syntax for type uuid')) {
+          throw new Error('Technical error occurred. Please contact help@bndbox.com with your application details and we will process it manually.');
+        }
+        
+        if (error.message?.includes('violates row-level security')) {
+          throw new Error('Authentication error. Please contact help@bndbox.com with your application details and we will process it manually.');
+        }
+        
+        // Generic database error
+        throw new Error(`Submission failed. Please contact help@bndbox.com with your application details. Error: ${error.message}`);
       }
 
       // Track conversion
