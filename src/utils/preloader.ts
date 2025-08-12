@@ -23,27 +23,29 @@ export const preloadCriticalResources = () => {
       }, index * 100); // Stagger preloading to avoid overwhelming the network
     });
 
-    // Preload critical JavaScript chunks
-    const criticalChunks = [
-      '/src/components/LazyComponents.tsx',
-      '/src/hooks/use-auth.tsx',
-      '/src/components/ui/button.tsx'
-    ];
+    // Preload critical resources (dev only to avoid 404s in production)
+    if (import.meta.env.DEV) {
+      const criticalChunks = [
+        '/src/components/LazyComponents.tsx',
+        '/src/hooks/use-auth.tsx',
+        '/src/components/ui/button.tsx',
+      ];
 
-    criticalChunks.forEach((chunk, index) => {
-      setTimeout(() => {
-        const link = document.createElement('link');
-        link.rel = 'modulepreload';
-        link.href = chunk;
-        document.head.appendChild(link);
-      }, (index * 50) + 200);
-    });
+      criticalChunks.forEach((chunk, index) => {
+        setTimeout(() => {
+          const link = document.createElement('link');
+          link.rel = 'modulepreload';
+          link.href = chunk;
+          document.head.appendChild(link);
+        }, (index * 50) + 200);
+      });
+
+      // Preload critical images in dev
+      preloadCriticalImages([
+        '/src/assets/bndbox-logo.png',
+      ]);
+    }
   });
-
-  // Preload critical images with WebP support detection
-  preloadCriticalImages([
-    '/src/assets/bndbox-logo.png'
-  ]);
 };
 
 // Enhanced image preloading with WebP support and lazy loading
@@ -90,6 +92,7 @@ const checkWebPSupport = (): boolean => {
 
 // Preload critical CSS for faster rendering
 export const preloadCriticalCSS = () => {
+  if (import.meta.env.PROD) return;
   const criticalCSS = [
     '/src/index.css'
   ];
