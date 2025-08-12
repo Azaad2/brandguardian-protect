@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PublicAuthProvider } from '@/hooks/use-public-auth';
+import { AuthProvider } from '@/hooks/use-auth';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { usePerformanceMonitoring } from '@/hooks/use-performance';
@@ -65,6 +66,13 @@ const queryClient = new QueryClient({
   },
 });
 
+// Redirect outdated /admin-dashboard paths to new /admin/dashboard, preserving subpaths
+const AdminDashboardRedirect = () => {
+  const location = useLocation();
+  const target = location.pathname.replace(/^\/admin-dashboard/, '/admin/dashboard') + (location.search || '') + (location.hash || '');
+  return <Navigate to={target} replace />;
+};
+
 const AppContent = () => {
   useAnalytics();
   usePerformanceMonitoring();
@@ -86,8 +94,8 @@ const AppContent = () => {
         <Route path="/cancellation-refund" element={<CancellationRefundPolicy />} />
         
         {/* Auth routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/signup" element={<AdminSignup />} />
+        <Route path="/admin/login" element={<AuthProvider><AdminLogin /></AuthProvider>} />
+        <Route path="/admin/signup" element={<AuthProvider><AdminSignup /></AuthProvider>} />
         <Route path="/brand/login" element={<BrandLogin />} />
         <Route path="/brand/signup" element={<BrandSignup />} />
         <Route path="/reseller/login" element={<ResellerLogin />} />
@@ -156,6 +164,9 @@ const AppContent = () => {
             <ResellerRegistration />
           </ProtectedRoute>
         } />
+        {/* Redirects for old admin path */}
+        <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin-dashboard/*" element={<AdminDashboardRedirect />} />
         
         {/* Legacy admin routes */}
         <Route path="/admin" element={<Admin />} />
