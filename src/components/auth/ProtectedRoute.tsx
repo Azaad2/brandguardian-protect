@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { usePublicAuth } from '@/hooks/use-public-auth';
 import { AuthProvider } from '@/hooks/use-auth';
 import { UserRole } from '@/types/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -16,17 +17,39 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
-    if (user && session) {
-      // Get user role from session metadata
-      const roleFromMetadata = user.user_metadata?.user_role || session.user?.user_metadata?.user_role;
-      if (roleFromMetadata) {
-        setUserRole(roleFromMetadata as UserRole);
+    const resolveRole = async () => {
+      if (user && session) {
+        // Try metadata first
+        const roleFromMetadata = user.user_metadata?.user_role || session.user?.user_metadata?.user_role;
+        if (roleFromMetadata) {
+          setUserRole(roleFromMetadata as UserRole);
+          setRoleLoading(false);
+          return;
+        }
+        // Fallback: fetch from profiles table
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('user_role')
+            .eq('id', user.id)
+            .single();
+          if (!error && data?.user_role) {
+            setUserRole(data.user_role as UserRole);
+          } else {
+            setUserRole(null);
+          }
+        } catch {
+          setUserRole(null);
+        } finally {
+          setRoleLoading(false);
+        }
+      } else {
+        setUserRole(null);
         setRoleLoading(false);
       }
-    } else {
-      setUserRole(null);
-      setRoleLoading(false);
-    }
+    };
+    setRoleLoading(true);
+    resolveRole();
   }, [user, session]);
 
   if (isLoading || roleLoading) {

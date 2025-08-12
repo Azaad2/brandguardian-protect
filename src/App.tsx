@@ -169,7 +169,7 @@ const AppContent = () => {
         <Route path="/admin-dashboard/*" element={<AdminDashboardRedirect />} />
         
         {/* Legacy admin routes */}
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/role-updater" element={<RoleUpdater />} />
         
         {/* 404 route */}

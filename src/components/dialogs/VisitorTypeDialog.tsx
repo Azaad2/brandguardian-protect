@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -79,6 +79,11 @@ const VisitorTypeDialog = ({ open, setOpen, onVisitorTypeSelected }: VisitorType
                 <div className="font-bold">I'm a Reseller</div>
               </div>
             </Button>
+          </div>
+          <div className="mt-4 text-center text-sm">
+            <Link to="/admin/login" className="text-bndbox-600 hover:underline">
+              Are you an admin? Log in
+            </Link>
           </div>
         </div>
       </DialogContent>
