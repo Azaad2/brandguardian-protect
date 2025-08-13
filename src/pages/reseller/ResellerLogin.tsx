@@ -3,31 +3,21 @@ import { Link } from 'react-router-dom';
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
 import { useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { usePublicAuth } from '@/hooks/use-public-auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 const ResellerLogin = () => {
-  const { user, userRole, isLoading } = useAuth();
+  const { user, isLoading } = usePublicAuth();
   const navigate = useNavigate();
   
-  // Redirect if already authenticated as a reseller
+  // Redirect if already authenticated
   useEffect(() => {
-    if (!isLoading) {
-      if (user && userRole === 'reseller') {
-        toast({
-          title: "Login successful",
-          description: "Redirecting to your dashboard",
-        });
-        navigate('/reseller/dashboard');
-      } else if (user && userRole === 'brand') {
-        toast({
-          description: "You are logged in as a brand. Redirecting to brand dashboard.",
-        });
-        navigate('/brand/dashboard');
-      }
+    if (!isLoading && user) {
+      // For login pages, we just redirect to home and let the main app handle role-based routing
+      navigate('/');
     }
-  }, [user, userRole, navigate, isLoading]);
+  }, [user, navigate, isLoading]);
 
   return (
     <AuthLayout
