@@ -8,9 +8,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
-import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -26,7 +26,6 @@ interface LoginFormProps {
 const LoginForm = ({ userRole }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const { signIn, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -41,7 +40,29 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const onSubmit = async (data: LoginFormValues) => {
     setIsAuthenticating(true);
     try {
-      await signIn(data.email, data.password);
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) throw error;
+
+      // Check reseller approval if signing in as reseller
+      if (userRole === 'reseller' && authData.user) {
+        const { data: resellerApp, error: appError } = await supabase
+          .from('reseller_applications')
+          .select('status')
+          .eq('user_id', authData.user.id)
+          .single();
+
+        if (appError) {
+          console.error('Error fetching reseller application:', appError);
+        }
+
+        if (resellerApp?.status === 'pending') {
+          throw new Error('Your reseller account is pending approval. Please wait for admin approval before logging in.');
+        }
+      }
       
       // Success toast
       toast({
@@ -166,8 +187,8 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
           </a>
         </div>
         
-        <Button type="submit" className="w-full" disabled={isAuthenticating || isLoading}>
-          {(isAuthenticating || isLoading) ? (
+        <Button type="submit" className="w-full" disabled={isAuthenticating}>
+          {isAuthenticating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Signing in...
