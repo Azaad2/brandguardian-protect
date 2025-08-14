@@ -101,7 +101,7 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
         // Update application with correct user_id if needed
-        if (application.user_id !== existingUser.id) {
+        if (!application.user_id || application.user_id !== existingUser.id) {
           const { error: updateAppError } = await supabaseAdmin
             .from('reseller_applications')
             .update({ user_id: existingUser.id })
@@ -134,14 +134,16 @@ const handler = async (req: Request): Promise<Response> => {
         userId = newUser.user?.id;
 
         // Update application with new user_id
-        const { error: updateUserIdError } = await supabaseAdmin
-          .from('reseller_applications')
-          .update({ user_id: userId })
-          .eq('id', applicationId);
+        if (userId) {
+          const { error: updateUserIdError } = await supabaseAdmin
+            .from('reseller_applications')
+            .update({ user_id: userId })
+            .eq('id', applicationId);
 
-        if (updateUserIdError) {
-          console.error('❌ Error updating application with user_id:', updateUserIdError);
-          throw updateUserIdError;
+          if (updateUserIdError) {
+            console.error('❌ Error updating application with user_id:', updateUserIdError);
+            throw updateUserIdError;
+          }
         }
       }
 
