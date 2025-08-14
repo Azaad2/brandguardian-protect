@@ -96,10 +96,10 @@ const AppContent = () => {
         {/* Auth routes */}
         <Route path="/admin/login" element={<AuthProvider><AdminLogin /></AuthProvider>} />
         <Route path="/admin/signup" element={<AuthProvider><AdminSignup /></AuthProvider>} />
-        <Route path="/brand/login" element={<BrandLogin />} />
-        <Route path="/brand/signup" element={<BrandSignup />} />
-        <Route path="/reseller/login" element={<ResellerLogin />} />
-        <Route path="/reseller/signup" element={<ResellerSignup />} />
+        <Route path="/brand/login" element={<AuthProvider><BrandLogin /></AuthProvider>} />
+        <Route path="/brand/signup" element={<AuthProvider><BrandSignup /></AuthProvider>} />
+        <Route path="/reseller/login" element={<AuthProvider><ResellerLogin /></AuthProvider>} />
+        <Route path="/reseller/signup" element={<AuthProvider><ResellerSignup /></AuthProvider>} />
         <Route path="/reset-password" element={<PasswordReset />} />
         <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
         
