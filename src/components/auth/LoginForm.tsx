@@ -9,7 +9,7 @@ import * as z from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
@@ -28,6 +28,7 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -70,9 +71,12 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
         description: "Redirecting to your dashboard...",
       });
 
-      // Navigate based on user role after successful login
+      // Navigate based on intended destination or user role after successful login
       setTimeout(() => {
-        if (userRole === 'admin') {
+        const from = location.state?.from?.pathname;
+        if (from && from !== '/') {
+          navigate(from);
+        } else if (userRole === 'admin') {
           navigate('/admin/dashboard');
         } else if (userRole === 'brand') {
           navigate('/brand/dashboard');

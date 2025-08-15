@@ -14,8 +14,8 @@ const ResellerLogin = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (!isLoading && user) {
-      // For login pages, we just redirect to home and let the main app handle role-based routing
-      navigate('/');
+      // Redirect authenticated resellers to their dashboard
+      navigate('/reseller/dashboard');
     }
   }, [user, navigate, isLoading]);
 

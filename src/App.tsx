@@ -141,17 +141,9 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         
-        {/* Protected portal routes */}
-        <Route path="/brand/*" element={
-          <ProtectedRoute requiredRole="brand">
-            <BrandPortal />
-          </ProtectedRoute>
-        } />
-        <Route path="/reseller/*" element={
-          <ProtectedRoute requiredRole="reseller">
-            <ResellerPortal />
-          </ProtectedRoute>
-        } />
+        {/* Public portal routes */}
+        <Route path="/brand" element={<BrandPortal />} />
+        <Route path="/reseller" element={<ResellerPortal />} />
         
         {/* Protected admin routes */}
         <Route path="/admin/users" element={
