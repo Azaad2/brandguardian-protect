@@ -22,21 +22,6 @@ const ResellerPortal = () => {
     }
   }, [showToast]);
 
-  useEffect(() => {
-  // ✅ Clear localStorage/session on visiting /reseller page
-  localStorage.clear(); // or use localStorage.clear() if needed
-
-  // Show toast only once
-  if (showToast) {
-    toast({
-      title: "Welcome to Reseller Portal",
-      description: "Login to access your dashboard or apply for an account.",
-      duration: 5000,
-    });
-    setShowToast(false);
-  }
-}, [showToast]);
-
   
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
