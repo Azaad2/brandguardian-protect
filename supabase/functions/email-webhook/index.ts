@@ -79,16 +79,16 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Extract thread ID from the recipient email address (case-insensitive)
-    const emailMatch = emailData.recipient.match(/applications\+([^@]+)@bndbox\.com/i);
+    const emailMatch = emailData.recipient.match(/applications\+([^@]+)@(bndbox\.com|replies\.bndbox\.com)/i);
     if (!emailMatch) {
       console.error('Email format validation failed:', {
         recipient: emailData.recipient,
-        expectedPattern: 'applications+{threadId}@bndbox.com',
+        expectedPatterns: ['applications+{threadId}@bndbox.com', 'applications+{threadId}@replies.bndbox.com'],
         receivedFormat: 'Invalid format'
       });
       return new Response(JSON.stringify({ 
         error: 'Invalid email format',
-        expected: 'applications+{threadId}@bndbox.com',
+        expected: 'applications+{threadId}@bndbox.com or applications+{threadId}@replies.bndbox.com',
         received: emailData.recipient
       }), {
         status: 400,
