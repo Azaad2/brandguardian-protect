@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import ResellerProfileHeader from './settings/ResellerProfileHeader';
+import ResellerProfileForm from './settings/ResellerProfileForm';
 import EditableContactForm from './settings/EditableContactForm';
 import EditableBusinessForm from './settings/EditableBusinessForm';
 import EditableMarketplaceForm from './settings/EditableMarketplaceForm';
@@ -33,8 +34,15 @@ interface ResellerProfile {
   status: string;
 }
 
+interface UserProfile {
+  full_name?: string;
+  company_name?: string;
+  bio?: string;
+}
+
 const ResellerSettings = () => {
   const [profile, setProfile] = useState<ResellerProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchResellerProfile = async () => {
@@ -82,6 +90,17 @@ const ResellerSettings = () => {
           return;
         }
 
+        // Get the user profile data
+        const { data: userProfileData, error: userProfileError } = await supabase
+          .from('profiles')
+          .select('full_name, company_name, bio')
+          .eq('id', user.id)
+          .single();
+
+        if (userProfileError) {
+          console.error('Error fetching user profile:', userProfileError);
+        }
+
         setProfile({
           id: applicationData.id,
           company_name: applicationData.company_name,
@@ -99,6 +118,8 @@ const ResellerSettings = () => {
           linkedin: applicationData.linkedin,
           status: applicationData.status || 'pending'
         });
+
+        setUserProfile(userProfileData || { full_name: '', company_name: '', bio: '' });
 
       } catch (error) {
         console.error('Error fetching reseller profile:', error);
@@ -153,6 +174,7 @@ const ResellerSettings = () => {
         </TabsList>
         
         <TabsContent value="profile" className="space-y-6">
+          <ResellerProfileForm profile={userProfile} onUpdate={handleProfileUpdate} />
           <EditableContactForm profile={profile} onUpdate={handleProfileUpdate} />
           <EditableMarketplaceForm profile={profile} onUpdate={handleProfileUpdate} />
         </TabsContent>

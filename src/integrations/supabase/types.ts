@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -559,33 +559,33 @@ export type Database = {
       admin_get_all_users: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
+          bio: string
+          company_name: string
+          created_at: string
           email: string
           full_name: string
-          company_name: string
-          user_role: string
-          created_at: string
-          updated_at: string
-          bio: string
+          id: string
           status: string
+          updated_at: string
+          user_role: string
         }[]
       }
       admin_get_brands: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          name: string
-          website_url: string
-          description: string
-          contact_email: string
-          logo_url: string
-          categories: string[]
-          is_active: boolean
-          department: string
           approval_rate: number
-          response_time: number
+          categories: string[]
+          contact_email: string
           created_at: string
+          department: string
+          description: string
+          id: string
+          is_active: boolean
+          logo_url: string
+          name: string
+          response_time: number
           updated_at: string
+          website_url: string
         }[]
       }
       admin_remove_brand_allocation: {
@@ -601,15 +601,15 @@ export type Database = {
         Returns: boolean
       }
       admin_update_brand: {
-        Args: { brand_id: string; brand_data: Json }
+        Args: { brand_data: Json; brand_id: string }
         Returns: string
       }
       admin_update_user_profile: {
         Args: {
-          target_user_id: string
-          new_full_name?: string
           new_company_name?: string
+          new_full_name?: string
           new_user_role?: string
+          target_user_id: string
         }
         Returns: boolean
       }
@@ -619,10 +619,10 @@ export type Database = {
       }
       create_user_profile: {
         Args: {
-          user_id: string
+          user_company_name: string
           user_email: string
           user_full_name: string
-          user_company_name: string
+          user_id: string
           user_role: string
         }
         Returns: boolean
