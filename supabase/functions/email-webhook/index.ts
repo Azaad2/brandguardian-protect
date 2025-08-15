@@ -78,18 +78,30 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Extract thread ID from the recipient email address
-    const emailMatch = emailData.recipient.match(/applications\+([^@]+)@bndbox\.com/);
+    // Extract thread ID from the recipient email address (case-insensitive)
+    const emailMatch = emailData.recipient.match(/applications\+([^@]+)@bndbox\.com/i);
     if (!emailMatch) {
-      console.log('Email does not match expected format:', emailData.recipient);
-      return new Response(JSON.stringify({ error: 'Invalid email format' }), {
+      console.error('Email format validation failed:', {
+        recipient: emailData.recipient,
+        expectedPattern: 'applications+{threadId}@bndbox.com',
+        receivedFormat: 'Invalid format'
+      });
+      return new Response(JSON.stringify({ 
+        error: 'Invalid email format',
+        expected: 'applications+{threadId}@bndbox.com',
+        received: emailData.recipient
+      }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
     const emailThreadId = emailMatch[1];
-    console.log('Extracted thread ID:', emailThreadId);
+    console.log('Successfully extracted thread ID:', {
+      threadId: emailThreadId,
+      recipient: emailData.recipient,
+      sender: emailData.sender
+    });
 
     // Find the corresponding brand application
     const { data: application, error: appError } = await supabase
@@ -102,22 +114,43 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (appError || !application) {
-      console.error('Application not found:', appError);
-      return new Response(JSON.stringify({ error: 'Application not found' }), {
+      console.error('Application lookup failed:', {
+        threadId: emailThreadId,
+        error: appError,
+        hasApplication: !!application,
+        errorMessage: appError?.message,
+        errorCode: appError?.code
+      });
+      return new Response(JSON.stringify({ 
+        error: 'Application not found',
+        threadId: emailThreadId,
+        details: appError?.message || 'No application found with this thread ID'
+      }), {
         status: 404,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    console.log('Found application:', application.id);
+    console.log('Found application:', {
+      applicationId: application.id,
+      brandName: application.brand?.name,
+      brandEmail: application.brand?.contact_email,
+      resellerId: application.reseller_id
+    });
 
     // Verify the sender is the brand's contact email
     if (emailData.sender !== application.brand.contact_email) {
-      console.log('Sender verification failed:', {
+      console.error('Sender verification failed:', {
         sender: emailData.sender,
-        expected: application.brand.contact_email
+        expected: application.brand.contact_email,
+        applicationId: application.id,
+        brandName: application.brand?.name
       });
-      return new Response(JSON.stringify({ error: 'Unauthorized sender' }), {
+      return new Response(JSON.stringify({ 
+        error: 'Unauthorized sender',
+        sender: emailData.sender,
+        expectedSender: application.brand.contact_email
+      }), {
         status: 403,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -126,28 +159,58 @@ const handler = async (req: Request): Promise<Response> => {
     // Process email content (prefer plain text over HTML)
     const emailContent = emailData['body-plain'] || emailData['body-html'] || '';
     
+    console.log('Processing email content:', {
+      hasPlainText: !!emailData['body-plain'],
+      hasHtmlText: !!emailData['body-html'],
+      contentLength: emailContent.length,
+      subject: emailData.subject
+    });
+    
     // Create a message in the portal
+    const messageData = {
+      sender_id: application.brand_id, // Use brand_id as sender
+      recipient_id: application.reseller_id,
+      content: emailContent,
+      email_thread_id: emailThreadId,
+      message_source: 'email_inbound',
+      brand_application_id: application.id,
+      is_read: false
+    };
+
+    console.log('Creating message with data:', {
+      sender_id: messageData.sender_id,
+      recipient_id: messageData.recipient_id,
+      contentLength: messageData.content.length,
+      email_thread_id: messageData.email_thread_id,
+      brand_application_id: messageData.brand_application_id
+    });
+
     const { error: messageError } = await supabase
       .from('messages')
-      .insert({
-        sender_id: application.brand_id, // Use brand_id as sender
-        recipient_id: application.reseller_id,
-        content: emailContent,
-        email_thread_id: emailThreadId,
-        message_source: 'email_inbound',
-        brand_application_id: application.id,
-        is_read: false
-      });
+      .insert(messageData);
 
     if (messageError) {
-      console.error('Failed to create message:', messageError);
-      return new Response(JSON.stringify({ error: 'Failed to create message' }), {
+      console.error('Failed to create message:', {
+        error: messageError,
+        messageData: messageData,
+        errorMessage: messageError.message,
+        errorCode: messageError.code
+      });
+      return new Response(JSON.stringify({ 
+        error: 'Failed to create message',
+        details: messageError.message
+      }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    console.log('Message created successfully');
+    console.log('Message created successfully:', {
+      threadId: emailThreadId,
+      sender: emailData.sender,
+      recipient: emailData.recipient,
+      contentPreview: emailContent.substring(0, 100) + '...'
+    });
 
     // Update application status if the email indicates approval/rejection
     const contentLower = emailContent.toLowerCase();
