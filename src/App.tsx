@@ -55,6 +55,10 @@ import {
   LazyOutreachThousandBrandsAmazonWholesale
 } from '@/components/LazyComponents';
 
+// SEO static file components
+import SitemapXML from '@/components/seo/SitemapXML';
+import RobotsTXT from '@/components/seo/RobotsTXT';
+
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -86,6 +90,10 @@ const AppContent = () => {
         <Route path="/blog" element={<LazyBlog />} />
         <Route path="/reseller-hub" element={<LazyResellerHub />} />
         <Route path="/shipping-delivery" element={<ShippingDelivery />} />
+        
+        {/* SEO static files */}
+        <Route path="/sitemap.xml" element={<SitemapXML />} />
+        <Route path="/robots.txt" element={<RobotsTXT />} />
         
         {/* Legal routes */}
         <Route path="/privacy" element={<PrivacyPolicy />} />
