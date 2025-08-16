@@ -41,7 +41,6 @@ const Footer = () => {
               <li><a href="/careers" className="text-gray-600 hover:text-brandguardian-600">Careers</a></li>
               <li><a href="/blog" className="text-gray-600 hover:text-brandguardian-600">Blog</a></li>
               <li><a href="/press" className="text-gray-600 hover:text-brandguardian-600">Press</a></li>
-              <li><a href="/admin/login" className="text-gray-600 hover:text-brandguardian-600">Admin Login</a></li>
             </ul>
           </div>
           

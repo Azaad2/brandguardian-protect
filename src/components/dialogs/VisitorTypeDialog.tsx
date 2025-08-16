@@ -80,11 +80,6 @@ const VisitorTypeDialog = ({ open, setOpen, onVisitorTypeSelected }: VisitorType
               </div>
             </Button>
           </div>
-          <div className="mt-4 text-center text-sm">
-            <Link to="/admin/login" className="text-bndbox-600 hover:underline">
-              Are you an admin? Log in
-            </Link>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
