@@ -1,8 +1,8 @@
 // Service Worker for caching and performance optimization
 
-const CACHE_NAME = 'bndbox-v1';
-const STATIC_CACHE = 'bndbox-static-v1';
-const DYNAMIC_CACHE = 'bndbox-dynamic-v1';
+const CACHE_NAME = 'bndbox-v2';
+const STATIC_CACHE = 'bndbox-static-v2';
+const DYNAMIC_CACHE = 'bndbox-dynamic-v2';
 
 // Resources to cache on install
 const STATIC_ASSETS = [
@@ -105,6 +105,9 @@ self.addEventListener('fetch', (event) => {
             });
         })
     );
+  } else if (url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt') {
+    // Let sitemap.xml and robots.txt pass through to static files
+    event.respondWith(fetch(request));
   } else if (url.origin === location.origin) {
     // For same-origin requests, use network-first strategy
     event.respondWith(

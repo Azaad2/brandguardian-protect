@@ -53,6 +53,8 @@ const Footer = () => {
               <li><a href="/cancellation-refund" className="text-gray-600 hover:text-brandguardian-600">Cancellation & Refund</a></li>
               <li><a href="/cookies" className="text-gray-600 hover:text-brandguardian-600">Cookie Policy</a></li>
               <li><a href="/shipping-delivery" className="text-gray-600 hover:text-brandguardian-600">Shipping & Delivery</a></li>
+              <li><a href="/sitemap.xml" className="text-gray-600 hover:text-brandguardian-600">Sitemap</a></li>
+              <li><a href="/robots.txt" className="text-gray-600 hover:text-brandguardian-600">Robots.txt</a></li>
             </ul>
           </div>
         </div>
