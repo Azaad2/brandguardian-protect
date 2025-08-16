@@ -108,7 +108,7 @@ export const useResellerFormSubmission = ({
         user_id_type: typeof applicationData.user_id 
       });
 
-      // Insert the application
+      // Try to insert the application to Supabase
       const { error } = await supabase
         .from('reseller_applications')
         .insert([applicationData]);
@@ -116,21 +116,57 @@ export const useResellerFormSubmission = ({
       if (error) {
         console.error('Database submission error:', error);
         
-        // Handle specific database errors with helpful messages
-        if (error.code === '42501') {
-          throw new Error('Permission denied. Please contact us at help@bndbox.com with your application details.');
+        // Check if it's a duplicate email error - treat as success
+        if (error.message?.includes('A reseller application with this email already exists')) {
+          console.log('Duplicate application detected - treating as success');
+          toast({
+            title: 'Application Already Exists',
+            description: 'An application with this email already exists. We will review your latest submission.',
+          });
+          onSubmissionSuccess(values.email);
+          return true;
         }
         
-        if (error.message?.includes('invalid input syntax for type uuid')) {
-          throw new Error('Technical error occurred. Please contact help@bndbox.com with your application details and we will process it manually.');
-        }
+        // For other database errors, fall back to Formspree
+        console.log('Database failed, attempting Formspree fallback');
         
-        if (error.message?.includes('violates row-level security')) {
-          throw new Error('Authentication error. Please contact help@bndbox.com with your application details and we will process it manually.');
+        try {
+          const resellerSubmission: ResellerSubmission = {
+            id: crypto.randomUUID(),
+            createdAt: new Date().toISOString(),
+            status: 'pending' as const,
+            companyName: values.companyName,
+            businessType: values.businessType,
+            einNumber: values.einNumber,
+            amazonStoreLink: values.amazonStoreLink,
+            walmartStoreLink: values.walmartStoreLink,
+            ebayStoreLink: values.ebayStoreLink,
+            productCategories: values.productCategories,
+            salesVolume: values.salesVolume,
+            wholesaleBudget: values.wholesaleBudget,
+            feedbackScore: values.feedbackScore,
+            email: values.email,
+            phone: values.phone,
+            linkedIn: values.linkedIn,
+            termsAgreement: values.termsAgreement
+          };
+
+          const emailSent = await sendEmail(resellerSubmission);
+          if (emailSent) {
+            console.log('Formspree fallback successful');
+            toast({
+              title: 'Application Submitted!',
+              description: 'Thank you for your application. We will review it and get back to you within 24 hours.',
+            });
+            onSubmissionSuccess(values.email);
+            return true;
+          } else {
+            throw new Error('Both database and email fallback failed');
+          }
+        } catch (fallbackError) {
+          console.error('Formspree fallback failed:', fallbackError);
+          throw new Error('Submission failed. Please contact help@bndbox.com with your application details.');
         }
-        
-        // Generic database error
-        throw new Error(`Submission failed. Please contact help@bndbox.com with your application details. Error: ${error.message}`);
       }
 
       // Track conversion
@@ -208,6 +244,12 @@ export const useResellerFormSubmission = ({
     setDocumentError(null);
   };
 
+  const handleDocumentUploadError = () => {
+    console.log('Document upload failed');
+    setUploadInProgress(false);
+    setDocumentPath(null);
+  };
+
   return {
     handleSubmit,
     isSubmitting,
@@ -218,6 +260,7 @@ export const useResellerFormSubmission = ({
     setDocumentFile,
     handleDocumentUploadComplete,
     handleDocumentUploadStart,
+    handleDocumentUploadError,
     uploadInProgress,
   };
 };

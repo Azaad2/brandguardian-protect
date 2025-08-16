@@ -11,6 +11,7 @@ interface DocumentUploadProps {
   documentError?: string | null;
   onUploadComplete?: (filePath: string) => void;
   onUploadStart?: () => void;
+  onUploadError?: () => void;
 }
 
 const DocumentUpload = ({ 
@@ -18,7 +19,8 @@ const DocumentUpload = ({
   setDocumentFile, 
   documentError,
   onUploadComplete,
-  onUploadStart 
+  onUploadStart,
+  onUploadError
 }: DocumentUploadProps) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
@@ -66,6 +68,8 @@ const DocumentUpload = ({
       });
       // Clear uploaded path on error
       setUploadedPath(null);
+      // Notify parent of upload error to reset upload state
+      onUploadError?.();
     } finally {
       setIsUploading(false);
     }
