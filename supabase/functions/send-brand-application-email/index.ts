@@ -90,8 +90,15 @@ const handler = async (req: Request): Promise<Response> => {
               ` : ''}
             </div>
             
-            <p><strong>How to respond:</strong></p>
-            <p>Simply reply to this email to communicate directly with the reseller. Your responses will appear in their BndBox portal in real-time, creating a seamless communication experience.</p>
+            <div style="background: #fef5e7; border: 2px solid #f6ad55; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #c05621; margin-top: 0;">📧 IMPORTANT: How to Reply</h3>
+              <p style="margin: 10px 0;"><strong>To ensure your response reaches the reseller in their BndBox portal:</strong></p>
+              <ol style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Click the "Reply" button in your email client</strong> (don't compose a new email)</li>
+                <li><strong>The reply-to address should be:</strong> <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">applications+${emailThreadId}@replies.bndbox.com</code></li>
+                <li><strong>Your response will automatically appear in the reseller's portal</strong></li>
+              </ol>
+            </div>
             
             <div style="text-align: center; margin: 30px 0;">
               <a href="mailto:applications+${emailThreadId}@replies.bndbox.com?subject=Application%20Approved&body=Congratulations!%20Your%20application%20has%20been%20approved.%20We%20look%20forward%20to%20working%20with%20you."

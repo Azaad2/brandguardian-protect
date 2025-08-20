@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, Package, ShoppingCart, AlertTriangle, TrendingUp, FileText } from 'lucide-react';
+import { Users, Package, ShoppingCart, AlertTriangle, TrendingUp, FileText, Mail } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { EmailRoutingLogs } from './EmailRoutingLogs';
 
 interface AdminStats {
   totalResellers: number;
@@ -323,51 +324,64 @@ const AdminOverview = () => {
         </Card>
       )}
 
-      {/* Recent Activities */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Platform Activities</CardTitle>
-          <CardDescription>
-            Latest activities from resellers and brands across the platform
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentActivities?.length ? (
-              recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-4 rounded-lg border p-4">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">{activity.description}</p>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-xs text-muted-foreground">{activity.user_email}</p>
-                      {activity.company_name && (
-                        <Badge variant="outline" className="text-xs">
-                          {activity.company_name}
+      {/* Recent Activities and Email Logs */}
+      <Tabs defaultValue="activities" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="activities">Recent Activities</TabsTrigger>
+          <TabsTrigger value="email-logs">Email Routing Logs</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="activities">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Platform Activities</CardTitle>
+              <CardDescription>
+                Latest activities from resellers and brands across the platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentActivities?.length ? (
+                  recentActivities.map((activity) => (
+                    <div key={activity.id} className="flex items-center space-x-4 rounded-lg border p-4">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                        {getActivityIcon(activity.type)}
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium">{activity.description}</p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-xs text-muted-foreground">{activity.user_email}</p>
+                          {activity.company_name && (
+                            <Badge variant="outline" className="text-xs">
+                              {activity.company_name}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge className={`text-xs ${getActivityBadgeColor(activity.type)}`}>
+                          {activity.type.replace('_', ' ')}
                         </Badge>
-                      )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(activity.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <Badge className={`text-xs ${getActivityBadgeColor(activity.type)}`}>
-                      {activity.type.replace('_', ' ')}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(activity.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-muted-foreground py-8">
-                No recent activities to display
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">
+                    No recent activities to display
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="email-logs">
+          <EmailRoutingLogs />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

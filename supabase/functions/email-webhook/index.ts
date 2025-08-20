@@ -66,12 +66,29 @@ const handler = async (req: Request): Promise<Response> => {
       recipient: emailData.recipient,
       sender: emailData.sender,
       subject: emailData.subject,
-      timestamp: emailData.timestamp
+      timestamp: emailData.timestamp,
+      hasPlainBody: !!emailData['body-plain'],
+      hasHtmlBody: !!emailData['body-html'],
+      messageId: emailData['Message-Id']
     });
+
+    // Log to email routing logs for debugging
+    const logEmailRouting = async (type: string, error?: string) => {
+      await supabase.from('email_routing_logs').insert({
+        email_type: type,
+        sender_email: emailData.sender,
+        recipient_email: emailData.recipient,
+        subject: emailData.subject,
+        content_preview: (emailData['body-plain'] || emailData['body-html'] || '').substring(0, 200),
+        error_message: error,
+        status: error ? 'failed' : 'processed'
+      });
+    };
 
     // Verify Mailgun signature
     if (!verifyMailgunSignature(emailData.timestamp, emailData.token, emailData.signature)) {
       console.error('Invalid Mailgun signature');
+      await logEmailRouting('webhook_failure', 'Invalid Mailgun signature');
       return new Response(JSON.stringify({ error: 'Invalid signature' }), {
         status: 401,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -81,11 +98,13 @@ const handler = async (req: Request): Promise<Response> => {
     // Extract thread ID from the recipient email address (case-insensitive)
     const emailMatch = emailData.recipient.match(/applications\+([^@]+)@(bndbox\.com|replies\.bndbox\.com)/i);
     if (!emailMatch) {
+      const errorMsg = `Invalid email format. Expected: applications+{threadId}@bndbox.com or applications+{threadId}@replies.bndbox.com, Received: ${emailData.recipient}`;
       console.error('Email format validation failed:', {
         recipient: emailData.recipient,
         expectedPatterns: ['applications+{threadId}@bndbox.com', 'applications+{threadId}@replies.bndbox.com'],
         receivedFormat: 'Invalid format'
       });
+      await logEmailRouting('webhook_failure', errorMsg);
       return new Response(JSON.stringify({ 
         error: 'Invalid email format',
         expected: 'applications+{threadId}@bndbox.com or applications+{threadId}@replies.bndbox.com',
@@ -114,6 +133,7 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (appError || !application) {
+      const errorMsg = `Application not found for thread ID: ${emailThreadId}. ${appError?.message || 'No application exists with this thread ID'}`;
       console.error('Application lookup failed:', {
         threadId: emailThreadId,
         error: appError,
@@ -121,6 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
         errorMessage: appError?.message,
         errorCode: appError?.code
       });
+      await logEmailRouting('webhook_failure', errorMsg);
       return new Response(JSON.stringify({ 
         error: 'Application not found',
         threadId: emailThreadId,
@@ -140,12 +161,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Verify the sender is the brand's contact email
     if (emailData.sender !== application.brand.contact_email) {
+      const errorMsg = `Unauthorized sender. Expected: ${application.brand.contact_email}, Got: ${emailData.sender}`;
       console.error('Sender verification failed:', {
         sender: emailData.sender,
         expected: application.brand.contact_email,
         applicationId: application.id,
         brandName: application.brand?.name
       });
+      await logEmailRouting('webhook_failure', errorMsg);
       return new Response(JSON.stringify({ 
         error: 'Unauthorized sender',
         sender: emailData.sender,
@@ -196,6 +219,7 @@ const handler = async (req: Request): Promise<Response> => {
         errorMessage: messageError.message,
         errorCode: messageError.code
       });
+      await logEmailRouting('webhook_failure', `Failed to create message: ${messageError.message}`);
       return new Response(JSON.stringify({ 
         error: 'Failed to create message',
         details: messageError.message
@@ -211,6 +235,9 @@ const handler = async (req: Request): Promise<Response> => {
       recipient: emailData.recipient,
       contentPreview: emailContent.substring(0, 100) + '...'
     });
+
+    // Log successful processing
+    await logEmailRouting('webhook_success');
 
     // Update application status if the email indicates approval/rejection
     const contentLower = emailContent.toLowerCase();

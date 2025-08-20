@@ -135,6 +135,59 @@ export type Database = {
         }
         Relationships: []
       }
+      email_routing_logs: {
+        Row: {
+          admin_notes: string | null
+          application_id: string | null
+          content_preview: string | null
+          created_at: string
+          email_type: string
+          error_message: string | null
+          id: string
+          recipient_email: string | null
+          sender_email: string | null
+          status: string | null
+          subject: string | null
+          thread_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          application_id?: string | null
+          content_preview?: string | null
+          created_at?: string
+          email_type: string
+          error_message?: string | null
+          id?: string
+          recipient_email?: string | null
+          sender_email?: string | null
+          status?: string | null
+          subject?: string | null
+          thread_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          application_id?: string | null
+          content_preview?: string | null
+          created_at?: string
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          recipient_email?: string | null
+          sender_email?: string | null
+          status?: string | null
+          subject?: string | null
+          thread_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_routing_logs_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "brand_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           brand_application_id: string | null
