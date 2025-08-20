@@ -50,6 +50,13 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('user_id', resellerInfo.id)
       .single();
 
+    // Get brand application details for proposal message
+    const { data: brandApplication } = await supabase
+      .from('brand_applications')
+      .select('application_data')
+      .eq('id', applicationId)
+      .single();
+
     console.log('Sending brand application email to:', brandEmail);
     console.log('Email thread ID:', emailThreadId);
 
@@ -72,6 +79,15 @@ const handler = async (req: Request): Promise<Response> => {
             <p>Hello ${brandName},</p>
             
             <p>You have received a new wholesale application through BndBox from:</p>
+            
+            ${brandApplication?.application_data?.proposal_message ? `
+            <div style="background: #f0f8ff; border-left: 4px solid #3182ce; padding: 20px; margin: 20px 0; border-radius: 6px;">
+              <h3 style="margin-top: 0; color: #2d3748;">📝 Reseller's Proposal</h3>
+              <div style="white-space: pre-line; line-height: 1.6; color: #2d3748;">
+                ${brandApplication.application_data.proposal_message}
+              </div>
+            </div>
+            ` : ''}
             
             <div style="background: #edf2f7; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="margin-top: 0; color: #2d3748;">Reseller Information</h3>
@@ -119,6 +135,19 @@ const handler = async (req: Request): Promise<Response> => {
                 <li>Application tracking and management</li>
                 <li>Direct integration with major marketplaces</li>
               </ul>
+            </div>
+            
+            <div style="background: #fff8dc; border: 2px solid #d69e2e; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h3 style="color: #b7791f; margin-top: 0;">🚀 Join BndBox Platform</h3>
+              <p style="margin: 10px 0; color: #2d3748; font-size: 16px;"><strong>Choose from thousands of pre-verified resellers and retailers!</strong></p>
+              <p style="margin: 10px 0; color: #4a5568;">Access our marketplace to connect with qualified resellers who are ready to promote and sell your products across major online platforms.</p>
+              <div style="margin: 20px 0;">
+                <a href="https://bndbox.com/brand/signup" 
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                  Register Your Brand on BndBox →
+                </a>
+              </div>
+              <p style="margin: 10px 0; color: #718096; font-size: 14px;">Join hundreds of brands already growing their business through our platform</p>
             </div>
             
             <p>Application ID: ${applicationId}</p>

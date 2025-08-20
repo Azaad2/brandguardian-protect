@@ -122,13 +122,27 @@ export const useBrandApplications = () => {
       // Generate unique email thread ID
       const emailThreadId = `app_${brandId}_${user.id}_${Date.now()}`;
 
+      // Create prefilled proposal message
+      const proposalMessage = `I am interested in becoming an authorized reseller for your products on Amazon and other major marketplaces. 
+
+As a verified reseller on the BndBox platform, I have the experience and resources to effectively market and sell your products to reach new customers and expand your market presence.
+
+I would like to discuss wholesale pricing, minimum order quantities, and partnership terms that would be mutually beneficial for both of our businesses.
+
+I look forward to the opportunity to work together and help grow your brand's reach through strategic online retail partnerships.`;
+
+      const enrichedApplicationData = {
+        ...applicationData,
+        proposal_message: proposalMessage,
+      };
+
       const { data, error } = await supabase
         .from('brand_applications')
         .insert([{
           reseller_id: user.id,
           brand_id: brandId,
           email_thread_id: emailThreadId,
-          application_data: applicationData || {},
+          application_data: enrichedApplicationData,
           status: 'pending'
         }])
         .select(`
