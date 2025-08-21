@@ -96,26 +96,60 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Extract thread ID from the recipient email address (case-insensitive)
+    let emailThreadId = null;
     const emailMatch = emailData.recipient.match(/applications\+([^@]+)@(bndbox\.com|replies\.bndbox\.com)/i);
-    if (!emailMatch) {
-      const errorMsg = `Invalid email format. Expected: applications+{threadId}@bndbox.com or applications+{threadId}@replies.bndbox.com, Received: ${emailData.recipient}`;
+    
+    if (emailMatch) {
+      emailThreadId = emailMatch[1];
+    } else if (emailData.recipient.toLowerCase() === 'applications@bndbox.com') {
+      // Safety net: If email is sent to applications@bndbox.com, try to extract thread ID from body
+      const bodyContent = emailData['body-plain'] || emailData['body-html'] || '';
+      const threadIdMatch = bodyContent.match(/Thread ID:\s*([^\s\n\r]+)/i);
+      
+      if (threadIdMatch) {
+        emailThreadId = threadIdMatch[1];
+        console.log('Thread ID extracted from email body (fallback):', {
+          threadId: emailThreadId,
+          recipient: emailData.recipient,
+          sender: emailData.sender
+        });
+      } else {
+        const errorMsg = `Email sent to fallback address but no Thread ID found in body. Recipient: ${emailData.recipient}`;
+        console.error('Fallback thread ID extraction failed:', {
+          recipient: emailData.recipient,
+          sender: emailData.sender,
+          bodyPreview: bodyContent.substring(0, 200),
+          searchPattern: 'Thread ID: {id}'
+        });
+        await logEmailRouting('webhook_failure', errorMsg);
+        return new Response(JSON.stringify({ 
+          error: 'Thread ID not found',
+          hint: 'Email sent to applications@bndbox.com but Thread ID not found in body',
+          received: emailData.recipient
+        }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+    } else {
+      const errorMsg = `Invalid email format. Expected: applications+{threadId}@replies.bndbox.com or applications@bndbox.com, Received: ${emailData.recipient}`;
       console.error('Email format validation failed:', {
         recipient: emailData.recipient,
-        expectedPatterns: ['applications+{threadId}@bndbox.com', 'applications+{threadId}@replies.bndbox.com'],
-        receivedFormat: 'Invalid format'
+        expectedPatterns: ['applications+{threadId}@replies.bndbox.com', 'applications@bndbox.com'],
+        receivedFormat: 'Invalid format',
+        hint: 'Check Mailgun routing configuration'
       });
       await logEmailRouting('webhook_failure', errorMsg);
       return new Response(JSON.stringify({ 
         error: 'Invalid email format',
-        expected: 'applications+{threadId}@bndbox.com or applications+{threadId}@replies.bndbox.com',
-        received: emailData.recipient
+        expected: 'applications+{threadId}@replies.bndbox.com or applications@bndbox.com',
+        received: emailData.recipient,
+        hint: 'Ensure your email client uses Reply-To header or check Mailgun routing'
       }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
-
-    const emailThreadId = emailMatch[1];
     console.log('Successfully extracted thread ID:', {
       threadId: emailThreadId,
       recipient: emailData.recipient,

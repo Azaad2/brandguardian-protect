@@ -64,7 +64,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: 'BndBox Applications <applications@bndbox.com>',
       to: [brandEmail],
-      replyTo: `applications+${emailThreadId}@replies.bndbox.com`,
+      reply_to: `applications+${emailThreadId}@replies.bndbox.com`,
       subject: `New Wholesale Application - ${resellerProfile?.company_name || resellerInfo.email}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
