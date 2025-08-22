@@ -32,7 +32,29 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { brandEmail, brandName, emailThreadId, applicationId, resellerInfo }: EmailRequest = await req.json();
+    const { brandEmail: rawBrandEmail, brandName, emailThreadId, applicationId, resellerInfo }: EmailRequest = await req.json();
+
+    // Validate and clean email address
+    let brandEmail = rawBrandEmail;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!brandEmail) {
+      console.error('Brand email is required');
+      throw new Error('Brand email is required');
+    }
+    
+    // Handle multiple emails (take first valid one)
+    if (brandEmail.includes(',')) {
+      const emails = brandEmail.split(',').map(email => email.trim());
+      brandEmail = emails.find(email => emailRegex.test(email)) || emails[0];
+      console.log('Multiple emails found, using first valid:', brandEmail);
+    }
+    
+    // Validate email format
+    if (!emailRegex.test(brandEmail)) {
+      console.error('Invalid email format:', brandEmail);
+      throw new Error(`Invalid email format: ${brandEmail}`);
+    }
 
     console.log('Processing brand application email for:', brandEmail);
 
@@ -64,7 +86,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: 'BndBox Applications <applications@bndbox.com>',
       to: [brandEmail],
-      reply_to: `applications+${emailThreadId}@replies.bndbox.com`,
+      replyTo: `applications+${emailThreadId}@replies.bndbox.com`,
       subject: `New Wholesale Application - ${resellerProfile?.company_name || resellerInfo.email}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
