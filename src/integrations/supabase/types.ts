@@ -20,8 +20,11 @@ export type Database = {
           brand_id: string
           created_at: string
           email_thread_id: string | null
+          follow_up_count: number | null
           id: string
+          last_follow_up_at: string | null
           reseller_id: string
+          response_expected_by: string | null
           status: string
           updated_at: string
         }
@@ -30,8 +33,11 @@ export type Database = {
           brand_id: string
           created_at?: string
           email_thread_id?: string | null
+          follow_up_count?: number | null
           id?: string
+          last_follow_up_at?: string | null
           reseller_id: string
+          response_expected_by?: string | null
           status?: string
           updated_at?: string
         }
@@ -40,8 +46,11 @@ export type Database = {
           brand_id?: string
           created_at?: string
           email_thread_id?: string | null
+          follow_up_count?: number | null
           id?: string
+          last_follow_up_at?: string | null
           reseller_id?: string
+          response_expected_by?: string | null
           status?: string
           updated_at?: string
         }
@@ -184,6 +193,54 @@ export type Database = {
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "brand_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follow_up_messages: {
+        Row: {
+          brand_application_id: string
+          email_delivery_status: string | null
+          email_sent: boolean | null
+          follow_up_type: string
+          id: string
+          message_content: string
+          sender_id: string
+          sent_at: string
+        }
+        Insert: {
+          brand_application_id: string
+          email_delivery_status?: string | null
+          email_sent?: boolean | null
+          follow_up_type: string
+          id?: string
+          message_content: string
+          sender_id: string
+          sent_at?: string
+        }
+        Update: {
+          brand_application_id?: string
+          email_delivery_status?: string | null
+          email_sent?: boolean | null
+          follow_up_type?: string
+          id?: string
+          message_content?: string
+          sender_id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_messages_brand_application_id_fkey"
+            columns: ["brand_application_id"]
+            isOneToOne: false
+            referencedRelation: "brand_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_up_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

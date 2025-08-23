@@ -59,3 +59,6 @@ inspector_port = 8083
 
 [functions.email-webhook]
 verify_jwt = false
+
+[functions.send-follow-up-email]
+verify_jwt = true

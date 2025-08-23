@@ -12,6 +12,9 @@ export interface BrandApplication {
   application_data: any;
   created_at: string;
   updated_at: string;
+  follow_up_count: number;
+  last_follow_up_at: string | null;
+  response_expected_by: string | null;
   brand?: {
     name: string;
     website_url: string | null;
@@ -287,14 +290,21 @@ export const useAvailableBrands = () => {
           return [];
         }
 
-        // Get ALL applications for this reseller (avoid URL length issues)
+        // Get ALL applications for this reseller with follow-up data
         // Then filter client-side instead of using .in() which creates massive URLs
         const brandIds = activeBrands.map(brand => brand.id);
         console.log('useAvailableBrands: Brand IDs to filter by:', brandIds.length, 'brands');
 
         const { data: allApplications, error: appsError } = await supabase
           .from('brand_applications')
-          .select('brand_id, status')
+          .select(`
+            brand_id, 
+            status, 
+            id, 
+            created_at, 
+            follow_up_count, 
+            last_follow_up_at
+          `)
           .eq('reseller_id', user.id);
 
         if (appsError) {
@@ -315,10 +325,36 @@ export const useAvailableBrands = () => {
         const applicationMap = new Map(
           relevantApplications.map(app => [app.brand_id, app.status])
         );
+        
+        const applicationDataMap = new Map(
+          relevantApplications.map(app => [app.brand_id, {
+            id: app.id,
+            created_at: app.created_at,
+            follow_up_count: app.follow_up_count || 0,
+            last_follow_up_at: app.last_follow_up_at,
+            status: app.status,
+          }])
+        );
 
         const brandsWithStatus = activeBrands.map(brand => ({
-          ...brand,
+          id: brand.id,
+          name: brand.name,
+          website_url: brand.website_url,
+          description: brand.description,
+          contact_email: brand.contact_email,
+          logo_url: brand.logo_url,
+          categories: brand.categories,
+          is_active: brand.is_active,
+          department: brand.department,
+          approval_rate: brand.approval_rate,
+          response_time: brand.response_time,
+          created_at: brand.created_at,
+          updated_at: brand.updated_at,
           applicationStatus: applicationMap.get(brand.id) || null,
+          application: applicationDataMap.get(brand.id),
+          // Helper properties for display
+          displayName: brand.name,
+          displayDepartment: brand.department,
         }));
 
         console.log('Final brands with application status:', brandsWithStatus);

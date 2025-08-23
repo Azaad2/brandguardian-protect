@@ -2,21 +2,36 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Clock, TrendingUp, Lock } from 'lucide-react';
+import { Building2, Clock, TrendingUp, Lock, MessageSquare, Calendar } from 'lucide-react';
 import { getStatusIcon } from './BrandStatusIcons';
+import FollowUpDialog from './FollowUpDialog';
+import { useFollowUp } from '@/hooks/use-follow-up';
 
 interface Brand {
   id: string;
-  displayName: string;
-  displayDepartment?: string;
+  name: string;
   website_url?: string;
   description?: string;
   contact_email: string;
   logo_url?: string;
   categories?: string[];
+  is_active: boolean;
+  department?: string;
   approval_rate?: number;
   response_time?: number;
+  created_at: string;
+  updated_at: string;
   applicationStatus?: string | null;
+  application?: {
+    id: string;
+    created_at: string;
+    follow_up_count: number;
+    last_follow_up_at?: string | null;
+    status: string;
+  };
+  // Helper properties for display
+  displayName: string;
+  displayDepartment?: string;
 }
 
 interface BrandCardProps {
@@ -29,6 +44,7 @@ interface BrandCardProps {
 const BrandCard = ({ brand, onApply, isApplying, canApply = true }: BrandCardProps) => {
   const hasApplied = brand.applicationStatus !== null;
   const canApplyToBrand = canApply && !hasApplied;
+  const { canSendFollowUp, getDaysSinceApplication, getDaysSinceLastActivity } = useFollowUp();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -40,16 +56,30 @@ const BrandCard = ({ brand, onApply, isApplying, canApply = true }: BrandCardPro
   };
 
   const getActionButton = () => {
-    if (hasApplied) {
+    if (hasApplied && brand.application) {
+      const isPending = brand.applicationStatus === 'pending';
+      const showFollowUp = isPending && canSendFollowUp(brand.application);
+      
       return (
-        <Badge className={`${getStatusColor(brand.applicationStatus!)} font-medium`}>
-          {getStatusIcon(brand.applicationStatus!) && (
-            <span className="mr-1">
-              {getStatusIcon(brand.applicationStatus!)}
-            </span>
+        <div className="space-y-2">
+          <Badge className={`${getStatusColor(brand.applicationStatus!)} font-medium w-full justify-center`}>
+            {getStatusIcon(brand.applicationStatus!) && (
+              <span className="mr-1">
+                {getStatusIcon(brand.applicationStatus!)}
+              </span>
+            )}
+            {brand.applicationStatus!.charAt(0).toUpperCase() + brand.applicationStatus!.slice(1)}
+          </Badge>
+          
+          {showFollowUp && (
+            <FollowUpDialog brand={brand} application={brand.application}>
+              <Button variant="outline" size="sm" className="w-full">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Send Follow-up
+              </Button>
+            </FollowUpDialog>
           )}
-          {brand.applicationStatus!.charAt(0).toUpperCase() + brand.applicationStatus!.slice(1)}
-        </Badge>
+        </div>
       );
     }
 
@@ -70,6 +100,35 @@ const BrandCard = ({ brand, onApply, isApplying, canApply = true }: BrandCardPro
       >
         {isApplying ? 'Applying...' : 'Apply Now'}
       </Button>
+    );
+  };
+
+  const getTimelineInfo = () => {
+    if (!hasApplied || !brand.application) return null;
+    
+    const daysSinceApplication = getDaysSinceApplication(brand.application.created_at);
+    const daysSinceLastActivity = getDaysSinceLastActivity(
+      brand.application.created_at, 
+      brand.application.last_follow_up_at
+    );
+    
+    return (
+      <div className="flex flex-wrap gap-2 text-xs">
+        <Badge variant="outline" className="text-xs">
+          <Calendar className="h-3 w-3 mr-1" />
+          Applied {daysSinceApplication}d ago
+        </Badge>
+        {brand.application.follow_up_count > 0 && (
+          <Badge variant="secondary" className="text-xs">
+            {brand.application.follow_up_count} follow-up{brand.application.follow_up_count !== 1 ? 's' : ''}
+          </Badge>
+        )}
+        {brand.application.last_follow_up_at && (
+          <Badge variant="outline" className="text-xs">
+            Last activity {daysSinceLastActivity}d ago
+          </Badge>
+        )}
+      </div>
     );
   };
 
@@ -130,6 +189,9 @@ const BrandCard = ({ brand, onApply, isApplying, canApply = true }: BrandCardPro
               </div>
             )}
           </div>
+
+          {/* Timeline Info for Applied Brands */}
+          {getTimelineInfo()}
 
           {/* Action Button */}
           <div className="pt-2">

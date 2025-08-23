@@ -41,15 +41,24 @@ const ResellerBrandsContainer = () => {
 
   // Transform brand data to match BrandCard interface
   const transformedBrands = filteredBrands.map(brand => ({
-    id: brand.id, // Use the actual brand ID from database
-    displayName: brand.name,
-    displayDepartment: brand.department || brand.categories?.[0],
-    contact_email: brand.contact_email,
-    categories: brand.categories || [],
+    id: brand.id,
+    name: brand.name,
+    website_url: brand.website_url,
     description: brand.description,
+    contact_email: brand.contact_email,
+    logo_url: brand.logo_url,
+    categories: brand.categories || [],
+    is_active: brand.is_active,
+    department: brand.department,
     approval_rate: brand.approval_rate,
     response_time: brand.response_time,
-    applicationStatus: brand.applicationStatus
+    created_at: brand.created_at,
+    updated_at: brand.updated_at,
+    applicationStatus: brand.applicationStatus,
+    application: brand.application,
+    // Helper properties for display
+    displayName: brand.name,
+    displayDepartment: brand.department || brand.categories?.[0],
   }));
 
   return (
