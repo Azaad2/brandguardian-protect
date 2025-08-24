@@ -160,13 +160,18 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
             
             <div style="background: #fff8dc; border: 2px solid #d69e2e; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-              <h3 style="color: #b7791f; margin-top: 0;">🚀 Join BndBox Platform</h3>
-              <p style="margin: 10px 0; color: #2d3748; font-size: 16px;"><strong>Choose from thousands of pre-verified resellers and retailers!</strong></p>
-              <p style="margin: 10px 0; color: #4a5568;">Access our marketplace to connect with qualified resellers who are ready to promote and sell your products across major online platforms.</p>
+              <h3 style="color: #b7791f; margin-top: 0;">🚀 Discover BndBox Platform</h3>
+              <p style="margin: 10px 0; color: #2d3748; font-size: 16px;"><strong>Connect with thousands of pre-verified resellers and retailers!</strong></p>
+              <p style="margin: 10px 0; color: #4a5568;">BndBox is the leading B2B marketplace where brands like yours connect with qualified resellers across Amazon, Walmart, eBay, and other major platforms. Our platform streamlines wholesale partnerships, provides secure communication tools, and helps you scale your brand reach efficiently.</p>
               <div style="margin: 20px 0;">
+                <a href="https://bndbox.com" 
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); margin-bottom: 10px;">
+                  Learn More About BndBox →
+                </a>
+                <br>
                 <a href="https://bndbox.com/brand/signup" 
-                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                  Register Your Brand on BndBox →
+                   style="color: #3182ce; text-decoration: none; font-size: 14px; margin-top: 10px; display: inline-block;">
+                  Already interested? Register your brand here →
                 </a>
               </div>
               <p style="margin: 10px 0; color: #718096; font-size: 14px;">Join hundreds of brands already growing their business through our platform</p>
