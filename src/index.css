@@ -25,17 +25,45 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
-    --bndbox-50: 217, 90%, 95%;
-    --bndbox-100: 217, 90%, 90%;
-    --bndbox-200: 217, 87%, 80%;
-    --bndbox-300: 217, 74%, 70%;
-    --bndbox-400: 217, 67%, 60%;
-    --bndbox-500: 217, 62%, 51%;
-    --bndbox-600: 217, 64%, 41%;
-    --bndbox-700: 217, 69%, 31%;
-    --bndbox-800: 217, 77%, 21%;
-    --bndbox-900: 217, 80%, 11%;
-    --bndbox-950: 222, 80%, 6%;
+    
+    /* Crystal-inspired color palette */
+    --crystal-clear: 200 20% 98%;
+    --crystal-mist: 200 15% 95%;
+    --crystal-frost: 200 20% 90%;
+    --crystal-ice: 200 30% 85%;
+    --crystal-blue: 200 70% 50%;
+    --crystal-deep: 200 50% 25%;
+    
+    /* AI-inspired accent colors */
+    --ai-cyan: 180 100% 50%;
+    --ai-electric: 195 100% 60%;
+    --ai-neural: 210 100% 70%;
+    --ai-pulse: 225 80% 60%;
+    
+    /* Premium glass morphism */
+    --glass-white: 0 0% 100% / 0.1;
+    --glass-muted: 200 20% 90% / 0.15;
+    --glass-border: 200 30% 80% / 0.2;
+    --glass-shadow: 200 50% 20% / 0.1;
+    
+    /* Enhanced depth system */
+    --shadow-crystal: 0 8px 32px rgba(31, 38, 135, 0.37);
+    --shadow-glass: 0 4px 16px rgba(255, 255, 255, 0.2);
+    --shadow-neural: 0 0 20px rgba(56, 189, 248, 0.3);
+    --shadow-premium: 0 20px 60px rgba(0, 0, 0, 0.1);
+    
+    /* BndBox brand colors (enhanced) */
+    --bndbox-50: 217 90% 98%;
+    --bndbox-100: 217 85% 95%;
+    --bndbox-200: 217 80% 88%;
+    --bndbox-300: 217 75% 75%;
+    --bndbox-400: 217 70% 65%;
+    --bndbox-500: 217 65% 55%;
+    --bndbox-600: 217 60% 45%;
+    --bndbox-700: 217 70% 35%;
+    --bndbox-800: 217 75% 25%;
+    --bndbox-900: 217 80% 15%;
+    --bndbox-950: 222 85% 8%;
   }
  
   .dark {
@@ -108,15 +136,15 @@
   }
 }
 
-/* Performance-optimized gradients using GPU acceleration */
+/* Premium Crystal Design System */
 .gradient-bg {
-  background: linear-gradient(135deg, hsl(217, 64%, 41%) 0%, hsl(217, 77%, 21%) 100%);
+  background: linear-gradient(135deg, hsl(var(--crystal-blue)) 0%, hsl(var(--crystal-deep)) 100%);
   will-change: transform;
   transform: translateZ(0);
 }
 
 .marketplace-badge {
-  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, hsl(var(--ai-cyan)) 0%, hsl(var(--ai-electric)) 100%);
   will-change: transform;
   transform: translateZ(0);
 }
@@ -125,9 +153,63 @@
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  background-image: linear-gradient(90deg, #3b82f6, #2563eb);
+  background-image: linear-gradient(135deg, hsl(var(--ai-neural)), hsl(var(--ai-pulse)));
   will-change: transform;
   transform: translateZ(0);
+}
+
+/* Glass Morphism Effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-crystal);
+  will-change: transform;
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-crystal), var(--shadow-neural);
+}
+
+/* AI Neural Network Pattern */
+.neural-pattern {
+  background-image: 
+    radial-gradient(circle at 25% 25%, hsl(var(--ai-cyan) / 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, hsl(var(--ai-electric) / 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, hsl(var(--ai-neural) / 0.05) 0%, transparent 50%);
+  animation: neural-pulse 6s ease-in-out infinite;
+}
+
+@keyframes neural-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Crystal Text Effects */
+.crystal-text {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.025em;
+}
+
+/* Premium Hover Effects */
+.premium-hover {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.premium-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-premium);
 }
 
 /* Mobile-optimized animations */
