@@ -111,7 +111,7 @@ export const useResellerBrands = () => {
   
   // Set up realtime subscription for brand allocations, products and orders
   useEffect(() => {
-    if (!user) return;
+    if (!user || !navigator.onLine) return;
     
     const allocationsChannel = supabase
       .channel('brand-allocations-changes')

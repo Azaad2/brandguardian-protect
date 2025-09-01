@@ -141,7 +141,7 @@ export const useResellerMessages = () => {
   
   // Set up realtime subscription
   useEffect(() => {
-    if (!user) return;
+    if (!user || !navigator.onLine) return;
     
     const channel = supabase
       .channel('messages-changes')

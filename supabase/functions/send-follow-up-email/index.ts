@@ -45,47 +45,54 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Processing follow-up request:", { applicationId, followUpType });
 
-    // Get application details with brand information
-    const { data: application, error: appError } = await supabaseClient
-      .from('brand_applications')
-      .select(`
-        *,
-        brands_directory (
-          name,
-          contact_email,
-          response_time
-        ),
-        profiles!reseller_id (
-          full_name,
-          email,
-          company_name
-        )
-      `)
-      .eq('id', applicationId)
-      .eq('reseller_id', user.id)
-      .single();
+// Get application details (no implicit joins to avoid schema cache issues)
+const { data: application, error: appError } = await supabaseClient
+  .from('brand_applications')
+  .select('id, brand_id, reseller_id, created_at, follow_up_count, email_thread_id')
+  .eq('id', applicationId)
+  .eq('reseller_id', user.id)
+  .maybeSingle();
 
-    if (appError || !application) {
-      console.error("Application not found:", appError);
-      return new Response(JSON.stringify({ error: "Application not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
+if (appError || !application) {
+  console.error("Application not found:", appError);
+  return new Response(JSON.stringify({ error: "Application not found" }), {
+    status: 404,
+    headers: { "Content-Type": "application/json", ...corsHeaders },
+  });
+}
 
-    const brand = application.brands_directory;
-    const reseller = application.profiles;
+// Fetch brand details
+const { data: brand, error: brandError } = await supabaseClient
+  .from('brands_directory')
+  .select('id, name, contact_email, response_time')
+  .eq('id', application.brand_id)
+  .maybeSingle();
 
-    if (!brand?.contact_email || !brand.contact_email.includes('@')) {
-      console.error("Invalid brand email:", brand?.contact_email);
-      return new Response(JSON.stringify({ 
-        emailSent: false, 
-        reason: "Brand has no valid email address" 
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
+if (brandError) {
+  console.error('Error fetching brand details:', brandError);
+}
+
+// Fetch reseller profile
+const { data: reseller, error: resellerError } = await supabaseClient
+  .from('profiles')
+  .select('id, full_name, email, company_name')
+  .eq('id', application.reseller_id)
+  .maybeSingle();
+
+if (resellerError) {
+  console.error('Error fetching reseller profile:', resellerError);
+}
+
+if (!brand?.contact_email || !brand.contact_email.includes('@')) {
+  console.error("Invalid brand email:", brand?.contact_email);
+  return new Response(JSON.stringify({ 
+    emailSent: false, 
+    reason: "Brand has no valid email address" 
+  }), {
+    status: 200,
+    headers: { "Content-Type": "application/json", ...corsHeaders },
+  });
+}
 
     // Generate follow-up email content based on type
     const getFollowUpContent = (type: string, customMsg?: string) => {
@@ -196,13 +203,13 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Update application follow-up count and timestamp
-    const { error: updateError } = await supabaseClient
-      .from('brand_applications')
-      .update({
-        follow_up_count: application.follow_up_count + 1,
-        last_follow_up_at: new Date().toISOString(),
-      })
-      .eq('id', applicationId);
+const { error: updateError } = await supabaseClient
+  .from('brand_applications')
+  .update({
+    follow_up_count: (application.follow_up_count ?? 0) + 1,
+    last_follow_up_at: new Date().toISOString(),
+  })
+  .eq('id', applicationId);
 
     if (updateError) {
       console.error("Error updating application:", updateError);

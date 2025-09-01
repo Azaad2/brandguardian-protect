@@ -312,7 +312,7 @@ export const useResellerAnalytics = (timeRange: '3m' | '6m' | '1y' = '3m') => {
   
   // Set up realtime subscription for orders
   useEffect(() => {
-    if (!user) return;
+    if (!user || !navigator.onLine) return;
     
     const channel = supabase
       .channel('orders-analytics-changes')

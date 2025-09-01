@@ -50,6 +50,12 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Only cache GET requests; passthrough others (avoid caching POST/PUT/etc.)
+  if (request.method !== 'GET') {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // Handle different types of requests
   if (request.destination === 'image') {
     // Cache images with stale-while-revalidate strategy

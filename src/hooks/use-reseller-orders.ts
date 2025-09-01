@@ -87,7 +87,7 @@ export const useResellerOrders = () => {
   
   // Set up realtime subscription when component mounts
   useEffect(() => {
-    if (!user) return;
+    if (!user || !navigator.onLine) return;
     
     const channel = supabase
       .channel('orders-changes')
