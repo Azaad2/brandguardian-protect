@@ -100,56 +100,180 @@ if (!brand?.contact_email || !brand.contact_email.includes('@')) {
         (Date.now() - new Date(application.created_at).getTime()) / (1000 * 60 * 60 * 24)
       );
 
+      const getFullEmailTemplate = (mainContent: string) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Follow-up from ${reseller.company_name || reseller.full_name}</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #333333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      background-color: #2E4053;
+    }
+    .logo {
+      color: #FF9900;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .content {
+      padding: 30px 20px;
+      background-color: #ffffff;
+    }
+    .bndbox-footer {
+      background: linear-gradient(135deg, #2E4053 0%, #34495e 100%);
+      padding: 30px;
+      margin-top: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .bndbox-footer h3 {
+      color: #FF9900;
+      font-size: 20px;
+      margin: 0 0 15px 0;
+    }
+    .bndbox-footer p {
+      color: #ffffff;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .bndbox-button {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 15px 0;
+      background: linear-gradient(135deg, #FF9900 0%, #f39c12 100%);
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #666666;
+      background-color: #f7f7f7;
+    }
+    .footer a {
+      color: #666666;
+      text-decoration: none;
+    }
+    h1 {
+      color: #2E4053;
+      font-size: 22px;
+    }
+    .highlight {
+      color: #FF9900;
+      font-weight: bold;
+    }
+    @media screen and (max-width: 480px) {
+      .container {
+        width: 100% !important;
+        padding: 10px !important;
+      }
+      .content {
+        padding: 20px 15px !important;
+      }
+      .bndbox-footer {
+        padding: 20px 15px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">BndBox</div>
+    </div>
+    <div class="content">
+      ${mainContent}
+      
+      <div class="bndbox-footer">
+        <h3>Discover BndBox Platform</h3>
+        <p>Join thousands of brands and resellers already using BndBox to streamline their wholesale partnerships.</p>
+        <p>✓ Verified wholesale network</p>
+        <p>✓ Automated application management</p>
+        <p>✓ Secure partnership connections</p>
+        <a href="https://bndbox.com/brand" class="bndbox-button">Join BndBox as a Brand</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} BndBox. All rights reserved.</p>
+      <p>
+        <a href="https://bndbox.com/privacy">Privacy Policy</a> | 
+        <a href="https://bndbox.com/terms">Terms of Service</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+
       switch (type) {
         case 'gentle_reminder':
           return {
             subject: `Follow-up: Partnership Application from ${reseller.company_name || reseller.full_name}`,
-            content: `
+            content: getFullEmailTemplate(`
               <p>Hello,</p>
-              <p>I hope this email finds you well. I wanted to follow up on the partnership application I submitted ${daysSinceApplication} days ago for wholesale opportunities with ${brand.name}.</p>
+              <p>I hope this email finds you well. I wanted to follow up on the partnership application I submitted ${daysSinceApplication} days ago for wholesale opportunities with <span class="highlight">${brand.name}</span>.</p>
               <p>I understand you receive many applications and wanted to respectfully check on the status of my submission. I'm very interested in establishing a wholesale partnership and would appreciate any update you can provide.</p>
-              <p>Company: ${reseller.company_name || reseller.full_name}</p>
-              <p>Contact: ${reseller.email}</p>
+              <p><strong>Company:</strong> ${reseller.company_name || reseller.full_name}</p>
+              <p><strong>Contact:</strong> ${reseller.email}</p>
               <p>Thank you for your time and consideration.</p>
-              <p>Best regards,<br>${reseller.full_name}</p>
-            `
+              <p>Best regards,<br><strong>${reseller.full_name}</strong></p>
+            `)
           };
         case 'second_followup':
           return {
             subject: `Second Follow-up: Partnership Inquiry - ${reseller.company_name || reseller.full_name}`,
-            content: `
+            content: getFullEmailTemplate(`
               <p>Hello,</p>
               <p>I hope you're doing well. I'm writing to follow up on my wholesale partnership application submitted ${daysSinceApplication} days ago.</p>
-              <p>I remain very interested in the opportunity to work with ${brand.name} and would greatly appreciate an update on my application status, even if it's to let me know the timeline for your review process.</p>
-              <p>Company: ${reseller.company_name || reseller.full_name}</p>
-              <p>Contact: ${reseller.email}</p>
+              <p>I remain very interested in the opportunity to work with <span class="highlight">${brand.name}</span> and would greatly appreciate an update on my application status, even if it's to let me know the timeline for your review process.</p>
+              <p><strong>Company:</strong> ${reseller.company_name || reseller.full_name}</p>
+              <p><strong>Contact:</strong> ${reseller.email}</p>
               <p>I look forward to hearing from you.</p>
-              <p>Best regards,<br>${reseller.full_name}</p>
-            `
+              <p>Best regards,<br><strong>${reseller.full_name}</strong></p>
+            `)
           };
         case 'final_followup':
           return {
             subject: `Final Follow-up: Partnership Application - ${reseller.company_name || reseller.full_name}`,
-            content: `
+            content: getFullEmailTemplate(`
               <p>Hello,</p>
               <p>I hope this message finds you well. This is my final follow-up regarding the wholesale partnership application I submitted ${daysSinceApplication} days ago.</p>
               <p>I understand that you may be busy or that my application may not be a fit at this time. If that's the case, I completely understand and would appreciate knowing so I can explore other opportunities.</p>
               <p>If there's still a possibility for partnership, I remain interested and would welcome the opportunity to discuss further.</p>
-              <p>Company: ${reseller.company_name || reseller.full_name}</p>
-              <p>Contact: ${reseller.email}</p>
+              <p><strong>Company:</strong> ${reseller.company_name || reseller.full_name}</p>
+              <p><strong>Contact:</strong> ${reseller.email}</p>
               <p>Thank you for your time and consideration throughout this process.</p>
-              <p>Best regards,<br>${reseller.full_name}</p>
-            `
+              <p>Best regards,<br><strong>${reseller.full_name}</strong></p>
+            `)
           };
         case 'custom':
           return {
             subject: `Follow-up: Partnership Application from ${reseller.company_name || reseller.full_name}`,
-            content: customMsg || 'Custom follow-up message'
+            content: getFullEmailTemplate(customMsg || '<p>Custom follow-up message</p>')
           };
         default:
           return {
             subject: `Follow-up: Partnership Application from ${reseller.company_name || reseller.full_name}`,
-            content: 'Follow-up message'
+            content: getFullEmailTemplate('<p>Follow-up message</p>')
           };
       }
     };
