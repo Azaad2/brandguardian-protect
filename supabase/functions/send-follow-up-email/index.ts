@@ -210,7 +210,7 @@ if (!brand?.contact_email || !brand.contact_email.includes('@')) {
         <p>✓ Verified wholesale network</p>
         <p>✓ Automated application management</p>
         <p>✓ Secure partnership connections</p>
-        <a href="https://bndbox.com/brand" class="bndbox-button">Join BndBox as a Brand</a>
+        <a href="https://bndbox.com/" class="bndbox-button">Join BndBox as a Brand</a>
       </div>
     </div>
     <div class="footer">
