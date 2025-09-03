@@ -14,9 +14,34 @@ const DemoSetupManager = () => {
     setIsCreatingDemo(true);
     
     try {
+      // First create demo accounts
       const result = await setupCompleteDemo();
       
-      if (result.success) {
+      if (!result.success) {
+        toast({
+          variant: "destructive",
+          title: "Demo Setup Failed",
+          description: result.message,
+        });
+        return;
+      }
+
+      // Then seed demo data using the edge function
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/seed-demo-data`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const seedResult = await response.json();
+      
+      if (seedResult.success) {
         setDemoCreated(true);
         toast({
           title: "Demo Setup Complete! 🎉",
@@ -25,11 +50,12 @@ const DemoSetupManager = () => {
       } else {
         toast({
           variant: "destructive",
-          title: "Demo Setup Failed",
-          description: result.message,
+          title: "Demo Data Seeding Failed",
+          description: seedResult.error,
         });
       }
     } catch (error) {
+      console.error('Demo setup error:', error);
       toast({
         variant: "destructive",
         title: "Demo Setup Error",
@@ -85,8 +111,12 @@ const DemoSetupManager = () => {
                 <h3 className="font-medium text-blue-900 mb-2">What this will create:</h3>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• 3 clean demo accounts (Admin, Reseller, Brand)</li>
-                  <li>• Sample brands directory with demo brands</li>
-                  <li>• Sample reseller application data</li>
+                  <li>• 5 sample brands with complete profiles and categories</li>
+                  <li>• Brand-reseller allocations for seamless testing</li>
+                  <li>• 5+ sample products with pricing and inventory data</li>
+                  <li>• Sample orders and order history for analytics</li>
+                  <li>• Brand applications in various approval stages</li>
+                  <li>• Product upload records and catalog management data</li>
                   <li>• All data clearly marked as [DEMO] to avoid confusion</li>
                 </ul>
               </div>

@@ -69,6 +69,7 @@ export type Database = {
           allocated_at: string
           allocated_by: string
           brand_id: string
+          brand_profile_id: string | null
           id: string
           reseller_id: string
         }
@@ -76,6 +77,7 @@ export type Database = {
           allocated_at?: string
           allocated_by: string
           brand_id: string
+          brand_profile_id?: string | null
           id?: string
           reseller_id: string
         }
@@ -83,10 +85,18 @@ export type Database = {
           allocated_at?: string
           allocated_by?: string
           brand_id?: string
+          brand_profile_id?: string | null
           id?: string
           reseller_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "brand_reseller_allocations_brand_fk"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands_directory"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "brand_reseller_allocations_brand_id_fkey"
             columns: ["brand_id"]

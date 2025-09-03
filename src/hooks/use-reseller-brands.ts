@@ -25,7 +25,7 @@ export const useResellerBrands = () => {
       .select(`
         brand_id,
         allocated_at,
-        brands_directory!inner(
+        brands_directory!brand_reseller_allocations_brand_id_fkey(
           id,
           name,
           contact_email,

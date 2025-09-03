@@ -245,7 +245,7 @@ export const useAvailableBrands = () => {
           .from('brand_reseller_allocations')
           .select(`
             brand_id,
-            brands_directory!inner(
+            brands_directory!brand_reseller_allocations_brand_id_fkey(
               id,
               name,
               website_url,
