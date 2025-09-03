@@ -83,14 +83,31 @@ export const createDemoAccounts = async (): Promise<{ success: boolean; results:
  */
 export const createDemoData = async (): Promise<boolean> => {
   try {
-    console.log('🔧 Adding sample demo data...');
-    
-    // Add sample brands (clearly marked as demo)
+    console.log('🔧 Adding comprehensive demo data...');
+
+    // Get demo user IDs
+    const { data: demoReseller } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', 'demo.reseller@bndbox.com')
+      .single();
+
+    const { data: demoBrand } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', 'demo.brand@bndbox.com')
+      .single();
+
+    if (!demoReseller || !demoBrand) {
+      console.log('⚠️ Demo accounts not found, creating basic data only...');
+    }
+
+    // 1. Add sample brands (clearly marked as demo)
     const sampleBrands = [
       {
         name: '[DEMO] Tech Innovations',
         website_url: 'https://demo-tech-innovations.com',
-        description: 'Demo technology brand for investor presentation',
+        description: 'Demo technology brand showcasing smart devices and accessories',
         contact_email: 'demo@tech-innovations.com',
         categories: ['Electronics', 'Technology'],
         department: 'Technology',
@@ -101,7 +118,7 @@ export const createDemoData = async (): Promise<boolean> => {
       {
         name: '[DEMO] Fashion Forward',
         website_url: 'https://demo-fashion-forward.com',
-        description: 'Demo fashion brand showcasing apparel wholesale',
+        description: 'Demo fashion brand offering trendy apparel and accessories',
         contact_email: 'demo@fashion-forward.com',
         categories: ['Fashion', 'Apparel'],
         department: 'Fashion',
@@ -112,30 +129,57 @@ export const createDemoData = async (): Promise<boolean> => {
       {
         name: '[DEMO] Home Essentials',
         website_url: 'https://demo-home-essentials.com',
-        description: 'Demo home goods brand for platform demonstration',
+        description: 'Demo home goods brand specializing in kitchen and living essentials',
         contact_email: 'demo@home-essentials.com',
         categories: ['Home & Garden', 'Kitchen'],
         department: 'Home Goods',
         approval_rate: 92.1,
         response_time: 12,
         is_active: true
+      },
+      {
+        name: '[DEMO] Fitness Pro',
+        website_url: 'https://demo-fitness-pro.com',
+        description: 'Demo sports and fitness equipment brand',
+        contact_email: 'demo@fitness-pro.com',
+        categories: ['Sports', 'Fitness'],
+        department: 'Sports',
+        approval_rate: 88.7,
+        response_time: 36,
+        is_active: true
+      },
+      {
+        name: '[DEMO] Beauty Bliss',
+        website_url: 'https://demo-beauty-bliss.com',
+        description: 'Demo beauty and skincare products brand',
+        contact_email: 'demo@beauty-bliss.com',
+        categories: ['Beauty', 'Skincare'],
+        department: 'Beauty',
+        approval_rate: 91.3,
+        response_time: 18,
+        is_active: true
       }
     ];
 
+    const createdBrands = [];
     for (const brand of sampleBrands) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('brands_directory')
-        .insert(brand);
+        .insert(brand)
+        .select()
+        .single();
       
       if (error) {
         console.error('Error creating demo brand:', error);
       } else {
         console.log(`✅ Created demo brand: ${brand.name}`);
+        createdBrands.push(data);
       }
     }
 
-    // Add sample reseller application (for demo reseller account)
+    // 2. Add demo reseller application
     const demoResellerApplication = {
+      user_id: demoReseller?.id || null,
       email: 'demo.reseller@bndbox.com',
       company_name: '[DEMO] Premium Resellers Inc',
       business_type: 'LLC',
@@ -162,7 +206,265 @@ export const createDemoData = async (): Promise<boolean> => {
       console.log('✅ Created demo reseller application');
     }
 
-    console.log('✅ Demo data creation completed');
+    // 3. Create brand-reseller allocations (so brands appear in reseller's brands tab)
+    if (demoReseller && createdBrands.length > 0) {
+      const allocations = createdBrands.slice(0, 3).map((brand: any) => ({
+        brand_id: brand.id,
+        reseller_id: demoReseller.id,
+        allocated_by: demoBrand?.id || demoReseller.id,
+        allocated_at: new Date().toISOString()
+      }));
+
+      const { error: allocationError } = await supabase
+        .from('brand_reseller_allocations')
+        .insert(allocations);
+
+      if (allocationError) {
+        console.error('Error creating brand allocations:', allocationError);
+      } else {
+        console.log('✅ Created brand-reseller allocations');
+      }
+    }
+
+    // 4. Create sample products for demo brand
+    if (demoBrand && createdBrands.length > 0) {
+      const sampleProducts = [
+        {
+          brand_id: demoBrand.id,
+          name: '[DEMO] Smart Wireless Charger',
+          sku: 'DEMO-SWC-001',
+          description: 'Fast wireless charging pad with LED indicator',
+          price: 29.99,
+          wholesale_price: 15.00,
+          msrp: 39.99,
+          stock: 150,
+          categories: ['Electronics', 'Accessories'],
+          approval_status: 'approved',
+          asin: 'DEMO001SWC'
+        },
+        {
+          brand_id: demoBrand.id,
+          name: '[DEMO] Premium Coffee Mug Set',
+          sku: 'DEMO-MUG-002',
+          description: 'Set of 4 ceramic coffee mugs with elegant design',
+          price: 24.99,
+          wholesale_price: 12.50,
+          msrp: 34.99,
+          stock: 75,
+          categories: ['Home & Garden', 'Kitchen'],
+          approval_status: 'approved',
+          asin: 'DEMO002MUG'
+        },
+        {
+          brand_id: demoBrand.id,
+          name: '[DEMO] Bluetooth Sports Headphones',
+          sku: 'DEMO-BT-003',
+          description: 'Wireless Bluetooth headphones perfect for workouts',
+          price: 49.99,
+          wholesale_price: 25.00,
+          msrp: 79.99,
+          stock: 200,
+          categories: ['Electronics', 'Sports'],
+          approval_status: 'approved',
+          asin: 'DEMO003BT'
+        },
+        {
+          brand_id: demoBrand.id,
+          name: '[DEMO] Organic Face Serum',
+          sku: 'DEMO-SER-004',
+          description: 'Natural anti-aging serum with vitamin C',
+          price: 19.99,
+          wholesale_price: 10.00,
+          msrp: 29.99,
+          stock: 120,
+          categories: ['Beauty', 'Skincare'],
+          approval_status: 'approved',
+          asin: 'DEMO004SER'
+        },
+        {
+          brand_id: demoBrand.id,
+          name: '[DEMO] Yoga Mat Premium',
+          sku: 'DEMO-YOG-005',
+          description: 'High-quality non-slip yoga mat with carrying strap',
+          price: 34.99,
+          wholesale_price: 18.00,
+          msrp: 49.99,
+          stock: 85,
+          categories: ['Sports', 'Fitness'],
+          approval_status: 'approved',
+          asin: 'DEMO005YOG'
+        }
+      ];
+
+      const { data: createdProducts, error: productsError } = await supabase
+        .from('products')
+        .insert(sampleProducts)
+        .select();
+
+      if (productsError) {
+        console.error('Error creating demo products:', productsError);
+      } else {
+        console.log('✅ Created demo products');
+
+        // 5. Create sample orders
+        if (demoReseller && createdProducts) {
+          const sampleOrders = [
+            {
+              reseller_id: demoReseller.id,
+              brand_id: demoBrand.id,
+              total_amount: 299.95,
+              status: 'delivered',
+              created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+              reseller_id: demoReseller.id,
+              brand_id: demoBrand.id,
+              total_amount: 149.95,
+              status: 'shipped',
+              created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+              reseller_id: demoReseller.id,
+              brand_id: demoBrand.id,
+              total_amount: 199.97,
+              status: 'processing',
+              created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+            }
+          ];
+
+          const { data: createdOrders, error: ordersError } = await supabase
+            .from('orders')
+            .insert(sampleOrders)
+            .select();
+
+          if (ordersError) {
+            console.error('Error creating demo orders:', ordersError);
+          } else {
+            console.log('✅ Created demo orders');
+
+            // 6. Create order items
+            if (createdOrders) {
+              const orderItems = [
+                {
+                  order_id: createdOrders[0].id,
+                  product_id: createdProducts[0].id,
+                  quantity: 5,
+                  unit_price: 29.99,
+                  total_price: 149.95
+                },
+                {
+                  order_id: createdOrders[0].id,
+                  product_id: createdProducts[1].id,
+                  quantity: 6,
+                  unit_price: 24.99,
+                  total_price: 149.94
+                },
+                {
+                  order_id: createdOrders[1].id,
+                  product_id: createdProducts[2].id,
+                  quantity: 3,
+                  unit_price: 49.99,
+                  total_price: 149.97
+                },
+                {
+                  order_id: createdOrders[2].id,
+                  product_id: createdProducts[3].id,
+                  quantity: 10,
+                  unit_price: 19.99,
+                  total_price: 199.90
+                }
+              ];
+
+              const { error: itemsError } = await supabase
+                .from('order_items')
+                .insert(orderItems);
+
+              if (itemsError) {
+                console.error('Error creating demo order items:', itemsError);
+              } else {
+                console.log('✅ Created demo order items');
+              }
+            }
+          }
+        }
+
+        // 7. Create sample product uploads
+        const sampleUploads = [
+          {
+            brand_id: demoBrand.id,
+            name: '[DEMO] Electronics Catalog Q4 2024',
+            status: 'approved',
+            product_count: 25,
+            created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+          },
+          {
+            brand_id: demoBrand.id,
+            name: '[DEMO] Home Products Spring Collection',
+            status: 'pending',
+            product_count: 18,
+            created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+          }
+        ];
+
+        const { error: uploadsError } = await supabase
+          .from('product_uploads')
+          .insert(sampleUploads);
+
+        if (uploadsError) {
+          console.error('Error creating demo uploads:', uploadsError);
+        } else {
+          console.log('✅ Created demo product uploads');
+        }
+      }
+    }
+
+    // 8. Create sample brand applications (for reseller's applications tab)
+    if (demoReseller && createdBrands.length > 0) {
+      const sampleApplications = [
+        {
+          reseller_id: demoReseller.id,
+          brand_id: createdBrands[0].id,
+          status: 'approved',
+          application_data: {
+            message: 'We are interested in carrying your tech products. Our Amazon store has excellent ratings.',
+            estimated_monthly_volume: '$5,000-$10,000'
+          },
+          created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          reseller_id: demoReseller.id,
+          brand_id: createdBrands[1].id,
+          status: 'pending',
+          application_data: {
+            message: 'We would love to showcase your fashion products to our customer base.',
+            estimated_monthly_volume: '$3,000-$8,000'
+          },
+          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          reseller_id: demoReseller.id,
+          brand_id: createdBrands[2].id,
+          status: 'approved',
+          application_data: {
+            message: 'Your home essentials line would be perfect for our marketplace presence.',
+            estimated_monthly_volume: '$7,000-$12,000'
+          },
+          created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+
+      const { error: applicationsError } = await supabase
+        .from('brand_applications')
+        .insert(sampleApplications);
+
+      if (applicationsError) {
+        console.error('Error creating demo applications:', applicationsError);
+      } else {
+        console.log('✅ Created demo brand applications');
+      }
+    }
+
+    console.log('✅ Comprehensive demo data creation completed');
     return true;
     
   } catch (error) {
