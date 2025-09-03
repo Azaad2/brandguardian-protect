@@ -474,13 +474,13 @@ export const createDemoData = async (): Promise<boolean> => {
 };
 
 /**
- * Complete demo setup function
+ * Complete demo setup function - now only creates accounts
  */
 export const setupCompleteDemo = async (): Promise<{ success: boolean; message: string; accounts?: DemoAccount[] }> => {
   try {
     console.log('🎬 Starting complete demo setup...');
     
-    // Step 1: Create demo accounts
+    // Only create demo accounts - data seeding moved to edge function
     const accountResults = await createDemoAccounts();
     
     if (!accountResults.success) {
@@ -490,29 +490,17 @@ export const setupCompleteDemo = async (): Promise<{ success: boolean; message: 
       };
     }
     
-    // Step 2: Add sample data
-    const dataSuccess = await createDemoData();
-    
-    if (!dataSuccess) {
-      return {
-        success: false,
-        message: 'Demo accounts created but failed to add sample data.'
-      };
-    }
-    
-    console.log('🎉 Complete demo setup finished successfully!');
-    
     return {
       success: true,
-      message: 'Complete demo setup created successfully!',
+      message: 'Demo accounts created successfully! Data seeding will be handled by edge function.',
       accounts: DEMO_ACCOUNTS
     };
     
   } catch (error) {
-    console.error('Error in complete demo setup:', error);
+    console.error('Demo account creation error:', error);
     return {
       success: false,
-      message: 'Unexpected error during demo setup.'
+      message: 'An unexpected error occurred during demo account creation.'
     };
   }
 };

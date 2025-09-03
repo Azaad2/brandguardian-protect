@@ -57,6 +57,9 @@ url = ""
 [edge_functions]
 inspector_port = 8083
 
+[functions.seed-demo-data]
+verify_jwt = false
+
 [functions.email-webhook]
 verify_jwt = false
 

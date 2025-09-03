@@ -1,172 +1,448 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
-serve(async (req) => {
+Deno.serve(async (req) => {
+  console.log('Seed demo data function called');
+
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Initialize Supabase client with service role (bypasses RLS)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+
+    console.log('Starting demo data seeding...');
 
     // Get demo account IDs
-    const { data: demoAccounts } = await supabaseClient
+    const { data: demoProfiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, email, user_role')
-      .in('email', ['demo.admin@bndbox.com', 'demo.reseller@bndbox.com', 'demo.brand@bndbox.com'])
+      .in('email', ['demo.admin@bndbox.com', 'demo.reseller@bndbox.com', 'demo.brand@bndbox.com']);
 
-    if (!demoAccounts || demoAccounts.length < 3) {
-      throw new Error('Demo accounts not found. Please create demo accounts first.')
+    if (profilesError) {
+      console.error('Error fetching demo profiles:', profilesError);
+      throw profilesError;
     }
 
-    const adminId = demoAccounts.find(a => a.user_role === 'admin')?.id
-    const resellerId = demoAccounts.find(a => a.user_role === 'reseller')?.id  
-    const brandId = demoAccounts.find(a => a.user_role === 'brand')?.id
+    const demoAdmin = demoProfiles?.find(p => p.email === 'demo.admin@bndbox.com');
+    const demoReseller = demoProfiles?.find(p => p.email === 'demo.reseller@bndbox.com');
+    const demoBrand = demoProfiles?.find(p => p.email === 'demo.brand@bndbox.com');
 
-    // 1. Create sample brands in directory
-    const brands = [
-      { name: '[DEMO] TechPro Electronics', website_url: 'https://demo-techpro.com', contact_email: 'demo@techpro.com', description: 'Premium electronics and accessories', categories: ['Electronics', 'Accessories'], department: 'Electronics', approval_rate: 85.5, response_time: 24 },
-      { name: '[DEMO] StyleHome Furniture', website_url: 'https://demo-stylehome.com', contact_email: 'demo@stylehome.com', description: 'Modern furniture and home decor', categories: ['Home & Garden', 'Furniture'], department: 'Home', approval_rate: 92.0, response_time: 48 },
-      { name: '[DEMO] FitLife Sports', website_url: 'https://demo-fitlife.com', contact_email: 'demo@fitlife.com', description: 'Sports equipment and fitness gear', categories: ['Sports', 'Fitness'], department: 'Sports', approval_rate: 78.3, response_time: 36 },
-      { name: '[DEMO] PetCare Plus', website_url: 'https://demo-petcare.com', contact_email: 'demo@petcare.com', description: 'Premium pet supplies and accessories', categories: ['Pet Supplies'], department: 'Pets', approval_rate: 89.1, response_time: 12 },
-      { name: '[DEMO] KitchenMaster', website_url: 'https://demo-kitchen.com', contact_email: 'demo@kitchen.com', description: 'Professional kitchen equipment', categories: ['Kitchen', 'Appliances'], department: 'Home', approval_rate: 91.7, response_time: 18 }
-    ]
+    console.log('Demo accounts found:', { demoAdmin: !!demoAdmin, demoReseller: !!demoReseller, demoBrand: !!demoBrand });
 
-    const { data: createdBrands } = await supabaseClient
+    // 1. Create sample brands
+    const sampleBrands = [
+      {
+        name: '[DEMO] Tech Innovations',
+        website_url: 'https://demo-tech-innovations.com',
+        description: 'Demo technology brand showcasing smart devices and accessories',
+        contact_email: 'demo@tech-innovations.com',
+        categories: ['Electronics', 'Technology'],
+        department: 'Technology',
+        approval_rate: 85.5,
+        response_time: 24,
+        is_active: true
+      },
+      {
+        name: '[DEMO] Fashion Forward',
+        website_url: 'https://demo-fashion-forward.com',
+        description: 'Demo fashion brand offering trendy apparel and accessories',
+        contact_email: 'demo@fashion-forward.com',
+        categories: ['Fashion', 'Apparel'],
+        department: 'Fashion',
+        approval_rate: 78.2,
+        response_time: 48,
+        is_active: true
+      },
+      {
+        name: '[DEMO] Home Essentials',
+        website_url: 'https://demo-home-essentials.com',
+        description: 'Demo home goods brand specializing in kitchen and living essentials',
+        contact_email: 'demo@home-essentials.com',
+        categories: ['Home & Garden', 'Kitchen'],
+        department: 'Home Goods',
+        approval_rate: 92.1,
+        response_time: 12,
+        is_active: true
+      },
+      {
+        name: '[DEMO] Fitness Pro',
+        website_url: 'https://demo-fitness-pro.com',
+        description: 'Demo sports and fitness equipment brand',
+        contact_email: 'demo@fitness-pro.com',
+        categories: ['Sports', 'Fitness'],
+        department: 'Sports',
+        approval_rate: 88.7,
+        response_time: 36,
+        is_active: true
+      },
+      {
+        name: '[DEMO] Beauty Bliss',
+        website_url: 'https://demo-beauty-bliss.com',
+        description: 'Demo beauty and skincare products brand',
+        contact_email: 'demo@beauty-bliss.com',
+        categories: ['Beauty', 'Skincare'],
+        department: 'Beauty',
+        approval_rate: 91.3,
+        response_time: 18,
+        is_active: true
+      }
+    ];
+
+    const { data: createdBrands, error: brandsError } = await supabase
       .from('brands_directory')
-      .upsert(brands, { onConflict: 'name' })
-      .select('id, name')
+      .upsert(sampleBrands, { onConflict: 'name' })
+      .select();
+
+    if (brandsError) {
+      console.error('Error creating brands:', brandsError);
+      throw brandsError;
+    }
+
+    console.log(`Created ${createdBrands?.length || 0} demo brands`);
 
     // 2. Create brand-reseller allocations
-    if (createdBrands && resellerId) {
-      const allocations = createdBrands.map(brand => ({
+    if (demoReseller && createdBrands && createdBrands.length > 0) {
+      const allocations = createdBrands.map((brand: any) => ({
         brand_id: brand.id,
-        reseller_id: resellerId,
-        allocated_by: adminId,
-        brand_profile_id: brandId // Map to the demo brand profile
-      }))
+        reseller_id: demoReseller.id,
+        allocated_by: demoAdmin?.id || demoReseller.id,
+        allocated_at: new Date().toISOString()
+      }));
 
-      await supabaseClient
+      const { error: allocationsError } = await supabase
         .from('brand_reseller_allocations')
-        .upsert(allocations, { onConflict: 'brand_id,reseller_id' })
+        .upsert(allocations, { onConflict: 'brand_id,reseller_id' });
+
+      if (allocationsError) {
+        console.error('Error creating allocations:', allocationsError);
+      } else {
+        console.log(`Created ${allocations.length} brand allocations`);
+      }
     }
 
-    // 3. Create products for the demo brand
-    if (brandId && createdBrands) {
-      const products = [
-        { name: '[DEMO] Wireless Headphones Pro', sku: 'DEMO-WH-001', description: 'Premium wireless headphones with noise cancellation', price: 199.99, wholesale_price: 120.00, msrp: 249.99, stock: 45, brand_id: brandId, categories: ['Electronics', 'Audio'], approval_status: 'approved' },
-        { name: '[DEMO] Smart Fitness Tracker', sku: 'DEMO-FT-002', description: 'Advanced fitness tracking with heart rate monitor', price: 149.99, wholesale_price: 89.99, msrp: 199.99, stock: 32, brand_id: brandId, categories: ['Electronics', 'Fitness'], approval_status: 'approved' },
-        { name: '[DEMO] Premium Coffee Maker', sku: 'DEMO-CM-003', description: 'Professional grade coffee maker with programmable features', price: 299.99, wholesale_price: 180.00, msrp: 399.99, stock: 18, brand_id: brandId, categories: ['Kitchen', 'Appliances'], approval_status: 'approved' },
-        { name: '[DEMO] Ergonomic Office Chair', sku: 'DEMO-OC-004', description: 'Luxury ergonomic office chair with lumbar support', price: 449.99, wholesale_price: 270.00, msrp: 599.99, stock: 12, brand_id: brandId, categories: ['Furniture', 'Office'], approval_status: 'pending' },
-        { name: '[DEMO] Portable Bluetooth Speaker', sku: 'DEMO-BS-005', description: 'Waterproof portable speaker with 20-hour battery', price: 79.99, wholesale_price: 48.00, msrp: 99.99, stock: 67, brand_id: brandId, categories: ['Electronics', 'Audio'], approval_status: 'approved' }
-      ]
+    // 3. Create sample products
+    if (demoBrand && createdBrands && createdBrands.length > 0) {
+      const firstBrandId = createdBrands[0].id;
+      
+      const sampleProducts = [
+        {
+          brand_id: firstBrandId,
+          name: '[DEMO] Smart Wireless Charger',
+          sku: 'DEMO-SWC-001',
+          description: 'Fast wireless charging pad with LED indicator',
+          price: 29.99,
+          wholesale_price: 15.00,
+          msrp: 39.99,
+          stock: 150,
+          categories: ['Electronics', 'Accessories'],
+          approval_status: 'approved',
+          asin: 'DEMO001SWC'
+        },
+        {
+          brand_id: firstBrandId,
+          name: '[DEMO] Premium Coffee Mug Set',
+          sku: 'DEMO-MUG-002',
+          description: 'Set of 4 ceramic coffee mugs with elegant design',
+          price: 24.99,
+          wholesale_price: 12.50,
+          msrp: 34.99,
+          stock: 75,
+          categories: ['Home & Garden', 'Kitchen'],
+          approval_status: 'approved',
+          asin: 'DEMO002MUG'
+        },
+        {
+          brand_id: firstBrandId,
+          name: '[DEMO] Bluetooth Sports Headphones',
+          sku: 'DEMO-BT-003',
+          description: 'Wireless Bluetooth headphones perfect for workouts',
+          price: 49.99,
+          wholesale_price: 25.00,
+          msrp: 79.99,
+          stock: 200,
+          categories: ['Electronics', 'Sports'],
+          approval_status: 'approved',
+          asin: 'DEMO003BT'
+        },
+        {
+          brand_id: firstBrandId,
+          name: '[DEMO] Organic Face Serum',
+          sku: 'DEMO-SER-004',
+          description: 'Natural anti-aging serum with vitamin C',
+          price: 19.99,
+          wholesale_price: 10.00,
+          msrp: 29.99,
+          stock: 120,
+          categories: ['Beauty', 'Skincare'],
+          approval_status: 'approved',
+          asin: 'DEMO004SER'
+        },
+        {
+          brand_id: firstBrandId,
+          name: '[DEMO] Yoga Mat Premium',
+          sku: 'DEMO-YOG-005',
+          description: 'High-quality non-slip yoga mat with carrying strap',
+          price: 34.99,
+          wholesale_price: 18.00,
+          msrp: 49.99,
+          stock: 85,
+          categories: ['Sports', 'Fitness'],
+          approval_status: 'approved',
+          asin: 'DEMO005YOG'
+        }
+      ];
 
-      const { data: createdProducts } = await supabaseClient
+      const { data: createdProducts, error: productsError } = await supabase
         .from('products')
-        .upsert(products, { onConflict: 'sku' })
-        .select('id, name, wholesale_price')
+        .upsert(sampleProducts, { onConflict: 'sku' })
+        .select();
 
-      // 4. Create sample orders
-      if (createdProducts && resellerId) {
-        const orders = [
-          { reseller_id: resellerId, brand_id: brandId, total_amount: 850.00, status: 'completed', created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
-          { reseller_id: resellerId, brand_id: brandId, total_amount: 1299.98, status: 'processing', created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
-          { reseller_id: resellerId, brand_id: brandId, total_amount: 679.97, status: 'pending', created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() }
-        ]
+      if (productsError) {
+        console.error('Error creating products:', productsError);
+      } else {
+        console.log(`Created ${createdProducts?.length || 0} demo products`);
 
-        const { data: createdOrders } = await supabaseClient
-          .from('orders')
-          .upsert(orders, { onConflict: 'reseller_id,brand_id,created_at' })
-          .select('id')
+        // 4. Create sample orders
+        if (demoReseller && createdProducts && createdProducts.length > 0) {
+          const sampleOrders = [
+            {
+              reseller_id: demoReseller.id,
+              brand_id: firstBrandId,
+              total_amount: 299.95,
+              status: 'delivered',
+              created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+              reseller_id: demoReseller.id,
+              brand_id: firstBrandId,
+              total_amount: 149.95,
+              status: 'shipped',
+              created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+              reseller_id: demoReseller.id,
+              brand_id: firstBrandId,
+              total_amount: 199.97,
+              status: 'processing',
+              created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+            }
+          ];
 
-        // 5. Create order items
-        if (createdOrders) {
-          const orderItems = [
-            // Order 1 items
-            { order_id: createdOrders[0].id, product_id: createdProducts[0].id, quantity: 2, unit_price: 199.99, total_price: 399.98 },
-            { order_id: createdOrders[0].id, product_id: createdProducts[1].id, quantity: 3, unit_price: 149.99, total_price: 449.97 },
-            // Order 2 items  
-            { order_id: createdOrders[1].id, product_id: createdProducts[2].id, quantity: 2, unit_price: 299.99, total_price: 599.98 },
-            { order_id: createdOrders[1].id, product_id: createdProducts[4].id, quantity: 5, unit_price: 79.99, total_price: 399.95 },
-            { order_id: createdOrders[1].id, product_id: createdProducts[0].id, quantity: 1, unit_price: 199.99, total_price: 199.99 },
-            // Order 3 items
-            { order_id: createdOrders[2].id, product_id: createdProducts[1].id, quantity: 2, unit_price: 149.99, total_price: 299.98 },
-            { order_id: createdOrders[2].id, product_id: createdProducts[4].id, quantity: 3, unit_price: 79.99, total_price: 239.97 }
-          ]
+          const { data: createdOrders, error: ordersError } = await supabase
+            .from('orders')
+            .insert(sampleOrders)
+            .select();
 
-          await supabaseClient
-            .from('order_items')
-            .upsert(orderItems, { onConflict: 'order_id,product_id' })
+          if (ordersError) {
+            console.error('Error creating orders:', ordersError);
+          } else {
+            console.log(`Created ${createdOrders?.length || 0} demo orders`);
+
+            // 5. Create order items
+            if (createdOrders && createdOrders.length > 0) {
+              const orderItems = [
+                {
+                  order_id: createdOrders[0].id,
+                  product_id: createdProducts[0].id,
+                  quantity: 5,
+                  unit_price: 29.99,
+                  total_price: 149.95
+                },
+                {
+                  order_id: createdOrders[0].id,
+                  product_id: createdProducts[1].id,
+                  quantity: 6,
+                  unit_price: 24.99,
+                  total_price: 149.94
+                },
+                {
+                  order_id: createdOrders[1].id,
+                  product_id: createdProducts[2].id,
+                  quantity: 3,
+                  unit_price: 49.99,
+                  total_price: 149.97
+                },
+                {
+                  order_id: createdOrders[2].id,
+                  product_id: createdProducts[3].id,
+                  quantity: 10,
+                  unit_price: 19.99,
+                  total_price: 199.90
+                }
+              ];
+
+              const { error: itemsError } = await supabase
+                .from('order_items')
+                .insert(orderItems);
+
+              if (itemsError) {
+                console.error('Error creating order items:', itemsError);
+              } else {
+                console.log(`Created ${orderItems.length} demo order items`);
+              }
+            }
+          }
         }
       }
     }
 
-    // 6. Create brand applications from reseller to brands
-    if (resellerId && createdBrands) {
-      const applications = createdBrands.slice(0, 4).map((brand, index) => ({
-        reseller_id: resellerId,
-        brand_id: brand.id,
-        status: ['approved', 'pending', 'rejected', 'pending'][index],
-        application_data: {
-          message: `[DEMO] Application for wholesale partnership with ${brand.name}`,
-          monthly_volume: ['$25,000', '$15,000', '$30,000', '$20,000'][index],
-          experience_years: [5, 3, 7, 4][index]
+    // 6. Create sample brand applications
+    if (demoReseller && createdBrands && createdBrands.length > 0) {
+      const sampleApplications = [
+        {
+          reseller_id: demoReseller.id,
+          brand_id: createdBrands[0].id,
+          status: 'approved',
+          application_data: {
+            message: 'We are interested in carrying your tech products. Our Amazon store has excellent ratings.',
+            estimated_monthly_volume: '$5,000-$10,000'
+          },
+          created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
         },
-        created_at: new Date(Date.now() - (index + 1) * 24 * 60 * 60 * 1000).toISOString()
-      }))
+        {
+          reseller_id: demoReseller.id,
+          brand_id: createdBrands[1].id,
+          status: 'pending',
+          application_data: {
+            message: 'We would love to showcase your fashion products to our customer base.',
+            estimated_monthly_volume: '$3,000-$8,000'
+          },
+          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          reseller_id: demoReseller.id,
+          brand_id: createdBrands[2].id,
+          status: 'approved',
+          application_data: {
+            message: 'Your home essentials line would be perfect for our marketplace presence.',
+            estimated_monthly_volume: '$7,000-$12,000'
+          },
+          created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
 
-      await supabaseClient
+      const { error: applicationsError } = await supabase
         .from('brand_applications')
-        .upsert(applications, { onConflict: 'reseller_id,brand_id' })
+        .upsert(sampleApplications, { onConflict: 'reseller_id,brand_id' });
+
+      if (applicationsError) {
+        console.error('Error creating applications:', applicationsError);
+      } else {
+        console.log(`Created ${sampleApplications.length} demo applications`);
+      }
     }
 
-    // 7. Create product uploads for brand
-    if (brandId) {
-      const uploads = [
-        { name: '[DEMO] Electronics Catalog Q4 2024', brand_id: brandId, product_count: 247, status: 'approved', created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString() },
-        { name: '[DEMO] New Product Launch Catalog', brand_id: brandId, product_count: 35, status: 'pending', created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
-        { name: '[DEMO] Seasonal Products Update', brand_id: brandId, product_count: 89, status: 'approved', created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() }
-      ]
+    // 7. Create demo reseller application
+    if (demoReseller) {
+      const demoResellerApplication = {
+        user_id: demoReseller.id,
+        email: 'demo.reseller@bndbox.com',
+        company_name: '[DEMO] Premium Resellers Inc',
+        business_type: 'LLC',
+        ein_number: 'XX-XXXXXXX',
+        phone: '+1-555-DEMO-001',
+        sales_volume: '$100,000 - $500,000',
+        wholesale_budget: '$50,000 - $100,000',
+        product_categories: ['Electronics', 'Fashion', 'Home & Garden'],
+        status: 'approved',
+        amazon_seller_id: 'DEMO123456789',
+        walmart_seller_id: 'DEMO-WALMART-ID',
+        ebay_seller_id: 'demo_reseller_ebay',
+        feedback_score: '98.5% (5000+ reviews)',
+        linkedin: 'https://linkedin.com/company/demo-premium-resellers'
+      };
 
-      await supabaseClient
+      const { error: resellerError } = await supabase
+        .from('reseller_applications')
+        .upsert(demoResellerApplication, { onConflict: 'email' });
+
+      if (resellerError) {
+        console.error('Error creating reseller application:', resellerError);
+      } else {
+        console.log('Created demo reseller application');
+      }
+    }
+
+    // 8. Create sample product uploads
+    if (demoBrand && createdBrands && createdBrands.length > 0) {
+      const sampleUploads = [
+        {
+          brand_id: createdBrands[0].id,
+          name: '[DEMO] Electronics Catalog Q4 2024',
+          status: 'approved',
+          product_count: 25,
+          created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          brand_id: createdBrands[0].id,
+          name: '[DEMO] Home Products Spring Collection',
+          status: 'pending',
+          product_count: 18,
+          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+
+      const { error: uploadsError } = await supabase
         .from('product_uploads')
-        .upsert(uploads, { onConflict: 'brand_id,name' })
+        .upsert(sampleUploads, { onConflict: 'brand_id,name' });
+
+      if (uploadsError) {
+        console.error('Error creating uploads:', uploadsError);
+      } else {
+        console.log(`Created ${sampleUploads.length} demo uploads`);
+      }
     }
+
+    console.log('Demo data seeding completed successfully');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: 'Demo data seeded successfully',
-        data: {
-          brands_created: createdBrands?.length || 0,
-          demo_accounts: demoAccounts.length
+        details: {
+          brands: createdBrands?.length || 0,
+          demoprofiles: demoProfiles?.length || 0
         }
       }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
       }
-    )
+    );
 
   } catch (error) {
-    console.error('Error seeding demo data:', error)
+    console.error('Error in seed-demo-data function:', error);
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error.message,
+        details: 'Check function logs for more information'
       }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
+        status: 500,
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
       }
-    )
+    );
   }
-})
+});

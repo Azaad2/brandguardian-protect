@@ -3,57 +3,35 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { setupCompleteDemo, DEMO_ACCOUNTS, type DemoAccount } from '@/utils/demo-setup';
-import { CheckCircle, AlertCircle, Users, Building, Shield } from 'lucide-react';
+import { createDemoAccounts, DEMO_ACCOUNTS, type DemoAccount } from '@/utils/demo-setup';
+import { supabase } from '@/integrations/supabase/client';
+import { CheckCircle, AlertCircle, Users, Building, Shield, RefreshCw } from 'lucide-react';
 
 const DemoSetupManager = () => {
   const [isCreatingDemo, setIsCreatingDemo] = useState(false);
+  const [isReseeding, setIsReseeding] = useState(false);
   const [demoCreated, setDemoCreated] = useState(false);
+  const [verificationData, setVerificationData] = useState<any>(null);
 
   const handleCreateDemo = async () => {
     setIsCreatingDemo(true);
     
     try {
       // First create demo accounts
-      const result = await setupCompleteDemo();
+      const result = await createDemoAccounts();
       
       if (!result.success) {
         toast({
           variant: "destructive",
-          title: "Demo Setup Failed",
-          description: result.message,
+          title: "Demo Account Creation Failed",
+          description: "Some demo accounts could not be created. Check console for details.",
         });
         return;
       }
 
       // Then seed demo data using the edge function
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/seed-demo-data`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const seedResult = await response.json();
+      await seedDemoData();
       
-      if (seedResult.success) {
-        setDemoCreated(true);
-        toast({
-          title: "Demo Setup Complete! 🎉",
-          description: "All demo accounts and sample data have been created successfully.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Demo Data Seeding Failed",
-          description: seedResult.error,
-        });
-      }
     } catch (error) {
       console.error('Demo setup error:', error);
       toast({
@@ -63,6 +41,89 @@ const DemoSetupManager = () => {
       });
     } finally {
       setIsCreatingDemo(false);
+    }
+  };
+
+  const seedDemoData = async () => {
+    try {
+      console.log('Calling seed-demo-data edge function...');
+      
+      const { data: seedResult, error } = await supabase.functions.invoke('seed-demo-data', {
+        body: {}
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+      
+      if (seedResult.success) {
+        setDemoCreated(true);
+        await verifyDemoData();
+        toast({
+          title: "Demo Setup Complete! 🎉",
+          description: "All demo accounts and sample data have been created successfully.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Demo Data Seeding Failed",
+          description: seedResult.error || "Unknown error occurred",
+        });
+      }
+    } catch (error) {
+      console.error('Seeding error:', error);
+      toast({
+        variant: "destructive",
+        title: "Demo Data Seeding Failed",
+        description: error.message || "Failed to seed demo data",
+      });
+    }
+  };
+
+  const handleReseedData = async () => {
+    setIsReseeding(true);
+    try {
+      await seedDemoData();
+    } finally {
+      setIsReseeding(false);
+    }
+  };
+
+  const verifyDemoData = async () => {
+    try {
+      // Check brands
+      const { count: brandsCount } = await supabase
+        .from('brands_directory')
+        .select('id', { count: 'exact' })
+        .ilike('name', '[DEMO]%');
+
+      // Check allocations
+      const { count: allocationsCount } = await supabase
+        .from('brand_reseller_allocations')
+        .select('id', { count: 'exact' })
+        .eq('reseller_id', (await supabase.from('profiles').select('id').eq('email', 'demo.reseller@bndbox.com').single()).data?.id);
+
+      // Check products
+      const { count: productsCount } = await supabase
+        .from('products')
+        .select('id', { count: 'exact' })
+        .ilike('name', '[DEMO]%');
+
+      // Check orders
+      const { count: ordersCount } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact' })
+        .eq('reseller_id', (await supabase.from('profiles').select('id').eq('email', 'demo.reseller@bndbox.com').single()).data?.id);
+
+      setVerificationData({
+        brands: brandsCount || 0,
+        allocations: allocationsCount || 0,
+        products: productsCount || 0,
+        orders: ordersCount || 0
+      });
+    } catch (error) {
+      console.error('Verification error:', error);
     }
   };
 
@@ -136,11 +197,33 @@ const DemoSetupManager = () => {
                 <span className="font-medium">Demo setup completed successfully!</span>
               </div>
               
+              {verificationData && (
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-900 mb-2">Verification Results:</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-green-800">
+                    <div>✅ {verificationData.brands} Demo Brands</div>
+                    <div>✅ {verificationData.allocations} Brand Allocations</div>
+                    <div>✅ {verificationData.products} Demo Products</div>
+                    <div>✅ {verificationData.orders} Demo Orders</div>
+                  </div>
+                </div>
+              )}
+              
               <div className="bg-green-50 p-4 rounded-lg">
                 <p className="text-green-800 text-sm">
                   All demo accounts and sample data have been created. You can now share the credentials below with your investor.
                 </p>
               </div>
+
+              <Button 
+                onClick={handleReseedData}
+                disabled={isReseeding}
+                variant="outline"
+                className="w-full"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isReseeding ? 'animate-spin' : ''}`} />
+                {isReseeding ? "Re-seeding Data..." : "Force Re-seed Demo Data"}
+              </Button>
             </div>
           )}
         </CardContent>
