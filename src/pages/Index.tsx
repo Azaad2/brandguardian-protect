@@ -10,7 +10,7 @@ import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/layout/Footer';
 import VisitorTypeDialog from '@/components/dialogs/VisitorTypeDialog';
-import AutoDemoSetup from '@/components/demo/AutoDemoSetup';
+
 
 const Index = () => {
   const [showVisitorDialog, setShowVisitorDialog] = useState(false);
