@@ -37,6 +37,7 @@ import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 // Legacy admin pages
 import Admin from '@/pages/Admin';
 import RoleUpdater from '@/pages/RoleUpdater';
+import DemoSetup from '@/pages/DemoSetup';
 
 // Protected Route Component  
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -162,7 +163,8 @@ const AppContent = () => {
         <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin-dashboard/*" element={<AdminDashboardRedirect />} />
         
-        {/* Legacy admin routes */}
+        {/* Demo and legacy admin routes */}
+        <Route path="/demo-setup" element={<DemoSetup />} />
         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/role-updater" element={<RoleUpdater />} />
         
