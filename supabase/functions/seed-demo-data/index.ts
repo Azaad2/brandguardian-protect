@@ -103,13 +103,37 @@ Deno.serve(async (req) => {
       // Delete uploads, products, and brands for demo brands
       if (demoBrandIds.length) {
         const { error: delUploadsErr } = await supabase.from('product_uploads').delete().in('brand_id', demoBrandIds);
-        if (delUploadsErr) console.error('Error deleting product uploads:', delUploadsErr);
+        if (delUploadsErr) console.error('Error deleting product uploads (by brand ids):', delUploadsErr);
 
         const { error: delProductsErr } = await supabase.from('products').delete().in('brand_id', demoBrandIds);
-        if (delProductsErr) console.error('Error deleting products:', delProductsErr);
+        if (delProductsErr) console.error('Error deleting products (by brand ids):', delProductsErr);
 
         const { error: delBrandsErr } = await supabase.from('brands_directory').delete().in('id', demoBrandIds);
         if (delBrandsErr) console.error('Error deleting brands:', delBrandsErr);
+      }
+
+      // Also delete products/uploads tied to the demo brand user profile id
+      if (demoBrand) {
+        const { error: delProductsByProfileErr } = await supabase.from('products').delete().eq('brand_id', demoBrand.id);
+        if (delProductsByProfileErr) console.error('Error deleting products (by brand profile id):', delProductsByProfileErr);
+
+        const { error: delUploadsByProfileErr } = await supabase.from('product_uploads').delete().eq('brand_id', demoBrand.id);
+        if (delUploadsByProfileErr) console.error('Error deleting product uploads (by brand profile id):', delUploadsByProfileErr);
+      }
+
+      // Cleanup any previous messages and subscriptions for demo users
+      if (demoReseller && demoBrand) {
+        const { error: delMessagesErr } = await supabase
+          .from('messages')
+          .delete()
+          .or(`sender_id.eq.${demoReseller.id},recipient_id.eq.${demoReseller.id},sender_id.eq.${demoBrand.id},recipient_id.eq.${demoBrand.id}`);
+        if (delMessagesErr) console.error('Error deleting demo messages:', delMessagesErr);
+
+        const { error: delSubsErr } = await supabase
+          .from('subscribers')
+          .delete()
+          .or(`user_id.eq.${demoReseller.id},email.eq.demo.reseller@bndbox.com`);
+        if (delSubsErr) console.error('Error deleting demo subscribers:', delSubsErr);
       }
     } catch (cleanupError) {
       console.error('Error during cleanup:', cleanupError);
@@ -192,7 +216,9 @@ Deno.serve(async (req) => {
         brand_id: brand.id,
         reseller_id: demoReseller.id,
         allocated_by: demoAdmin?.id || demoReseller.id,
-        allocated_at: new Date().toISOString()
+        allocated_at: new Date().toISOString(),
+        // Link demo brands to the demo brand user profile for product/order lookups
+        brand_profile_id: demoBrand?.id || null,
       }));
 
       const { error: allocationsError } = await supabase
@@ -208,11 +234,11 @@ Deno.serve(async (req) => {
 
     // 3. Create sample products
     if (demoBrand && createdBrands && createdBrands.length > 0) {
-      const firstBrandId = createdBrands[0].id;
+      const brandUserId = demoBrand.id;
       
       const sampleProducts = [
         {
-          brand_id: firstBrandId,
+          brand_id: brandUserId,
           name: '[DEMO] Smart Wireless Charger',
           sku: 'DEMO-SWC-001',
           description: 'Fast wireless charging pad with LED indicator',
@@ -225,7 +251,7 @@ Deno.serve(async (req) => {
           asin: 'DEMO001SWC'
         },
         {
-          brand_id: firstBrandId,
+          brand_id: brandUserId,
           name: '[DEMO] Premium Coffee Mug Set',
           sku: 'DEMO-MUG-002',
           description: 'Set of 4 ceramic coffee mugs with elegant design',
@@ -238,7 +264,7 @@ Deno.serve(async (req) => {
           asin: 'DEMO002MUG'
         },
         {
-          brand_id: firstBrandId,
+          brand_id: brandUserId,
           name: '[DEMO] Bluetooth Sports Headphones',
           sku: 'DEMO-BT-003',
           description: 'Wireless Bluetooth headphones perfect for workouts',
@@ -251,7 +277,7 @@ Deno.serve(async (req) => {
           asin: 'DEMO003BT'
         },
         {
-          brand_id: firstBrandId,
+          brand_id: brandUserId,
           name: '[DEMO] Organic Face Serum',
           sku: 'DEMO-SER-004',
           description: 'Natural anti-aging serum with vitamin C',
@@ -264,7 +290,7 @@ Deno.serve(async (req) => {
           asin: 'DEMO004SER'
         },
         {
-          brand_id: firstBrandId,
+          brand_id: brandUserId,
           name: '[DEMO] Yoga Mat Premium',
           sku: 'DEMO-YOG-005',
           description: 'High-quality non-slip yoga mat with carrying strap',
@@ -293,21 +319,21 @@ Deno.serve(async (req) => {
           const sampleOrders = [
             {
               reseller_id: demoReseller.id,
-              brand_id: firstBrandId,
+              brand_id: brandUserId,
               total_amount: 299.95,
               status: 'delivered',
               created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
             },
             {
               reseller_id: demoReseller.id,
-              brand_id: firstBrandId,
+              brand_id: brandUserId,
               total_amount: 149.95,
               status: 'shipped',
               created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
             },
             {
               reseller_id: demoReseller.id,
-              brand_id: firstBrandId,
+              brand_id: brandUserId,
               total_amount: 199.97,
               status: 'processing',
               created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
@@ -476,6 +502,63 @@ Deno.serve(async (req) => {
         console.error('Error creating uploads:', uploadsError);
       } else {
         console.log(`Created ${sampleUploads.length} demo uploads`);
+      }
+    }
+
+    // 9. Create sample messages between brand and reseller
+    if (demoReseller && demoBrand) {
+      const now = Date.now();
+      const sampleMessages = [
+        {
+          sender_id: demoBrand.id,
+          recipient_id: demoReseller.id,
+          content: 'Welcome to [DEMO] Tech Innovations\nYour reseller application has been approved. Please review our latest product catalog and MAP policy.',
+          is_read: false,
+          created_at: new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          sender_id: demoReseller.id,
+          recipient_id: demoBrand.id,
+          content: 'Purchase Order #DEMO-PO-1001\nWe would like to place an initial order of the Smart Wireless Charger and Bluetooth Sports Headphones.',
+          is_read: true,
+          created_at: new Date(now - 4 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          sender_id: demoBrand.id,
+          recipient_id: demoReseller.id,
+          content: 'Shipping Update\nYour order #DEMO-PO-1001 has shipped. Tracking will be shared shortly. Action required: confirm delivery address.',
+          is_read: false,
+          created_at: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .insert(sampleMessages);
+
+      if (messagesError) {
+        console.error('Error creating messages:', messagesError);
+      } else {
+        console.log(`Created ${sampleMessages.length} demo messages`);
+      }
+    }
+
+    // 10. Create a demo subscriber record for reseller settings
+    if (demoReseller) {
+      const { error: subscriberError } = await supabase
+        .from('subscribers')
+        .insert({
+          user_id: demoReseller.id,
+          email: 'demo.reseller@bndbox.com',
+          subscribed: true,
+          subscription_tier: 'pro',
+          subscription_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        });
+
+      if (subscriberError) {
+        console.error('Error creating subscriber:', subscriberError);
+      } else {
+        console.log('Created demo subscriber record');
       }
     }
 
