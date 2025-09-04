@@ -134,6 +134,11 @@ const AppContent = () => {
             <LazyBrandDashboard />
           </ProtectedRoute>
         } />
+        <Route path="/brand/dashboard/*" element={
+          <ProtectedRoute requiredRole="brand">
+            <LazyBrandDashboard />
+          </ProtectedRoute>
+        } />
         <Route path="/reseller/dashboard" element={
           <ProtectedRoute requiredRole="reseller">
             <LazyResellerDashboard />
