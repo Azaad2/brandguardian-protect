@@ -253,7 +253,7 @@ export const useBrandAnalytics = () => {
       // Get orders count and revenue
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
-        .select('total_amount, status')
+        .select('total_amount, status, created_at')
         .eq('brand_id', user.id);
       
       if (ordersError) throw ordersError;

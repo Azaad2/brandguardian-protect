@@ -17,34 +17,37 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface DashboardData {
-  resellers: {
-    authorized: number;
-    pending: number;
-    growth: number;
-  };
-  listings: {
-    active: number;
-    unauthorized: number;
-    mostListed: string;
-  };
-  compliance: {
-    mapViolations: number;
-    contentIssues: number;
-    resolvedIssues: number;
-  };
-  sales: {
-    totalRevenue: number;
-    topReseller: string;
-    growthRate: number;
-  };
+interface AnalyticsData {
+  totalRevenue: number;
+  ordersCount: number;
+  resellersCount: number;
+  productsCount: number;
+  orders: Array<{ 
+    total_amount: number; 
+    status: string; 
+  }>;
 }
 
 interface QuickStatsCardsProps {
-  dashboardData: DashboardData;
+  analytics?: AnalyticsData;
 }
 
-const QuickStatsCards = ({ dashboardData }: QuickStatsCardsProps) => {
+const QuickStatsCards = ({ analytics }: QuickStatsCardsProps) => {
+  if (!analytics) {
+    return null;
+  }
+
+  // Calculate some derived metrics
+  const deliveredOrders = analytics.orders.filter(order => order.status === 'delivered').length;
+  const pendingOrders = analytics.orders.filter(order => order.status === 'pending').length;
+  const deliveredRevenue = analytics.orders
+    .filter(order => order.status === 'delivered')
+    .reduce((sum, order) => sum + Number(order.total_amount), 0);
+
+  // Mock growth percentages (in real app, would calculate from historical data)
+  const revenueGrowth = 12.3;
+  const resellerGrowth = 8.5;
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -53,10 +56,10 @@ const QuickStatsCards = ({ dashboardData }: QuickStatsCardsProps) => {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{dashboardData.resellers.authorized}</div>
+          <div className="text-2xl font-bold">{analytics.resellersCount}</div>
           <div className="flex items-center text-xs text-muted-foreground">
             <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-            <span className="text-green-500">{dashboardData.resellers.growth}%</span>
+            <span className="text-green-500">{resellerGrowth}%</span>
             <span className="ml-1">from last month</span>
           </div>
           <div className="mt-3">
@@ -71,18 +74,18 @@ const QuickStatsCards = ({ dashboardData }: QuickStatsCardsProps) => {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
+          <CardTitle className="text-sm font-medium">Total Products</CardTitle>
           <ShoppingBag className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{dashboardData.listings.active}</div>
+          <div className="text-2xl font-bold">{analytics.productsCount}</div>
           <div className="flex items-center text-xs text-muted-foreground">
-            <span>Across all marketplaces</span>
+            <span>Available in catalog</span>
           </div>
           <div className="mt-3">
-            <Link to="/brand/dashboard/listings">
+            <Link to="/brand/dashboard/inventory">
               <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
-                View all listings
+                View inventory
               </Button>
             </Link>
           </div>
@@ -91,18 +94,18 @@ const QuickStatsCards = ({ dashboardData }: QuickStatsCardsProps) => {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">MAP Violations</CardTitle>
+          <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
           <AlertTriangle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{dashboardData.compliance.mapViolations}</div>
+          <div className="text-2xl font-bold">{pendingOrders}</div>
           <div className="flex items-center text-xs text-muted-foreground">
             <span className="text-amber-500">Requires attention</span>
           </div>
           <div className="mt-3">
-            <Link to="/brand/dashboard/compliance">
+            <Link to="/brand/dashboard/orders">
               <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
-                View compliance issues
+                View pending orders
               </Button>
             </Link>
           </div>
@@ -111,14 +114,14 @@ const QuickStatsCards = ({ dashboardData }: QuickStatsCardsProps) => {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+          <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${(dashboardData.sales.totalRevenue).toLocaleString()}</div>
+          <div className="text-2xl font-bold">${analytics.totalRevenue.toFixed(2)}</div>
           <div className="flex items-center text-xs text-muted-foreground">
             <ChevronsUp className="mr-1 h-4 w-4 text-green-500" />
-            <span className="text-green-500">{dashboardData.sales.growthRate}%</span>
+            <span className="text-green-500">{revenueGrowth}%</span>
             <span className="ml-1">from last month</span>
           </div>
           <div className="mt-3">
