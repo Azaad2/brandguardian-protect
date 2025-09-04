@@ -36,7 +36,7 @@ import ResellerPortal from '@/pages/reseller/ResellerPortal';
 import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 
 // Dashboard components for nested routes
-import AdminOverview from '@/components/admin/AdminOverview';
+import { default as AdminOverview } from '@/components/admin/AdminOverview';
 import BrandsDirectory from '@/components/admin/BrandsDirectory';
 import CatalogApprovals from '@/components/admin/CatalogApprovals';
 import ResellerApprovalManager from '@/components/admin/ResellerApprovalManager';
