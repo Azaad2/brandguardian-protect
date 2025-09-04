@@ -35,6 +35,26 @@ import BrandPortal from '@/pages/brand/BrandPortal';
 import ResellerPortal from '@/pages/reseller/ResellerPortal';
 import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 
+// Dashboard components for nested routes
+import AdminOverview from '@/components/admin/AdminOverview';
+import BrandsDirectory from '@/components/admin/BrandsDirectory';
+import CatalogApprovals from '@/components/admin/CatalogApprovals';
+import ResellerApprovalManager from '@/components/admin/ResellerApprovalManager';
+
+import BrandOverview from '@/components/brand/BrandOverview';
+import BrandInventory from '@/components/brand/BrandInventory';
+import BrandResellers from '@/components/brand/BrandResellers';
+import BrandOrders from '@/components/brand/BrandOrders';
+import BrandMessages from '@/components/brand/BrandMessages';
+import BrandAnalytics from '@/components/brand/BrandAnalytics';
+import BrandSettings from '@/components/brand/BrandSettings';
+
+import ResellerOverview from '@/components/reseller/ResellerOverview';
+import ResellerBrands from '@/components/reseller/ResellerBrands';
+import ResellerOrders from '@/components/reseller/ResellerOrders';
+import ResellerMessages from '@/components/reseller/ResellerMessages';
+import ResellerSettings from '@/components/reseller/ResellerSettings';
+
 // Legacy admin pages
 import Admin from '@/pages/Admin';
 import RoleUpdater from '@/pages/RoleUpdater';
@@ -118,37 +138,49 @@ const AppContent = () => {
         <Route path="/blog/amazon-brand-registry-benefits" element={<LazyAmazonBrandRegistryBenefits />} />
         <Route path="/blog/outreach-thousand-brands-amazon-wholesale" element={<LazyOutreachThousandBrandsAmazonWholesale />} />
         
-        {/* Protected dashboard routes with lazy loading */}
+        {/* Protected dashboard routes with nested routing */}
         <Route path="/admin/dashboard" element={
           <ProtectedRoute requiredRole="admin">
             <LazyAdminDashboard />
           </ProtectedRoute>
-        } />
-        <Route path="/admin/dashboard/*" element={
-          <ProtectedRoute requiredRole="admin">
-            <LazyAdminDashboard />
-          </ProtectedRoute>
-        } />
+        }>
+          <Route index element={<AdminOverview />} />
+          <Route path="reseller-applications" element={<ResellerRegistration />} />
+          <Route path="reseller-approvals" element={<ResellerApprovalManager />} />
+          <Route path="brands-directory" element={<BrandsDirectory />} />
+          <Route path="catalog-approvals" element={<CatalogApprovals />} />
+          <Route path="user-management" element={
+            <ProtectedRoute requiredRole="admin">
+              <LazyUserManagement />
+            </ProtectedRoute>
+          } />
+        </Route>
+        
         <Route path="/brand/dashboard" element={
           <ProtectedRoute requiredRole="brand">
             <LazyBrandDashboard />
           </ProtectedRoute>
-        } />
-        <Route path="/brand/dashboard/*" element={
-          <ProtectedRoute requiredRole="brand">
-            <LazyBrandDashboard />
-          </ProtectedRoute>
-        } />
+        }>
+          <Route index element={<BrandOverview />} />
+          <Route path="inventory" element={<BrandInventory />} />
+          <Route path="resellers" element={<BrandResellers />} />
+          <Route path="orders" element={<BrandOrders />} />
+          <Route path="messages" element={<BrandMessages />} />
+          <Route path="analytics" element={<BrandAnalytics />} />
+          <Route path="settings" element={<BrandSettings />} />
+        </Route>
+        
         <Route path="/reseller/dashboard" element={
           <ProtectedRoute requiredRole="reseller">
             <LazyResellerDashboard />
           </ProtectedRoute>
-        } />
-        <Route path="/reseller/dashboard/*" element={
-          <ProtectedRoute requiredRole="reseller">
-            <LazyResellerDashboard />
-          </ProtectedRoute>
-        } />
+        }>
+          <Route index element={<ResellerOverview />} />
+          <Route path="brands" element={<ResellerBrands />} />
+          <Route path="orders" element={<ResellerOrders />} />
+          <Route path="messages" element={<ResellerMessages />} />
+          <Route path="settings" element={<ResellerSettings />} />
+        </Route>
         
         {/* Public portal routes */}
         <Route path="/brand" element={<BrandPortal />} />
