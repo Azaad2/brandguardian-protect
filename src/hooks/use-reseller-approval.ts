@@ -9,30 +9,36 @@ interface ResellerApplication {
   user_id: string;
   email: string;
   company_name: string;
+  business_type: string;
+  ein_number: string;
+  phone: string;
+  sales_volume: string;
+  wholesale_budget: string;
+  product_categories: string[];
   status: string;
+  application_status: string;
+  amazon_seller_id: string | null;
+  walmart_seller_id: string | null;
+  ebay_seller_id: string | null;
+  feedback_score: string | null;
+  linkedin: string | null;
+  document_path: string | null;
+  document_verified: boolean;
+  document_verification_notes: string | null;
+  document_verified_at: string | null;
+  document_verified_by: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export const useResellerApproval = () => {
   const [applications, setApplications] = useState<ResellerApplication[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchPendingApplications = async () => {
+  const fetchAllApplications = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('reseller_applications')
-        .select(`
-          id,
-          user_id,
-          email,
-          company_name,
-          status,
-          created_at,
-          document_path
-        `)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.rpc('admin_get_reseller_applications');
 
       if (error) throw error;
       setApplications(data || []);
@@ -41,10 +47,39 @@ export const useResellerApproval = () => {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to fetch pending applications',
+        description: 'Failed to fetch reseller applications',
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const verifyDocument = async (applicationId: string, verified: boolean, notes?: string) => {
+    try {
+      const { data, error } = await supabase.rpc('admin_verify_document', {
+        application_id: applicationId,
+        verified,
+        notes
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: verified ? 'Document verified' : 'Document rejected',
+        description: verified ? 'Document has been verified successfully' : 'Document verification was rejected',
+      });
+
+      // Refresh applications list
+      await fetchAllApplications();
+      return true;
+    } catch (error) {
+      console.error('Error verifying document:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to verify document. Please try again.',
+      });
+      return false;
     }
   };
 
@@ -79,7 +114,7 @@ export const useResellerApproval = () => {
       });
 
       // Refresh applications list
-      await fetchPendingApplications();
+      await fetchAllApplications();
     } catch (error) {
       console.error('❌ Error approving application:', error);
       toast({
@@ -116,7 +151,7 @@ export const useResellerApproval = () => {
       });
 
       // Refresh applications list
-      await fetchPendingApplications();
+      await fetchAllApplications();
     } catch (error) {
       console.error('❌ Error rejecting application:', error);
       toast({
@@ -128,7 +163,7 @@ export const useResellerApproval = () => {
   };
 
   useEffect(() => {
-    fetchPendingApplications();
+    fetchAllApplications();
   }, []);
 
   return {
@@ -136,6 +171,7 @@ export const useResellerApproval = () => {
     loading,
     approveApplication,
     rejectApplication,
-    refreshApplications: fetchPendingApplications
+    verifyDocument,
+    refreshApplications: fetchAllApplications
   };
 };

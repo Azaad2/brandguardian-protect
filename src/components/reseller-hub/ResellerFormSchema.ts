@@ -28,6 +28,8 @@ export const formSchema = z.object({
   termsAgreement: z.boolean().refine(val => val === true, {
     message: 'You must agree to the terms and conditions',
   }),
+  // Document upload is now optional - applications can be submitted without documents
+  documentRequired: z.boolean().default(false),
 });
 
 export type FormValues = z.infer<typeof formSchema>;

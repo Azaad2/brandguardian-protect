@@ -544,10 +544,15 @@ export type Database = {
       reseller_applications: {
         Row: {
           amazon_seller_id: string | null
+          application_status: string | null
           business_type: string
           company_name: string
           created_at: string
           document_path: string | null
+          document_verification_notes: string | null
+          document_verified: boolean | null
+          document_verified_at: string | null
+          document_verified_by: string | null
           ebay_seller_id: string | null
           ein_number: string
           email: string
@@ -565,10 +570,15 @@ export type Database = {
         }
         Insert: {
           amazon_seller_id?: string | null
+          application_status?: string | null
           business_type: string
           company_name: string
           created_at?: string
           document_path?: string | null
+          document_verification_notes?: string | null
+          document_verified?: boolean | null
+          document_verified_at?: string | null
+          document_verified_by?: string | null
           ebay_seller_id?: string | null
           ein_number: string
           email: string
@@ -586,10 +596,15 @@ export type Database = {
         }
         Update: {
           amazon_seller_id?: string | null
+          application_status?: string | null
           business_type?: string
           company_name?: string
           created_at?: string
           document_path?: string | null
+          document_verification_notes?: string | null
+          document_verified?: boolean | null
+          document_verified_at?: string | null
+          document_verified_by?: string | null
           ebay_seller_id?: string | null
           ein_number?: string
           email?: string
@@ -605,7 +620,15 @@ export type Database = {
           walmart_seller_id?: string | null
           wholesale_budget?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reseller_applications_document_verified_by_fkey"
+            columns: ["document_verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscribers: {
         Row: {
@@ -708,6 +731,35 @@ export type Database = {
           website_url: string
         }[]
       }
+      admin_get_reseller_applications: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          amazon_seller_id: string
+          application_status: string
+          business_type: string
+          company_name: string
+          created_at: string
+          document_path: string
+          document_verification_notes: string
+          document_verified: boolean
+          document_verified_at: string
+          document_verified_by: string
+          ebay_seller_id: string
+          ein_number: string
+          email: string
+          feedback_score: string
+          id: string
+          linkedin: string
+          phone: string
+          product_categories: string[]
+          sales_volume: string
+          status: string
+          updated_at: string
+          user_id: string
+          walmart_seller_id: string
+          wholesale_budget: string
+        }[]
+      }
       admin_remove_brand_allocation: {
         Args: { p_brand_id: string; p_reseller_id: string }
         Returns: boolean
@@ -731,6 +783,10 @@ export type Database = {
           new_user_role?: string
           target_user_id: string
         }
+        Returns: boolean
+      }
+      admin_verify_document: {
+        Args: { application_id: string; notes?: string; verified: boolean }
         Returns: boolean
       }
       check_user_upload_access: {
