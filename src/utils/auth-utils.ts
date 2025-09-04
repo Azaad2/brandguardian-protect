@@ -99,10 +99,12 @@ export const createTestUser = async (email: string, password: string, userRole: 
     const cleanEmail = email.replace(/_/g, '') // Remove underscores as they may cause issues
 
     // First, sign up the user
+    const redirectUrl = `${window.location.origin}/`;
     const { data, error: signUpError } = await supabase.auth.signUp({ 
       email: cleanEmail, 
       password, 
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           full_name: userRole === 'reseller' ? 'Test Reseller' : 'Test Brand',
           company_name: userRole === 'reseller' ? 'Demo Reseller Company' : 'Demo Brand Company',
@@ -112,6 +114,12 @@ export const createTestUser = async (email: string, password: string, userRole: 
     });
     
     if (signUpError) {
+      const msg = (signUpError as any)?.message?.toLowerCase?.() || '';
+      // Treat existing users as success so the flow can continue to seeding
+      if (msg.includes('already registered') || msg.includes('already exists') || (signUpError as any)?.status === 422) {
+        console.warn('User already exists, proceeding as success for demo setup:', cleanEmail);
+        return true;
+      }
       console.error('Error creating test user:', signUpError);
       return false;
     }

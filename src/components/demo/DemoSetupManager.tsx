@@ -23,10 +23,9 @@ const DemoSetupManager = () => {
       if (!result.success) {
         toast({
           variant: "destructive",
-          title: "Demo Account Creation Failed",
-          description: "Some demo accounts could not be created. Check console for details.",
+          title: "Some demo accounts already exist",
+          description: "Proceeding to seed demo data anyway.",
         });
-        return;
       }
 
       // Then seed demo data using the edge function
@@ -188,6 +187,14 @@ const DemoSetupManager = () => {
                 className="w-full"
               >
                 {isCreatingDemo ? "Creating Demo Setup..." : "Create Complete Demo Setup"}
+              </Button>
+              <Button 
+                onClick={seedDemoData}
+                disabled={isCreatingDemo}
+                variant="outline"
+                className="w-full mt-2"
+              >
+                Seed Demo Data Only
               </Button>
             </div>
           ) : (
