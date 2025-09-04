@@ -44,7 +44,78 @@ Deno.serve(async (req) => {
 
     console.log('Demo accounts found:', { demoAdmin: !!demoAdmin, demoReseller: !!demoReseller, demoBrand: !!demoBrand });
 
-    // 1. Create sample brands
+    // 1. Clean up existing demo data and create sample brands
+    // Cleanup existing demo data first to avoid unique conflicts and duplicates
+    const { data: existingDemoBrands, error: findDemoBrandsError } = await supabase
+      .from('brands_directory')
+      .select('id, name')
+      .ilike('name', '[DEMO]%');
+
+    if (findDemoBrandsError) {
+      console.error('Error finding existing demo brands:', findDemoBrandsError);
+    }
+
+    const demoBrandIds = (existingDemoBrands || []).map((b: any) => b.id);
+
+    try {
+      // Delete orders and order items for demo reseller
+      if (demoReseller) {
+        const { data: existingOrders, error: findOrdersError } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('reseller_id', demoReseller.id);
+        if (findOrdersError) console.error('Error finding demo orders:', findOrdersError);
+
+        const orderIds = (existingOrders || []).map((o: any) => o.id);
+        if (orderIds.length) {
+          const { error: delItemsErr } = await supabase.from('order_items').delete().in('order_id', orderIds);
+          if (delItemsErr) console.error('Error deleting order items:', delItemsErr);
+
+          const { error: delOrdersErr } = await supabase.from('orders').delete().in('id', orderIds);
+          if (delOrdersErr) console.error('Error deleting orders:', delOrdersErr);
+        }
+
+        // Delete allocations and applications tied to demo reseller and demo brands
+        if (demoBrandIds.length) {
+          const { error: delAllocErr } = await supabase
+            .from('brand_reseller_allocations')
+            .delete()
+            .eq('reseller_id', demoReseller.id)
+            .in('brand_id', demoBrandIds);
+          if (delAllocErr) console.error('Error deleting allocations:', delAllocErr);
+
+          const { error: delAppsErr } = await supabase
+            .from('brand_applications')
+            .delete()
+            .eq('reseller_id', demoReseller.id)
+            .in('brand_id', demoBrandIds);
+          if (delAppsErr) console.error('Error deleting applications:', delAppsErr);
+        }
+
+        // Delete reseller application for demo reseller
+        const { error: delResellerAppErr } = await supabase
+          .from('reseller_applications')
+          .delete()
+          .eq('email', 'demo.reseller@bndbox.com');
+        if (delResellerAppErr) console.error('Error deleting reseller application:', delResellerAppErr);
+      }
+
+      // Delete uploads, products, and brands for demo brands
+      if (demoBrandIds.length) {
+        const { error: delUploadsErr } = await supabase.from('product_uploads').delete().in('brand_id', demoBrandIds);
+        if (delUploadsErr) console.error('Error deleting product uploads:', delUploadsErr);
+
+        const { error: delProductsErr } = await supabase.from('products').delete().in('brand_id', demoBrandIds);
+        if (delProductsErr) console.error('Error deleting products:', delProductsErr);
+
+        const { error: delBrandsErr } = await supabase.from('brands_directory').delete().in('id', demoBrandIds);
+        if (delBrandsErr) console.error('Error deleting brands:', delBrandsErr);
+      }
+    } catch (cleanupError) {
+      console.error('Error during cleanup:', cleanupError);
+    }
+
+    // Now create sample brands
     const sampleBrands = [
       {
         name: '[DEMO] Tech Innovations',
@@ -105,7 +176,7 @@ Deno.serve(async (req) => {
 
     const { data: createdBrands, error: brandsError } = await supabase
       .from('brands_directory')
-      .upsert(sampleBrands, { onConflict: 'name' })
+      .insert(sampleBrands)
       .select();
 
     if (brandsError) {
@@ -126,7 +197,7 @@ Deno.serve(async (req) => {
 
       const { error: allocationsError } = await supabase
         .from('brand_reseller_allocations')
-        .upsert(allocations, { onConflict: 'brand_id,reseller_id' });
+        .insert(allocations);
 
       if (allocationsError) {
         console.error('Error creating allocations:', allocationsError);
@@ -209,7 +280,7 @@ Deno.serve(async (req) => {
 
       const { data: createdProducts, error: productsError } = await supabase
         .from('products')
-        .upsert(sampleProducts, { onConflict: 'sku' })
+        .insert(sampleProducts)
         .select();
 
       if (productsError) {
@@ -338,7 +409,7 @@ Deno.serve(async (req) => {
 
       const { error: applicationsError } = await supabase
         .from('brand_applications')
-        .upsert(sampleApplications, { onConflict: 'reseller_id,brand_id' });
+        .insert(sampleApplications);
 
       if (applicationsError) {
         console.error('Error creating applications:', applicationsError);
@@ -369,7 +440,7 @@ Deno.serve(async (req) => {
 
       const { error: resellerError } = await supabase
         .from('reseller_applications')
-        .upsert(demoResellerApplication, { onConflict: 'email' });
+        .insert(demoResellerApplication);
 
       if (resellerError) {
         console.error('Error creating reseller application:', resellerError);
@@ -399,7 +470,7 @@ Deno.serve(async (req) => {
 
       const { error: uploadsError } = await supabase
         .from('product_uploads')
-        .upsert(sampleUploads, { onConflict: 'brand_id,name' });
+        .insert(sampleUploads);
 
       if (uploadsError) {
         console.error('Error creating uploads:', uploadsError);
@@ -416,7 +487,7 @@ Deno.serve(async (req) => {
         message: 'Demo data seeded successfully',
         details: {
           brands: createdBrands?.length || 0,
-          demoprofiles: demoProfiles?.length || 0
+          demoProfilesFound: { admin: !!demoAdmin, reseller: !!demoReseller, brand: !!demoBrand }
         }
       }),
       { 
@@ -433,7 +504,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: (error as any)?.message || String(error),
         details: 'Check function logs for more information'
       }),
       { 
