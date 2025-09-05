@@ -157,50 +157,15 @@ export const updateApplicationApi = async (applicationId: string, userId: string
 export const addManualApplicationApi = async (email: string, companyName: string) => {
   console.log('Adding manual application:', { email, companyName });
   
-  // Check current user authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  console.log('Adding manual app - Current user:', user);
-  
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
-  
-  // Check if user has admin role
-  const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .select('user_role')
-    .eq('id', user.id)
-    .maybeSingle();
-  
-  if (profileError) {
-    console.error('Error checking user profile:', profileError);
-    throw new Error('Failed to verify user permissions');
-  }
-  
-  if (!profileData || profileData.user_role !== 'admin') {
-    throw new Error('Only administrators can add manual applications');
-  }
-  
-  console.log('Admin access verified, proceeding with manual application creation');
-  
+  // Use the RPC function which handles admin authorization internally
   const { data, error } = await supabase
-    .from('reseller_applications')
-    .insert({
-      email: email,
-      company_name: companyName,
-      business_type: 'manual',
-      ein_number: 'manual-entry',
-      product_categories: ['other'],
-      sales_volume: 'under_10k',
-      wholesale_budget: 'under_5k',
-      phone: 'manual-entry',
-      status: 'pending'
-    })
-    .select()
-    .single();
+    .rpc('admin_add_manual_reseller_application', {
+      p_email: email,
+      p_company_name: companyName
+    });
 
   if (error) {
-    console.error('Error adding application:', error);
+    console.error('Error adding manual application:', error);
     throw error;
   }
 

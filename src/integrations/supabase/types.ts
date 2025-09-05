@@ -691,6 +691,35 @@ export type Database = {
         Args: { brand_data: Json }
         Returns: string
       }
+      admin_add_manual_reseller_application: {
+        Args: { p_company_name: string; p_email: string }
+        Returns: {
+          amazon_seller_id: string | null
+          application_status: string | null
+          business_type: string
+          company_name: string
+          created_at: string
+          document_path: string | null
+          document_verification_notes: string | null
+          document_verified: boolean | null
+          document_verified_at: string | null
+          document_verified_by: string | null
+          ebay_seller_id: string | null
+          ein_number: string
+          email: string
+          feedback_score: string | null
+          id: string
+          linkedin: string | null
+          phone: string
+          product_categories: string[]
+          sales_volume: string
+          status: string | null
+          updated_at: string
+          user_id: string | null
+          walmart_seller_id: string | null
+          wholesale_budget: string
+        }
+      }
       admin_allocate_brand_to_reseller: {
         Args: { p_brand_id: string; p_reseller_id: string }
         Returns: boolean
