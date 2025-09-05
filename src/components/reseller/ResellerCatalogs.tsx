@@ -21,7 +21,7 @@ const ResellerCatalogs = () => {
       // In production, this would filter by reseller access
       const { data, error } = await supabase
         .from('product_uploads')
-        .select('*, profiles:brand_id(company_name)')
+        .select('*')
         .eq('status', 'approved');
       
       if (error) throw error;
@@ -31,8 +31,7 @@ const ResellerCatalogs = () => {
 
   const filteredCatalogs = searchQuery
     ? accessibleCatalogs?.filter((catalog: any) => 
-        catalog.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        catalog.profiles?.company_name.toLowerCase().includes(searchQuery.toLowerCase())
+        catalog.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : accessibleCatalogs;
 
@@ -86,7 +85,7 @@ const ResellerCatalogs = () => {
                         {catalog.name}
                       </div>
                     </TableCell>
-                    <TableCell>{catalog.profiles?.company_name || "Unknown Brand"}</TableCell>
+                    <TableCell>Brand ID: {catalog.brand_id}</TableCell>
                     <TableCell>{new Date(catalog.updated_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Button 

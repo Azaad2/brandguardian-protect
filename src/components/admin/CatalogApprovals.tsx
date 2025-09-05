@@ -24,7 +24,7 @@ const CatalogApprovals = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('product_uploads')
-        .select('*, profiles:brand_id(company_name)')
+        .select('*')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
       
@@ -39,7 +39,7 @@ const CatalogApprovals = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('product_uploads')
-        .select('*, profiles:brand_id(company_name)')
+        .select('*')
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
       
@@ -171,7 +171,7 @@ const CatalogApprovals = () => {
                             {catalog.name}
                           </div>
                         </TableCell>
-                        <TableCell>{catalog.profiles?.company_name || "Unknown Brand"}</TableCell>
+                        <TableCell>Brand ID: {catalog.brand_id}</TableCell>
                         <TableCell>{new Date(catalog.created_at).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -249,7 +249,7 @@ const CatalogApprovals = () => {
                             {catalog.name}
                           </div>
                         </TableCell>
-                        <TableCell>{catalog.profiles?.company_name || "Unknown Brand"}</TableCell>
+                        <TableCell>Brand ID: {catalog.brand_id}</TableCell>
                         <TableCell>{new Date(catalog.updated_at).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -312,8 +312,8 @@ const CatalogApprovals = () => {
                         <SelectItem value="loading" disabled>Loading catalogs...</SelectItem>
                       ) : approvedCatalogs && approvedCatalogs.length > 0 ? (
                         approvedCatalogs.map((catalog: any) => (
-                          <SelectItem key={catalog.id} value={catalog.id}>
-                            {catalog.name} ({catalog.profiles?.company_name})
+                           <SelectItem key={catalog.id} value={catalog.id}>
+                            {catalog.name} (Brand ID: {catalog.brand_id})
                           </SelectItem>
                         ))
                       ) : (
