@@ -29,18 +29,11 @@ const HeroSection = () => {
       <div className="container mx-auto">
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           <div className="w-full lg:w-1/2 space-y-6 animate-fade-in">
-            <div className="flex items-center gap-2 text-sm font-medium px-4 py-2 glass-card rounded-full w-fit">
-              <ShoppingBag className="h-4 w-4 text-ai-electric" aria-hidden="true" />
-              <span className="crystal-text">Connecting Brands With Vetted Resellers & Retailers</span>
-            </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900 crystal-text">
               Connecting Brands With Vetted Resellers & Retailers
             </h1>
             
-            <p className="text-xl text-gray-600 max-w-2xl leading-relaxed">
-              Connect with pre-vetted resellers using <span className="font-medium text-ai-neural">AI-powered verification</span> while maintaining MAP pricing and amplifying sales across <span className="font-medium">Amazon</span>, <span className="font-medium">Walmart</span>, <span className="font-medium">eBay</span>, and <span className="font-medium">Shopify</span>.
-            </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button size="xl" variant="premium" className="group animate-crystal-float" asChild onClick={handleHeroCTA}>
