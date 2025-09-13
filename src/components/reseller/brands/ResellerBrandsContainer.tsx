@@ -1,29 +1,55 @@
 
 import { useSubscription } from '@/hooks/use-subscription';
-import { useBrandApplications, useAvailableBrands } from '@/hooks/use-brand-applications';
+import { useBrandApplications } from '@/hooks/use-brand-applications';
+import { useOptimizedBrands } from '@/hooks/use-optimized-brands';
 import { useBrandFilters } from '@/hooks/use-brand-filters';
-import UsageIndicator from '@/components/reseller/subscription/UsageIndicator';
+import { usePerformanceMonitoring } from '@/hooks/use-performance';
 import SubscriptionUpgrade from '@/components/reseller/subscription/SubscriptionUpgrade';
 import SubscriptionManager from '@/components/reseller/subscription/SubscriptionManager';
 import BrandsHeader from './components/BrandsHeader';
 import BrandsFilter from './components/BrandsFilter';
-import BrandCard from './components/BrandCard';
 import BrandsLoadingState from './components/BrandsLoadingState';
 import BrandsErrorState from './components/BrandsErrorState';
 import BrandsEmptyState from './components/BrandsEmptyState';
 import QuickFilterButtons from './components/QuickFilterButtons';
+import VirtualBrandList from './components/VirtualBrandList';
+import PerformanceSkeleton from './components/PerformanceSkeleton';
+import { MemoizedBrandCard } from './components/MemoizedBrandCard';
+import React, { useState, useMemo, useCallback, Suspense } from 'react';
 
 const ResellerBrandsContainer = () => {
-  const { subscription, isLoading: subscriptionLoading } = useSubscription();
-  const { applications, applyToBrand, isApplying } = useBrandApplications();
-  const { data: availableBrands, isLoading, error } = useAvailableBrands();
+  // Enable performance monitoring
+  usePerformanceMonitoring();
   
-  // Use the new filtering hook
-  const { filters, setFilters, filteredBrands, filterSuggestions } = useBrandFilters(availableBrands);
-
-  const currentApplications = applications?.length || 0;
-  const limit = 999999; // Unlimited applications
-  const isAtLimit = false; // Never at limit
+  const { subscription, isLoading: subscriptionLoading } = useSubscription();
+  const { applyToBrand, isApplying } = useBrandApplications();
+  
+  // Local filter state for optimized performance
+  const [filters, setFilters] = useState({
+    searchQuery: '',
+    applicationStatus: [],
+    followUpActions: [],
+    timeFilters: []
+  });
+  
+  // Use optimized brands hook with server-side filtering
+  const { 
+    brands: optimizedBrands, 
+    isLoading, 
+    error,
+    totalCount,
+    prefetchNextPage
+  } = useOptimizedBrands(filters, 50, 0);
+  
+  // Use client-side filtering hook for additional filtering logic
+  const { filteredBrands, filterSuggestions } = useBrandFilters(optimizedBrands);
+  
+  // Use virtual scrolling for large lists
+  const shouldUseVirtualScrolling = useMemo(() => filteredBrands.length > 20, [filteredBrands.length]);
+  
+  const handleApply = useCallback((brandId: string) => {
+    applyToBrand({ brandId });
+  }, [applyToBrand]);
 
   if (subscriptionLoading || isLoading) {
     return <BrandsLoadingState />;
@@ -35,6 +61,8 @@ const ResellerBrandsContainer = () => {
 
   // Show upgrade component for premium features, not application limits
   const showUpgrade = !subscription?.subscribed && subscription?.subscription_tier === 'free';
+  const currentApplications = 0; // We're not tracking this anymore
+  const limit = 999999; // Unlimited
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -53,34 +81,43 @@ const ResellerBrandsContainer = () => {
         </div>
       )}
       
-      <QuickFilterButtons 
-        filters={filters}
-        onFiltersChange={setFilters}
-        suggestions={filterSuggestions}
-      />
-      
-      <BrandsFilter 
-        filters={filters}
-        onFiltersChange={setFilters}
-        filteredBrandsCount={filteredBrands.length}
-        totalBrandsCount={availableBrands?.length || 0}
-      />
-      
-      {filteredBrands.length === 0 ? (
-        <BrandsEmptyState searchQuery={filters.searchQuery} filters={filters} />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBrands.map((brand) => (
-            <BrandCard 
-              key={brand.id} 
-              brand={brand}
-              onApply={(brandId) => applyToBrand({ brandId })}
-              isApplying={isApplying}
-              canApply={true} // Always allow applications
-            />
-          ))}
-        </div>
-      )}
+      <Suspense fallback={<PerformanceSkeleton />}>
+        <QuickFilterButtons 
+          filters={filters}
+          onFiltersChange={setFilters}
+          suggestions={filterSuggestions}
+        />
+        
+        <BrandsFilter 
+          filters={filters}
+          onFiltersChange={setFilters}
+          filteredBrandsCount={filteredBrands.length}
+          totalBrandsCount={totalCount}
+        />
+        
+        {filteredBrands.length === 0 ? (
+          <BrandsEmptyState searchQuery={filters.searchQuery} filters={filters} />
+        ) : shouldUseVirtualScrolling ? (
+          <VirtualBrandList
+            brands={filteredBrands}
+            onApply={handleApply}
+            isApplying={isApplying}
+            height={600}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredBrands.map((brand) => (
+              <MemoizedBrandCard 
+                key={brand.id} 
+                brand={brand}
+                onApply={handleApply}
+                isApplying={isApplying}
+                canApply={true}
+              />
+            ))}
+          </div>
+        )}
+      </Suspense>
     </div>
   );
 };

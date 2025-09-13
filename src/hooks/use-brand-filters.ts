@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { useFollowUp } from '@/hooks/use-follow-up';
+import { OptimizedBrand } from './use-optimized-brands';
+// Remove follow-up hook import since we're using direct logic
 
 export interface FilterOptions {
   searchQuery: string;
@@ -34,7 +35,7 @@ interface Brand {
   displayDepartment?: string;
 }
 
-export const useBrandFilters = (brands: Brand[] = []) => {
+export const useBrandFilters = (brands: OptimizedBrand[] = []) => {
   const [filters, setFilters] = useState<FilterOptions>({
     searchQuery: '',
     applicationStatus: [],
@@ -42,7 +43,7 @@ export const useBrandFilters = (brands: Brand[] = []) => {
     timeFilters: [],
   });
 
-  const { canSendFollowUp, getDaysSinceApplication, getDaysSinceLastActivity } = useFollowUp();
+  // Remove follow-up hook usage since we're using direct logic
 
   const filteredBrands = useMemo(() => {
     return brands.filter(brand => {
@@ -59,8 +60,8 @@ export const useBrandFilters = (brands: Brand[] = []) => {
 
       // Application Status filters
       if (filters.applicationStatus.length > 0) {
-        const hasApplication = brand.applicationStatus !== null;
-        const currentStatus = brand.applicationStatus || 'not_applied';
+        const hasApplication = brand.application_status !== null;
+        const currentStatus = brand.application_status || 'not_applied';
         
         const statusMatch = filters.applicationStatus.some(filterStatus => {
           if (filterStatus === 'not_applied' && !hasApplication) return true;
@@ -73,8 +74,7 @@ export const useBrandFilters = (brands: Brand[] = []) => {
 
       // Follow-up Action filters
       if (filters.followUpActions.length > 0) {
-        const application = brand.application;
-        if (!application || application.status !== 'pending') {
+        if (!brand.application_status || brand.application_status !== 'pending') {
           // If filtering for follow-up actions but no pending application, exclude
           return false;
         }
@@ -82,11 +82,13 @@ export const useBrandFilters = (brands: Brand[] = []) => {
         const followUpMatch = filters.followUpActions.some(filterAction => {
           switch (filterAction) {
             case 'need_followup':
-              return canSendFollowUp(application);
+              return brand.follow_up_count < 3 && 
+                (!brand.last_follow_up_at || 
+                  new Date(brand.last_follow_up_at) < new Date(Date.now() - 3 * 24 * 60 * 60 * 1000));
             case 'followup_sent':
-              return application.follow_up_count > 0;
+              return brand.follow_up_count > 0;
             case 'max_followups':
-              return application.follow_up_count >= 3;
+              return brand.follow_up_count >= 3;
             default:
               return false;
           }
@@ -97,17 +99,15 @@ export const useBrandFilters = (brands: Brand[] = []) => {
 
       // Time-based filters
       if (filters.timeFilters.length > 0) {
-        const application = brand.application;
-        if (!application) {
+        if (!brand.application_created_at) {
           // If filtering by time but no application, exclude
           return false;
         }
 
-        const daysSinceApplication = getDaysSinceApplication(application.created_at);
-        const daysSinceLastActivity = getDaysSinceLastActivity(
-          application.created_at,
-          application.last_follow_up_at
-        );
+        const daysSinceApplication = Math.floor((Date.now() - new Date(brand.application_created_at).getTime()) / (1000 * 60 * 60 * 24));
+        const daysSinceLastActivity = brand.last_follow_up_at ? 
+          Math.floor((Date.now() - new Date(brand.last_follow_up_at).getTime()) / (1000 * 60 * 60 * 24)) :
+          daysSinceApplication;
 
         const timeMatch = filters.timeFilters.some(timeFilter => {
           switch (timeFilter) {
@@ -115,9 +115,10 @@ export const useBrandFilters = (brands: Brand[] = []) => {
               return daysSinceApplication <= 7;
             case 'waiting_long':
               return daysSinceApplication >= 14;
-            case 'response_overdue':
-              // Consider overdue if more than 3 days since last activity and status is pending
-              return application.status === 'pending' && daysSinceLastActivity >= 3;
+            case 'response_expected':
+              return brand.response_expected_by && 
+                new Date(brand.response_expected_by) < new Date() &&
+                brand.application_status === 'pending';
             default:
               return false;
           }
@@ -128,37 +129,38 @@ export const useBrandFilters = (brands: Brand[] = []) => {
 
       return true;
     });
-  }, [brands, filters, canSendFollowUp, getDaysSinceApplication, getDaysSinceLastActivity]);
+  }, [brands, filters]);
 
   // Calculate filter suggestions based on current data
   const filterSuggestions = useMemo(() => {
     const needFollowUp = brands.filter(brand => 
-      brand.application && 
-      brand.application.status === 'pending' && 
-      canSendFollowUp(brand.application)
+      brand.application_status === 'pending' && 
+      brand.follow_up_count < 3 &&
+      (!brand.last_follow_up_at || 
+        new Date(brand.last_follow_up_at) < new Date(Date.now() - 3 * 24 * 60 * 60 * 1000))
     ).length;
 
     const pendingCount = brands.filter(brand => 
-      brand.applicationStatus === 'pending'
+      brand.application_status === 'pending'
     ).length;
 
     const notAppliedCount = brands.filter(brand => 
-      !brand.applicationStatus
+      !brand.application_status
     ).length;
 
     const waitingLongCount = brands.filter(brand => {
-      if (!brand.application) return false;
-      const daysSince = getDaysSinceApplication(brand.application.created_at);
+      if (!brand.application_created_at) return false;
+      const daysSince = Math.floor((Date.now() - new Date(brand.application_created_at).getTime()) / (1000 * 60 * 60 * 24));
       return daysSince >= 14;
     }).length;
 
     return {
-      needFollowUp,
-      pendingCount,
-      notAppliedCount,
-      waitingLongCount,
+      needFollowUp: needFollowUp,
+      pendingCount: pendingCount,
+      notAppliedCount: notAppliedCount,
+      waitingLongCount: waitingLongCount,
     };
-  }, [brands, canSendFollowUp, getDaysSinceApplication]);
+  }, [brands]);
 
   return {
     filters,

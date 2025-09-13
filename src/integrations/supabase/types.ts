@@ -844,6 +844,38 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_reseller_brands_optimized: {
+        Args: {
+          p_application_status?: string[]
+          p_follow_up_filters?: string[]
+          p_limit?: number
+          p_offset?: number
+          p_reseller_id: string
+          p_search_query?: string
+          p_time_filters?: string[]
+        }
+        Returns: {
+          application_created_at: string
+          application_id: string
+          application_status: string
+          approval_rate: number
+          categories: string[]
+          contact_email: string
+          created_at: string
+          department: string
+          description: string
+          follow_up_count: number
+          id: string
+          is_active: boolean
+          last_follow_up_at: string
+          logo_url: string
+          name: string
+          response_expected_by: string
+          response_time: number
+          updated_at: string
+          website_url: string
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
