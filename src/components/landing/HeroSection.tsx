@@ -31,7 +31,7 @@ const HeroSection = () => {
           <div className="w-full lg:w-1/2 space-y-6 animate-fade-in">
             <div className="flex items-center gap-2 text-sm font-medium px-4 py-2 glass-card rounded-full w-fit">
               <ShoppingBag className="h-4 w-4 text-ai-electric" aria-hidden="true" />
-              <span className="crystal-text">AI-Powered Brand Protection Platform</span>
+              <span className="crystal-text">Connecting Brands With Vetted Resellers & Retailers</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900 crystal-text">
