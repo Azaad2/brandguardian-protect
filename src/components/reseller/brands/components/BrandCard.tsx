@@ -112,22 +112,52 @@ const BrandCard = ({ brand, onApply, isApplying, canApply = true }: BrandCardPro
       brand.application.last_follow_up_at
     );
     
+    const isPending = brand.applicationStatus === 'pending';
+    const needsFollowUp = isPending && canSendFollowUp(brand.application);
+    const isWaitingLong = daysSinceApplication >= 14;
+    const maxFollowUpsReached = brand.application.follow_up_count >= 3;
+    
     return (
-      <div className="flex flex-wrap gap-2 text-xs">
-        <Badge variant="outline" className="text-xs">
-          <Calendar className="h-3 w-3 mr-1" />
-          Applied {daysSinceApplication}d ago
-        </Badge>
-        {brand.application.follow_up_count > 0 && (
-          <Badge variant="secondary" className="text-xs">
-            {brand.application.follow_up_count} follow-up{brand.application.follow_up_count !== 1 ? 's' : ''}
-          </Badge>
-        )}
-        {brand.application.last_follow_up_at && (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2 text-xs">
           <Badge variant="outline" className="text-xs">
-            Last activity {daysSinceLastActivity}d ago
+            <Calendar className="h-3 w-3 mr-1" />
+            Applied {daysSinceApplication}d ago
           </Badge>
-        )}
+          
+          {brand.application.follow_up_count > 0 && (
+            <Badge variant="secondary" className="text-xs">
+              {brand.application.follow_up_count} follow-up{brand.application.follow_up_count !== 1 ? 's' : ''}
+            </Badge>
+          )}
+          
+          {brand.application.last_follow_up_at && (
+            <Badge variant="outline" className="text-xs">
+              Last activity {daysSinceLastActivity}d ago
+            </Badge>
+          )}
+        </div>
+        
+        {/* Action Status Indicators */}
+        <div className="flex flex-wrap gap-2 text-xs">
+          {needsFollowUp && (
+            <Badge className="bg-orange-100 text-orange-800 border-orange-200 text-xs">
+              Ready for follow-up
+            </Badge>
+          )}
+          
+          {isWaitingLong && isPending && (
+            <Badge className="bg-red-100 text-red-800 border-red-200 text-xs">
+              Waiting {daysSinceApplication}+ days
+            </Badge>
+          )}
+          
+          {maxFollowUpsReached && isPending && (
+            <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+              Max follow-ups reached
+            </Badge>
+          )}
+        </div>
       </div>
     );
   };
