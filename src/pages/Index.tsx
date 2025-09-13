@@ -5,7 +5,7 @@ import Header from '@/components/layout/Header';
 import HeroSection from '@/components/landing/HeroSection';
 import PainPointsSection from '@/components/landing/PainPointsSection';
 import SolutionSection from '@/components/landing/SolutionSection';
-import TestimonialsSection from '@/components/landing/TestimonialsSection';
+import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
 import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/layout/Footer';
@@ -68,7 +68,7 @@ const Index = () => {
       <HeroSection />
       <PainPointsSection />
       <SolutionSection />
-      <TestimonialsSection />
+      <ConnectionNetworkSection />
       <FAQSection />
       <ContactSection />
       <Footer />
