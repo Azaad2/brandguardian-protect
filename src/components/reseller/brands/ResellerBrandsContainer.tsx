@@ -12,7 +12,7 @@ import BrandsLoadingState from './components/BrandsLoadingState';
 import BrandsErrorState from './components/BrandsErrorState';
 import BrandsEmptyState from './components/BrandsEmptyState';
 import QuickFilterButtons from './components/QuickFilterButtons';
-import VirtualBrandList from './components/VirtualBrandList';
+import OptimizedBrandList from './components/OptimizedBrandList';
 import PerformanceSkeleton from './components/PerformanceSkeleton';
 import { MemoizedBrandCard } from './components/MemoizedBrandCard';
 import React, { useState, useMemo, useCallback, Suspense } from 'react';
@@ -44,8 +44,7 @@ const ResellerBrandsContainer = () => {
   // Use client-side filtering hook for additional filtering logic
   const { filteredBrands, filterSuggestions } = useBrandFilters(optimizedBrands);
   
-  // Use virtual scrolling for large lists
-  const shouldUseVirtualScrolling = useMemo(() => filteredBrands.length > 20, [filteredBrands.length]);
+  // All brands will use the optimized list component
   
   const handleApply = useCallback((brandId: string) => {
     applyToBrand({ brandId });
@@ -97,25 +96,12 @@ const ResellerBrandsContainer = () => {
         
         {filteredBrands.length === 0 ? (
           <BrandsEmptyState searchQuery={filters.searchQuery} filters={filters} />
-        ) : shouldUseVirtualScrolling ? (
-          <VirtualBrandList
+        ) : (
+          <OptimizedBrandList
             brands={filteredBrands}
             onApply={handleApply}
             isApplying={isApplying}
-            height={600}
           />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredBrands.map((brand) => (
-              <MemoizedBrandCard 
-                key={brand.id} 
-                brand={brand}
-                onApply={handleApply}
-                isApplying={isApplying}
-                canApply={true}
-              />
-            ))}
-          </div>
         )}
       </Suspense>
     </div>
