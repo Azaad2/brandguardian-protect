@@ -35,7 +35,7 @@ const HeroSection = () => {
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-gray-900 crystal-text">
-              Protect Your <span className="text-gradient">Brand Integrity</span> on Marketplaces
+              Connecting Brands With Vetted Resellers & Retailers
             </h1>
             
             <p className="text-xl text-gray-600 max-w-2xl leading-relaxed">
