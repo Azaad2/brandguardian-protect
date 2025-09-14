@@ -40,6 +40,8 @@ export const useFollowUp = () => {
       return data as FollowUpResponse;
     },
     onSuccess: (data, variables) => {
+      console.log('Follow-up success:', data);
+      
       if (data.emailSent) {
         toast({
           title: "Follow-up Sent",
@@ -53,10 +55,8 @@ export const useFollowUp = () => {
         });
       }
 
-      // Invalidate and refetch brand applications and optimized brands
-      queryClient.invalidateQueries({ queryKey: ['brand-applications'] });
+      // Only invalidate optimized brands to refresh the follow-up counts
       queryClient.invalidateQueries({ queryKey: ['optimized-brands'] });
-      queryClient.invalidateQueries({ queryKey: ['optimized-brands-count'] });
     },
     onError: (error: Error) => {
       console.error('Follow-up error:', error);

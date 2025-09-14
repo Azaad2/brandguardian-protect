@@ -89,17 +89,30 @@ const MemoizedBrandCard: React.FC<MemoizedBrandCardProps> = React.memo(({
   };
 
   const handleApply = () => {
+    console.log('Apply button clicked for brand:', brand.id);
     onApply(brand.id);
   };
 
-  const handleFollowUp = async () => {
-    if (!brand.application_id) return;
+  const handleFollowUp = async (e: React.MouseEvent) => {
+    console.log('Follow-up button clicked for brand:', brand.id, 'application:', brand.application_id);
+    e.preventDefault();
+    e.stopPropagation();
     
-    const followUpType = getFollowUpType(brand.follow_up_count);
-    await sendFollowUp({
-      applicationId: brand.application_id,
-      followUpType
-    });
+    if (!brand.application_id) {
+      console.error('No application ID found for follow-up');
+      return;
+    }
+    
+    try {
+      const followUpType = getFollowUpType(brand.follow_up_count);
+      console.log('Sending follow-up with type:', followUpType);
+      await sendFollowUp({
+        applicationId: brand.application_id,
+        followUpType
+      });
+    } catch (error) {
+      console.error('Follow-up failed:', error);
+    }
   };
 
   return (
@@ -167,9 +180,10 @@ const MemoizedBrandCard: React.FC<MemoizedBrandCardProps> = React.memo(({
               disabled={isSendingFollowUp}
               className="flex-1"
               size="sm"
+              type="button"
             >
               <MessageSquare className="h-4 w-4 mr-1" />
-              Follow Up
+              {isSendingFollowUp ? 'Sending...' : 'Follow Up'}
             </Button>
           ) : (
             <Button variant="outline" disabled className="flex-1" size="sm">
