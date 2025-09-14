@@ -23,12 +23,6 @@ const Header = () => {
           <Link to="/reseller-hub" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Reseller Hub</Link>
         </nav>
           <div className="flex items-center gap-4">
-            <Link 
-              to="/demo-setup" 
-              className="text-xs text-gray-500 hover:text-bndbox-600 transition-colors"
-            >
-              Demo Setup
-            </Link>
             <Button asChild>
               <a href="#contact">Contact Us</a>
             </Button>

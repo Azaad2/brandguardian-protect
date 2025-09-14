@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { usePerformanceMonitoring } from '@/hooks/use-performance';
 import { useAnalytics } from '@/hooks/use-analytics';
-import AutoDemoSetup from '@/components/demo/AutoDemoSetup';
+
 
 // Core pages (only import essential landing pages directly)
 import Index from '@/pages/Index';
@@ -219,7 +219,7 @@ function App() {
       <Router>
         <PublicAuthProvider>
           <AppContent />
-          <AutoDemoSetup />
+          
           <Toaster />
           <Sonner />
         </PublicAuthProvider>
