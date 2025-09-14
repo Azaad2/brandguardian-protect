@@ -1,5 +1,6 @@
 import React from 'react';
 import { OptimizedBrand } from '@/hooks/use-optimized-brands';
+import { useFollowUp } from '@/hooks/use-follow-up';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ const MemoizedBrandCard: React.FC<MemoizedBrandCardProps> = React.memo(({
   isApplying,
   canApply
 }) => {
+  const { sendFollowUp, isSendingFollowUp, getFollowUpType } = useFollowUp();
   const getStatusBadge = () => {
     if (!brand.application_status) {
       return <Badge variant="outline" className="bg-muted">Not Applied</Badge>;
@@ -90,6 +92,16 @@ const MemoizedBrandCard: React.FC<MemoizedBrandCardProps> = React.memo(({
     onApply(brand.id);
   };
 
+  const handleFollowUp = async () => {
+    if (!brand.application_id) return;
+    
+    const followUpType = getFollowUpType(brand.follow_up_count);
+    await sendFollowUp({
+      applicationId: brand.application_id,
+      followUpType
+    });
+  };
+
   return (
     <Card className="h-80 flex flex-col transition-all duration-200 hover:shadow-md">
       <CardHeader className="pb-4 flex-shrink-0">
@@ -151,8 +163,8 @@ const MemoizedBrandCard: React.FC<MemoizedBrandCardProps> = React.memo(({
           ) : brand.application_status === 'pending' && canSendFollowUp() ? (
             <Button 
               variant="outline"
-              onClick={handleApply}
-              disabled={isApplying}
+              onClick={handleFollowUp}
+              disabled={isSendingFollowUp}
               className="flex-1"
               size="sm"
             >
