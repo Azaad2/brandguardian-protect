@@ -4,8 +4,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  ExternalLink, 
-  Mail, 
   Clock, 
   TrendingUp, 
   Send,
@@ -135,25 +133,6 @@ const MemoizedBrandCard: React.FC<MemoizedBrandCardProps> = React.memo(({
             <div className="flex items-center gap-1 text-sm">
               <MessageSquare className="h-4 w-4 text-purple-500" />
               <span>{brand.follow_up_count} follow-up{brand.follow_up_count !== 1 ? 's' : ''} sent</span>
-            </div>
-          )}
-          
-          <div className="flex items-center gap-1 text-sm">
-            <Mail className="h-4 w-4 text-gray-500" />
-            <span className="truncate">{brand.contact_email}</span>
-          </div>
-          
-          {brand.website_url && (
-            <div className="flex items-center gap-1 text-sm">
-              <ExternalLink className="h-4 w-4 text-gray-500" />
-              <a 
-                href={brand.website_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline truncate"
-              >
-                Visit Website
-              </a>
             </div>
           )}
         </div>
