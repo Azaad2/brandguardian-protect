@@ -844,6 +844,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_reseller_brands_count: {
+        Args: {
+          p_application_status?: string[]
+          p_follow_up_filters?: string[]
+          p_reseller_id: string
+          p_search_query?: string
+          p_time_filters?: string[]
+        }
+        Returns: number
+      }
       get_reseller_brands_optimized: {
         Args: {
           p_application_status?: string[]

@@ -53,9 +53,10 @@ export const useFollowUp = () => {
         });
       }
 
-      // Invalidate and refetch brand applications
+      // Invalidate and refetch brand applications and optimized brands
       queryClient.invalidateQueries({ queryKey: ['brand-applications'] });
-      queryClient.invalidateQueries({ queryKey: ['available-brands'] });
+      queryClient.invalidateQueries({ queryKey: ['optimized-brands'] });
+      queryClient.invalidateQueries({ queryKey: ['optimized-brands-count'] });
     },
     onError: (error: Error) => {
       console.error('Follow-up error:', error);

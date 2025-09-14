@@ -97,23 +97,25 @@ export const useOptimizedBrands = (
 
   // Optimistic count query for total brands (cached separately)
   const countQuery = useQuery({
-    queryKey: ['optimized-brands-count', user?.id],
+    queryKey: ['optimized-brands-count', user?.id, optimizedFilters],
     queryFn: async (): Promise<number> => {
       if (!user) return 0;
 
       const { data, error } = await supabase
-        .rpc('get_reseller_brands_optimized', {
+        .rpc('get_reseller_brands_count', {
           p_reseller_id: user.id,
-          p_limit: 1000, // High limit to get total count
-          p_offset: 0
+          p_search_query: optimizedFilters.searchQuery,
+          p_application_status: optimizedFilters.applicationStatus,
+          p_follow_up_filters: optimizedFilters.followUpActions,
+          p_time_filters: optimizedFilters.timeFilters
         });
 
       if (error) throw error;
-      return data?.length || 0;
+      return data || 0;
     },
     enabled: !!user,
-    staleTime: 10 * 60 * 1000, // 10 minutes cache for count
-    gcTime: 15 * 60 * 1000,
+    staleTime: 2 * 60 * 1000, // 2 minutes cache for count
+    gcTime: 5 * 60 * 1000,
   });
 
   // Prefetch next page for smooth scrolling
