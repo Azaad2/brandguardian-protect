@@ -49,47 +49,14 @@ const HeroSection = () => {
               </Button>
             </div>
             
-            <div className="flex flex-wrap gap-4 pt-4 text-sm">
-              <a href="/blog" className="text-bndbox-600 hover:text-bndbox-700 underline">
-                Latest Amazon Strategies →
-              </a>
-              <a href="/about" className="text-bndbox-600 hover:text-bndbox-700 underline">
-                About BndBox →
-              </a>
-            </div>
-            
             <div className="pt-6">
-              <p className="text-sm text-gray-500 flex items-center gap-2">
+              <p className="text-lg font-medium text-gray-700 flex items-center gap-2">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M9 16.5C13.1421 16.5 16.5 13.1421 16.5 9C16.5 4.85786 13.1421 1.5 9 1.5C4.85786 1.5 1.5 4.85786 1.5 9C1.5 13.1421 4.85786 16.5 9 16.5Z" stroke="#22C55E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M6 9L8.25 11.25L12.75 6.75" stroke="#22C55E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Trusted by 500+ brands for wholesale approval management
+                No Credit Card required, Try Free
               </p>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://lovable.dev/amazon-logo.png" 
-                alt="Amazon Marketplace" 
-                className="h-6 opacity-80" 
-                width="80"
-                height="24" 
-              />
-              <img 
-                src="https://lovable.dev/walmart-logo.png" 
-                alt="Walmart Marketplace" 
-                className="h-5 opacity-80" 
-                width="80" 
-                height="20"
-              />
-              <img 
-                src="https://lovable.dev/ebay-logo.png" 
-                alt="eBay Marketplace" 
-                className="h-5 opacity-80" 
-                width="60"
-                height="20"
-              />
             </div>
           </div>
           
