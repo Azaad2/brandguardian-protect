@@ -190,7 +190,7 @@ const WorkflowShowcase = () => {
                 <CardContent className="p-8">
                   <div className="text-center mb-8">
                     <h4 className="text-2xl font-bold text-gray-900 mb-2">
-                      {workflow.title} Portal Features
+                      {workflow.title === "For Brands" ? "Brands Gets" : "Resellers Gets"}
                     </h4>
                     <p className="text-gray-600">
                       Comprehensive tools designed for your success
@@ -237,32 +237,6 @@ const WorkflowShowcase = () => {
           </div>
         </div>
 
-        {/* Admin Portal Mention */}
-        <div className="mt-16">
-          <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
-            <CardContent className="p-8 text-center">
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <Settings className="h-8 w-8 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="text-2xl font-bold text-gray-900">Admin Portal</h4>
-                  <p className="text-gray-600">Complete system oversight and management</p>
-                </div>
-              </div>
-              <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
-                Our admin portal provides complete oversight of the entire ecosystem, managing user verification, 
-                system analytics, and ensuring seamless operation between brands and resellers.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Badge variant="outline" className="text-purple-700 border-purple-300">User Management</Badge>
-                <Badge variant="outline" className="text-purple-700 border-purple-300">System Analytics</Badge>
-                <Badge variant="outline" className="text-purple-700 border-purple-300">Verification Process</Badge>
-                <Badge variant="outline" className="text-purple-700 border-purple-300">Support Management</Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* CTA Section */}
         <div className="text-center mt-16">
@@ -276,7 +250,7 @@ const WorkflowShowcase = () => {
                 Start as a Brand
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white text-gray-900 bg-white hover:bg-gray-100">
                 Apply as Reseller
                 <Users className="ml-2 h-5 w-5" />
               </Button>
