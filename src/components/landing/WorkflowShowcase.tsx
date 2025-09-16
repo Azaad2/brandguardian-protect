@@ -119,15 +119,15 @@ const WorkflowShowcase = () => {
   ];
 
   return (
-    <section className="py-20 neural-pattern relative">
+    <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <Badge variant="secondary" className="glass-button mb-4 border-crystal-frost bg-crystal-mist/50 text-ai-neural">How It Works</Badge>
-          <h2 className="text-4xl font-bold crystal-text mb-4">
+          <Badge variant="secondary" className="mb-4">How It Works</Badge>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Complete Ecosystem for Brand-Reseller Success
           </h2>
-          <p className="text-xl text-crystal-ice/80 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             BndBox connects premium brands with verified resellers through our comprehensive portal system, ensuring authorized distribution and brand protection.
           </p>
         </div>
@@ -137,9 +137,9 @@ const WorkflowShowcase = () => {
           {workflows.map((workflow, workflowIndex) => (
             <div key={workflowIndex} className="relative">
               {/* Workflow Header */}
-              <div className="glass-card bg-gradient-to-r from-ai-neural to-ai-electric text-white rounded-2xl p-8 mb-12 premium-hover">
+              <div className={`bg-gradient-to-r ${workflow.color} text-white rounded-2xl p-8 mb-12`}>
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm">
+                  <div className="bg-white/20 p-3 rounded-lg">
                     <workflow.icon className="h-8 w-8" />
                   </div>
                   <div>
@@ -155,27 +155,27 @@ const WorkflowShowcase = () => {
                 <div className="hidden md:block absolute top-16 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-blue-200 via-green-200 to-blue-200"></div>
                 
                 {workflow.steps.map((step, stepIndex) => (
-                  <Card key={stepIndex} variant="crystal" className="relative glass-card premium-hover transition-all duration-300 fade-in-up">
+                  <Card key={stepIndex} className="relative bg-white shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardContent className="p-8 text-center">
                       {/* Step Number */}
-                      <div className="bg-gradient-to-r from-ai-neural to-ai-electric text-white w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-4 relative z-10 shadow-lg">
+                      <div className={`bg-gradient-to-r ${workflow.color} text-white w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-4 relative z-10 shadow-lg`}>
                         {step.step}
                       </div>
                       
                       {/* Step Icon */}
-                      <div className="bg-crystal-mist/30 p-4 rounded-lg w-fit mx-auto mb-4 backdrop-blur-sm">
-                        <step.icon className="h-8 w-8 text-ai-neural" />
+                      <div className="bg-gray-100 p-4 rounded-lg w-fit mx-auto mb-4">
+                        <step.icon className="h-8 w-8 text-bndbox-600" />
                       </div>
                       
                       {/* Step Content */}
-                      <h4 className="text-xl font-semibold crystal-text mb-2">{step.title}</h4>
-                      <p className="text-crystal-ice/70 mb-4">{step.description}</p>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h4>
+                      <p className="text-gray-600 mb-4">{step.description}</p>
                       
                       {/* Features */}
                       <div className="space-y-2">
                         {step.features.map((feature, featureIndex) => (
-                          <div key={featureIndex} className="flex items-center gap-2 text-sm text-crystal-ice/60">
-                            <CheckCircle className="h-4 w-4 text-ai-neural flex-shrink-0" />
+                          <div key={featureIndex} className="flex items-center gap-2 text-sm text-gray-500">
+                            <CheckCircle className="h-4 w-4 text-bndbox-600 flex-shrink-0" />
                             <span>{feature}</span>
                           </div>
                         ))}
@@ -186,22 +186,22 @@ const WorkflowShowcase = () => {
               </div>
 
               {/* Portal Features */}
-              <Card variant="premium" className="glass-card premium-hover">
+              <Card className="bg-white shadow-lg">
                 <CardContent className="p-8">
                   <div className="text-center mb-8">
-                    <h4 className="text-2xl font-bold crystal-text mb-2">
+                    <h4 className="text-2xl font-bold text-gray-900 mb-2">
                       {workflow.title === "For Brands" ? "Brands Gets" : "Resellers Gets"}
                     </h4>
-                    <p className="text-crystal-ice/70">
+                    <p className="text-gray-600">
                       Comprehensive tools designed for your success
                     </p>
                   </div>
                   
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {workflow.portalFeatures.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center gap-3 p-4 bg-crystal-clear/20 backdrop-blur-sm rounded-lg border border-crystal-frost/30 hover:bg-crystal-mist/30 transition-all duration-300">
-                        <CheckCircle className="h-5 w-5 text-ai-neural flex-shrink-0" />
-                        <span className="font-medium text-crystal-ice">{feature}</span>
+                      <div key={featureIndex} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all duration-300">
+                        <CheckCircle className="h-5 w-5 text-bndbox-600 flex-shrink-0" />
+                        <span className="font-medium text-gray-700">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -214,23 +214,23 @@ const WorkflowShowcase = () => {
         {/* System Benefits */}
         <div className="mt-20">
           <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold crystal-text mb-4">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">
               Why Choose BndBox?
             </h3>
-            <p className="text-xl text-crystal-ice/70">
+            <p className="text-xl text-gray-600">
               The complete solution for authorized reseller management
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {systemBenefits.map((benefit, index) => (
-              <Card key={index} variant="glass" className="text-center premium-hover transition-all duration-300 fade-in-up">
+              <Card key={index} className="text-center bg-white shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardContent className="p-8">
-                  <div className="bg-ai-neural/20 p-4 rounded-lg w-fit mx-auto mb-4 backdrop-blur-sm">
-                    <benefit.icon className="h-8 w-8 text-ai-neural" />
+                  <div className="bg-bndbox-100 p-4 rounded-lg w-fit mx-auto mb-4">
+                    <benefit.icon className="h-8 w-8 text-bndbox-600" />
                   </div>
-                  <h4 className="text-lg font-semibold crystal-text mb-2">{benefit.title}</h4>
-                  <p className="text-crystal-ice/70">{benefit.description}</p>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">{benefit.title}</h4>
+                  <p className="text-gray-600">{benefit.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -240,17 +240,17 @@ const WorkflowShowcase = () => {
 
         {/* CTA Section */}
         <div className="text-center mt-16">
-          <div className="glass-card bg-gradient-to-r from-ai-neural to-ai-electric text-white rounded-2xl p-12 premium-hover">
+          <div className="bg-gradient-to-r from-bndbox-600 to-bndbox-700 text-white rounded-2xl p-12">
             <h3 className="text-3xl font-bold mb-4">Ready to Get Started?</h3>
             <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
               Join thousands of brands and resellers already using BndBox to grow their business
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="premium" className="bg-white text-ai-neural hover:bg-crystal-mist shadow-lg">
+              <Button size="lg" variant="default" className="bg-white text-bndbox-600 hover:bg-gray-100">
                 Start as a Brand
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="crystal" className="border-white text-ai-neural bg-crystal-clear hover:bg-crystal-mist shadow-lg">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-bndbox-600">
                 Apply as Reseller
                 <Users className="ml-2 h-5 w-5" />
               </Button>

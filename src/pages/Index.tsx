@@ -57,7 +57,7 @@ const Index = () => {
   }, [showVisitorDialog]);
 
   return (
-    <div className="min-h-screen neural-pattern">
+    <div className="min-h-screen bg-white">
       <Helmet>
         <title>BndBox - Connect Brands with Authorized Resellers | Marketplace Brand Protection</title>
         <meta name="description" content="BndBox connects premium brands with verified resellers, ensuring authorized distribution, MAP compliance, and brand protection across Amazon, Walmart, and eBay marketplaces." />
