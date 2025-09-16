@@ -138,14 +138,12 @@ const WorkflowShowcase = () => {
             <div key={workflowIndex} className="relative">
               {/* Workflow Header */}
               <div className={`bg-gradient-to-r ${workflow.color} text-white rounded-2xl p-8 mb-12`}>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="bg-white/20 p-3 rounded-lg">
+                <div className="text-center">
+                  <div className="bg-white/20 p-3 rounded-lg w-fit mx-auto mb-4">
                     <workflow.icon className="h-8 w-8" />
                   </div>
-                  <div>
-                    <h3 className="text-3xl font-bold">{workflow.title}</h3>
-                    <p className="text-xl opacity-90">{workflow.subtitle}</p>
-                  </div>
+                  <h3 className="text-3xl font-bold mb-2">{workflow.title}</h3>
+                  <p className="text-xl opacity-90">{workflow.subtitle}</p>
                 </div>
               </div>
 
@@ -250,7 +248,7 @@ const WorkflowShowcase = () => {
                 Start as a Brand
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-bndbox-600">
+              <Button size="lg" variant="default" className="bg-green-600 text-white hover:bg-green-700 border-0">
                 Apply as Reseller
                 <Users className="ml-2 h-5 w-5" />
               </Button>
