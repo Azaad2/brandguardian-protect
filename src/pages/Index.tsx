@@ -3,6 +3,7 @@ import { trackPageView } from '@/lib/analytics';
 import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import HeroSection from '@/components/landing/HeroSection';
+import WorkflowShowcase from '@/components/landing/WorkflowShowcase';
 import PainPointsSection from '@/components/landing/PainPointsSection';
 import SolutionSection from '@/components/landing/SolutionSection';
 import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
@@ -66,6 +67,7 @@ const Index = () => {
       
       <Header />
       <HeroSection />
+      <WorkflowShowcase />
       <PainPointsSection />
       <SolutionSection />
       <ConnectionNetworkSection />
