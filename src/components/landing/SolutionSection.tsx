@@ -3,12 +3,12 @@ import { ShieldCheck, BarChart3, FileCheck, Users, Zap } from "lucide-react";
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => {
   return (
-    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md">
-      <div className="h-12 w-12 rounded-full gradient-bg flex items-center justify-center mb-6">
+    <div className="glass-card p-8 rounded-xl premium-hover transition-all duration-300 fade-in-up">
+      <div className="h-12 w-12 rounded-full bg-gradient-to-r from-ai-neural to-ai-electric flex items-center justify-center mb-6 shadow-lg">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold mb-3 text-gray-900">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <h3 className="text-xl font-semibold mb-3 crystal-text">{title}</h3>
+      <p className="text-crystal-ice/70">{description}</p>
     </div>
   );
 };
@@ -38,13 +38,13 @@ const SolutionSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gray-50 px-4">
+    <section className="py-20 neural-pattern relative px-4">
       <div className="container mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-900">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6 crystal-text">
             BndBox: Your Gateway to Trusted E-Commerce Partnerships
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-crystal-ice/80">
             Our comprehensive platform helps you expand your reach across multiple marketplaces
             while maintaining control of your brand.
           </p>
