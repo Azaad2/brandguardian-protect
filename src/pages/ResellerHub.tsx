@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, FormValues } from '@/components/reseller-hub/ResellerFormSchema';
 import ResellerHubHeader from '@/components/reseller-hub/ResellerHubHeader';
 import ResellerHubIntro from '@/components/reseller-hub/ResellerHubIntro';
-import ResellerWorkflowShowcase from '@/components/reseller-hub/ResellerWorkflowShowcase';
+
 import ResellerBenefitCards from '@/components/reseller-hub/ResellerBenefitCards';
 import ResellerApplicationForm from '@/components/reseller-hub/ResellerApplicationForm';
 import SuccessMessage from '@/components/reseller-hub/SuccessMessage';
@@ -151,7 +151,6 @@ const ResellerHub = () => {
         ) : (
           <>
             <ResellerHubIntro />
-            <ResellerWorkflowShowcase />
             <ResellerBenefitCards />
             <ResellerApplicationForm 
               onSubmissionSuccess={handleSubmissionSuccess} 
