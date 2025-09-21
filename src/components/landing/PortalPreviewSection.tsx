@@ -356,42 +356,39 @@ const PortalPreviewSection = () => {
           </p>
         </div>
 
-        <div className="max-w-7xl mx-auto space-y-16">
+        <div className="max-w-7xl mx-auto space-y-12">
           {/* Step 1: Reseller Discovery & Application */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
+          <div className="flex gap-4 items-stretch">
+            <div className="w-80 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 flex flex-col justify-center">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                   1
                 </div>
-                <h3 className="text-2xl font-bold">Discover Premium Brands</h3>
+                <h3 className="text-xl font-bold">Discover Brands</h3>
               </div>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Qualified resellers browse our curated directory of premium brands, 
-                filtering by category, minimum order requirements, and partnership criteria. 
-                Each brand profile shows detailed information including product categories, 
-                MAP policies, and application requirements.
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Browse our curated directory of premium brands with advanced filtering and detailed partnership criteria.
               </p>
-              <ul className="space-y-2 text-muted-foreground">
+              <ul className="space-y-2 text-sm text-muted-foreground mb-4">
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  Advanced search and filtering
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                  Search & filter brands
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  Brand ratings and reviews
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                  View ratings & reviews
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  Clear partnership requirements
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                  Check requirements
                 </li>
               </ul>
-              <Button size="lg" variant="outline">
-                Start Exploring Brands
-                <ArrowUpRight className="ml-2 h-4 w-4" />
+              <Button size="sm" variant="outline" className="w-full">
+                Explore Brands
+                <ArrowUpRight className="ml-2 h-3 w-3" />
               </Button>
             </div>
-            <div className="order-first lg:order-last">
+            <div className="flex-1">
               <ResellerBrandsPortal />
             </div>
           </div>
@@ -399,40 +396,37 @@ const PortalPreviewSection = () => {
           <FlowArrow />
 
           {/* Step 2: Brand Review & Approval */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
+          <div className="flex gap-4 items-stretch">
+            <div className="flex-1">
               <BrandApplicationsPortal />
             </div>
-            <div className="space-y-6">
+            <div className="w-80 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 flex flex-col justify-center">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                   2
                 </div>
-                <h3 className="text-2xl font-bold">Smart Application Review</h3>
+                <h3 className="text-xl font-bold">Review Applications</h3>
               </div>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Brands receive comprehensive reseller applications with verified business 
-                credentials, sales history, and marketplace performance metrics. Our intelligent 
-                matching system helps brands identify the most qualified partners based on 
-                their specific criteria and market presence.
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Brands review comprehensive applications with verified credentials and performance metrics for smart partner selection.
               </p>
-              <ul className="space-y-2 text-muted-foreground">
+              <ul className="space-y-2 text-sm text-muted-foreground mb-4">
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  Verified business credentials
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                  Verified credentials
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-3 w-3 text-green-600" />
                   Performance analytics
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  One-click approval system
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                  One-click approval
                 </li>
               </ul>
-              <Button size="lg" variant="outline">
-                Join as a Brand
-                <Building2 className="ml-2 h-4 w-4" />
+              <Button size="sm" variant="outline" className="w-full">
+                Join as Brand
+                <Building2 className="ml-2 h-3 w-3" />
               </Button>
             </div>
           </div>
@@ -440,40 +434,37 @@ const PortalPreviewSection = () => {
           <FlowArrow />
 
           {/* Step 3: Instant Notifications & Partnership */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
+          <div className="flex gap-4 items-stretch">
+            <div className="w-80 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 flex flex-col justify-center">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                   3
                 </div>
-                <h3 className="text-2xl font-bold">Instant Partnership Activation</h3>
+                <h3 className="text-xl font-bold">Partnership Active</h3>
               </div>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Approved resellers receive immediate notifications and gain instant access 
-                to brand catalogs, wholesale pricing, and ordering systems. The partnership 
-                becomes active within minutes, enabling seamless business growth and 
-                streamlined operations from day one.
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Instant notifications activate partnerships with immediate catalog access and streamlined operations.
               </p>
-              <ul className="space-y-2 text-muted-foreground">
+              <ul className="space-y-2 text-sm text-muted-foreground mb-4">
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-3 w-3 text-green-600" />
                   Real-time notifications
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-3 w-3 text-green-600" />
                   Instant catalog access
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-3 w-3 text-green-600" />
                   Automated onboarding
                 </li>
               </ul>
-              <Button size="lg" className="bg-gradient-to-r from-crystal-blue to-ai-neural text-white">
-                Get Started Today
-                <ArrowUpRight className="ml-2 h-4 w-4" />
+              <Button size="sm" className="w-full bg-gradient-to-r from-crystal-blue to-ai-neural text-white">
+                Get Started
+                <ArrowUpRight className="ml-2 h-3 w-3" />
               </Button>
             </div>
-            <div className="order-first lg:order-last">
+            <div className="flex-1">
               <ResellerNotificationsPortal />
             </div>
           </div>
