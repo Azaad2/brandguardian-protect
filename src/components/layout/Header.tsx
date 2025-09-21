@@ -8,7 +8,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
+    <header className="w-full bg-white/90 backdrop-blur-sm shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-2">
           <BndBoxLogo className="h-8" />

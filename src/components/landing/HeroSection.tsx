@@ -25,7 +25,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="pt-32 pb-20 px-4 sm:px-6 md:pt-40 md:pb-32 relative overflow-hidden neural-pattern" aria-label="Brand Wholesale Approval Platform">
+    <section className="pt-20 pb-20 px-4 sm:px-6 md:pt-24 md:pb-32 relative overflow-hidden neural-pattern" aria-label="Brand Wholesale Approval Platform">
       <div className="container mx-auto">
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           <div className="w-full lg:w-1/2 space-y-6 animate-fade-in">
