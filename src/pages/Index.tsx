@@ -7,6 +7,7 @@ import WorkflowShowcase from '@/components/landing/WorkflowShowcase';
 import ResellerWorkflowShowcase from '@/components/reseller-hub/ResellerWorkflowShowcase';
 import PainPointsSection from '@/components/landing/PainPointsSection';
 import SolutionSection from '@/components/landing/SolutionSection';
+import PortalPreviewSection from '@/components/landing/PortalPreviewSection';
 import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
 import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
@@ -72,6 +73,7 @@ const Index = () => {
       <ResellerWorkflowShowcase />
       <PainPointsSection />
       <SolutionSection />
+      <PortalPreviewSection />
       <ConnectionNetworkSection />
       <FAQSection />
       <ContactSection />
