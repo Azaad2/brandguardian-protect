@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import HeroSection from '@/components/landing/HeroSection';
 import WorkflowShowcase from '@/components/landing/WorkflowShowcase';
-import ResellerWorkflowShowcase from '@/components/reseller-hub/ResellerWorkflowShowcase';
+
 import PainPointsSection from '@/components/landing/PainPointsSection';
 import SolutionSection from '@/components/landing/SolutionSection';
 import PortalPreviewSection from '@/components/landing/PortalPreviewSection';
@@ -70,7 +70,6 @@ const Index = () => {
       <Header />
       <HeroSection />
       <WorkflowShowcase />
-      <ResellerWorkflowShowcase />
       <PainPointsSection />
       <SolutionSection />
       <PortalPreviewSection />
