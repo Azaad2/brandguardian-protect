@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import HeroSection from '@/components/landing/HeroSection';
 
-import PainPointsSection from '@/components/landing/PainPointsSection';
 import SolutionSection from '@/components/landing/SolutionSection';
 import PortalPreviewSection from '@/components/landing/PortalPreviewSection';
 import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
@@ -69,7 +68,6 @@ const Index = () => {
       
       <Header />
       <HeroSection />
-      <PainPointsSection />
       <SolutionSection />
       <PortalPreviewSection />
       <ConnectionNetworkSection />
