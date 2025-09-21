@@ -400,6 +400,9 @@ const PortalPreviewSection = () => {
 
           {/* Step 2: Brand Review & Approval */}
           <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <BrandApplicationsPortal />
+            </div>
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
@@ -431,9 +434,6 @@ const PortalPreviewSection = () => {
                 Join as a Brand
                 <Building2 className="ml-2 h-4 w-4" />
               </Button>
-            </div>
-            <div>
-              <BrandApplicationsPortal />
             </div>
           </div>
 
