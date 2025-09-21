@@ -17,7 +17,6 @@ const Header = () => {
         <div className="hidden md:flex items-center gap-8">
         <nav className="flex gap-6">
           <a href="#features" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Features</a>
-          <a href="#testimonials" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Testimonials</a>
           <Link to="/about" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">About</Link>
           <Link to="/blog" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Blog</Link>
           <Link to="/reseller-hub" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Reseller Hub</Link>
@@ -59,13 +58,6 @@ const Header = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Features
-            </a>
-            <a 
-              href="#testimonials" 
-              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Testimonials
             </a>
             <Link 
               to="/about" 
