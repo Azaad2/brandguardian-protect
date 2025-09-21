@@ -8,7 +8,6 @@ import PainPointsSection from '@/components/landing/PainPointsSection';
 import SolutionSection from '@/components/landing/SolutionSection';
 import PortalPreviewSection from '@/components/landing/PortalPreviewSection';
 import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
-import PlatformChallengesSection from '@/components/landing/PlatformChallengesSection';
 
 import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
@@ -74,7 +73,6 @@ const Index = () => {
       <SolutionSection />
       <PortalPreviewSection />
       <ConnectionNetworkSection />
-      <PlatformChallengesSection />
       <FAQSection />
       <ContactSection />
       <Footer />
