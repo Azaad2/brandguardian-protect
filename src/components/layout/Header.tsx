@@ -1,6 +1,6 @@
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BndBoxLogo } from '@/components/branding/BndBoxLogo';
-import { useState, useEffect } from 'react';
+import BndBoxLogo from '@/components/branding/BndBoxLogo';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

@@ -124,7 +124,7 @@ const HeroSection = () => {
                   Join Smart Network
                 </div>
               </motion.button>
-            </div>
+            </motion.div>
             
             {/* Trust indicators with enhanced design */}
             <motion.div 
