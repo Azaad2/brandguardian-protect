@@ -1,97 +1,173 @@
-
-import { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import BndBoxLogo from "@/components/branding/BndBoxLogo";
+import { motion, AnimatePresence } from 'framer-motion';
+import { BndBoxLogo } from '@/components/branding/BndBoxLogo';
+import { useState, useEffect } from 'react';
+import { Menu, X, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="w-full bg-white/90 backdrop-blur-sm shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between py-4">
-        <Link to="/" className="flex items-center gap-2">
-          <BndBoxLogo className="h-8" />
-        </Link>
-        
-        <div className="hidden md:flex items-center gap-8">
-        <nav className="flex gap-6">
-          <a href="#features" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Features</a>
-          <Link to="/about" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">About</Link>
-          <Link to="/blog" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Blog</Link>
-          <Link to="/reseller-hub" className="text-gray-700 hover:text-bndbox-600 transition-colors font-medium">Reseller Hub</Link>
-        </nav>
-          <div className="flex items-center gap-4">
-            <Button asChild>
-              <a href="#contact">Contact Us</a>
-            </Button>
-          </div>
-        </div>
-        
-        <button 
-          className="md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor" 
-            className="h-6 w-6"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
-            />
-          </svg>
-        </button>
-      </div>
-      
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-t">
-          <div className="container mx-auto px-4 sm:px-6 py-4 flex flex-col gap-4">
-            <a 
-              href="#features" 
-              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+    <>
+      {/* Enhanced Header with blur and animations */}
+      <motion.header 
+        className={`sticky top-0 z-50 transition-all duration-500 ${
+          isScrolled 
+            ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg' 
+            : 'bg-background/95 backdrop-blur-sm'
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <motion.div 
+              className="flex items-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
             >
-              Features
-            </a>
-            <Link 
-              to="/about" 
-              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link 
-              to="/blog" 
-              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Blog
-            </Link>
-            <Link 
-              to="/reseller-hub" 
-              className="text-gray-700 hover:text-bndbox-600 py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Reseller Hub
-            </Link>
-            <Button asChild>
-              <a 
-                href="#contact"
-                onClick={() => setIsMenuOpen(false)}
+              <BndBoxLogo />
+            </motion.div>
+            
+            {/* Enhanced Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {[
+                { label: 'Home', path: '/' },
+                { label: 'Blog', path: '/blog' },
+                { label: 'About', path: '/about' }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 + index * 0.1 }}
+                >
+                  <Link 
+                    to={item.path} 
+                    className="relative px-4 py-2 text-foreground hover:text-primary font-medium transition-colors group"
+                  >
+                    {item.label}
+                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-primary group-hover:w-full group-hover:left-0 transition-all duration-300" />
+                  </Link>
+                </motion.div>
+              ))}
+              
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
               >
-                Contact Us
-              </a>
-            </Button>
+                <motion.a 
+                  href="#contact" 
+                  className="ml-4 bg-primary text-primary-foreground px-6 py-2 rounded-xl font-medium hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl group"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="flex items-center">
+                    Contact Us
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </motion.a>
+              </motion.div>
+            </nav>
+            
+            {/* Enhanced Mobile Menu Toggle */}
+            <motion.button
+              className="md:hidden p-2 rounded-xl hover:bg-muted transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+              whileTap={{ scale: 0.95 }}
+            >
+              <AnimatePresence mode="wait">
+                {isMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="h-6 w-6 text-foreground" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Menu className="h-6 w-6 text-foreground" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </div>
         </div>
-      )}
-    </header>
+      </motion.header>
+
+      {/* Enhanced Mobile Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div 
+            className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-2xl"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <nav className="container mx-auto px-4 py-6 space-y-2">
+              {[
+                { label: 'Home', path: '/' },
+                { label: 'Blog', path: '/blog' },
+                { label: 'About', path: '/about' }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <Link 
+                    to={item.path}
+                    className="block text-foreground hover:text-primary font-medium py-3 px-4 rounded-lg hover:bg-muted transition-all duration-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
+              
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.3 }}
+                className="pt-4"
+              >
+                <a 
+                  href="#contact" 
+                  className="block bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium hover:bg-primary/90 transition-all duration-300 text-center shadow-lg"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Contact Us
+                </a>
+              </motion.div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
