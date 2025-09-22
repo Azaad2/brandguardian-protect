@@ -79,7 +79,7 @@ const HeroSection = () => {
                   delay={0.4}
                   className="text-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight"
                 >
-                  Get Your Brand Wholesale Approval Today
+                  Your wholesale network in one marketplace: Brands Meet Reseller and Retailers
                 </AnimatedText>
                 
                 <AnimatedWords
