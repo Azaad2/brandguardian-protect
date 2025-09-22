@@ -82,14 +82,6 @@ const HeroSection = () => {
                   Your wholesale network in one marketplace: Brands Meet Reseller and Retailers
                 </AnimatedText>
                 
-                <AnimatedWords
-                  as="p"
-                  delay={0.8}
-                  stagger={0.05}
-                  className="text-body text-xl text-muted-foreground max-w-lg leading-relaxed"
-                >
-                  Connect with pre-vetted resellers who respect your brand and amplify your sales across Amazon, Walmart, and eBay.
-                </AnimatedWords>
               </div>
             </div>
             
@@ -101,7 +93,7 @@ const HeroSection = () => {
               transition={{ duration: 0.6, delay: 1.2 }}
             >
               <motion.button 
-                onClick={handleHeroCTA}
+                onClick={() => window.location.href = '/reseller-hub'}
                 className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-xl font-display font-semibold overflow-hidden shadow-lg"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -109,19 +101,20 @@ const HeroSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center justify-center">
                   <Shield className="w-5 h-5 mr-2" />
-                  Start AI Protection
+                  Find Brands
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>
               </motion.button>
               
               <motion.button 
+                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                 className="group px-8 py-4 bg-background/80 backdrop-blur-sm text-foreground border-2 border-border rounded-xl font-display font-semibold hover:border-primary/50 transition-all duration-300"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center justify-center">
                   <Zap className="w-5 h-5 mr-2" />
-                  Join Smart Network
+                  Find Resellers
                 </div>
               </motion.button>
             </motion.div>
