@@ -21,7 +21,7 @@ const Header = () => {
     <>
       {/* Enhanced Header with blur and animations */}
       <motion.header 
-        className={`sticky top-0 z-50 transition-all duration-500 ${
+        className={`relative z-50 transition-all duration-500 ${
           isScrolled 
             ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg' 
             : 'bg-background/95 backdrop-blur-sm'
@@ -70,7 +70,7 @@ const Header = () => {
               >
                 <motion.a 
                   href="#contact" 
-                  className="ml-4 bg-primary text-primary-foreground px-6 py-2 rounded-xl font-medium hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl group"
+                  className="ml-4 bg-white text-primary px-6 py-2 rounded-xl font-medium hover:bg-white/90 transition-all duration-300 shadow-lg hover:shadow-xl group"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >

@@ -1,5 +1,6 @@
 
 import React from "react";
+import bndBoxLogo from "@/assets/bndbox-logo.png";
 
 interface BndBoxLogoProps {
   className?: string;
@@ -8,41 +9,11 @@ interface BndBoxLogoProps {
 const BndBoxLogo: React.FC<BndBoxLogoProps> = ({ className = "" }) => {
   return (
     <div className={`flex items-center ${className}`}>
-      <div className="bg-primary rounded-lg p-2 mr-3">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
-            stroke="hsl(var(--primary-foreground))"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M7 7H17"
-            stroke="hsl(var(--primary-foreground))"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <path
-            d="M7 12H17"
-            stroke="hsl(var(--primary-foreground))"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <path
-            d="M7 17H13"
-            stroke="hsl(var(--primary-foreground))"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
+      <img 
+        src={bndBoxLogo} 
+        alt="BndBox Logo" 
+        className="h-10 w-auto mr-3"
+      />
       <div className="flex flex-col">
         <div className="text-xl font-bold text-primary tracking-tight">BndBox</div>
         <div className="text-xs text-muted-foreground font-medium">Connect. Protect. Grow.</div>
