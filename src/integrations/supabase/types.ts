@@ -255,6 +255,45 @@ export type Database = {
           },
         ]
       }
+      lead_magnets: {
+        Row: {
+          business_type: string | null
+          created_at: string
+          download_count: number | null
+          downloaded: boolean | null
+          email: string
+          id: string
+          last_downloaded_at: string | null
+          magnet_type: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          business_type?: string | null
+          created_at?: string
+          download_count?: number | null
+          downloaded?: boolean | null
+          email: string
+          id?: string
+          last_downloaded_at?: string | null
+          magnet_type?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          business_type?: string | null
+          created_at?: string
+          download_count?: number | null
+          downloaded?: boolean | null
+          email?: string
+          id?: string
+          last_downloaded_at?: string | null
+          magnet_type?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           brand_application_id: string | null
