@@ -1,0 +1,2 @@
+-- Upload sample PDF to storage bucket (this is a placeholder - you'll need to manually upload the actual PDF file)
+-- For now, we'll create a reference to show where the file should be placed
