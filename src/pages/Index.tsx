@@ -12,10 +12,18 @@ import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/layout/Footer';
 import VisitorTypeDialog from '@/components/dialogs/VisitorTypeDialog';
+import LeadMagnetDialog from '@/components/dialogs/LeadMagnetDialog';
+import { useLeadMagnetPopup } from '@/hooks/useLeadMagnetPopup';
 
 
 const Index = () => {
   const [showVisitorDialog, setShowVisitorDialog] = useState(false);
+  
+  // Lead magnet popup logic - only show if visitor dialog is not shown
+  const leadMagnetPopup = useLeadMagnetPopup({
+    delayMs: 35000, // Show after 35 seconds
+    scrollThreshold: 60, // Show after 60% scroll
+  });
 
   useEffect(() => {
     trackPageView(window.location.pathname);
@@ -79,6 +87,13 @@ const Index = () => {
         open={showVisitorDialog} 
         setOpen={setShowVisitorDialog}
         onVisitorTypeSelected={handleVisitorTypeSelected}
+      />
+      
+      {/* Lead Magnet Popup - only show if visitor dialog is not open */}
+      <LeadMagnetDialog
+        open={leadMagnetPopup.showPopup && !showVisitorDialog}
+        onOpenChange={leadMagnetPopup.handleClose}
+        onNotInterested={leadMagnetPopup.handleNotInterested}
       />
     </div>
   );

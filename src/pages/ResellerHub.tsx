@@ -10,11 +10,20 @@ import ResellerHubIntro from '@/components/reseller-hub/ResellerHubIntro';
 import ResellerBenefitCards from '@/components/reseller-hub/ResellerBenefitCards';
 import ResellerApplicationForm from '@/components/reseller-hub/ResellerApplicationForm';
 import SuccessMessage from '@/components/reseller-hub/SuccessMessage';
+import LeadMagnetDialog from '@/components/dialogs/LeadMagnetDialog';
+import { useLeadMagnetPopup } from '@/hooks/useLeadMagnetPopup';
 import { trackPageView, trackSEOInteraction } from '@/lib/analytics';
 
 const ResellerHub = () => {
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
+  
+  // Lead magnet popup for reseller hub
+  const leadMagnetPopup = useLeadMagnetPopup({
+    delayMs: 40000, // Show after 40 seconds on reseller hub
+    scrollThreshold: 70, // Show after 70% scroll
+    sessionStorageKey: 'leadMagnetPopup_resellerHub'
+  });
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -159,6 +168,13 @@ const ResellerHub = () => {
         )}
       </div>
       <Footer />
+      
+      {/* Lead Magnet Popup for reseller hub visitors */}
+      <LeadMagnetDialog
+        open={leadMagnetPopup.showPopup}
+        onOpenChange={leadMagnetPopup.handleClose}
+        onNotInterested={leadMagnetPopup.handleNotInterested}
+      />
     </div>
   );
 };
