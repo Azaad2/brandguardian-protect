@@ -31,6 +31,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Generate download URL (you would replace this with actual file URL)
     const downloadUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/lead-magnets/amazon-ungated-brands-list.pdf`;
+    
+    // Check if file exists (basic validation)
+    try {
+      const fileResponse = await fetch(downloadUrl, { method: 'HEAD' });
+      if (!fileResponse.ok) {
+        console.error('Lead magnet file not found at:', downloadUrl);
+        // Continue with email but log the issue
+      }
+    } catch (error) {
+      console.error('Error checking file existence:', error);
+    }
 
     const emailHtml = `
       <!DOCTYPE html>

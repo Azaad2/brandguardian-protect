@@ -94,6 +94,7 @@ const Index = () => {
         open={leadMagnetPopup.showPopup && !showVisitorDialog}
         onOpenChange={leadMagnetPopup.handleClose}
         onNotInterested={leadMagnetPopup.handleNotInterested}
+        onConverted={leadMagnetPopup.handleConverted}
       />
     </div>
   );

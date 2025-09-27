@@ -29,9 +29,10 @@ interface LeadMagnetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onNotInterested: () => void;
+  onConverted: () => void;
 }
 
-const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested }: LeadMagnetDialogProps) => {
+const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: LeadMagnetDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
@@ -77,6 +78,7 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested }: LeadMagnetDia
       }
 
       setIsSuccess(true);
+      onConverted(); // Mark user as converted to prevent popup from showing again
       trackSEOInteraction('LeadMagnet_Popup', 'Submit', 'Success');
       
       toast({

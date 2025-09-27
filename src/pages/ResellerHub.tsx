@@ -174,6 +174,7 @@ const ResellerHub = () => {
         open={leadMagnetPopup.showPopup}
         onOpenChange={leadMagnetPopup.handleClose}
         onNotInterested={leadMagnetPopup.handleNotInterested}
+        onConverted={leadMagnetPopup.handleConverted}
       />
     </div>
   );
