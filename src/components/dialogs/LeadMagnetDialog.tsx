@@ -11,19 +11,19 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, CheckCircle, X, Gift } from 'lucide-react';
+import { Download, CheckCircle, X, List, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import type { LeadMagnetFormValues } from '@/types/leadMagnet';
 import { trackSEOInteraction } from '@/lib/analytics';
 
+// Simplified schema - only email required
 const leadMagnetSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
-  businessType: z.string().optional(),
 });
+
+type SimpleLeadMagnetForm = {
+  email: string;
+};
 
 interface LeadMagnetDialogProps {
   open: boolean;
@@ -37,23 +37,22 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: 
   const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<LeadMagnetFormValues>({
+  const form = useForm<SimpleLeadMagnetForm>({
     resolver: zodResolver(leadMagnetSchema),
   });
 
-  const handleSubmit = async (data: LeadMagnetFormValues) => {
+  const handleSubmit = async (data: SimpleLeadMagnetForm) => {
     if (isSubmitting) return;
     
     setIsSubmitting(true);
     
     try {
-      // Store lead in database
+      // Store lead in database with email only
       const { error: dbError } = await supabase
         .from('lead_magnets')
         .insert({
-          name: data.name,
+          name: 'Lead Magnet Subscriber', // Default name
           email: data.email,
-          business_type: data.businessType,
           magnet_type: 'amazon_ungated_brands'
         });
 
@@ -67,7 +66,6 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: 
         .invoke('send-lead-magnet', {
           body: {
             email: data.email,
-            name: data.name,
             magnetType: 'amazon_ungated_brands'
           }
         });
@@ -149,72 +147,61 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: 
           <span className="sr-only">Close</span>
         </button>
 
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Gift className="w-6 h-6 text-primary" />
-            FREE Amazon Auto-Ungated Brands List
+        <DialogHeader className="text-center">
+          <DialogTitle className="flex items-center justify-center gap-3 text-2xl font-bold">
+            <List className="w-8 h-8 text-primary" />
+            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              FREE Auto-Ungated Brands List
+            </span>
           </DialogTitle>
-          <DialogDescription>
-            Save hours of research! Get 100+ brands that don't require ungating applications.
+          <DialogDescription className="text-base mt-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2 text-foreground font-medium">
+                <Clock className="w-4 h-4 text-green-600" />
+                Skip weeks of research - Get 100+ verified brands instantly
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Ready-to-use brand list that don't require ungating applications
+              </p>
+            </div>
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 mt-4">
-          <div>
-            <Label htmlFor="popup-name">Full Name*</Label>
-            <Input
-              id="popup-name"
-              placeholder="Your full name"
-              {...form.register('name')}
-              className="mt-1"
-            />
-            {form.formState.errors.name && (
-              <p className="text-sm text-red-600 mt-1">
-                {form.formState.errors.name.message}
-              </p>
-            )}
+        <div className="mt-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-4 border">
+          <div className="text-center space-y-2">
+            <div className="text-sm font-medium text-foreground">What you'll get:</div>
+            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+              <div>✓ 100+ Auto-approved brands</div>
+              <div>✓ Contact information</div>
+              <div>✓ Product categories</div>
+              <div>✓ Instant download</div>
+            </div>
           </div>
+        </div>
 
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 mt-6">
           <div>
-            <Label htmlFor="popup-email">Email Address*</Label>
             <Input
-              id="popup-email"
               type="email"
-              placeholder="your@email.com"
+              placeholder="Enter your email address"
               {...form.register('email')}
-              className="mt-1"
+              className="h-12 text-base border-2 border-border focus:border-primary transition-colors"
             />
             {form.formState.errors.email && (
-              <p className="text-sm text-red-600 mt-1">
+              <p className="text-sm text-destructive mt-1 text-center">
                 {form.formState.errors.email.message}
               </p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="popup-business">Business Type</Label>
-            <Select onValueChange={(value) => form.setValue('businessType', value)}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select your business type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="new_seller">New Amazon Seller</SelectItem>
-                <SelectItem value="experienced_seller">Experienced Seller</SelectItem>
-                <SelectItem value="agency">Agency/Service Provider</SelectItem>
-                <SelectItem value="brand_owner">Brand Owner</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-2 pt-2">
+          <div className="space-y-3 pt-2">
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all" 
               disabled={isSubmitting}
             >
-              <Download className="w-4 h-4 mr-2" />
-              {isSubmitting ? 'Sending...' : 'Get FREE List Now'}
+              <Download className="w-5 h-5 mr-2" />
+              {isSubmitting ? 'Sending to your email...' : 'Get My Free List Now'}
             </Button>
             
             <Button 
@@ -222,15 +209,11 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: 
               variant="ghost"
               size="sm"
               onClick={handleNotInterested}
-              className="text-muted-foreground hover:text-foreground"
+              className="w-full text-muted-foreground hover:text-foreground text-xs"
             >
-              Not interested
+              No thanks, I'll research myself
             </Button>
           </div>
-
-          <p className="text-xs text-gray-500 text-center">
-            We respect your privacy. Unsubscribe at any time.
-          </p>
         </form>
       </DialogContent>
     </Dialog>

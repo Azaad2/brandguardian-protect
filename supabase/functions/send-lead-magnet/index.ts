@@ -10,7 +10,6 @@ const corsHeaders = {
 
 interface LeadMagnetRequest {
   email: string;
-  name: string;
   magnetType: string;
 }
 
@@ -20,16 +19,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, name, magnetType }: LeadMagnetRequest = await req.json();
+    const { email, magnetType }: LeadMagnetRequest = await req.json();
 
-    if (!email || !name) {
+    if (!email) {
       return new Response(
-        JSON.stringify({ error: "Email and name are required" }),
+        JSON.stringify({ error: "Email is required" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Generate download URL (you would replace this with actual file URL)
+    // Generate download URL
     const downloadUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/lead-magnets/amazon-ungated-brands-list.pdf`;
     
     // Check if file exists (basic validation)
@@ -61,7 +60,7 @@ const handler = async (req: Request): Promise<Response> => {
 
             <!-- Main Content -->
             <div style="padding: 40px 20px;">
-              <h2 style="color: #333; font-size: 24px; margin-bottom: 20px;">Hi ${name}! 👋</h2>
+              <h2 style="color: #333; font-size: 24px; margin-bottom: 20px;">Hey there! 👋</h2>
               
               <p style="font-size: 16px; margin-bottom: 20px;">
                 Thank you for downloading our <strong>Amazon Auto-Ungated Brands List</strong>! This exclusive resource contains 100+ brands that don't require ungating applications.
