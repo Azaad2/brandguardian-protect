@@ -265,7 +265,7 @@ export type Database = {
           id: string
           last_downloaded_at: string | null
           magnet_type: string
-          name: string
+          name: string | null
           updated_at: string
         }
         Insert: {
@@ -277,7 +277,7 @@ export type Database = {
           id?: string
           last_downloaded_at?: string | null
           magnet_type?: string
-          name: string
+          name?: string | null
           updated_at?: string
         }
         Update: {
@@ -289,7 +289,7 @@ export type Database = {
           id?: string
           last_downloaded_at?: string | null
           magnet_type?: string
-          name?: string
+          name?: string | null
           updated_at?: string
         }
         Relationships: []

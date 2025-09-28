@@ -160,9 +160,9 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: 
                 <Clock className="w-4 h-4 text-green-600" />
                 Skip weeks of research - Get 100+ verified brands instantly
               </div>
-              <p className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 Ready-to-use brand list that don't require ungating applications
-              </p>
+              </div>
             </div>
           </DialogDescription>
         </DialogHeader>
