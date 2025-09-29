@@ -105,7 +105,7 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: 
 
   const handleClose = () => {
     trackSEOInteraction('LeadMagnet_Popup', 'Close', 'X_Button');
-    onOpenChange(false);
+    onNotInterested(); // X button now permanently dismisses popup
   };
 
   const handleNotInterested = () => {
@@ -208,10 +208,10 @@ const LeadMagnetDialog = ({ open, onOpenChange, onNotInterested, onConverted }: 
               type="button"
               variant="ghost"
               size="sm"
-              onClick={handleNotInterested}
+              onClick={() => onOpenChange(false)} // Maybe later - just closes temporarily
               className="w-full text-muted-foreground hover:text-foreground text-xs"
             >
-              No thanks, I'll research myself
+              Maybe later
             </Button>
           </div>
         </form>
