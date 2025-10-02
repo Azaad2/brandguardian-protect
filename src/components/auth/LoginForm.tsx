@@ -98,14 +98,23 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
           errorMessage = 'Your reseller account is pending approval. Please wait for admin approval before logging in.';
           errorTitle = 'Account Pending Approval';
         } else if (errorMsg.includes('Invalid login credentials') || errorCode === 'invalid_credentials') {
-          errorMessage = `Account not found or incorrect password for ${data.email}. Please check:
-          
-          1. Make sure the email is correct
-          2. Verify your password
-          3. Ensure your account has been created and confirmed
-          
-          If you're trying to access the admin portal with iconicpro.inc@gmail.com, please first create the account using the signup form.`;
-          errorTitle = 'Invalid credentials';
+          // More specific error message for resellers
+          if (userRole === 'reseller') {
+            errorMessage = `We couldn't find an account or the password is incorrect for ${data.email}.
+
+Possible reasons:
+• Your reseller application is pending approval
+• Your account hasn't been created yet by admin
+• The password is incorrect
+
+What to do next:
+→ Click "Request Account Access" below to check your application status
+→ Use "Forgot password?" to reset your password
+→ Contact support if you need help`;
+          } else {
+            errorMessage = `Account not found or incorrect password for ${data.email}. Please verify your email and password.`;
+          }
+          errorTitle = 'Login Failed';
         } else if (errorMsg.includes('Email not confirmed') || errorCode === 'email_not_confirmed') {
           errorMessage = 'Please check your email and click the confirmation link before logging in.';
           errorTitle = 'Email not confirmed';
@@ -182,10 +191,18 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
           )}
         />
         
-        <div className="text-right text-sm">
+        <div className="flex justify-between items-center text-sm">
+          {userRole === 'reseller' && (
+            <a
+              href="/reseller-hub"
+              className="text-muted-foreground hover:text-primary hover:underline"
+            >
+              Check application status
+            </a>
+          )}
           <a
             href={`/reset-password?type=${userRole}`}
-            className="text-primary hover:text-primary/80 hover:underline"
+            className="text-primary hover:text-primary/80 hover:underline ml-auto"
           >
             Forgot password?
           </a>
