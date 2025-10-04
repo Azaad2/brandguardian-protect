@@ -6,6 +6,9 @@ export interface ResellerApplication {
   created_at: string;
   status: string;
   user_id: string | null;
+  temporary_password?: string;
+  password_sent_at?: string;
+  password_reset_count?: number;
 }
 
 export interface PendingApplication {

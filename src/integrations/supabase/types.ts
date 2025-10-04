@@ -606,10 +606,13 @@ export type Database = {
           feedback_score: string | null
           id: string
           linkedin: string | null
+          password_reset_count: number | null
+          password_sent_at: string | null
           phone: string
           product_categories: string[]
           sales_volume: string
           status: string | null
+          temporary_password: string | null
           updated_at: string
           user_id: string | null
           walmart_seller_id: string | null
@@ -632,10 +635,13 @@ export type Database = {
           feedback_score?: string | null
           id?: string
           linkedin?: string | null
+          password_reset_count?: number | null
+          password_sent_at?: string | null
           phone: string
           product_categories: string[]
           sales_volume: string
           status?: string | null
+          temporary_password?: string | null
           updated_at?: string
           user_id?: string | null
           walmart_seller_id?: string | null
@@ -658,10 +664,13 @@ export type Database = {
           feedback_score?: string | null
           id?: string
           linkedin?: string | null
+          password_reset_count?: number | null
+          password_sent_at?: string | null
           phone?: string
           product_categories?: string[]
           sales_volume?: string
           status?: string | null
+          temporary_password?: string | null
           updated_at?: string
           user_id?: string | null
           walmart_seller_id?: string | null
@@ -757,10 +766,13 @@ export type Database = {
           feedback_score: string | null
           id: string
           linkedin: string | null
+          password_reset_count: number | null
+          password_sent_at: string | null
           phone: string
           product_categories: string[]
           sales_volume: string
           status: string | null
+          temporary_password: string | null
           updated_at: string
           user_id: string | null
           walmart_seller_id: string | null

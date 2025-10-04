@@ -12,7 +12,7 @@ interface ApprovalRequest {
   applicationId: string;
   userEmail: string;
   action: 'approve' | 'reject';
-  temporaryPassword?: string;
+  temporaryPassword: string; // Now required for approvals
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -38,10 +38,10 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`🎯 Processing ${action} for application:`, applicationId, userEmail);
 
     if (action === 'approve') {
-      // Get the application to check if user exists
+      // Get the application to check if user exists and if already approved
       const { data: application, error: appError } = await supabaseAdmin
         .from('reseller_applications')
-        .select('user_id, email')
+        .select('user_id, email, status, temporary_password')
         .eq('id', applicationId)
         .single();
 
@@ -50,14 +50,40 @@ const handler = async (req: Request): Promise<Response> => {
         throw appError;
       }
 
+      // Check if already approved to prevent password overwrites
+      if (application.status === 'approved' && application.temporary_password) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Application already approved. Use password reset to change credentials.',
+            alreadyApproved: true
+          }),
+          { 
+            status: 400, 
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          }
+        );
+      }
+
+      // Continue with existing application fetch
+      const { data: fullApplication, error: fullAppError } = await supabaseAdmin
+        .from('reseller_applications')
+        .select('user_id, email')
+        .eq('id', applicationId)
+        .single();
+
+      if (fullAppError) {
+        console.error('❌ Error fetching full application:', fullAppError);
+        throw fullAppError;
+      }
+
       console.log('📋 Application data:', { 
         applicationId, 
-        storedEmail: application.email, 
+        storedEmail: fullApplication.email, 
         providedEmail: userEmail,
-        userId: application.user_id 
+        userId: fullApplication.user_id 
       });
 
-      let userId = application.user_id;
+      let userId = fullApplication.user_id;
 
       // First, check if a user already exists with this email
       const { data: existingUsers, error: listUsersError } = await supabaseAdmin.auth.admin.listUsers();
@@ -101,7 +127,7 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
         // Update application with correct user_id if needed
-        if (!application.user_id || application.user_id !== existingUser.id) {
+        if (!fullApplication.user_id || fullApplication.user_id !== existingUser.id) {
           const { error: updateAppError } = await supabaseAdmin
             .from('reseller_applications')
             .update({ user_id: existingUser.id })
@@ -151,11 +177,14 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('⏳ Waiting for user update to propagate...');
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Update application status to approved
+      // Update application status to approved and store password
       const { error: updateError } = await supabaseAdmin
         .from('reseller_applications')
         .update({ 
           status: 'approved',
+          temporary_password: temporaryPassword,
+          password_sent_at: new Date().toISOString(),
+          password_reset_count: 0,
           updated_at: new Date().toISOString()
         })
         .eq('id', applicationId);

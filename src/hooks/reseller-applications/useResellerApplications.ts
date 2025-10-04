@@ -78,10 +78,16 @@ export const useResellerApplications = () => {
       const data = await fetchApplicationsApi();
       setApplications(data);
 
-      // Initialize temporary passwords for each application
+      // Use stored passwords or generate new ones only for unapproved applications
       const initialPasswords: Record<string, string> = {};
       data.forEach((app: any) => {
-        initialPasswords[app.id] = generateTemporaryPassword();
+        if (app.temporary_password) {
+          // Use stored password for approved applications
+          initialPasswords[app.id] = app.temporary_password;
+        } else if (!app.user_id) {
+          // Generate new password only for unapproved applications
+          initialPasswords[app.id] = generateTemporaryPassword();
+        }
       });
       setPasswords(initialPasswords);
       
