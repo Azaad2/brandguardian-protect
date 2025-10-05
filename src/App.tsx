@@ -124,8 +124,8 @@ const AppContent = () => {
         <Route path="/brand/signup" element={<AuthProvider><BrandSignup /></AuthProvider>} />
         <Route path="/reseller/login" element={<AuthProvider><ResellerLogin /></AuthProvider>} />
         <Route path="/reseller/signup" element={<AuthProvider><ResellerSignup /></AuthProvider>} />
-        <Route path="/reset-password" element={<PasswordReset />} />
-        <Route path="/reset-password/confirm" element={<PasswordResetConfirm />} />
+        <Route path="/reset-password" element={<AuthProvider><PasswordReset /></AuthProvider>} />
+        <Route path="/reset-password/confirm" element={<AuthProvider><PasswordResetConfirm /></AuthProvider>} />
         
         {/* Blog routes with lazy loading */}
         <Route path="/blog/amazon-wholesale-vs-private-label" element={<LazyAmazonWholesaleVsPrivateLabel />} />
