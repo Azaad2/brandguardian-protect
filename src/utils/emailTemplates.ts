@@ -109,10 +109,10 @@ export const generateBrandConfirmationEmail = (submission: ContactSubmission): s
       
       <p>Our team will review your submission and reach out to you within 1-2 business days to discuss how BndBox can help you find trusted wholesale resellers for your brand.</p>
       
-      <p>In the meantime, feel free to explore our <a href="https://bndbox.com/resources">brand resources</a> to learn more about optimizing your wholesale distribution strategy.</p>
+      <p>In the meantime, feel free to explore our <a href="https://bndbox.com/blog">brand resources</a> to learn more about optimizing your wholesale distribution strategy.</p>
       
       <div style="text-align: center;">
-        <a href="https://bndbox.com/resources" class="button">Explore Resources</a>
+        <a href="https://bndbox.com/blog" class="button">Explore Resources</a>
       </div>
       
       <p>If you have any immediate questions, please don't hesitate to contact our support team at <a href="mailto:help@bndbox.com">help@bndbox.com</a>.</p>
@@ -244,10 +244,10 @@ export const generateResellerConfirmationEmail = (submission: ResellerSubmission
         <p><strong>Step 3:</strong> Upon approval, you'll receive access to our network of brand partners and wholesale opportunities.</p>
       </div>
       
-      <p>While you wait, you can prepare by reviewing our <a href="https://bndbox.com/reseller-guidelines">Reseller Guidelines</a> to ensure a smooth onboarding process.</p>
+      <p>While you wait, you can prepare by reviewing our <a href="https://bndbox.com/reseller-hub">Reseller Hub</a> to ensure a smooth onboarding process.</p>
       
       <div style="text-align: center;">
-        <a href="https://bndbox.com/reseller-guidelines" class="button">View Reseller Guidelines</a>
+        <a href="https://bndbox.com/reseller-hub" class="button">View Reseller Hub</a>
       </div>
       
       <p>If you have any questions about your application, please contact us at <a href="mailto:reseller-support@bndbox.com">reseller-support@bndbox.com</a>.</p>
