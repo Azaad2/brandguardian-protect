@@ -8,8 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatDistanceToNow } from "date-fns";
-import { AlertCircle, CheckCircle, Mail, Search } from "lucide-react";
+import { AlertCircle, CheckCircle, Mail, Search, Eye } from "lucide-react";
 
 interface EmailRoutingLog {
   id: string;
@@ -20,6 +21,7 @@ interface EmailRoutingLog {
   recipient_email: string | null;
   subject: string | null;
   content_preview: string | null;
+  full_content: string | null;
   error_message: string | null;
   status: string;
   admin_notes: string | null;
@@ -29,6 +31,7 @@ export function EmailRoutingLogs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [viewMessageDialog, setViewMessageDialog] = useState<EmailRoutingLog | null>(null);
 
   const { data: logs, isLoading, error, refetch } = useQuery({
     queryKey: ['email-routing-logs'],
@@ -224,8 +227,21 @@ export function EmailRoutingLogs() {
                   
                   {log.content_preview && (
                     <div>
-                      <p className="font-medium text-muted-foreground text-sm">Content Preview:</p>
-                      <p className="text-sm text-muted-foreground bg-muted p-2 rounded">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-medium text-muted-foreground text-sm">Content Preview:</p>
+                        {log.full_content && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => setViewMessageDialog(log)}
+                            className="h-7 text-xs"
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            View Full Message
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground bg-muted p-2 rounded break-words whitespace-pre-wrap">
                         {log.content_preview}
                       </p>
                     </div>
@@ -234,7 +250,7 @@ export function EmailRoutingLogs() {
                   {log.error_message && (
                     <div>
                       <p className="font-medium text-destructive text-sm">Error:</p>
-                      <p className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                      <p className="text-sm text-destructive bg-destructive/10 p-2 rounded break-words whitespace-pre-wrap">
                         {log.error_message}
                       </p>
                     </div>
@@ -252,6 +268,63 @@ export function EmailRoutingLogs() {
           )}
         </ScrollArea>
       </CardContent>
+
+      {/* Full Message Dialog */}
+      <Dialog open={!!viewMessageDialog} onOpenChange={() => setViewMessageDialog(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="w-5 h-5" />
+              Full Email Message
+            </DialogTitle>
+          </DialogHeader>
+          
+          {viewMessageDialog && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm pb-4 border-b">
+                <div>
+                  <p className="font-medium text-muted-foreground">From:</p>
+                  <p className="font-mono break-words">{viewMessageDialog.sender_email}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">To:</p>
+                  <p className="font-mono break-words">{viewMessageDialog.recipient_email}</p>
+                </div>
+                {viewMessageDialog.subject && (
+                  <div className="col-span-2">
+                    <p className="font-medium text-muted-foreground">Subject:</p>
+                    <p className="break-words">{viewMessageDialog.subject}</p>
+                  </div>
+                )}
+                {viewMessageDialog.thread_id && (
+                  <div className="col-span-2">
+                    <p className="font-medium text-muted-foreground">Thread ID:</p>
+                    <p className="font-mono text-xs break-words">{viewMessageDialog.thread_id}</p>
+                  </div>
+                )}
+              </div>
+              
+              <ScrollArea className="h-[400px] w-full rounded border p-4">
+                <div className="space-y-2">
+                  <p className="font-medium text-muted-foreground text-sm">Full Content:</p>
+                  <pre className="text-sm whitespace-pre-wrap break-words font-sans">
+                    {viewMessageDialog.full_content || viewMessageDialog.content_preview || 'No content available'}
+                  </pre>
+                </div>
+              </ScrollArea>
+              
+              {viewMessageDialog.error_message && (
+                <div className="bg-destructive/10 p-4 rounded">
+                  <p className="font-medium text-destructive text-sm mb-2">Error Message:</p>
+                  <p className="text-sm text-destructive break-words whitespace-pre-wrap">
+                    {viewMessageDialog.error_message}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

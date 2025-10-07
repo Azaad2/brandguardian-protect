@@ -73,13 +73,15 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     // Log to email routing logs for debugging
-    const logEmailRouting = async (type: string, error?: string) => {
+    const logEmailRouting = async (type: string, error?: string, fullContent?: string) => {
+      const content = fullContent || emailData['body-plain'] || emailData['body-html'] || '';
       await supabase.from('email_routing_logs').insert({
         email_type: type,
         sender_email: emailData.sender,
         recipient_email: emailData.recipient,
         subject: emailData.subject,
-        content_preview: (emailData['body-plain'] || emailData['body-html'] || '').substring(0, 200),
+        content_preview: content.substring(0, 500),
+        full_content: content,
         error_message: error,
         status: error ? 'failed' : 'processed'
       });
@@ -193,25 +195,42 @@ const handler = async (req: Request): Promise<Response> => {
       resellerId: application.reseller_id
     });
 
-    // Verify the sender is the brand's contact email
-    if (emailData.sender !== application.brand.contact_email) {
-      const errorMsg = `Unauthorized sender. Expected: ${application.brand.contact_email}, Got: ${emailData.sender}`;
-      console.error('Sender verification failed:', {
+    // Verify the sender is from the brand's domain (domain-based validation)
+    const extractDomain = (email: string) => {
+      const match = email.match(/@(.+)$/);
+      return match ? match[1].toLowerCase() : '';
+    };
+    
+    const senderDomain = extractDomain(emailData.sender);
+    const brandDomain = extractDomain(application.brand.contact_email);
+    
+    if (senderDomain !== brandDomain) {
+      const errorMsg = `Unauthorized sender domain. Expected emails from @${brandDomain}, but got email from @${senderDomain}. Full sender: ${emailData.sender}`;
+      console.error('Sender domain verification failed:', {
         sender: emailData.sender,
-        expected: application.brand.contact_email,
+        senderDomain: senderDomain,
+        expectedDomain: brandDomain,
+        brandEmail: application.brand.contact_email,
         applicationId: application.id,
         brandName: application.brand?.name
       });
       await logEmailRouting('webhook_failure', errorMsg);
       return new Response(JSON.stringify({ 
-        error: 'Unauthorized sender',
+        error: 'Unauthorized sender domain',
         sender: emailData.sender,
-        expectedSender: application.brand.contact_email
+        expectedDomain: brandDomain,
+        hint: `Please ensure emails are sent from @${brandDomain}`
       }), {
         status: 403,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+    
+    console.log('Domain verification passed:', {
+      sender: emailData.sender,
+      senderDomain: senderDomain,
+      brandDomain: brandDomain
+    });
 
     // Process email content (prefer plain text over HTML)
     const emailContent = emailData['body-plain'] || emailData['body-html'] || '';
