@@ -128,6 +128,64 @@ const handler = async (req: Request): Promise<Response> => {
               ` : ''}
             </div>
             
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);">
+              <h2 style="color: #ffffff; margin: 0 0 10px 0; font-size: 24px; font-weight: bold;">🤝 Not Interested in Marketplace Resellers?</h2>
+              <h3 style="color: #e0e7ff; margin: 0 0 20px 0; font-size: 18px; font-weight: normal;">No Problem! BndBox Connects You With ALL Types of Partners</h3>
+              
+              <div style="background: rgba(255, 255, 255, 0.95); border-radius: 10px; padding: 25px; margin: 20px 0; text-align: left;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                  <div style="padding: 15px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">🏪</div>
+                    <div style="font-weight: bold; color: #1e40af; margin-bottom: 5px;">Traditional Retail Stores</div>
+                    <div style="font-size: 13px; color: #64748b;">Brick-and-mortar retailers looking for new brands</div>
+                  </div>
+                  
+                  <div style="padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">📦</div>
+                    <div style="font-weight: bold; color: #92400e; margin-bottom: 5px;">Wholesale Distributors</div>
+                    <div style="font-size: 13px; color: #64748b;">B2B distributors with established networks</div>
+                  </div>
+                  
+                  <div style="padding: 15px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">🌐</div>
+                    <div style="font-weight: bold; color: #166534; margin-bottom: 5px;">E-commerce Partners</div>
+                    <div style="font-size: 13px; color: #64748b;">Shopify, WooCommerce, and online stores</div>
+                  </div>
+                  
+                  <div style="padding: 15px; background: #fce7f3; border-radius: 8px; border-left: 4px solid #ec4899;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">💼</div>
+                    <div style="font-weight: bold; color: #9f1239; margin-bottom: 5px;">B2B Buyers</div>
+                    <div style="font-size: 13px; color: #64748b;">Corporate buyers and procurement teams</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div style="background: rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <p style="color: #ffffff; font-size: 16px; margin: 0 0 15px 0; font-weight: 600;">✨ Why Brands Choose BndBox:</p>
+                <div style="text-align: left; color: #e0e7ff; font-size: 14px; line-height: 1.8;">
+                  ✓ <strong>All partners are pre-verified</strong> - Save time screening buyers<br>
+                  ✓ <strong>One platform, all channels</strong> - Manage retail, wholesale, and online partnerships<br>
+                  ✓ <strong>Secure communication</strong> - Track all conversations in one place<br>
+                  ✓ <strong>Grow at your pace</strong> - Accept only the partnerships that fit your brand
+                </div>
+              </div>
+              
+              <div style="margin: 25px 0;">
+                <a href="https://bndbox.com" 
+                   style="background: #ffffff; color: #667eea; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); margin: 0 5px 10px 5px;">
+                  🚀 Explore Partnership Options
+                </a>
+                <a href="https://bndbox.com/brand/signup" 
+                   style="background: rgba(255, 255, 255, 0.2); color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; border: 2px solid #ffffff; margin: 0 5px 10px 5px;">
+                  📋 See Who's Looking for Your Products
+                </a>
+              </div>
+              
+              <p style="color: #e0e7ff; font-size: 13px; margin: 15px 0 0 0; font-style: italic;">
+                🔥 Thousands of buyers are actively searching for brands like yours right now
+              </p>
+            </div>
+            
             <div style="background: #fef5e7; border: 2px solid #f6ad55; border-radius: 8px; padding: 20px; margin: 20px 0;">
               <h3 style="color: #c05621; margin-top: 0;">📧 IMPORTANT: How to Reply</h3>
               <p style="margin: 10px 0;"><strong>To ensure your response reaches the reseller in their BndBox portal:</strong></p>
@@ -147,34 +205,6 @@ const handler = async (req: Request): Promise<Response> => {
                 style="background-color: #e53e3e; color: white; padding: 12px 24px; margin: 0 10px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
                 ❌ Reject Application
               </a>
-            </div>
-            
-            <div style="background: #e6fffa; border-left: 4px solid #38b2ac; padding: 15px; margin: 20px 0;">
-              <p style="margin: 0;"><strong>BndBox Benefits:</strong></p>
-              <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                <li>All resellers are pre-verified</li>
-                <li>Secure communication platform</li>
-                <li>Application tracking and management</li>
-                <li>Direct integration with major marketplaces</li>
-              </ul>
-            </div>
-            
-            <div style="background: #fff8dc; border: 2px solid #d69e2e; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-              <h3 style="color: #b7791f; margin-top: 0;">🚀 Discover BndBox Platform</h3>
-              <p style="margin: 10px 0; color: #2d3748; font-size: 16px;"><strong>Connect with thousands of pre-verified resellers and retailers!</strong></p>
-              <p style="margin: 10px 0; color: #4a5568;">BndBox is the leading B2B marketplace where brands like yours connect with qualified resellers across Amazon, Walmart, eBay, Shopify stores, physical retail locations, and other major platforms. Our platform streamlines wholesale partnerships, provides secure communication tools, and helps you scale your brand reach efficiently.</p>
-              <div style="margin: 20px 0;">
-                <a href="https://bndbox.com" 
-                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); margin-bottom: 10px;">
-                  Learn More About BndBox →
-                </a>
-                <br>
-                <a href="https://bndbox.com/brand/signup" 
-                   style="color: #3182ce; text-decoration: none; font-size: 14px; margin-top: 10px; display: inline-block;">
-                  Already interested? Register your brand here →
-                </a>
-              </div>
-              <p style="margin: 10px 0; color: #718096; font-size: 14px;">Join hundreds of brands already growing their business through our platform</p>
             </div>
             
             <p>Application ID: ${applicationId}</p>
