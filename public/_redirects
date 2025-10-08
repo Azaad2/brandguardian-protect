@@ -1,1 +1,5 @@
-/* /index.html 200
+# Prerender.io for search engines and social bots
+/*  https://service.prerender.io/https://bndbox.com/:splat  200!  User-Agent=googlebot,bingbot,yandex,baiduspider,facebookexternalhit,twitterbot,rogerbot,linkedinbot,embedly,quora\ link\ preview,showyoubot,outbrain,pinterest,slackbot,vkShare,W3C_Validator,redditbot,Applebot,WhatsApp,flipboard,tumblr,bitlybot,SkypeUriPreview,nuzzel,Discordbot,Google\ Page\ Speed,x-prerender-token  X-Prerender-Token=YOUR_PRERENDER_TOKEN
+
+# SPA fallback for all other requests
+/*  /index.html  200

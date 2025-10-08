@@ -7,6 +7,7 @@ module.exports = {
     '/',
     '/about',
     '/reseller-hub',
+    '/brand-portal',
     '/blog',
     '/blog/enforce-map-policy-prevent-unauthorized-sellers',
     '/blog/amazon-wholesale-vs-private-label',
@@ -44,6 +45,12 @@ module.exports = {
   // Cache bust
   cacheAjaxRequests: false,
   
-  // Prerender timeout
-  timeout: 30000
+  // Prerender timeout (increased for complex pages)
+  timeout: 60000,
+  
+  // Fix external links to not be crawled
+  externalServer: false,
+  
+  // User agent for crawling
+  userAgent: "ReactSnap"
 };
