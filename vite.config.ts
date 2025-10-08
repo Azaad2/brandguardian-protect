@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    // Optimize for prerendering
+    outDir: 'dist',
     // Optimize bundle splitting for better caching
     rollupOptions: {
       output: {

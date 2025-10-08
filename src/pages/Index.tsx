@@ -1,19 +1,19 @@
-import { Helmet } from 'react-helmet';
 import { trackPageView } from '@/lib/analytics';
 import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import HeroSection from '@/components/landing/HeroSection';
-
 import SolutionSection from '@/components/landing/SolutionSection';
 import PortalPreviewSection from '@/components/landing/PortalPreviewSection';
 import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
-
 import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/layout/Footer';
 import VisitorTypeDialog from '@/components/dialogs/VisitorTypeDialog';
 import LeadMagnetDialog from '@/components/dialogs/LeadMagnetDialog';
 import { useLeadMagnetPopup } from '@/hooks/useLeadMagnetPopup';
+import AdvancedSEO from '@/components/seo/AdvancedSEO';
+import { SchemaGenerator } from '@/components/seo/SchemaGenerator';
+import ExpandedContent from '@/components/seo/ExpandedContent';
 
 
 const Index = () => {
@@ -65,18 +65,30 @@ const Index = () => {
     console.log('showVisitorDialog state changed to:', showVisitorDialog);
   }, [showVisitorDialog]);
 
+  // Generate schemas
+  const organizationSchema = SchemaGenerator.generateOrganizationSchema();
+  const websiteSchema = SchemaGenerator.generateWebsiteSchema();
+  
+  const breadcrumbSchema = SchemaGenerator.generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://bndbox.com' }
+  ]);
+
   return (
     <div className="min-h-screen bg-white">
-      <Helmet>
-        <title>BndBox - Connect Brands with Authorized Resellers | Marketplace Brand Protection</title>
-        <meta name="description" content="BndBox connects premium brands with verified resellers, ensuring authorized distribution, MAP compliance, and brand protection across Amazon, Walmart, and eBay marketplaces." />
-        <meta name="keywords" content="brand protection, authorized resellers, MAP policy enforcement, marketplace compliance, wholesale distribution, Amazon brand registry" />
-        <link rel="canonical" href="https://bndbox.com" />
-      </Helmet>
+      <AdvancedSEO
+        title="Connect Brands with Authorized Resellers | Marketplace Brand Protection"
+        description="BndBox is the leading B2B marketplace connecting premium brands with verified resellers and retailers. Streamline wholesale approvals, ensure MAP compliance, and protect your brand across Amazon, Walmart, and eBay with AI-powered monitoring."
+        keywords="brand protection, authorized resellers, wholesale distribution, MAP policy enforcement, marketplace compliance, Amazon brand registry, B2B marketplace, reseller verification, retail partnerships, wholesale approvals, brand wholesale platform"
+        canonicalUrl="https://bndbox.com"
+        ogImage="https://bndbox.com/og-images/homepage.jpg"
+        ogType="website"
+        schema={[organizationSchema, websiteSchema, breadcrumbSchema]}
+      />
       
       <Header />
       <HeroSection />
       <SolutionSection />
+      <ExpandedContent />
       <PortalPreviewSection />
       <ConnectionNetworkSection />
       <FAQSection />

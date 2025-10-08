@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
 import Footer from '@/components/layout/Footer';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, FormValues } from '@/components/reseller-hub/ResellerFormSchema';
 import ResellerHubHeader from '@/components/reseller-hub/ResellerHubHeader';
 import ResellerHubIntro from '@/components/reseller-hub/ResellerHubIntro';
+import AdvancedSEO from '@/components/seo/AdvancedSEO';
+import { SchemaGenerator } from '@/components/seo/SchemaGenerator';
 
 import ResellerBenefitCards from '@/components/reseller-hub/ResellerBenefitCards';
 import ResellerApplicationForm from '@/components/reseller-hub/ResellerApplicationForm';
@@ -86,32 +87,37 @@ const ResellerHub = () => {
   }, []);
   
   // Generate structured data for the reseller application page
-  const generateResellerHubSchema = () => {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": "Amazon Reseller Application - Brand Wholesale Approval",
-      "description": "Apply to become an approved Amazon reseller for premium brands. Complete our reseller application for wholesale access.",
-      "url": "https://bndbox.com/reseller-hub",
-      "mainEntityOfPage": {
-        "@type": "Service",
-        "name": "Amazon Reseller Application Process",
-        "description": "Apply to sell premium brand products with wholesale approval across Amazon, Walmart, and eBay marketplaces.",
-        "provider": {
-          "@type": "Organization",
-          "name": "BndBox",
-          "logo": "https://bndbox.com/logo.png"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        }
-      }
-    };
-    
-    return JSON.stringify(schema);
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Amazon Reseller Application & Brand Wholesale Approval",
+    "description": "Apply to become an approved reseller for premium brands. Get wholesale access across Amazon, Walmart, and eBay marketplaces through verified reseller application.",
+    "provider": SchemaGenerator.generateOrganizationSchema(),
+    "areaServed": "Worldwide",
+    "serviceType": "B2B Marketplace Platform",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    }
   };
+
+  const breadcrumbSchema = SchemaGenerator.generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://bndbox.com' },
+    { name: 'Reseller Hub', url: 'https://bndbox.com/reseller-hub' }
+  ]);
+
+  const howToSchema = SchemaGenerator.generateHowToSchema(
+    "How to Apply as an Amazon Reseller",
+    "Complete guide to becoming an approved brand reseller on BndBox",
+    [
+      { name: "Create Profile", text: "Complete your reseller profile with business information and marketplace links" },
+      { name: "Verify Identity", text: "Upload required verification documents (EIN, business license)" },
+      { name: "Submit Application", text: "Submit your application for brand review and approval" },
+      { name: "Get Approved", text: "Receive wholesale access and pricing from approved brands" }
+    ]
+  );
 
   const handleSubmissionSuccess = (email: string) => {
     setSubmittedEmail(email);
@@ -137,17 +143,15 @@ const ResellerHub = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Helmet>
-        <title>Amazon Reseller Application | Brand Wholesale Approval | BndBox</title>
-        <meta name="description" content="Apply to become an approved Amazon reseller for premium brands. Complete our reseller application for wholesale access to brands on multiple marketplaces." />
-        <meta name="keywords" content="amazon reseller application, brand wholesale approval, marketplace seller approval, reseller application process, amazon wholesale" />
-        <link rel="canonical" href="https://bndbox.com/reseller-hub" />
-        
-        {/* Schema.org structured data for this page */}
-        <script type="application/ld+json">
-          {generateResellerHubSchema()}
-        </script>
-      </Helmet>
+      <AdvancedSEO
+        title="Amazon Reseller Application | Brand Wholesale Approval & Verification"
+        description="Apply to become an approved Amazon reseller for premium brands. Join 500+ verified resellers getting wholesale access to top brands across Amazon, Walmart, and eBay. Complete our free reseller application today and start selling authorized products with MAP compliance."
+        keywords="amazon reseller application, brand wholesale approval, marketplace seller approval, reseller verification, amazon wholesale, walmart reseller, ebay seller application, wholesale distribution, B2B marketplace, authorized reseller program"
+        canonicalUrl="https://bndbox.com/reseller-hub"
+        ogImage="https://bndbox.com/og-images/reseller-hub.jpg"
+        ogType="website"
+        schema={[serviceSchema, breadcrumbSchema, howToSchema]}
+      />
       
       <div className="container mx-auto px-4 pt-8 pb-16">
         <ResellerHubHeader />

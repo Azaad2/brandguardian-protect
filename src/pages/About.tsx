@@ -3,18 +3,37 @@ import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BreadcrumbNav from "@/components/navigation/BreadcrumbNav";
-import { Helmet } from "react-helmet";
 import InternalLinks from "@/components/seo/InternalLinks";
 import { Link } from "react-router-dom";
+import AdvancedSEO from "@/components/seo/AdvancedSEO";
+import { SchemaGenerator } from "@/components/seo/SchemaGenerator";
 
 const About = () => {
+  const aboutPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About BndBox",
+    "description": "Learn about BndBox - a marketplace connecting brands with trusted resellers and retailers across Amazon, Walmart, and eBay. Streamlined brand wholesale approval process.",
+    "url": "https://bndbox.com/about",
+    "mainEntity": SchemaGenerator.generateOrganizationSchema()
+  };
+
+  const breadcrumbSchema = SchemaGenerator.generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://bndbox.com' },
+    { name: 'About', url: 'https://bndbox.com/about' }
+  ]);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Helmet>
-        <title>About BndBox | Brand Wholesale Approval Platform</title>
-        <meta name="description" content="Learn about BndBox - a marketplace connecting brands with trusted resellers across Amazon, Walmart, and eBay. Streamlined brand wholesale approval process." />
-        <link rel="canonical" href="https://bndbox.com/about" />
-      </Helmet>
+      <AdvancedSEO
+        title="About BndBox | Brand Wholesale Approval & Reseller Verification Platform"
+        description="BndBox is a B2B marketplace connecting premium brands with verified resellers and retailers. Founded by e-commerce experts with 15+ years of experience, we streamline wholesale approvals and ensure brand protection across Amazon, Walmart, and eBay marketplaces."
+        keywords="about BndBox, brand wholesale platform, reseller marketplace, B2B wholesale, authorized distribution, brand protection company, e-commerce marketplace"
+        canonicalUrl="https://bndbox.com/about"
+        ogImage="https://bndbox.com/og-images/about.jpg"
+        ogType="website"
+        schema={[aboutPageSchema, breadcrumbSchema]}
+      />
       
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -31,10 +50,14 @@ const About = () => {
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">Our Mission</h2>
-          <p>
+          <p className="mb-4">
             Our mission is to create a transparent ecosystem where brands can safely expand their e-commerce
-            presence through verified resellers who are committed to maintaining brand standards and pricing policies.
-            We simplify the wholesale approval process for both brands and resellers. Learn more about our{" "}
+            presence through verified resellers and traditional retailers who are committed to maintaining brand standards and pricing policies.
+            We simplify the wholesale approval process for both brands and resellers, whether they sell on online marketplaces or through brick-and-mortar retail channels.
+          </p>
+          <p>
+            BndBox bridges the gap between brands seeking authorized distribution partners and professional resellers/retailers looking for wholesale opportunities.
+            Learn more about our{" "}
             <Link to="/reseller-hub" className="text-bndbox-600 hover:text-bndbox-700 underline">
               reseller application process
             </Link>{" "}
@@ -45,10 +68,16 @@ const About = () => {
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">Our Team</h2>
-          <p>
+          <p className="mb-4">
             Founded by e-commerce experts with over 15 years of experience across Amazon, Walmart, and
             eBay marketplaces, our team understands the challenges brands face with unauthorized resellers
             and the opportunities that trusted partnerships can bring.
+          </p>
+          <p>
+            Our platform serves both online marketplace sellers and traditional retail buyers, providing brands 
+            with a comprehensive solution for managing all types of wholesale relationships. Whether you're looking 
+            to connect with Amazon resellers, retail store buyers, or B2B wholesale distributors, BndBox provides 
+            the verification tools and marketplace infrastructure you need.
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">The Brand Wholesale Approval Process</h2>
@@ -78,32 +107,6 @@ const About = () => {
           <InternalLinks currentPage="/about" category="company" />
         </div>
         
-        {/* Company schema structured data */}
-        <script 
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ 
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "BndBox",
-              "url": "https://bndbox.com",
-              "logo": "https://bndbox.com/logo.png",
-              "description": "BndBox is a platform that connects brands with trusted resellers across Amazon, Walmart, and eBay, streamlining the brand wholesale approval process.",
-              "foundingDate": "2023",
-              "founders": [
-                {
-                  "@type": "Person",
-                  "name": "E-Commerce Experts"
-                }
-              ],
-              "sameAs": [
-                "https://www.facebook.com/bndbox",
-                "https://www.linkedin.com/company/bndbox",
-                "https://twitter.com/bndbox"
-              ]
-            })
-          }}
-        />
       </main>
       <Footer />
     </div>

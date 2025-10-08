@@ -73,15 +73,13 @@ const HeroSection = () => {
               </motion.div>
               
               <div className="space-y-4">
-                <AnimatedText
-                  as="h1"
-                  variant="gradient"
-                  delay={0.4}
-                  className="text-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight"
-                >
-                  Wholesale Made Easy, Brands Meet Reseller/Retailers
-                </AnimatedText>
+                <h1 className="text-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  Wholesale Made Easy: Connect Brands with Authorized Resellers & Retailers
+                </h1>
                 
+                <p className="text-xl text-muted-foreground max-w-2xl">
+                  The leading B2B marketplace for wholesale partnerships. Streamline brand approvals, verify resellers, and protect your brand across Amazon, Walmart, and eBay with AI-powered monitoring.
+                </p>
               </div>
             </div>
             
