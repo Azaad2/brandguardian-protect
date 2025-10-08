@@ -1,112 +1,321 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { Store, Package, ShoppingCart, Globe, CheckCircle, ArrowRight, Shield, Zap, TrendingUp, Users } from 'lucide-react';
 
 const ExpandedContent = () => {
+  const partnershipTypes = [
+    {
+      icon: <Store className="w-6 h-6 text-white" />,
+      title: "Brick & Mortar Retailers",
+      description: "Traditional retail stores, boutiques, and specialty shops looking to add premium brands to their physical shelves."
+    },
+    {
+      icon: <Package className="w-6 h-6 text-white" />,
+      title: "Wholesale Distributors",
+      description: "B2B distributors and wholesalers who supply products to multiple retail channels and business customers."
+    },
+    {
+      icon: <ShoppingCart className="w-6 h-6 text-white" />,
+      title: "Marketplace Resellers",
+      description: "Authorized sellers on Amazon, Walmart, and eBay with proven track records and compliance standards."
+    },
+    {
+      icon: <Globe className="w-6 h-6 text-white" />,
+      title: "E-Commerce Stores",
+      description: "Online boutiques, Shopify stores, and digital retailers expanding their product catalogs with trusted brands."
+    }
+  ];
+
+  const brandBenefits = [
+    "Connect with verified retail partners across all channels",
+    "Streamline approval workflows for faster partnership decisions",
+    "Monitor brand compliance across physical and digital storefronts",
+    "Protect MAP pricing and brand guidelines automatically",
+    "Grow wholesale distribution while maintaining brand control"
+  ];
+
+  const partnerBenefits = [
+    "Access premium brands actively seeking retail partners",
+    "Get approved faster with verified business credentials",
+    "Receive exclusive wholesale pricing and terms",
+    "Access product catalogs and marketing materials",
+    "Build long-term partnerships with leading brands"
+  ];
+
   return (
-    <section className="py-16 bg-gradient-subtle">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto prose prose-lg">
-          <h2 className="text-3xl font-bold mb-6 text-center">
-            The Complete B2B Wholesale Marketplace for Brands and Resellers
-          </h2>
-          
-          <div className="space-y-6 text-muted-foreground">
-            <p>
-              BndBox is revolutionizing how brands connect with authorized resellers and retailers across multiple 
-              e-commerce platforms. Whether you're a premium brand seeking verified wholesale partners or a 
-              professional reseller looking for brand approvals, our AI-powered platform streamlines the entire 
-              wholesale approval process.
+    <section className="py-24 gradient-mesh px-4 relative overflow-hidden">
+      {/* Background elements */}
+      <div className="absolute inset-0">
+        <motion.div
+          className="absolute top-1/3 right-1/4 w-96 h-96 bg-gradient-to-r from-accent/5 to-primary/5 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+
+      <div className="container mx-auto relative z-10 space-y-24">
+        {/* Partnership Types Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="text-center mb-16">
+            <motion.div
+              className="inline-flex items-center px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary font-medium text-sm mb-6"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Beyond Marketplaces
+            </motion.div>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              All Types of Retail Partners Welcome
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Whether you operate physical stores, wholesale distribution, online marketplaces, or e-commerce sites — BndBox connects you with the right brand partnerships.
             </p>
-            
-            <h3 className="text-2xl font-semibold text-foreground mt-8">For Brands: Protect Your Brand & Expand Distribution</h3>
-            <p>
-              Take control of your brand's marketplace presence with our comprehensive brand protection tools. 
-              Our platform helps you identify and verify legitimate resellers while monitoring for unauthorized 
-              sellers and MAP policy violations. Connect with pre-vetted resellers who meet your standards for 
-              business legitimacy, sales volume, and marketplace performance.
-            </p>
-            
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Automated Reseller Verification:</strong> Review complete business profiles including EIN verification, marketplace storefronts, and sales performance metrics</li>
-              <li><strong>MAP Compliance Monitoring:</strong> AI-powered tools track pricing across Amazon, Walmart, and eBay to ensure authorized sellers maintain your brand standards</li>
-              <li><strong>Streamlined Approval Workflow:</strong> Manage wholesale applications, approve resellers, and distribute catalogs through one centralized dashboard</li>
-              <li><strong>Brand Protection Analytics:</strong> Real-time alerts for unauthorized sellers, counterfeit listings, and policy violations</li>
-            </ul>
-            
-            <h3 className="text-2xl font-semibold text-foreground mt-8">For Resellers: Access Premium Brand Wholesale Opportunities</h3>
-            <p>
-              Stop sending endless cold emails to brands. BndBox connects you directly with brands actively 
-              seeking authorized wholesale partners. Our platform showcases your business legitimacy and 
-              marketplace track record, making it easier to get approved for the brands you want to sell.
-            </p>
-            
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Direct Brand Access:</strong> Browse hundreds of brands looking for resellers across categories like electronics, home goods, beauty, and more</li>
-              <li><strong>Verified Profile:</strong> Build a comprehensive reseller profile that demonstrates your business legitimacy and marketplace success</li>
-              <li><strong>Simplified Applications:</strong> Apply to multiple brands with one profile instead of filling out separate wholesale applications</li>
-              <li><strong>Wholesale Catalog Access:</strong> Get instant access to approved brand catalogs with wholesale pricing and product information</li>
-              <li><strong>Multi-Marketplace Support:</strong> Whether you sell on Amazon, Walmart, eBay, or your own e-commerce store, connect with brands across all channels</li>
-            </ul>
-            
-            <h3 className="text-2xl font-semibold text-foreground mt-8">Beyond Marketplaces: Traditional Retail & B2B Distribution</h3>
-            <p>
-              While BndBox specializes in connecting marketplace resellers with brands, we also serve traditional 
-              retail buyers, wholesale distributors, and B2B purchasing managers. Brands can use our platform to 
-              manage all types of wholesale relationships - from Amazon FBA sellers to brick-and-mortar retail 
-              stores to e-commerce boutiques.
-            </p>
-            
-            <p>
-              Our verification process ensures all partners meet professional standards, whether they're selling 
-              online or through traditional retail channels. This comprehensive approach gives brands complete 
-              control over their entire distribution network while providing resellers and retailers with access 
-              to premium wholesale opportunities.
-            </p>
-            
-            <h3 className="text-2xl font-semibold text-foreground mt-8">How the BndBox Wholesale Approval Process Works</h3>
-            <ol className="list-decimal pl-6 space-y-3">
-              <li><strong>Reseller Registration:</strong> Complete your profile with business information, marketplace links, and verification documents</li>
-              <li><strong>Brand Discovery:</strong> Browse brands in your category or get matched with brands seeking resellers</li>
-              <li><strong>Application Submission:</strong> Apply to brands with your verified profile showcasing your business legitimacy</li>
-              <li><strong>Brand Review:</strong> Brands review applications using standardized criteria and verification data</li>
-              <li><strong>Approval & Access:</strong> Approved resellers receive immediate access to wholesale catalogs and pricing</li>
-              <li><strong>Ongoing Compliance:</strong> Our platform monitors both parties to ensure continued compliance with agreements and policies</li>
-            </ol>
-            
-            <div className="mt-12 p-8 bg-primary/5 rounded-xl border border-primary/20">
-              <h3 className="text-2xl font-semibold text-foreground mb-4">Ready to Get Started?</h3>
-              <p className="mb-6">
-                Join thousands of brands and resellers already using BndBox to streamline their wholesale partnerships.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  to="/reseller-hub" 
-                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold text-center hover:bg-primary/90 transition-colors"
-                >
-                  Apply as a Reseller
-                </Link>
-                <Link 
-                  to="/contact" 
-                  className="px-6 py-3 bg-background border-2 border-primary text-primary rounded-lg font-semibold text-center hover:bg-primary/5 transition-colors"
-                >
-                  Register Your Brand
-                </Link>
-              </div>
-            </div>
-            
-            <h3 className="text-2xl font-semibold text-foreground mt-8">Additional Resources</h3>
-            <p>
-              Learn more about wholesale distribution, brand protection, and marketplace selling through our 
-              comprehensive blog resources:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><Link to="/blog/how-to-get-ungated-any-brand-amazon-2025" className="text-primary hover:underline">How to Get Ungated on Amazon in 2025</Link></li>
-              <li><Link to="/blog/amazon-wholesale-vs-private-label" className="text-primary hover:underline">Amazon Wholesale vs Private Label: Which is Right for You?</Link></li>
-              <li><Link to="/blog/prevent-unauthorized-sellers-amazon" className="text-primary hover:underline">How to Prevent Unauthorized Sellers on Amazon</Link></li>
-              <li><Link to="/blog/enforce-map-policy-prevent-unauthorized-sellers" className="text-primary hover:underline">Enforce Your MAP Policy and Prevent Unauthorized Sellers</Link></li>
-            </ul>
           </div>
-        </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {partnershipTypes.map((type, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+              >
+                <PremiumCard variant="glass" className="group p-6 h-full hover:border-primary/30 transition-all duration-300">
+                  <motion.div
+                    className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300"
+                    whileHover={{ rotate: 5 }}
+                  >
+                    {type.icon}
+                  </motion.div>
+                  <h3 className="text-lg font-semibold mb-3 text-foreground group-hover:text-primary transition-colors">
+                    {type.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {type.description}
+                  </p>
+                </PremiumCard>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* For Brands Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="grid lg:grid-cols-2 gap-12 items-center"
+        >
+          <div>
+            <div className="inline-flex items-center px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary font-medium text-sm mb-6">
+              <Shield className="w-4 h-4 mr-2" />
+              For Brands
+            </div>
+            <h2 className="text-4xl font-bold mb-6 text-foreground">
+              Expand Your Distribution Network
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+              Connect with qualified retail partners across traditional retail, wholesale, and e-commerce channels. BndBox helps you grow distribution while maintaining complete brand control and compliance.
+            </p>
+            <div className="space-y-4 mb-8">
+              {brandBenefits.map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  className="flex items-start space-x-3"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">{benefit}</span>
+                </motion.div>
+              ))}
+            </div>
+            <motion.button
+              onClick={() => window.location.href = '#contact'}
+              className="group px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="flex items-center">
+                Register Your Brand
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </motion.button>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <PremiumCard variant="glass" className="p-8">
+              <div className="space-y-6">
+                {[
+                  { icon: <TrendingUp className="w-5 h-5" />, label: "Average Sales Growth", value: "+127%" },
+                  { icon: <Users className="w-5 h-5" />, label: "Active Retail Partners", value: "2,400+" },
+                  { icon: <Shield className="w-5 h-5" />, label: "Brand Protection Rate", value: "99.7%" }
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex items-center justify-between p-4 glass-morphism rounded-lg"
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.15 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white">
+                        {stat.icon}
+                      </div>
+                      <span className="text-sm text-muted-foreground">{stat.label}</span>
+                    </div>
+                    <span className="text-2xl font-bold text-primary">{stat.value}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </PremiumCard>
+          </motion.div>
+        </motion.div>
+
+        {/* For Partners Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="grid lg:grid-cols-2 gap-12 items-center"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="order-2 lg:order-1"
+          >
+            <PremiumCard variant="glass" className="p-8">
+              <div className="space-y-4">
+                <div className="text-center mb-6">
+                  <div className="text-5xl font-bold text-primary mb-2">500+</div>
+                  <div className="text-muted-foreground">Premium Brands Available</div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {["Electronics", "Beauty", "Home & Garden", "Sports", "Fashion", "Health"].map((category, index) => (
+                    <motion.div
+                      key={index}
+                      className="p-4 glass-morphism rounded-lg text-center"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="font-semibold text-foreground text-sm">{category}</div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </PremiumCard>
+          </motion.div>
+
+          <div className="order-1 lg:order-2">
+            <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent font-medium text-sm mb-6">
+              <Zap className="w-4 h-4 mr-2" />
+              For Retailers & Distributors
+            </div>
+            <h2 className="text-4xl font-bold mb-6 text-foreground">
+              Get Approved by Premium Brands
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+              Whether you're a traditional retailer, wholesale distributor, or e-commerce seller — get fast-tracked approvals from brands actively seeking retail partners like you.
+            </p>
+            <div className="space-y-4 mb-8">
+              {partnerBenefits.map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  className="flex items-start space-x-3"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">{benefit}</span>
+                </motion.div>
+              ))}
+            </div>
+            <motion.button
+              onClick={() => window.location.href = '/reseller-hub'}
+              className="group px-8 py-4 bg-gradient-to-r from-accent to-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="flex items-center">
+                Apply as Retail Partner
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* How It Works Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <h2 className="text-4xl font-bold mb-16 text-foreground">How BndBox Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              { step: "1", title: "Create Profile", desc: "Set up your brand or retail business profile with verification" },
+              { step: "2", title: "Connect & Apply", desc: "Browse partners and submit applications with one click" },
+              { step: "3", title: "Start Trading", desc: "Get approved and begin wholesale partnerships immediately" }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+              >
+                <PremiumCard variant="glass" className="p-8 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 text-8xl font-bold text-primary/5 leading-none">
+                    {item.step}
+                  </div>
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
+                      {item.step}
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-foreground">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.desc}</p>
+                  </div>
+                </PremiumCard>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
