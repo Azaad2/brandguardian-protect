@@ -142,7 +142,7 @@ const HeroSection = () => {
               </div>
               <div className="text-body text-sm text-muted-foreground font-medium">
                 <div className="font-semibold text-foreground">Trusted by 150+ authorized resellers</div>
-                <div>40+ brands • Average approval &lt;14 days</div>
+                <div>40+ brands • Average approval {'<'}14 days</div>
               </div>
             </motion.div>
           </motion.div>
