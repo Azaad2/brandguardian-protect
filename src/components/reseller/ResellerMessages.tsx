@@ -13,6 +13,7 @@ import { AlertCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { MessageDetailDialog } from "./messages/MessageDetailDialog";
 
 interface Message {
   id: string;
@@ -30,10 +31,21 @@ interface Message {
       logo_url: string | null;
     };
   };
+  // Additional fields for dialog
+  sender?: string;
+  subject?: string;
+  preview?: string;
+  timestamp?: string;
+  type?: string;
+  status?: string;
+  unread?: boolean;
+  full_content?: string;
 }
 
 const ResellerMessages = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
 
   // Fetch messages with brand application details
@@ -130,6 +142,29 @@ const ResellerMessages = () => {
     }
   };
 
+  const handleOpenMessage = async (message: Message) => {
+    const formattedMessage: any = {
+      id: message.id,
+      sender: getSenderName(message),
+      subject: message.content.split('\n')[0] || 'No Subject',
+      preview: message.content.substring(0, 150) + '...',
+      timestamp: new Date(message.created_at).toLocaleString(),
+      type: getMessageType(message),
+      status: 'standard',
+      unread: !message.is_read,
+      full_content: message.content,
+      sender_id: message.sender_id,
+      recipient_id: message.recipient_id,
+      brand_application_id: message.brand_application_id || null,
+      email_thread_id: message.email_thread_id || null
+    };
+    setSelectedMessage(formattedMessage);
+    setDialogOpen(true);
+    if (!message.is_read) {
+      await markAsRead(message.id);
+    }
+  };
+
   const filteredMessages = messages.filter(
     message => 
       getSenderName(message).toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -162,9 +197,10 @@ const ResellerMessages = () => {
   const MessageCard = ({ message }: { message: Message }) => (
     <div
       key={message.id}
-      className={`flex items-start gap-3 rounded-lg border p-4 ${
+      className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer hover:shadow-md transition-shadow ${
         !message.is_read ? 'bg-muted/50 border-blue-200' : ''
       }`}
+      onClick={() => handleOpenMessage(message)}
     >
       <div className="flex-shrink-0">
         {message.brand_application?.brand?.logo_url ? (
@@ -191,8 +227,8 @@ const ResellerMessages = () => {
           </Badge>
         </div>
         
-        <p className="text-sm text-muted-foreground line-clamp-3">
-          {message.content}
+        <p className="text-sm text-muted-foreground">
+          {message.content.length > 150 ? message.content.substring(0, 150) + '...' : message.content}
         </p>
         
         <div className="flex items-center justify-between">
@@ -210,19 +246,30 @@ const ResellerMessages = () => {
       <Button 
         variant="outline" 
         size="sm"
-        onClick={() => !message.is_read && markAsRead(message.id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleOpenMessage(message);
+        }}
       >
-        {message.is_read ? 'View' : 'Mark Read'}
+        View
       </Button>
     </div>
   );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Messages</h1>
-        <p className="text-muted-foreground">Real-time communication with your brand partners</p>
-      </div>
+    <>
+      <MessageDetailDialog
+        message={selectedMessage}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onMessageSent={refetch}
+      />
+      
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Messages</h1>
+          <p className="text-muted-foreground">Real-time communication with your brand partners</p>
+        </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -486,7 +533,8 @@ const ResellerMessages = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </>
   );
 };
 

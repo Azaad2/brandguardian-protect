@@ -14,6 +14,11 @@ export type Message = {
   type: string;
   status: string;
   unread: boolean;
+  full_content?: string;
+  sender_id?: string;
+  recipient_id?: string;
+  brand_application_id?: string;
+  email_thread_id?: string;
 };
 
 export const useResellerMessages = () => {
@@ -32,7 +37,9 @@ export const useResellerMessages = () => {
         is_read,
         created_at,
         sender_id,
-        recipient_id
+        recipient_id,
+        brand_application_id,
+        email_thread_id
       `)
       .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
       .order('created_at', { ascending: false });
@@ -102,7 +109,12 @@ export const useResellerMessages = () => {
           timestamp: formatTimestamp(message.created_at),
           type: type,
           status: status,
-          unread: !message.is_read
+          unread: !message.is_read,
+          full_content: message.content,
+          sender_id: message.sender_id,
+          recipient_id: message.recipient_id,
+          brand_application_id: message.brand_application_id,
+          email_thread_id: message.email_thread_id
         };
       })
     );
@@ -160,11 +172,26 @@ export const useResellerMessages = () => {
     };
   }, [user, refetch]);
   
+  const markAsRead = async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('id', messageId);
+      
+      if (error) throw error;
+      refetch();
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+    }
+  };
+
   return {
     messages: messages || [],
     isLoading,
     isError,
     error,
-    refetch
+    refetch,
+    markAsRead
   };
 };
