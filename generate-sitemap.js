@@ -3,7 +3,21 @@
 /**
  * Dynamic sitemap generator for bndbox.com
  * Generates sitemap.xml with current dates and all routes
+ * FAIL-SAFE: Always exits successfully to prevent build failures
  */
+
+// Wrap entire script in fail-safe error handler
+process.on('uncaughtException', (error) => {
+  console.warn('⚠️  Sitemap generation failed:', error.message);
+  console.log('Build will continue with existing sitemap...');
+  process.exit(0);
+});
+
+process.on('unhandledRejection', (error) => {
+  console.warn('⚠️  Sitemap generation failed:', error.message);
+  console.log('Build will continue with existing sitemap...');
+  process.exit(0);
+});
 
 const fs = require('fs');
 const path = require('path');
