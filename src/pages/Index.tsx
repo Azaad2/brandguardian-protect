@@ -76,9 +76,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <AdvancedSEO
-        title="Connect Brands with Authorized Resellers | Marketplace Brand Protection"
-        description="BndBox is the leading B2B marketplace connecting premium brands with verified resellers and retailers. Streamline wholesale approvals, ensure MAP compliance, and protect your brand across Amazon, Walmart, and eBay with AI-powered monitoring."
-        keywords="brand protection, authorized resellers, wholesale distribution, MAP policy enforcement, marketplace compliance, Amazon brand registry, B2B marketplace, reseller verification, retail partnerships, wholesale approvals, brand wholesale platform"
+        title="BndBox | AI-Powered Wholesale Distribution Platform for Brands, Distributors & Retailers"
+        description="BndBox connects verified brands, distributors, and retailers through AI-driven matchmaking and compliance automation. Discover the smarter way to scale wholesale partnerships globally."
+        keywords="AI wholesale platform, wholesale distribution network, B2B marketplace, brand distributor network, retail wholesale suppliers, online reseller approvals, wholesale matchmaking, compliance automation, verified distributors, wholesale partnerships"
         canonicalUrl="https://bndbox.com"
         ogImage="https://bndbox.com/og-images/homepage.jpg"
         ogType="website"

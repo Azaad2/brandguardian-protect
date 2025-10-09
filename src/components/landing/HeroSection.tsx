@@ -69,16 +69,16 @@ const HeroSection = () => {
                 className="inline-flex items-center px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary font-medium text-sm"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                AI-Powered Brand Protection
+                AI-Powered Distribution Network
               </motion.div>
               
               <div className="space-y-4">
                 <h1 className="text-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                  Wholesale Made Easy: Connect Brands with Authorized Resellers & Retailers
+                  AI-Powered Distribution Network for Brands, Distributors & Retailers
                 </h1>
                 
                 <p className="text-xl text-muted-foreground max-w-2xl">
-                  The leading B2B marketplace for wholesale partnerships. Streamline brand approvals, verify resellers, and protect your brand across Amazon, Walmart, and eBay with AI-powered monitoring.
+                  BndBox simplifies wholesale partnerships — connecting verified brands, distributors, and resellers through AI-driven matchmaking and marketplace intelligence.
                 </p>
               </div>
             </div>
@@ -99,7 +99,7 @@ const HeroSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center justify-center">
                   <Shield className="w-5 h-5 mr-2" />
-                  Find Brands
+                  Join as Brand
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>
               </motion.button>
@@ -112,7 +112,7 @@ const HeroSection = () => {
               >
                 <div className="flex items-center justify-center">
                   <Zap className="w-5 h-5 mr-2" />
-                  Find Resellers
+                  Join as Distributor / Retailer
                 </div>
               </motion.button>
             </motion.div>
@@ -141,8 +141,8 @@ const HeroSection = () => {
                 ))}
               </div>
               <div className="text-body text-sm text-muted-foreground font-medium">
-                <div className="font-semibold text-foreground">Join 500+ brands</div>
-                <div>Try Free • No Credit Card Required</div>
+                <div className="font-semibold text-foreground">Trusted by 150+ authorized resellers</div>
+                <div>40+ brands • Average approval &lt;14 days</div>
               </div>
             </motion.div>
           </motion.div>

@@ -11,32 +11,24 @@ import { trackSEOInteraction } from "@/lib/analytics";
 const FAQSection = () => {
   const faqItems = [
     {
-      question: "What is the brand wholesale approval process?",
-      answer: "The brand wholesale approval process is a vetting procedure that brands use to authorize resellers to sell their products on marketplaces like Amazon, Walmart, and eBay. BndBox streamlines this process by connecting brands with pre-vetted resellers who meet their standards for representation and pricing policies."
+      question: "What makes BndBox different from other B2B marketplaces?",
+      answer: "BndBox combines AI-powered matchmaking with compliance automation to connect brands, distributors, and retailers more efficiently. Our proprietary AI engine analyzes 1M+ product and partner data points to ensure best-fit partnerships. We provide built-in MAP policy enforcement, verification layers, and performance dashboards that traditional B2B platforms lack."
     },
     {
-      question: "How does BndBox help with reseller application process?",
-      answer: "BndBox simplifies the reseller application process by providing a centralized platform where resellers can apply to multiple brands and brands can efficiently review applications. We validate reseller credentials, performance history, and marketplace metrics to ensure only qualified resellers reach your approval queue."
+      question: "Can offline retailers join BndBox?",
+      answer: "Yes! BndBox serves both online resellers and traditional brick-and-mortar retailers. Whether you operate physical retail stores, sell on marketplaces like Amazon and Walmart, or both, you can connect with verified wholesale suppliers and brand partners through our platform."
     },
     {
-      question: "How do I get approved by brands as a reseller?",
-      answer: "To get approved by brands as a reseller on BndBox, create a reseller account, complete your profile with store performance metrics, marketplace accounts, and business credentials. Browse available brand opportunities and submit applications. Brands review your profile and may require additional documentation before granting wholesale approval."
+      question: "How are partners verified on BndBox?",
+      answer: "BndBox uses a multi-layer verification process for all partners. We validate business credentials, review performance history, verify marketplace accounts, and check compliance records. Our AI system continuously monitors partner behavior to ensure ongoing adherence to MAP policies and brand standards."
     },
     {
-      question: "What are MAP policies and how does BndBox enforce them?",
-      answer: "Minimum Advertised Price (MAP) policies are rules set by brands that establish the lowest price at which their products can be advertised. BndBox helps enforce these policies by only connecting brands with resellers who commit to honoring pricing policies, and by providing monitoring tools that alert brands to potential violations."
+      question: "How does BndBox use AI?",
+      answer: "Our AI engine analyzes over 1 million product and partner data points to match brands with the best-fit distributors, retailers, and resellers. The AI evaluates factors like sales performance, category expertise, geographic reach, compliance history, and marketplace presence to recommend optimal partnerships. It also monitors ongoing compliance and flags potential policy violations."
     },
     {
-      question: "Can BndBox help with Amazon Brand Registry issues?",
-      answer: "Yes, BndBox helps brands with Amazon Brand Registry by ensuring all connected resellers are properly authorized, which reduces potential listing conflicts. Our platform helps maintain brand control by providing documentation of authorized relationships that can be referenced if marketplace disputes arise."
-    },
-    {
-      question: "How long does the wholesale approval process take?",
-      answer: "The wholesale approval process through BndBox typically takes 3-7 business days, significantly faster than traditional methods. This timeline includes initial application, brand review, documentation exchange, and final approval. Some premium brands may require additional verification steps that can extend the process."
-    },
-    {
-      question: "What documents do I need for Amazon seller brand approval?",
-      answer: "For Amazon seller brand approval, you typically need business documentation (business license, EIN), proof of address, bank statements, invoices from authorized distributors, letter of authorization from brand owners, and marketplace performance metrics showing your seller history and feedback scores."
+      question: "What are the pricing options for BndBox?",
+      answer: "BndBox offers flexible pricing plans for brands, distributors, and retailers. Resellers can join and browse opportunities for free, with premium features available on paid plans. Brands pay a subscription fee based on the number of active partnerships and features needed. Contact our team for custom enterprise pricing."
     }
   ];
 
@@ -67,9 +59,9 @@ const FAQSection = () => {
     <section id="faq" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions About Brand Wholesale Approval</h2>
+          <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions About BndBox</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Learn more about how our platform connects brands with trusted resellers through a streamlined approval process.
+            Learn more about how our AI-powered platform connects brands, distributors, retailers, and online resellers through intelligent matchmaking.
           </p>
         </div>
 

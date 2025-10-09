@@ -4,7 +4,7 @@ export class SchemaGenerator {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "BndBox",
-      "alternateName": "BndBox - Brand Wholesale Platform",
+      "alternateName": "BndBox - AI-Powered Wholesale Distribution Platform",
       "url": "https://bndbox.com",
       "logo": {
         "@type": "ImageObject",
@@ -12,11 +12,10 @@ export class SchemaGenerator {
         "width": 600,
         "height": 60
       },
-      "description": "BndBox connects brands with authorized resellers for wholesale opportunities on Amazon and other marketplaces.",
+      "description": "AI-powered wholesale distribution network connecting brands, distributors, retailers, and online resellers worldwide.",
       "foundingDate": "2024",
       "sameAs": [
-        "https://www.linkedin.com/company/bndbox",
-        "https://twitter.com/bndbox"
+        "https://www.linkedin.com/company/bndbox"
       ],
       "contactPoint": {
         "@type": "ContactPoint",
