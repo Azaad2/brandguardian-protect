@@ -1,6 +1,5 @@
 
 import { motion } from 'framer-motion';
-import { trackSEOInteraction } from '@/lib/analytics';
 import { PremiumCard } from '@/components/ui/premium-card';
 
 import { ArrowRight, Sparkles, Shield, Zap } from 'lucide-react';
