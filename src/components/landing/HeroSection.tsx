@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { trackSEOInteraction } from '@/lib/analytics';
 import { PremiumCard } from '@/components/ui/premium-card';
-import { AnimatedText, AnimatedWords } from '@/components/ui/animated-text';
+
 import { ArrowRight, Sparkles, Shield, Zap } from 'lucide-react';
 import { useState, useEffect } from "react";
 
@@ -18,9 +18,6 @@ const HeroSection = () => {
     return () => clearInterval(intervalId);
   }, []);
   
-  const handleHeroCTA = () => {
-    trackSEOInteraction('CTA_Click', 'HeroButton', 'Get Started');
-  };
 
   return (
     <main className="relative min-h-screen flex items-center justify-center px-4 py-12 gradient-hero overflow-hidden">
