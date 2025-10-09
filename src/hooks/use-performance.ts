@@ -6,8 +6,7 @@ const sendToAnalytics = (name: string, value: number, delta: number) => {
   import('../lib/analytics').then(({ trackWebVitals }) => {
     trackWebVitals(name, delta, value);
   }).catch(() => {
-    // Fallback if analytics fails to load
-    console.log(`Web Vital: ${name} = ${value}ms (delta: ${delta}ms)`);
+    // Silently fail if analytics fails to load
   });
 };
 
@@ -24,8 +23,6 @@ export const usePerformanceMonitoring = () => {
   const checkThreshold = useCallback((metric: string, value: number) => {
     const threshold = PERFORMANCE_THRESHOLDS[metric as keyof typeof PERFORMANCE_THRESHOLDS];
     if (threshold && value > threshold) {
-      console.warn(`Performance Warning: ${metric} (${value}) exceeds threshold (${threshold})`);
-      
       // Track performance budget violations
       sendToAnalytics(`${metric}_Budget_Violation`, value, value - threshold);
     }
@@ -66,7 +63,6 @@ export const usePerformanceMonitoring = () => {
           const longTaskObserver = new PerformanceObserver((list) => {
             list.getEntries().forEach((entry) => {
               if (entry.duration > 50) { // Tasks longer than 50ms
-                console.warn(`Long Task detected: ${entry.duration}ms`);
                 sendToAnalytics('Long_Task', entry.duration, entry.duration - 50);
               }
             });
@@ -82,7 +78,7 @@ export const usePerformanceMonitoring = () => {
         const resources = performance.getEntriesByType('resource');
         resources.forEach((resource: any) => {
           if (resource.duration > 1000) { // Resources taking longer than 1s
-            console.warn(`Slow resource: ${resource.name} took ${resource.duration}ms`);
+            sendToAnalytics('Slow_Resource', resource.duration, resource.duration - 1000);
           }
         });
       };
@@ -109,7 +105,6 @@ export const useComponentPerformance = (componentName: string) => {
       const renderTime = endTime - startTime;
       
       if (renderTime > 16.67) { // Longer than one frame (60fps)
-        console.warn(`Slow component render: ${componentName} took ${renderTime}ms`);
         sendToAnalytics('Component_Render_Time', renderTime, renderTime - 16.67);
       }
     };
