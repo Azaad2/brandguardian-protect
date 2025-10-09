@@ -158,10 +158,23 @@ function generateSitemap() {
   return xml;
 }
 
-const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
-const sitemap = generateSitemap();
-
-fs.writeFileSync(sitemapPath, sitemap, 'utf8');
-console.log('✅ Sitemap generated successfully at public/sitemap.xml');
-console.log(`📊 Total URLs: ${routes.length}`);
-console.log(`📅 Generated on: ${currentDate}`);
+try {
+  const publicDir = path.join(__dirname, 'public');
+  
+  // Ensure public directory exists
+  if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true });
+  }
+  
+  const sitemapPath = path.join(publicDir, 'sitemap.xml');
+  const sitemap = generateSitemap();
+  
+  fs.writeFileSync(sitemapPath, sitemap, 'utf8');
+  console.log('✅ Sitemap generated successfully at public/sitemap.xml');
+  console.log(`📊 Total URLs: ${routes.length}`);
+  console.log(`📅 Generated on: ${currentDate}`);
+} catch (error) {
+  console.warn('⚠️  Sitemap generation failed:', error.message);
+  console.log('Build will continue with existing sitemap...');
+  process.exit(0); // Exit successfully to not block build
+}
