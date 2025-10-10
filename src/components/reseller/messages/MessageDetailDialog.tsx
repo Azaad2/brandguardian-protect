@@ -92,7 +92,7 @@ export function MessageDetailDialog({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="h-[400px] pr-4 my-4">
           <div className="whitespace-pre-wrap text-sm">
             {message.full_content || message.preview}
           </div>

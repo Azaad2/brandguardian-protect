@@ -104,7 +104,7 @@ export function BrandMessageDetailDialog({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="h-[400px] pr-4 my-4">
           <div className="whitespace-pre-wrap text-sm">
             {message.content}
           </div>
