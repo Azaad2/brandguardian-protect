@@ -226,7 +226,7 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${Deno.env.get('SUPABASE_URL')?.replace('/supabase', '') || 'https://your-app-domain.com'}/reseller/login" 
+                <a href="${Deno.env.get('APP_URL') || 'https://bndbox.lovable.app'}/reseller/login" 
                    style="background-color: #10b981; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px;">
                   🚀 Login to Your Dashboard
                 </a>
