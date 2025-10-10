@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Mail, BadgeCheck } from "lucide-react";
@@ -6,9 +5,37 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBrandMessages } from "@/hooks/use-brand-data";
+import { BrandMessageDetailDialog } from "@/components/brand/messages/BrandMessageDetailDialog";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const BrandMessages = () => {
-  const { data: messages = [], isLoading, error } = useBrandMessages();
+  const { data: messages = [], isLoading, error, refetch } = useBrandMessages();
+  const [selectedMessage, setSelectedMessage] = useState<typeof messages[0] | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleOpenMessage = async (message: typeof messages[0]) => {
+    setSelectedMessage(message);
+    setIsDialogOpen(true);
+    
+    // Mark as read if unread
+    if (!message.is_read) {
+      await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('id', message.id);
+      refetch();
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedMessage(null);
+  };
+
+  const handleMessageSent = () => {
+    refetch();
+  };
 
   const getTypeStyles = (messageSource?: string) => {
     switch (messageSource) {
@@ -157,7 +184,11 @@ const BrandMessages = () => {
                         </Badge>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleOpenMessage(message)}
+                    >
                       Reply
                     </Button>
                   </div>
@@ -167,6 +198,13 @@ const BrandMessages = () => {
           )}
         </CardContent>
       </Card>
+
+      <BrandMessageDetailDialog
+        message={selectedMessage}
+        open={isDialogOpen}
+        onOpenChange={handleCloseDialog}
+        onMessageSent={handleMessageSent}
+      />
     </div>
   );
 };
