@@ -60,23 +60,6 @@ export const useAuthActions = ({ setIsLoading }: UseAuthActionsProps) => {
         if (error) {
           throw error;
         }
-
-        // Track brand signup conversion if they received engagement email
-        if (metadata.user_role === 'brand') {
-          const { error: trackingError } = await supabase
-            .from('brand_engagement_emails')
-            .update({ 
-              brand_signed_up: true,
-              updated_at: new Date().toISOString()
-            })
-            .eq('brand_email', email.toLowerCase())
-            .eq('brand_signed_up', false);
-          
-          if (trackingError) {
-            console.error('Failed to update brand engagement tracking:', trackingError);
-            // Non-critical - don't fail signup
-          }
-        }
         
         toast({
           title: 'Account created',
