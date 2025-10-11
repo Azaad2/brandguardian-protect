@@ -19,6 +19,9 @@ export type Database = {
           application_data: Json | null
           brand_id: string
           created_at: string
+          email_id: string | null
+          email_opened: boolean | null
+          email_opened_at: string | null
           email_thread_id: string | null
           follow_up_count: number | null
           id: string
@@ -32,6 +35,9 @@ export type Database = {
           application_data?: Json | null
           brand_id: string
           created_at?: string
+          email_id?: string | null
+          email_opened?: boolean | null
+          email_opened_at?: string | null
           email_thread_id?: string | null
           follow_up_count?: number | null
           id?: string
@@ -45,6 +51,9 @@ export type Database = {
           application_data?: Json | null
           brand_id?: string
           created_at?: string
+          email_id?: string | null
+          email_opened?: boolean | null
+          email_opened_at?: string | null
           email_thread_id?: string | null
           follow_up_count?: number | null
           id?: string

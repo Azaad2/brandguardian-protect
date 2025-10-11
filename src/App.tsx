@@ -54,6 +54,7 @@ import ResellerBrands from '@/components/reseller/ResellerBrands';
 import ResellerOrders from '@/components/reseller/ResellerOrders';
 import ResellerMessages from '@/components/reseller/ResellerMessages';
 import ResellerSettings from '@/components/reseller/ResellerSettings';
+import EmailPreview from '@/pages/admin/EmailPreview';
 
 // Legacy admin pages
 import Admin from '@/pages/Admin';
@@ -152,6 +153,11 @@ const AppContent = () => {
           <Route path="user-management" element={
             <ProtectedRoute requiredRole="admin">
               <LazyUserManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="email-preview" element={
+            <ProtectedRoute requiredRole="admin">
+              <EmailPreview />
             </ProtectedRoute>
           } />
         </Route>

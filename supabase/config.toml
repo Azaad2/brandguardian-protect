@@ -71,3 +71,9 @@ verify_jwt = false
 
 [functions.send-brand-engagement-email]
 verify_jwt = false
+
+[functions.resend-webhook]
+verify_jwt = false
+
+[functions.preview-brand-engagement-email]
+verify_jwt = false

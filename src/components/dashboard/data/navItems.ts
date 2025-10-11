@@ -50,6 +50,7 @@ export const adminNavItems: NavItem[] = [
   { title: "Brands Directory", href: "/admin/dashboard/brands-directory", icon: Building2 },
   { title: "Catalog Approvals", href: "/admin/dashboard/catalog-approvals", icon: PackageCheck },
   { title: "User Management", href: "/admin/dashboard/user-management", icon: UserCog },
+  { title: "Email Preview", href: "/admin/dashboard/email-preview", icon: MessageCircle },
 ];
 
 export const profileActions: NavItem[] = [

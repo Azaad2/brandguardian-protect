@@ -82,12 +82,22 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Sending brand application email to:', brandEmail);
     console.log('Email thread ID:', emailThreadId);
 
-    // Send email using Resend
+    // Send email using Resend with tracking enabled
     const emailResponse = await resend.emails.send({
       from: 'BndBox Applications <applications@bndbox.com>',
       to: [brandEmail],
       replyTo: `applications+${emailThreadId}@replies.bndbox.com`,
       subject: `New Wholesale Application - ${resellerProfile?.company_name || resellerInfo.email}`,
+      tags: [
+        { name: 'email_type', value: 'brand_application' },
+        { name: 'application_id', value: applicationId },
+        { name: 'thread_id', value: emailThreadId }
+      ],
+      // Enable tracking for email opens and clicks
+      headers: {
+        'X-Track-Opens': 'true',
+        'X-Track-Clicks': 'true'
+      },
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #f8f9fa; padding: 20px; text-align: center;">
@@ -225,6 +235,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailResponse.error) {
       throw new Error(`Resend API error: ${emailResponse.error.message}`);
+    }
+
+    // Update brand_applications with email_id for tracking
+    if (emailResponse.data?.id) {
+      const { error: updateError } = await supabase
+        .from('brand_applications')
+        .update({ email_id: emailResponse.data.id })
+        .eq('id', applicationId);
+      
+      if (updateError) {
+        console.error('Failed to update application with email_id:', updateError);
+      }
     }
 
     return new Response(
