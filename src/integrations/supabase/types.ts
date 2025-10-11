@@ -64,6 +64,56 @@ export type Database = {
           },
         ]
       }
+      brand_engagement_emails: {
+        Row: {
+          application_id: string | null
+          brand_email: string
+          brand_name: string | null
+          brand_signed_up: boolean | null
+          created_at: string
+          email_opened: boolean | null
+          email_sent_at: string
+          id: string
+          interaction_type: string
+          reseller_company: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          brand_email: string
+          brand_name?: string | null
+          brand_signed_up?: boolean | null
+          created_at?: string
+          email_opened?: boolean | null
+          email_sent_at?: string
+          id?: string
+          interaction_type: string
+          reseller_company?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          brand_email?: string
+          brand_name?: string | null
+          brand_signed_up?: boolean | null
+          created_at?: string
+          email_opened?: boolean | null
+          email_sent_at?: string
+          id?: string
+          interaction_type?: string
+          reseller_company?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_engagement_emails_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "brand_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brand_reseller_allocations: {
         Row: {
           allocated_at: string
