@@ -68,3 +68,6 @@ verify_jwt = true
 
 [functions.send-reseller-notification]
 verify_jwt = false
+
+[functions.send-brand-engagement-email]
+verify_jwt = false

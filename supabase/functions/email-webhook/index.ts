@@ -314,6 +314,37 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('Application status updated to:', newStatus);
     }
 
+    // Trigger brand engagement email on first or second interaction
+    const { data: previousInteractions } = await supabase
+      .from('email_routing_logs')
+      .select('id')
+      .eq('sender_email', emailData.sender)
+      .eq('status', 'processed');
+
+    const interactionCount = previousInteractions?.length || 0;
+
+    // Only send engagement email on first or second interaction to prevent spam
+    if (interactionCount <= 1) {
+      console.log(`Triggering brand engagement email for: ${emailData.sender} (interaction #${interactionCount + 1})`);
+      
+      const { error: engagementError } = await supabase.functions.invoke('send-brand-engagement-email', {
+        body: {
+          brandEmail: emailData.sender,
+          brandName: application.brand.name,
+          resellerCompany: resellerProfile?.company_name || 'a BndBox reseller',
+          interactionType: newStatus || 'reply',
+          applicationId: application.id
+        }
+      });
+      
+      if (engagementError) {
+        console.error('Failed to send brand engagement email:', engagementError);
+        // Don't fail the main webhook - engagement email is non-critical
+      } else {
+        console.log('Brand engagement email triggered successfully');
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
