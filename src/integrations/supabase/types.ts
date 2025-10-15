@@ -953,8 +953,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      generate_uuid_from_email: {
+        Args: { email_address: string }
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_or_create_email_only_profile: {
+        Args: { p_company_name?: string; p_email: string; p_full_name?: string }
         Returns: string
       }
       get_reseller_brands_count: {

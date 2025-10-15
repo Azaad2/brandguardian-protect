@@ -232,6 +232,26 @@ const handler = async (req: Request): Promise<Response> => {
       brandDomain: brandDomain
     });
 
+    // Get or create placeholder profile for brand
+    console.log('Getting or creating brand profile for:', emailData.sender);
+    const { data: brandProfileId, error: profileError } = await supabase
+      .rpc('get_or_create_email_only_profile', {
+        p_email: emailData.sender,
+        p_full_name: application.brand?.name || null,
+        p_company_name: application.brand?.name || null
+      });
+
+    if (profileError || !brandProfileId) {
+      console.error('Error creating/fetching brand profile:', profileError);
+      await logEmailRouting('error', `Failed to create brand profile: ${profileError?.message || 'Unknown error'}`);
+      return new Response(
+        JSON.stringify({ error: 'Failed to process sender profile' }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log('Brand profile created/retrieved:', brandProfileId);
+
     // Process email content (prefer plain text over HTML)
     const emailContent = emailData['body-plain'] || emailData['body-html'] || '';
     
@@ -242,9 +262,9 @@ const handler = async (req: Request): Promise<Response> => {
       subject: emailData.subject
     });
     
-    // Create a message in the portal
+    // Create a message in the portal using the email-only profile
     const messageData = {
-      sender_id: application.brand_id, // Use brand_id as sender
+      sender_id: brandProfileId, // Use the email-only profile ID
       recipient_id: application.reseller_id,
       content: emailContent,
       email_thread_id: emailThreadId,

@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.preview-brand-engagement-email]
 verify_jwt = false
+
+[functions.send-message-notification]
+verify_jwt = false

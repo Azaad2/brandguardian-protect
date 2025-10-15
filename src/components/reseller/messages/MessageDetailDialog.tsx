@@ -49,6 +49,14 @@ export function MessageDetailDialog({
 
     setIsSending(true);
     try {
+      // Check if recipient is an email-only profile
+      const { data: recipientProfile } = await supabase
+        .from('profiles')
+        .select('status, email, full_name')
+        .eq('id', message.sender_id)
+        .single();
+
+      // Insert message
       const { error } = await supabase
         .from('messages')
         .insert({
@@ -61,6 +69,26 @@ export function MessageDetailDialog({
         });
 
       if (error) throw error;
+
+      // If recipient is email-only, trigger email notification
+      if (recipientProfile?.status === 'email_only') {
+        const { error: emailError } = await supabase.functions.invoke(
+          'send-message-notification',
+          {
+            body: {
+              recipientEmail: recipientProfile.email,
+              senderName: user.email || 'A reseller',
+              messageContent: replyContent,
+              threadId: message.email_thread_id || message.id
+            }
+          }
+        );
+
+        if (emailError) {
+          console.error('Failed to send email notification:', emailError);
+          // Don't fail the message creation, just log the error
+        }
+      }
 
       toast({
         title: "Reply sent",

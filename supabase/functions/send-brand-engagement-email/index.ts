@@ -61,7 +61,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email via Resend
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'BndBox Partnerships <partnerships@updates.bndbox.com>',
+      from: 'BndBox <noreply@bndbox.com>',
       to: [brandEmail],
       subject: `Thank you for connecting with ${resellerCompany} on BndBox!`,
       html: emailHtml,
