@@ -48,6 +48,7 @@ export const adminNavItems: NavItem[] = [
   { title: "Reseller Applications", href: "/admin/dashboard/reseller-applications", icon: Users },
   { title: "Reseller Approvals", href: "/admin/dashboard/reseller-approvals", icon: UserCheck },
   { title: "Brands Directory", href: "/admin/dashboard/brands-directory", icon: Building2 },
+  { title: "Distributors Directory", href: "/admin/dashboard/distributors-directory", icon: Package },
   { title: "Catalog Approvals", href: "/admin/dashboard/catalog-approvals", icon: PackageCheck },
   { title: "User Management", href: "/admin/dashboard/user-management", icon: UserCog },
   { title: "Email Preview", href: "/admin/dashboard/email-preview", icon: MessageCircle },

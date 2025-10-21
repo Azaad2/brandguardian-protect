@@ -38,6 +38,7 @@ import ResellerRegistration from '@/pages/admin/ResellerRegistration';
 // Dashboard components for nested routes
 import { default as AdminOverview } from '@/components/admin/AdminOverview';
 import BrandsDirectory from '@/components/admin/BrandsDirectory';
+import { DistributorsDirectory } from '@/components/admin/distributors/DistributorsDirectory';
 import CatalogApprovals from '@/components/admin/CatalogApprovals';
 import ResellerApprovalManager from '@/components/admin/ResellerApprovalManager';
 
@@ -150,6 +151,7 @@ const AppContent = () => {
           <Route path="reseller-applications" element={<ResellerRegistration />} />
           <Route path="reseller-approvals" element={<ResellerApprovalManager />} />
           <Route path="brands-directory" element={<BrandsDirectory />} />
+          <Route path="distributors-directory" element={<DistributorsDirectory />} />
           <Route path="catalog-approvals" element={<CatalogApprovals />} />
           <Route path="user-management" element={
             <ProtectedRoute requiredRole="admin">
