@@ -2,7 +2,6 @@ import { trackPageView } from '@/lib/analytics';
 import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import HeroSection from '@/components/landing/HeroSection';
-import SolutionSection from '@/components/landing/SolutionSection';
 import PortalPreviewSection from '@/components/landing/PortalPreviewSection';
 import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
 import { FeaturedPartnersSection } from '@/components/landing/FeaturedPartnersSection';
@@ -75,7 +74,6 @@ const Index = () => {
       
       <Header />
       <HeroSection />
-      <SolutionSection />
       <ExpandedContent />
       <PortalPreviewSection />
       <FeaturedPartnersSection />
