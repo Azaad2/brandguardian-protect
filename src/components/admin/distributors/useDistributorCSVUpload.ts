@@ -261,6 +261,7 @@ export const useDistributorCSVUpload = () => {
     handleFileSelect,
     handleColumnMapping,
     handleUpload,
-    resetUpload
+    resetUpload,
+    validateData
   };
 };

@@ -43,7 +43,8 @@ export const DistributorCSVUpload = () => {
     handleFileSelect,
     handleColumnMapping,
     handleUpload,
-    resetUpload
+    resetUpload,
+    validateData
   } = useDistributorCSVUpload();
 
   const [showPreview, setShowPreview] = useState(false);
@@ -168,7 +169,10 @@ export const DistributorCSVUpload = () => {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button onClick={() => setShowPreview(true)} disabled={!columnMapping.company_name || !columnMapping.contact_email}>
+            <Button onClick={() => {
+              validateData();
+              setShowPreview(true);
+            }} disabled={!columnMapping.company_name || !columnMapping.contact_email}>
               Preview Import
             </Button>
             <Button variant="outline" onClick={resetUpload}>
