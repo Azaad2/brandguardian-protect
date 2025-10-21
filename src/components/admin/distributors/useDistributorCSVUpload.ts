@@ -123,18 +123,15 @@ export const useDistributorCSVUpload = () => {
         errors.push(`Row ${rowNum}: Company name is required`);
       }
       
+      // Validate email format if provided (optional field)
       const email = columnMapping.contact_email ? safeString(row[columnMapping.contact_email]) : '';
-      if (!email) {
-        errors.push(`Row ${rowNum}: Contact email is required`);
-      } else {
+      if (email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
           errors.push(`Row ${rowNum}: Invalid email format`);
         }
-      }
-      
-      // Validate email uniqueness in the dataset
-      if (email) {
+        
+        // Validate email uniqueness in the dataset
         const duplicates = csvData.filter(r => {
           const otherEmail = columnMapping.contact_email ? safeString(r[columnMapping.contact_email]) : '';
           return otherEmail === email;

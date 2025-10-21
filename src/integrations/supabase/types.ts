@@ -229,7 +229,7 @@ export type Database = {
           certifications: string[] | null
           city: string | null
           company_name: string
-          contact_email: string
+          contact_email: string | null
           contact_phone: string | null
           contact_requests: number | null
           country_code: string | null
@@ -262,7 +262,7 @@ export type Database = {
           certifications?: string[] | null
           city?: string | null
           company_name: string
-          contact_email: string
+          contact_email?: string | null
           contact_phone?: string | null
           contact_requests?: number | null
           country_code?: string | null
@@ -295,7 +295,7 @@ export type Database = {
           certifications?: string[] | null
           city?: string | null
           company_name?: string
-          contact_email?: string
+          contact_email?: string | null
           contact_phone?: string | null
           contact_requests?: number | null
           country_code?: string | null
