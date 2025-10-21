@@ -200,9 +200,14 @@ export const useDistributorCSVUpload = () => {
   };
 
   const mapRowToDistributor = (row: any) => {
+    const safeString = (value: any): string | null => {
+      if (value === null || value === undefined) return null;
+      return String(value).trim() || null;
+    };
+
     const distributor: any = {
-      company_name: columnMapping.company_name ? row[columnMapping.company_name]?.trim() : null,
-      contact_email: columnMapping.contact_email ? row[columnMapping.contact_email]?.trim() : null,
+      company_name: columnMapping.company_name ? safeString(row[columnMapping.company_name]) : null,
+      contact_email: columnMapping.contact_email ? safeString(row[columnMapping.contact_email]) : null,
     };
 
     // Map optional fields
@@ -214,34 +219,34 @@ export const useDistributorCSVUpload = () => {
 
     optionalMappings.forEach(field => {
       if (columnMapping[field] && row[columnMapping[field]]) {
-        distributor[field] = row[columnMapping[field]]?.trim();
+        distributor[field] = safeString(row[columnMapping[field]]);
       }
     });
 
     // Handle array fields
     if (columnMapping.categories && row[columnMapping.categories]) {
-      distributor.categories = row[columnMapping.categories]
+      distributor.categories = String(row[columnMapping.categories])
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean);
     }
 
     if (columnMapping.brands_carried && row[columnMapping.brands_carried]) {
-      distributor.brands_carried = row[columnMapping.brands_carried]
+      distributor.brands_carried = String(row[columnMapping.brands_carried])
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean);
     }
 
     if (columnMapping.shipping_regions && row[columnMapping.shipping_regions]) {
-      distributor.shipping_regions = row[columnMapping.shipping_regions]
+      distributor.shipping_regions = String(row[columnMapping.shipping_regions])
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean);
     }
 
     if (columnMapping.certifications && row[columnMapping.certifications]) {
-      distributor.certifications = row[columnMapping.certifications]
+      distributor.certifications = String(row[columnMapping.certifications])
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean);
