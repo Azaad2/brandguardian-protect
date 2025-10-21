@@ -173,6 +173,8 @@ export type Database = {
           created_at: string
           department: string | null
           description: string | null
+          featured: boolean | null
+          featured_priority: number | null
           id: string
           is_active: boolean
           logo_url: string | null
@@ -188,6 +190,8 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          featured?: boolean | null
+          featured_priority?: number | null
           id?: string
           is_active?: boolean
           logo_url?: string | null
@@ -203,6 +207,8 @@ export type Database = {
           created_at?: string
           department?: string | null
           description?: string | null
+          featured?: boolean | null
+          featured_priority?: number | null
           id?: string
           is_active?: boolean
           logo_url?: string | null
@@ -212,6 +218,116 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      distributors: {
+        Row: {
+          address: string | null
+          banner_url: string | null
+          brands_carried: string[] | null
+          business_type: string | null
+          categories: string[] | null
+          certifications: string[] | null
+          city: string | null
+          company_name: string
+          contact_email: string
+          contact_phone: string | null
+          contact_requests: number | null
+          country_code: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          featured_priority: number | null
+          id: string
+          legal_name: string | null
+          logo_url: string | null
+          min_order_value: number | null
+          payment_terms: string | null
+          postal_code: string | null
+          shipping_regions: string[] | null
+          slug: string | null
+          state_province: string | null
+          updated_at: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
+          views_count: number | null
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          banner_url?: string | null
+          brands_carried?: string[] | null
+          business_type?: string | null
+          categories?: string[] | null
+          certifications?: string[] | null
+          city?: string | null
+          company_name: string
+          contact_email: string
+          contact_phone?: string | null
+          contact_requests?: number | null
+          country_code?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          featured_priority?: number | null
+          id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          min_order_value?: number | null
+          payment_terms?: string | null
+          postal_code?: string | null
+          shipping_regions?: string[] | null
+          slug?: string | null
+          state_province?: string | null
+          updated_at?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          views_count?: number | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          banner_url?: string | null
+          brands_carried?: string[] | null
+          business_type?: string | null
+          categories?: string[] | null
+          certifications?: string[] | null
+          city?: string | null
+          company_name?: string
+          contact_email?: string
+          contact_phone?: string | null
+          contact_requests?: number | null
+          country_code?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          featured_priority?: number | null
+          id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          min_order_value?: number | null
+          payment_terms?: string | null
+          postal_code?: string | null
+          shipping_regions?: string[] | null
+          slug?: string | null
+          state_province?: string | null
+          updated_at?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          views_count?: number | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distributors_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_routing_logs: {
         Row: {
@@ -809,6 +925,10 @@ export type Database = {
         Args: { brand_data: Json }
         Returns: string
       }
+      admin_add_distributor: {
+        Args: { distributor_data: Json }
+        Returns: string
+      }
       admin_add_manual_reseller_application: {
         Args: { p_company_name: string; p_email: string }
         Returns: {
@@ -847,6 +967,10 @@ export type Database = {
       }
       admin_delete_brand: {
         Args: { p_brand_id: string }
+        Returns: boolean
+      }
+      admin_delete_distributor: {
+        Args: { distributor_id: string }
         Returns: boolean
       }
       admin_get_all_users: {
@@ -925,6 +1049,10 @@ export type Database = {
       admin_update_brand: {
         Args: { brand_data: Json; brand_id: string }
         Returns: string
+      }
+      admin_update_distributor: {
+        Args: { distributor_data: Json; distributor_id: string }
+        Returns: boolean
       }
       admin_update_user_profile: {
         Args: {
