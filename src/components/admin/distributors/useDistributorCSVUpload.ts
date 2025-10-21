@@ -109,18 +109,24 @@ export const useDistributorCSVUpload = () => {
   const validateData = (): string[] => {
     const errors: string[] = [];
     
+    const safeString = (value: any): string => {
+      if (value === null || value === undefined) return '';
+      return String(value).trim();
+    };
+    
     csvData.forEach((row, index) => {
       const rowNum = index + 2; // +2 because index starts at 0 and first row is header
       
       // Validate required fields
-      if (!columnMapping.company_name || !row[columnMapping.company_name]?.trim()) {
+      const companyName = columnMapping.company_name ? safeString(row[columnMapping.company_name]) : '';
+      if (!companyName) {
         errors.push(`Row ${rowNum}: Company name is required`);
       }
       
-      if (!columnMapping.contact_email || !row[columnMapping.contact_email]?.trim()) {
+      const email = columnMapping.contact_email ? safeString(row[columnMapping.contact_email]) : '';
+      if (!email) {
         errors.push(`Row ${rowNum}: Contact email is required`);
       } else {
-        const email = row[columnMapping.contact_email];
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
           errors.push(`Row ${rowNum}: Invalid email format`);
@@ -128,11 +134,11 @@ export const useDistributorCSVUpload = () => {
       }
       
       // Validate email uniqueness in the dataset
-      const email = columnMapping.contact_email ? row[columnMapping.contact_email] : null;
       if (email) {
-        const duplicates = csvData.filter(r => 
-          columnMapping.contact_email && r[columnMapping.contact_email] === email
-        );
+        const duplicates = csvData.filter(r => {
+          const otherEmail = columnMapping.contact_email ? safeString(r[columnMapping.contact_email]) : '';
+          return otherEmail === email;
+        });
         if (duplicates.length > 1) {
           errors.push(`Row ${rowNum}: Duplicate email ${email} found in file`);
         }
