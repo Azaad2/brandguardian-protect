@@ -61,17 +61,26 @@ export const DistributorCSVUpload = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary/50 transition-colors">
+          <label 
+            htmlFor="csv-upload" 
+            className="block border-2 border-dashed rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
+          >
             <FileSpreadsheet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <Label htmlFor="csv-upload" className="cursor-pointer">
-              <div className="text-lg font-medium mb-2">Click to upload or drag and drop</div>
-              <div className="text-sm text-muted-foreground mb-4">
-                CSV or XLSX (max 20MB)
-              </div>
-              <Button type="button" variant="outline" className="mt-2">
-                Select File
-              </Button>
-            </Label>
+            <div className="text-lg font-medium mb-2">Click to upload or drag and drop</div>
+            <div className="text-sm text-muted-foreground mb-4">
+              CSV or XLSX (max 20MB)
+            </div>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="mt-2"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('csv-upload')?.click();
+              }}
+            >
+              Select File
+            </Button>
             <input
               id="csv-upload"
               type="file"
@@ -79,7 +88,7 @@ export const DistributorCSVUpload = () => {
               onChange={handleFileSelect}
               className="hidden"
             />
-          </div>
+          </label>
 
           <div className="mt-6 space-y-4">
             <div className="text-sm font-medium">Expected CSV Format:</div>
