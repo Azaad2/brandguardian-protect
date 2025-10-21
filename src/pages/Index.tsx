@@ -5,6 +5,7 @@ import HeroSection from '@/components/landing/HeroSection';
 import SolutionSection from '@/components/landing/SolutionSection';
 import PortalPreviewSection from '@/components/landing/PortalPreviewSection';
 import ConnectionNetworkSection from '@/components/landing/ConnectionNetworkSection';
+import { FeaturedPartnersSection } from '@/components/landing/FeaturedPartnersSection';
 import FAQSection from '@/components/landing/FAQSection';
 import ContactSection from '@/components/landing/ContactSection';
 import Footer from '@/components/layout/Footer';
@@ -77,6 +78,7 @@ const Index = () => {
       <SolutionSection />
       <ExpandedContent />
       <PortalPreviewSection />
+      <FeaturedPartnersSection />
       <ConnectionNetworkSection />
       <FAQSection />
       <ContactSection />
