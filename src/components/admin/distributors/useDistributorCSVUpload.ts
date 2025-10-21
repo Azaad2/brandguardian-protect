@@ -144,9 +144,12 @@ export const useDistributorCSVUpload = () => {
   };
 
   const handleUpload = async () => {
+    console.log('handleUpload called');
     const errors = validateData();
+    console.log('Validation errors:', errors);
+    
     if (errors.length > 0) {
-      toast.error(`Found ${errors.length} validation errors`);
+      toast.error(`Cannot import: ${errors.length} validation error${errors.length > 1 ? 's' : ''} found. Please review and fix.`);
       return;
     }
 
@@ -156,27 +159,43 @@ export const useDistributorCSVUpload = () => {
     try {
       const batchSize = 100;
       const totalBatches = Math.ceil(csvData.length / batchSize);
+      console.log(`Starting upload: ${csvData.length} distributors in ${totalBatches} batches`);
       
       for (let i = 0; i < totalBatches; i++) {
         const batch = csvData.slice(i * batchSize, (i + 1) * batchSize);
         const distributors = batch.map(row => mapRowToDistributor(row));
         
-        const { error } = await supabase
-          .from('distributors')
-          .insert(distributors);
-
-        if (error) throw error;
+        console.log(`Uploading batch ${i + 1}/${totalBatches}:`, distributors.slice(0, 2));
         
+        const { data, error } = await supabase
+          .from('distributors')
+          .insert(distributors)
+          .select();
+
+        if (error) {
+          console.error('Supabase insert error:', error);
+          throw error;
+        }
+        
+        console.log(`Batch ${i + 1} uploaded successfully`);
         const progress = Math.round(((i + 1) / totalBatches) * 100);
         setUploadProgress(progress);
       }
 
       setUploadStatus('success');
-      toast.success(`Successfully imported ${csvData.length} distributors`);
+      toast.success(`Successfully imported ${csvData.length} distributors!`);
+      console.log('Upload completed successfully');
     } catch (error: any) {
-      console.error('Upload error:', error);
+      console.error('Upload error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        full: error
+      });
       setUploadStatus('error');
-      toast.error(error.message || 'Failed to import distributors');
+      const errorMsg = error.message || 'Failed to import distributors';
+      toast.error(`Import failed: ${errorMsg}`);
     }
   };
 

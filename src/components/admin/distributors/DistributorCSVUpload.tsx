@@ -251,19 +251,38 @@ export const DistributorCSVUpload = () => {
             </Table>
           </ScrollArea>
 
-          <div className="flex gap-3">
-            <Button 
-              onClick={handleUpload} 
-              disabled={validationErrors.length > 0}
-            >
-              Import {csvData.length} Distributors
-            </Button>
-            <Button variant="outline" onClick={() => setShowPreview(false)}>
-              Back to Mapping
-            </Button>
-            <Button variant="outline" onClick={resetUpload}>
-              Cancel
-            </Button>
+          <div className="space-y-4">
+            {validationErrors.length > 0 && (
+              <div className="text-destructive text-sm">
+                <p className="font-semibold mb-2">Cannot import - {validationErrors.length} validation errors:</p>
+                <ul className="list-disc list-inside space-y-1 max-h-40 overflow-y-auto">
+                  {validationErrors.slice(0, 10).map((error, idx) => (
+                    <li key={idx}>{error}</li>
+                  ))}
+                  {validationErrors.length > 10 && (
+                    <li>... and {validationErrors.length - 10} more errors</li>
+                  )}
+                </ul>
+              </div>
+            )}
+            
+            <div className="flex gap-3">
+              <Button 
+                onClick={handleUpload} 
+                disabled={validationErrors.length > 0}
+              >
+                {validationErrors.length > 0 
+                  ? `Fix ${validationErrors.length} Errors First`
+                  : `Import ${csvData.length} Distributors`
+                }
+              </Button>
+              <Button variant="outline" onClick={() => setShowPreview(false)}>
+                Back to Mapping
+              </Button>
+              <Button variant="outline" onClick={resetUpload}>
+                Cancel
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
