@@ -72,7 +72,7 @@ export const DistributorCSVUpload = () => {
                 Select File
               </Button>
             </Label>
-            <Input
+            <input
               id="csv-upload"
               type="file"
               accept=".csv,.xlsx,.xls"
