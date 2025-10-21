@@ -123,21 +123,23 @@ export const useDistributorCSVUpload = () => {
         errors.push(`Row ${rowNum}: Company name is required`);
       }
       
-      // Validate email format if provided (optional field)
-      const email = columnMapping.contact_email ? safeString(row[columnMapping.contact_email]) : '';
-      if (email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-          errors.push(`Row ${rowNum}: Invalid email format`);
-        }
-        
-        // Validate email uniqueness in the dataset
-        const duplicates = csvData.filter(r => {
-          const otherEmail = columnMapping.contact_email ? safeString(r[columnMapping.contact_email]) : '';
-          return otherEmail === email;
-        });
-        if (duplicates.length > 1) {
-          errors.push(`Row ${rowNum}: Duplicate email ${email} found in file`);
+      // Only validate email if the column is mapped (not skipped)
+      if (columnMapping.contact_email && columnMapping.contact_email !== '') {
+        const email = safeString(row[columnMapping.contact_email]);
+        if (email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email)) {
+            errors.push(`Row ${rowNum}: Invalid email format`);
+          }
+          
+          // Validate email uniqueness in the dataset
+          const duplicates = csvData.filter(r => {
+            const otherEmail = columnMapping.contact_email ? safeString(r[columnMapping.contact_email]) : '';
+            return otherEmail === email;
+          });
+          if (duplicates.length > 1) {
+            errors.push(`Row ${rowNum}: Duplicate email ${email} found in file`);
+          }
         }
       }
     });
