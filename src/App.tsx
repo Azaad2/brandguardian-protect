@@ -64,7 +64,7 @@ import DemoSetup from '@/pages/DemoSetup';
 // Protected Route Component  
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { 
-  LazyBlog, LazyAbout, LazyResellerHub, 
+  LazyBlog, LazyAbout, LazyResellerHub, LazySearch,
   LazyResellerDashboard, LazyBrandDashboard, LazyAdminDashboard,
   LazyUserManagement,
   LazyAmazonBrandRegistryBenefits,
@@ -108,6 +108,7 @@ const AppContent = () => {
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<LazyAbout />} />
         <Route path="/blog" element={<LazyBlog />} />
+        <Route path="/search" element={<LazySearch />} />
         <Route path="/reseller-hub" element={<LazyResellerHub />} />
         <Route path="/shipping-delivery" element={<ShippingDelivery />} />
         

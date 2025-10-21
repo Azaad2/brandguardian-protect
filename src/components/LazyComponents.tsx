@@ -4,6 +4,7 @@ import { lazy } from 'react';
 export const LazyBlog = lazy(() => import('@/pages/Blog'));
 export const LazyAbout = lazy(() => import('@/pages/About'));
 export const LazyResellerHub = lazy(() => import('@/pages/ResellerHub'));
+export const LazySearch = lazy(() => import('@/pages/Search'));
 export const LazyResellerDashboard = lazy(() => import('@/pages/reseller/ResellerDashboard'));
 export const LazyBrandDashboard = lazy(() => import('@/pages/brand/BrandDashboard'));
 export const LazyAdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
