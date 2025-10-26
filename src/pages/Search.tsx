@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Search as SearchIcon, Building2, Store, Filter, X, MapPin, Truck } from 'lucide-react';
+import { Search as SearchIcon, Building2, Store, Filter, X, MapPin, Truck, Mail } from 'lucide-react';
+import ContactAccessDialog from '@/components/dialogs/ContactAccessDialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +38,7 @@ interface Distributor {
   state_province: string | null;
   country_code: string | null;
   contact_email: string | null;
+  contact_phone: string | null;
   website_url: string | null;
   verification_status: string | null;
 }
@@ -56,6 +58,13 @@ const Search = () => {
   const [entityType, setEntityType] = useState<'all' | 'brands' | 'distributors'>('all');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<{
+    email?: string;
+    phone?: string;
+    name: string;
+    type: 'brand' | 'distributor';
+  } | null>(null);
 
   const allCategories = [
     'Beauty & Personal Care', 'Consumer Electronics', 'Home & Kitchen', 'Sports & Outdoors',
@@ -288,6 +297,16 @@ const Search = () => {
     }
   }, [entityType, selectedCategories]);
 
+  const handleContactClick = (email?: string, phone?: string, name?: string, type?: 'brand' | 'distributor') => {
+    setSelectedContact({
+      email,
+      phone,
+      name: name || 'this entity',
+      type: type || 'brand',
+    });
+    setContactDialogOpen(true);
+  };
+
   const renderBrandCard = (brand: Brand) => (
     <Card key={brand.id} className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -323,9 +342,15 @@ const Search = () => {
           </CardDescription>
         )}
         <div className="flex gap-2">
-          <Button asChild size="sm">
-            <Link to={`/reseller-hub?brand=${brand.name}`}>Apply to Partner</Link>
-          </Button>
+          {brand.contact_email && (
+            <Button 
+              size="sm" 
+              onClick={() => handleContactClick(brand.contact_email, undefined, brand.name, 'brand')}
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              Contact
+            </Button>
+          )}
           {brand.website_url && (
             <Button asChild variant="outline" size="sm">
               <a href={brand.website_url} target="_blank" rel="noopener noreferrer">
@@ -333,6 +358,9 @@ const Search = () => {
               </a>
             </Button>
           )}
+          <Button asChild variant="outline" size="sm">
+            <Link to={`/reseller-hub?brand=${brand.name}`}>Apply to Partner</Link>
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -393,17 +421,24 @@ const Search = () => {
           </div>
         )}
         <div className="flex gap-2">
+          {distributor.contact_email && (
+            <Button 
+              size="sm"
+              onClick={() => handleContactClick(
+                distributor.contact_email || undefined, 
+                distributor.contact_phone || undefined, 
+                distributor.company_name,
+                'distributor'
+              )}
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              Contact
+            </Button>
+          )}
           {distributor.website_url && (
             <Button asChild variant="outline" size="sm">
               <a href={distributor.website_url} target="_blank" rel="noopener noreferrer">
                 Visit Website
-              </a>
-            </Button>
-          )}
-          {distributor.contact_email && (
-            <Button asChild size="sm">
-              <a href={`mailto:${distributor.contact_email}`}>
-                Contact
               </a>
             </Button>
           )}
@@ -582,6 +617,17 @@ const Search = () => {
           </div>
         </div>
       </main>
+
+      {selectedContact && (
+        <ContactAccessDialog
+          open={contactDialogOpen}
+          onOpenChange={setContactDialogOpen}
+          contactEmail={selectedContact.email}
+          contactPhone={selectedContact.phone}
+          entityName={selectedContact.name}
+          entityType={selectedContact.type}
+        />
+      )}
 
       <Footer />
     </div>
