@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Search as SearchIcon, Building2, Store, Filter, X } from 'lucide-react';
+import { Search as SearchIcon, Building2, Store, Filter, X, MapPin, Truck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,19 +25,27 @@ interface Brand {
   department: string | null;
 }
 
-interface Reseller {
+interface Distributor {
   id: string;
   company_name: string;
-  business_type: string;
-  product_categories: string[];
-  sales_volume: string;
-  status: string;
+  description: string | null;
+  logo_url: string | null;
+  categories: string[] | null;
+  brands_carried: string[] | null;
+  business_type: string | null;
+  city: string | null;
+  state_province: string | null;
+  country_code: string | null;
+  contact_email: string | null;
+  website_url: string | null;
+  verification_status: string | null;
 }
 
 type SearchResult = {
-  type: 'brand' | 'reseller';
-  data: Brand | Reseller;
+  type: 'brand' | 'distributor';
+  data: Brand | Distributor;
   score: number;
+  matchedKeywords?: string[];
 };
 
 const Search = () => {
@@ -45,14 +53,27 @@ const Search = () => {
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [entityType, setEntityType] = useState<'all' | 'brands' | 'resellers'>('all');
+  const [entityType, setEntityType] = useState<'all' | 'brands' | 'distributors'>('all');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
   const allCategories = [
-    'Cosmetics', 'Electronics', 'Home & Kitchen', 'Sports & Outdoors',
-    'Toys & Games', 'Health & Personal Care', 'Automotive', 'Fashion'
+    'Beauty & Personal Care', 'Consumer Electronics', 'Home & Kitchen', 'Sports & Outdoors',
+    'Toys & Games', 'Health & Wellness', 'Automotive', 'Fashion & Apparel', 'Food & Beverage'
   ];
+
+  // Category synonyms for fuzzy matching
+  const categorySynonyms: Record<string, string[]> = {
+    'cosmetics': ['Beauty & Personal Care', 'Health & Wellness'],
+    'beauty': ['Beauty & Personal Care'],
+    'electronics': ['Consumer Electronics'],
+    'tech': ['Consumer Electronics'],
+    'food': ['Food & Beverage'],
+    'beverage': ['Food & Beverage'],
+    'fashion': ['Fashion & Apparel'],
+    'clothing': ['Fashion & Apparel'],
+    'apparel': ['Fashion & Apparel']
+  };
 
   useEffect(() => {
     const q = searchParams.get('q');
@@ -62,34 +83,111 @@ const Search = () => {
     }
   }, [searchParams]);
 
-  const calculateScore = (item: Brand | Reseller, searchQuery: string, type: 'brand' | 'reseller'): number => {
+  const calculateScore = (
+    item: Brand | Distributor,
+    keywords: string[],
+    type: 'brand' | 'distributor'
+  ): { score: number; matchedKeywords: string[] } => {
     let score = 0;
-    const lowerQuery = searchQuery.toLowerCase();
+    const matchedKeywords: string[] = [];
 
     if (type === 'brand') {
       const brand = item as Brand;
       const name = brand.name?.toLowerCase() || '';
       const description = brand.description?.toLowerCase() || '';
       const categories = brand.categories?.map(c => c.toLowerCase()) || [];
+      const department = brand.department?.toLowerCase() || '';
 
-      if (name === lowerQuery) score += 100;
-      else if (name.includes(lowerQuery)) score += 50;
+      keywords.forEach(keyword => {
+        const lower = keyword.toLowerCase();
+        
+        // Exact name match (highest priority)
+        if (name === lower) {
+          score += 100;
+          matchedKeywords.push(keyword);
+        } else if (name.includes(lower)) {
+          score += 50;
+          matchedKeywords.push(keyword);
+        }
 
-      if (description.includes(lowerQuery)) score += 10;
+        // Category matching with synonyms
+        const synonymMatches = categorySynonyms[lower] || [];
+        if (categories.some(c => c.includes(lower) || synonymMatches.some(syn => c.toLowerCase().includes(syn.toLowerCase())))) {
+          score += 30;
+          matchedKeywords.push(keyword);
+        }
 
-      if (categories.some(c => c.includes(lowerQuery))) score += 30;
+        // Department match
+        if (department.includes(lower)) {
+          score += 25;
+          matchedKeywords.push(keyword);
+        }
+
+        // Description match (lowest priority)
+        if (description.includes(lower)) {
+          score += 10;
+          matchedKeywords.push(keyword);
+        }
+      });
     } else {
-      const reseller = item as Reseller;
-      const name = reseller.company_name?.toLowerCase() || '';
-      const categories = reseller.product_categories?.map(c => c.toLowerCase()) || [];
+      const distributor = item as Distributor;
+      const name = distributor.company_name?.toLowerCase() || '';
+      const description = distributor.description?.toLowerCase() || '';
+      const categories = distributor.categories?.map(c => c.toLowerCase()) || [];
+      const brands = distributor.brands_carried?.map(b => b.toLowerCase()) || [];
+      const city = distributor.city?.toLowerCase() || '';
+      const state = distributor.state_province?.toLowerCase() || '';
+      const country = distributor.country_code?.toLowerCase() || '';
 
-      if (name === lowerQuery) score += 100;
-      else if (name.includes(lowerQuery)) score += 50;
+      keywords.forEach(keyword => {
+        const lower = keyword.toLowerCase();
+        
+        // Exact name match
+        if (name === lower) {
+          score += 100;
+          matchedKeywords.push(keyword);
+        } else if (name.includes(lower)) {
+          score += 50;
+          matchedKeywords.push(keyword);
+        }
 
-      if (categories.some(c => c.includes(lowerQuery))) score += 30;
+        // Category matching with synonyms
+        const synonymMatches = categorySynonyms[lower] || [];
+        if (categories.some(c => c.includes(lower) || synonymMatches.some(syn => c.toLowerCase().includes(syn.toLowerCase())))) {
+          score += 30;
+          matchedKeywords.push(keyword);
+        }
+
+        // Brand carried match
+        if (brands.some(b => b.includes(lower))) {
+          score += 25;
+          matchedKeywords.push(keyword);
+        }
+
+        // Location matching (handle variations)
+        const isLocationKeyword = ['us', 'usa', 'united states', 'uk', 'united kingdom'].includes(lower) ||
+                                   city.includes(lower) || state.includes(lower) || country.includes(lower);
+        if (isLocationKeyword) {
+          if (lower === 'us' || lower === 'usa' || lower === 'united states') {
+            if (country === 'us' || country === 'usa' || country === 'united states') {
+              score += 20;
+              matchedKeywords.push(keyword);
+            }
+          } else {
+            score += 20;
+            matchedKeywords.push(keyword);
+          }
+        }
+
+        // Description match
+        if (description.includes(lower)) {
+          score += 10;
+          matchedKeywords.push(keyword);
+        }
+      });
     }
 
-    return score;
+    return { score, matchedKeywords: [...new Set(matchedKeywords)] };
   };
 
   const performSearch = async (searchQuery: string) => {
@@ -101,14 +199,16 @@ const Search = () => {
     setIsLoading(true);
     try {
       const allResults: SearchResult[] = [];
+      
+      // Split query into keywords for intelligent matching
+      const keywords = searchQuery.trim().split(/\s+/).filter(k => k.length > 0);
 
       // Search brands
       if (entityType === 'all' || entityType === 'brands') {
         const { data: brands, error: brandsError } = await supabase
           .from('brands_directory')
           .select('*')
-          .eq('is_active', true)
-          .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+          .eq('is_active', true);
 
         if (!brandsError && brands) {
           brands.forEach(brand => {
@@ -120,41 +220,40 @@ const Search = () => {
               }
             }
 
-            const score = calculateScore(brand, searchQuery, 'brand');
+            const { score, matchedKeywords } = calculateScore(brand, keywords, 'brand');
             if (score > 0) {
-              allResults.push({ type: 'brand', data: brand, score });
+              allResults.push({ type: 'brand', data: brand, score, matchedKeywords });
             }
           });
         }
       }
 
-      // Search resellers
-      if (entityType === 'all' || entityType === 'resellers') {
-        const { data: resellers, error: resellersError } = await supabase
-          .from('reseller_applications')
+      // Search distributors
+      if (entityType === 'all' || entityType === 'distributors') {
+        const { data: distributors, error: distributorsError } = await supabase
+          .from('distributors')
           .select('*')
-          .eq('status', 'approved')
-          .ilike('company_name', `%${searchQuery}%`);
+          .eq('verification_status', 'verified');
 
-        if (!resellersError && resellers) {
-          resellers.forEach(reseller => {
+        if (!distributorsError && distributors) {
+          distributors.forEach(distributor => {
             // Apply category filter
             if (selectedCategories.length > 0) {
-              const resellerCategories = reseller.product_categories || [];
-              if (!selectedCategories.some(cat => resellerCategories.includes(cat))) {
+              const distCategories = distributor.categories || [];
+              if (!selectedCategories.some(cat => distCategories.includes(cat))) {
                 return;
               }
             }
 
-            const score = calculateScore(reseller, searchQuery, 'reseller');
+            const { score, matchedKeywords } = calculateScore(distributor, keywords, 'distributor');
             if (score > 0) {
-              allResults.push({ type: 'reseller', data: reseller, score });
+              allResults.push({ type: 'distributor', data: distributor, score, matchedKeywords });
             }
           });
         }
       }
 
-      // Sort by score
+      // Sort by score (highest first)
       allResults.sort((a, b) => b.score - a.score);
       setResults(allResults);
     } catch (error) {
@@ -239,30 +338,75 @@ const Search = () => {
     </Card>
   );
 
-  const renderResellerCard = (reseller: Reseller) => (
-    <Card key={reseller.id} className="hover:shadow-lg transition-shadow">
+  const renderDistributorCard = (distributor: Distributor) => (
+    <Card key={distributor.id} className="hover:shadow-lg transition-shadow">
       <CardHeader>
-        <div className="flex items-start gap-4">
-          <Store className="w-10 h-10 text-muted-foreground" />
+        <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <CardTitle className="text-xl">{reseller.company_name}</CardTitle>
-            <Badge variant="secondary" className="mt-1">Reseller</Badge>
-            {reseller.product_categories && reseller.product_categories.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {reseller.product_categories.slice(0, 3).map(cat => (
-                  <Badge key={cat} variant="outline" className="text-xs">
-                    {cat}
-                  </Badge>
-                ))}
+            <div className="flex items-center gap-2 mb-2">
+              {distributor.logo_url ? (
+                <img src={distributor.logo_url} alt={distributor.company_name} className="w-10 h-10 rounded object-cover" />
+              ) : (
+                <Truck className="w-10 h-10 text-muted-foreground" />
+              )}
+              <div>
+                <CardTitle className="text-xl">{distributor.company_name}</CardTitle>
+                <Badge variant="secondary" className="mt-1">Distributor</Badge>
               </div>
-            )}
+            </div>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {distributor.city && distributor.state_province && (
+                <Badge variant="outline" className="text-xs">
+                  <MapPin className="w-3 h-3 mr-1" />
+                  {distributor.city}, {distributor.state_province}
+                </Badge>
+              )}
+              {distributor.categories && distributor.categories.length > 0 && (
+                <>
+                  {distributor.categories.slice(0, 2).map(cat => (
+                    <Badge key={cat} variant="outline" className="text-xs">
+                      {cat}
+                    </Badge>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2 text-sm text-muted-foreground">
-          <p><strong>Type:</strong> {reseller.business_type}</p>
-          <p><strong>Sales Volume:</strong> {reseller.sales_volume}</p>
+        {distributor.description && (
+          <CardDescription className="mb-4 line-clamp-2">
+            {distributor.description}
+          </CardDescription>
+        )}
+        {distributor.brands_carried && distributor.brands_carried.length > 0 && (
+          <div className="mb-3">
+            <p className="text-xs font-semibold text-muted-foreground mb-1">Brands Carried:</p>
+            <div className="flex flex-wrap gap-1">
+              {distributor.brands_carried.slice(0, 4).map(brand => (
+                <Badge key={brand} variant="secondary" className="text-xs">
+                  {brand}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="flex gap-2">
+          {distributor.website_url && (
+            <Button asChild variant="outline" size="sm">
+              <a href={distributor.website_url} target="_blank" rel="noopener noreferrer">
+                Visit Website
+              </a>
+            </Button>
+          )}
+          {distributor.contact_email && (
+            <Button asChild size="sm">
+              <a href={`mailto:${distributor.contact_email}`}>
+                Contact
+              </a>
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -334,11 +478,11 @@ const Search = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="resellers"
-                        checked={entityType === 'resellers'}
-                        onCheckedChange={() => setEntityType('resellers')}
+                        id="distributors"
+                        checked={entityType === 'distributors'}
+                        onCheckedChange={() => setEntityType('distributors')}
                       />
-                      <label htmlFor="resellers" className="text-sm cursor-pointer">Resellers</label>
+                      <label htmlFor="distributors" className="text-sm cursor-pointer">Distributors</label>
                     </div>
                   </div>
                 </div>
@@ -408,7 +552,7 @@ const Search = () => {
                 {results.map(result =>
                   result.type === 'brand'
                     ? renderBrandCard(result.data as Brand)
-                    : renderResellerCard(result.data as Reseller)
+                    : renderDistributorCard(result.data as Distributor)
                 )}
               </div>
             ) : query ? (
@@ -430,7 +574,7 @@ const Search = () => {
                   <SearchIcon className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                   <h3 className="text-xl font-semibold mb-2">Start searching</h3>
                   <p className="text-muted-foreground">
-                    Enter a search term to find brands and resellers
+                    Enter a search term to find brands and distributors
                   </p>
                 </CardContent>
               </Card>
