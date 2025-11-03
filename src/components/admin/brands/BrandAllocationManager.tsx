@@ -101,6 +101,8 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['brand-allocations', brand.id] });
       queryClient.invalidateQueries({ queryKey: ['available-brands'] });
+      queryClient.invalidateQueries({ queryKey: ['optimized-brands'] });
+      queryClient.invalidateQueries({ queryKey: ['optimized-brands-count'] });
       setSelectedReseller('');
       toast({
         title: 'Brand Allocated',
@@ -130,6 +132,8 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['brand-allocations', brand.id] });
       queryClient.invalidateQueries({ queryKey: ['available-brands'] });
+      queryClient.invalidateQueries({ queryKey: ['optimized-brands'] });
+      queryClient.invalidateQueries({ queryKey: ['optimized-brands-count'] });
       toast({
         title: 'Allocation Removed',
         description: 'Brand allocation has been removed.',
