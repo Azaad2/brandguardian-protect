@@ -102,8 +102,12 @@ const BulkBrandAllocationManager = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reseller-allocations', selectedReseller] });
       queryClient.invalidateQueries({ queryKey: ['available-brands'] });
-      queryClient.invalidateQueries({ queryKey: ['optimized-brands'] });
-      queryClient.invalidateQueries({ queryKey: ['optimized-brands-count'] });
+      // Force refetch for reseller's brand queries
+      queryClient.refetchQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === 'optimized-brands' || 
+          query.queryKey[0] === 'optimized-brands-count'
+      });
       setSelectedBrands([]);
       toast({
         title: 'Brands Allocated',

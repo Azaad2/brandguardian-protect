@@ -101,8 +101,12 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['brand-allocations', brand.id] });
       queryClient.invalidateQueries({ queryKey: ['available-brands'] });
-      queryClient.invalidateQueries({ queryKey: ['optimized-brands'] });
-      queryClient.invalidateQueries({ queryKey: ['optimized-brands-count'] });
+      // Force refetch for reseller's brand queries
+      queryClient.refetchQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === 'optimized-brands' || 
+          query.queryKey[0] === 'optimized-brands-count'
+      });
       setSelectedReseller('');
       toast({
         title: 'Brand Allocated',
@@ -132,8 +136,12 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['brand-allocations', brand.id] });
       queryClient.invalidateQueries({ queryKey: ['available-brands'] });
-      queryClient.invalidateQueries({ queryKey: ['optimized-brands'] });
-      queryClient.invalidateQueries({ queryKey: ['optimized-brands-count'] });
+      // Force refetch for reseller's brand queries
+      queryClient.refetchQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === 'optimized-brands' || 
+          query.queryKey[0] === 'optimized-brands-count'
+      });
       toast({
         title: 'Allocation Removed',
         description: 'Brand allocation has been removed.',
