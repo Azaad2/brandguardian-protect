@@ -921,10 +921,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: boolean
       }
-      admin_add_brand: {
-        Args: { brand_data: Json }
-        Returns: string
-      }
+      admin_add_brand: { Args: { brand_data: Json }; Returns: string }
       admin_add_distributor: {
         Args: { distributor_data: Json }
         Returns: string
@@ -960,21 +957,24 @@ export type Database = {
           walmart_seller_id: string | null
           wholesale_budget: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "reseller_applications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       admin_allocate_brand_to_reseller: {
         Args: { p_brand_id: string; p_reseller_id: string }
         Returns: boolean
       }
-      admin_delete_brand: {
-        Args: { p_brand_id: string }
-        Returns: boolean
-      }
+      admin_delete_brand: { Args: { p_brand_id: string }; Returns: boolean }
       admin_delete_distributor: {
         Args: { distributor_id: string }
         Returns: boolean
       }
       admin_get_all_users: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           bio: string
           company_name: string
@@ -988,7 +988,7 @@ export type Database = {
         }[]
       }
       admin_get_brands: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           approval_rate: number
           categories: string[]
@@ -1006,7 +1006,7 @@ export type Database = {
         }[]
       }
       admin_get_reseller_applications: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           amazon_seller_id: string
           application_status: string
@@ -1042,10 +1042,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: boolean
       }
-      admin_suspend_user: {
-        Args: { target_user_id: string }
-        Returns: boolean
-      }
+      admin_suspend_user: { Args: { target_user_id: string }; Returns: boolean }
       admin_update_brand: {
         Args: { brand_data: Json; brand_id: string }
         Returns: string
@@ -1085,10 +1082,7 @@ export type Database = {
         Args: { email_address: string }
         Returns: string
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
       get_or_create_email_only_profile: {
         Args: { p_company_name?: string; p_email: string; p_full_name?: string }
         Returns: string
@@ -1135,10 +1129,7 @@ export type Database = {
           website_url: string
         }[]
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
       make_user_admin_by_email: {
         Args: { user_email: string }
         Returns: boolean
