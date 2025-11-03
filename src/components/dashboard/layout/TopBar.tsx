@@ -1,11 +1,14 @@
 
 import { useState, useEffect } from 'react';
-import { Menu, Bell } from 'lucide-react';
+import { Menu, Bell, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UserRole } from '@/types/auth';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
+import { useSubscription } from '@/hooks/use-subscription';
+import SubscriptionUpgrade from '@/components/reseller/subscription/SubscriptionUpgrade';
 
 interface TopBarProps {
   toggleSidebar: () => void;
@@ -16,6 +19,8 @@ interface TopBarProps {
 const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount }: TopBarProps) => {
   const { user } = useAuth();
   const [companyName, setCompanyName] = useState<string>('');
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const { subscription } = useSubscription();
 
   useEffect(() => {
     const fetchCompanyName = async () => {
@@ -83,6 +88,19 @@ const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount }: TopBarPro
             </Badge>
           </div>
         )}
+        
+        {userRole === 'reseller' && (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setUpgradeDialogOpen(true)}
+            className="gap-2"
+          >
+            <Crown className="h-4 w-4" />
+            Upgrade
+          </Button>
+        )}
+        
         <div className="text-right hidden sm:block">
           <h2 className="text-sm font-semibold text-gray-900">
             {getDisplayText()}
@@ -90,6 +108,19 @@ const TopBar = ({ toggleSidebar, userRole, pendingApplicationsCount }: TopBarPro
           <p className="text-xs text-gray-500">Welcome back</p>
         </div>
       </div>
+      
+      {/* Upgrade Dialog */}
+      <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Upgrade Your Plan</DialogTitle>
+          </DialogHeader>
+          <SubscriptionUpgrade 
+            currentApplications={0}
+            currentLimit={999999}
+          />
+        </DialogContent>
+      </Dialog>
     </header>
   );
 };

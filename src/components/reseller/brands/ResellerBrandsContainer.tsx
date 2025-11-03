@@ -1,11 +1,8 @@
 
-import { useSubscription } from '@/hooks/use-subscription';
 import { useBrandApplications } from '@/hooks/use-brand-applications';
 import { useOptimizedBrands } from '@/hooks/use-optimized-brands';
 import { useBrandFilters } from '@/hooks/use-brand-filters';
 import { usePerformanceMonitoring } from '@/hooks/use-performance';
-import SubscriptionUpgrade from '@/components/reseller/subscription/SubscriptionUpgrade';
-import SubscriptionManager from '@/components/reseller/subscription/SubscriptionManager';
 import BrandsHeader from './components/BrandsHeader';
 import BrandsFilter from './components/BrandsFilter';
 import BrandsLoadingState from './components/BrandsLoadingState';
@@ -22,7 +19,6 @@ const ResellerBrandsContainer = () => {
   // Enable performance monitoring
   usePerformanceMonitoring();
   
-  const { subscription, isLoading: subscriptionLoading } = useSubscription();
   const { applyToBrand, isApplying } = useBrandApplications();
   
   // Pagination state
@@ -69,7 +65,7 @@ const ResellerBrandsContainer = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (subscriptionLoading || isLoading) {
+  if (isLoading) {
     return <BrandsLoadingState />;
   }
 
@@ -77,27 +73,9 @@ const ResellerBrandsContainer = () => {
     return <BrandsErrorState error={error} />;
   }
 
-  // Show upgrade component for premium features, not application limits
-  const showUpgrade = !subscription?.subscribed && subscription?.subscription_tier === 'free';
-  const currentApplications = 0; // We're not tracking this anymore
-  const limit = 999999; // Unlimited
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       <BrandsHeader />
-      
-      {/* Subscription Management */}
-      {subscription?.subscribed && <SubscriptionManager />}
-      
-      {/* Upgrade Component for Premium Features */}
-      {showUpgrade && (
-        <div className="mb-6">
-          <SubscriptionUpgrade 
-            currentApplications={currentApplications}
-            currentLimit={limit}
-          />
-        </div>
-      )}
       
       <Suspense fallback={<PerformanceSkeleton />}>
         <QuickFilterButtons 
