@@ -121,6 +121,41 @@ export const useOptimizedBrands = (
     refetchInterval: 60000, // Auto-refetch every 60 seconds
   });
 
+  // Real-time subscription for brand allocations
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('🔄 Setting up realtime subscription for brand allocations');
+
+    const channel = supabase
+      .channel('brand-allocations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to INSERT, UPDATE, DELETE
+          schema: 'public',
+          table: 'brand_reseller_allocations',
+          filter: `reseller_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('🔔 Brand allocation changed:', payload);
+          
+          // Invalidate all brand-related queries to trigger refetch
+          queryClient.invalidateQueries({ queryKey: ['optimized-brands', user.id] });
+          queryClient.invalidateQueries({ queryKey: ['optimized-brands-count', user.id] });
+          
+          // Show a notification that brands have been updated
+          console.log('✨ Brand list updated in real-time');
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔌 Cleaning up realtime subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
+
   // Prefetch next page for smooth scrolling
   const prefetchNextPage = () => {
     if (query.data && query.data.length === limit) {
@@ -165,6 +200,7 @@ export const useOptimizedBrands = (
 // Hook for infinite loading
 export const useInfiniteBrands = (filters: BrandFilters) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [allBrands, setAllBrands] = useState<OptimizedBrand[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -214,6 +250,38 @@ export const useInfiniteBrands = (filters: BrandFilters) => {
     setHasMore(true);
     loadMoreBrands();
   }, [filters.searchQuery, filters.applicationStatus, filters.followUpActions, filters.timeFilters]);
+
+  // Real-time subscription for brand allocations (infinite loading)
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('🔄 Setting up realtime subscription for infinite brands');
+
+    const channel = supabase
+      .channel('infinite-brand-allocations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'brand_reseller_allocations',
+          filter: `reseller_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('🔔 Brand allocation changed (infinite):', payload);
+          
+          // Reset and reload when allocations change
+          setAllBrands([]);
+          setOffset(0);
+          setHasMore(true);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   return {
     brands: allBrands,
