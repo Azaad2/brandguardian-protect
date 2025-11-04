@@ -89,11 +89,22 @@ export const useOptimizedBrands = (
       return data || [];
     },
     enabled: !!user,
-    staleTime: 30000, // 30 seconds - refresh data more frequently
-    gcTime: BRANDS_CACHE_TIME,
+    staleTime: 5000, // Consider data fresh for 5 seconds (reduced for faster updates)
+    gcTime: 2 * 60 * 1000, // Keep unused data in cache for 2 minutes
     refetchOnWindowFocus: true, // Refetch when user returns to tab
-    refetchOnMount: true, // Refetch when component mounts
-    refetchInterval: 60000, // Auto-refetch every 60 seconds
+    refetchOnMount: 'always', // ALWAYS fetch fresh data when component mounts
+    refetchInterval: 10000, // Auto-refetch every 10 seconds (increased frequency)
+  });
+
+  // Log hook usage for debugging
+  console.log('🔍 useOptimizedBrands called:', {
+    userId: user?.id,
+    filters: optimizedFilters,
+    limit,
+    offset,
+    brandsCount: query.data?.length || 0,
+    isLoading: query.isLoading,
+    error: query.error?.message,
   });
 
   // Optimistic count query for total brands (cached separately)
@@ -115,17 +126,24 @@ export const useOptimizedBrands = (
       return data || 0;
     },
     enabled: !!user,
-    staleTime: 30000, // 30 seconds - refresh data more frequently
-    gcTime: BRANDS_CACHE_TIME,
+    staleTime: 5000, // Consider data fresh for 5 seconds
+    gcTime: 2 * 60 * 1000, // Keep unused data in cache for 2 minutes
     refetchOnWindowFocus: true, // Refetch when user returns to tab
-    refetchInterval: 60000, // Auto-refetch every 60 seconds
+    refetchOnMount: 'always', // ALWAYS fetch fresh data
+    refetchInterval: 10000, // Auto-refetch every 10 seconds
   });
 
   // Real-time subscription for brand allocations
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      console.log('⚠️ No user found, skipping realtime subscription');
+      return;
+    }
 
-    console.log('🔄 Setting up realtime subscription for brand allocations');
+    console.log('🔄 Setting up realtime subscription for brand allocations', {
+      userId: user.id,
+      email: user.email,
+    });
 
     const channel = supabase
       .channel('brand-allocations-changes')
@@ -138,17 +156,22 @@ export const useOptimizedBrands = (
           filter: `reseller_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('🔔 Brand allocation changed:', payload);
+          console.log('🔔 Brand allocation changed:', {
+            eventType: payload.eventType,
+            new: payload.new,
+            old: payload.old,
+          });
           
-          // Invalidate all brand-related queries to trigger refetch
+          // Invalidate all brand-related queries to trigger immediate refetch
           queryClient.invalidateQueries({ queryKey: ['optimized-brands', user.id] });
           queryClient.invalidateQueries({ queryKey: ['optimized-brands-count', user.id] });
           
-          // Show a notification that brands have been updated
-          console.log('✨ Brand list updated in real-time');
+          console.log('✨ Brand list updated in real-time - queries invalidated');
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Realtime subscription status:', status);
+      });
 
     return () => {
       console.log('🔌 Cleaning up realtime subscription');
@@ -183,7 +206,7 @@ export const useOptimizedBrands = (
     }
   };
 
-  return {
+  const result = {
     brands: query.data || [],
     isLoading: query.isLoading,
     error: query.error,
@@ -195,6 +218,15 @@ export const useOptimizedBrands = (
     isFetching: query.isFetching,
     isStale: query.isStale,
   };
+
+  console.log('📊 useOptimizedBrands returning:', {
+    brandsCount: result.brands.length,
+    totalCount: result.totalCount,
+    isLoading: result.isLoading,
+    hasError: !!result.error,
+  });
+
+  return result;
 };
 
 // Hook for infinite loading

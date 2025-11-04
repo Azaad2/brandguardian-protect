@@ -158,10 +158,34 @@ const BulkBrandAllocationManager = () => {
     }
   };
 
-  const handleBulkAllocate = () => {
-    if (selectedBrands.length > 0 && selectedReseller) {
-      bulkAllocateMutation.mutate(selectedBrands);
+  const handleBulkAllocate = async () => {
+    if (selectedBrands.length === 0 || !selectedReseller) {
+      toast({
+        title: 'Selection Required',
+        description: 'Please select brands and a reseller.',
+        variant: 'destructive',
+      });
+      return;
     }
+
+    // Check session validity before allocating
+    console.log('🔐 Checking admin session validity...');
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      toast({
+        title: 'Session Expired',
+        description: 'Your session has expired. Please log out and log back in.',
+        variant: 'destructive',
+      });
+      setTimeout(() => {
+        window.location.href = '/admin/login';
+      }, 2000);
+      return;
+    }
+
+    console.log('✅ Session valid, proceeding with allocation of', selectedBrands.length, 'brands');
+    bulkAllocateMutation.mutate(selectedBrands);
   };
 
   return (

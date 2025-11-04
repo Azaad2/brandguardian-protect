@@ -14,6 +14,9 @@ import PerformanceSkeleton from './components/PerformanceSkeleton';
 import { MemoizedBrandCard } from './components/MemoizedBrandCard';
 import React, { useState, useMemo, useCallback, Suspense } from 'react';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const ResellerBrandsContainer = () => {
   // Enable performance monitoring
@@ -42,8 +45,15 @@ const ResellerBrandsContainer = () => {
     isLoading, 
     error,
     totalCount,
+    refetch,
     prefetchNextPage
   } = useOptimizedBrands(filters, brandsPerPage, offset);
+
+  // Manual refresh handler
+  const handleRefresh = useCallback(() => {
+    console.log('🔄 Manual refresh triggered');
+    refetch();
+  }, [refetch]);
   
   // Use client-side filtering hook for additional filtering logic
   const { filteredBrands, filterSuggestions } = useBrandFilters(optimizedBrands);
@@ -75,7 +85,18 @@ const ResellerBrandsContainer = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <BrandsHeader />
+      <div className="flex items-center justify-between">
+        <BrandsHeader />
+        <Button 
+          onClick={handleRefresh} 
+          variant="outline" 
+          size="sm"
+          disabled={isLoading}
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh Brands
+        </Button>
+      </div>
       
       <Suspense fallback={<PerformanceSkeleton />}>
         <QuickFilterButtons 
