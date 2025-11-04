@@ -89,10 +89,11 @@ export const useOptimizedBrands = (
       return data || [];
     },
     enabled: !!user,
-    staleTime: BRANDS_STALE_TIME,
+    staleTime: 30000, // 30 seconds - refresh data more frequently
     gcTime: BRANDS_CACHE_TIME,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchOnMount: true, // Refetch when component mounts
+    refetchInterval: 60000, // Auto-refetch every 60 seconds
   });
 
   // Optimistic count query for total brands (cached separately)
@@ -114,8 +115,10 @@ export const useOptimizedBrands = (
       return data || 0;
     },
     enabled: !!user,
-    staleTime: 2 * 60 * 1000, // 2 minutes cache for count
-    gcTime: 5 * 60 * 1000,
+    staleTime: 30000, // 30 seconds - refresh data more frequently
+    gcTime: BRANDS_CACHE_TIME,
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchInterval: 60000, // Auto-refetch every 60 seconds
   });
 
   // Prefetch next page for smooth scrolling
