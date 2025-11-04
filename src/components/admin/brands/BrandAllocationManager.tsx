@@ -114,11 +114,28 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
       });
     },
     onError: (error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to allocate brand: ${error.message}`,
-        variant: 'destructive',
-      });
+      const errorMessage = error.message;
+      
+      // Check for authentication errors
+      if (errorMessage.includes('Authentication required') || 
+          errorMessage.includes('JWT') ||
+          errorMessage.includes('session')) {
+        toast({
+          title: 'Session Expired',
+          description: 'Your session has expired. Redirecting to login...',
+          variant: 'destructive',
+        });
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/admin/login';
+        }, 2000);
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to allocate brand: ${errorMessage}`,
+          variant: 'destructive',
+        });
+      }
     },
   });
 
@@ -148,11 +165,28 @@ const BrandAllocationManager = ({ brand }: BrandAllocationManagerProps) => {
       });
     },
     onError: (error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to remove allocation: ${error.message}`,
-        variant: 'destructive',
-      });
+      const errorMessage = error.message;
+      
+      // Check for authentication errors
+      if (errorMessage.includes('Authentication required') || 
+          errorMessage.includes('JWT') ||
+          errorMessage.includes('session')) {
+        toast({
+          title: 'Session Expired',
+          description: 'Your session has expired. Redirecting to login...',
+          variant: 'destructive',
+        });
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/admin/login';
+        }, 2000);
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to remove allocation: ${errorMessage}`,
+          variant: 'destructive',
+        });
+      }
     },
   });
 

@@ -5,27 +5,21 @@ import { UserRole } from '@/types/auth';
 
 export const useSessionManagement = (userRole: UserRole | null) => {
   useEffect(() => {
-    // Don't apply aggressive session management for admin users
-    if (userRole === 'admin') {
-      console.log('🔧 Admin user detected - skipping aggressive session management');
-      return;
-    }
-
     let inactivityTimer: NodeJS.Timeout;
     
-    // Only auto logout after 2 hours of inactivity (much more reasonable)
+    // Auto logout after 4 hours of inactivity (even more reasonable for all users)
     const resetInactivityTimer = () => {
       if (inactivityTimer) {
         clearTimeout(inactivityTimer);
       }
       
       inactivityTimer = setTimeout(async () => {
-        console.log('🚪 Auto logout due to inactivity (2 hours)');
+        console.log('🚪 Auto logout due to inactivity (4 hours)');
         await supabase.auth.signOut();
         localStorage.clear();
         sessionStorage.clear();
         window.location.href = '/';
-      }, 2 * 60 * 60 * 1000); // 2 hours instead of 30 minutes
+      }, 4 * 60 * 60 * 1000); // 4 hours of inactivity
     };
 
     // Events that reset the inactivity timer
