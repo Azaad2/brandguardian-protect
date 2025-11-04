@@ -2,14 +2,13 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole } from '@/types/auth';
-import { toast } from '@/hooks/use-toast';
 
 export const useSessionManagement = (userRole: UserRole | null) => {
   useEffect(() => {
     let inactivityTimer: NodeJS.Timeout;
     let warningTimer: NodeJS.Timeout;
     
-    // Auto logout after 3.5 hours of inactivity (more aggressive for admin safety)
+    // Auto logout after 3.5 hours of inactivity
     const INACTIVITY_TIMEOUT = 3.5 * 60 * 60 * 1000; // 3.5 hours
     const WARNING_BEFORE_LOGOUT = 5 * 60 * 1000; // 5 minutes warning
     
@@ -21,29 +20,17 @@ export const useSessionManagement = (userRole: UserRole | null) => {
         clearTimeout(warningTimer);
       }
       
-      // Show warning 5 minutes before logout
+      // Console warning 5 minutes before logout
       warningTimer = setTimeout(() => {
-        console.log('⚠️ Session expiring soon');
-        toast({
-          title: 'Session Expiring Soon',
-          description: 'Your session will expire in 5 minutes due to inactivity. Move your mouse to stay logged in.',
-          duration: 10000,
-        });
+        console.warn('⚠️ Session expiring soon - 5 minutes remaining');
       }, INACTIVITY_TIMEOUT - WARNING_BEFORE_LOGOUT);
       
       inactivityTimer = setTimeout(async () => {
         console.log('🚪 Auto logout due to inactivity (3.5 hours)');
-        toast({
-          title: 'Session Expired',
-          description: 'You have been logged out due to inactivity.',
-          variant: 'destructive',
-        });
         await supabase.auth.signOut();
         localStorage.clear();
         sessionStorage.clear();
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+        window.location.href = '/';
       }, INACTIVITY_TIMEOUT);
     };
 
