@@ -147,11 +147,11 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="${appUrl}/reseller/brands" 
+                  <a href="${appUrl}/reseller/dashboard/brands" 
                      style="background-color: #10b981; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px; margin-right: 10px;">
                     👀 View Brand Details
                   </a>
-                  <a href="${appUrl}/reseller/brands" 
+                  <a href="${appUrl}/reseller/dashboard/brands" 
                      style="background-color: #667eea; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px;">
                     📝 Apply Now
                   </a>
