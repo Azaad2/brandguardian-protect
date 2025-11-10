@@ -1,8 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const appUrl = Deno.env.get("APP_URL") || "https://bndbox.lovable.app";
@@ -291,23 +290,32 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Send email via Resend
-    const { data, error } = await resend.emails.send({
-      from: "BndBox <notifications@bndbox.com>",
-      to: [resellerProfile.email],
-      subject: emailSubject,
-      html: emailHtml,
+    // Send email via Resend HTTP API
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "BndBox <notifications@bndbox.com>",
+        to: [resellerProfile.email],
+        subject: emailSubject,
+        html: emailHtml,
+      }),
     });
 
-    if (error) {
-      console.error("❌ Failed to send email:", error);
-      throw error;
+    const resendData = await resendResponse.json();
+
+    if (!resendResponse.ok) {
+      console.error("❌ Failed to send email:", resendData);
+      throw new Error(`Resend API error: ${JSON.stringify(resendData)}`);
     }
 
-    console.log(`✅ Email sent successfully: ${data?.id}`);
+    console.log(`✅ Email sent successfully: ${resendData.id}`);
 
     return new Response(
-      JSON.stringify({ success: true, emailId: data?.id }),
+      JSON.stringify({ success: true, emailId: resendData.id }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error: any) {
