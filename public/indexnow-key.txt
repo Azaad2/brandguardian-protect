@@ -1,0 +1,2 @@
+<!-- Add your IndexNow API key here once you register at indexnow.org -->
+<!-- This enables instant indexing on Bing and other search engines -->
