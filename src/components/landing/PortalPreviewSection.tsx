@@ -71,7 +71,7 @@ const PortalPreviewSection = () => {
       <div className="flex-1 p-6 overflow-auto">
         <div className="mb-6">
           <h2 className="text-2xl font-bold">Available Brands</h2>
-          <p className="text-muted-foreground">Discover and apply to brand partnerships</p>
+          <p className="text-gray-700">Discover and apply to brand partnerships</p>
         </div>
         
         <div className="flex gap-4 mb-6">
@@ -138,7 +138,7 @@ const PortalPreviewSection = () => {
       <div className="flex-1 p-6 overflow-auto">
         <div className="mb-6">
           <h2 className="text-2xl font-bold">Reseller Applications</h2>
-          <p className="text-muted-foreground">Review and approve new reseller partnerships</p>
+          <p className="text-gray-700">Review and approve new reseller partnerships</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -225,7 +225,7 @@ const PortalPreviewSection = () => {
         <div className="mb-6 flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">Dashboard</h2>
-            <p className="text-muted-foreground">Welcome back! You have new updates.</p>
+            <p className="text-gray-700">Welcome back! You have new updates.</p>
           </div>
           <Bell className="h-6 w-6 text-primary animate-pulse" />
         </div>
@@ -347,10 +347,10 @@ const PortalPreviewSection = () => {
     <section className="py-20 px-4 sm:px-6 bg-gradient-to-br from-crystal-clear to-crystal-mist relative overflow-hidden">
       <div className="container mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gradient">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
             See How BndBox Connects Brands & Resellers
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
             Follow the seamless workflow from application to approval. Watch how our platform 
             facilitates genuine partnerships between brands and qualified resellers.
           </p>

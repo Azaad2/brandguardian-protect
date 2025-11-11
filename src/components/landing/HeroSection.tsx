@@ -89,7 +89,7 @@ const HeroSection = () => {
             className="space-y-4"
           >
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-700 via-purple-700 to-blue-800 bg-clip-text text-transparent">
                 Find Your Perfect
               </span>
               <br />
@@ -97,7 +97,7 @@ const HeroSection = () => {
                 Wholesale Partner
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
               Connect with verified brands, distributors, and resellers through AI-powered search. 
               Ask anything — get matched in seconds.
             </p>
@@ -204,7 +204,7 @@ const HeroSection = () => {
               </div>
               <div className="text-left">
                 <div className="font-semibold text-foreground">150+ Verified Partners</div>
-                <div className="text-sm text-muted-foreground">40+ brands • 1000+ products</div>
+                <div className="text-sm text-gray-700">40+ brands • 1000+ products</div>
               </div>
             </div>
 
@@ -213,11 +213,11 @@ const HeroSection = () => {
             <div className="flex items-center gap-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">99.7%</div>
-                <div className="text-xs text-muted-foreground">Match Accuracy</div>
+                <div className="text-xs text-gray-700">Match Accuracy</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">&lt;24h</div>
-                <div className="text-xs text-muted-foreground">Avg Response</div>
+                <div className="text-xs text-gray-700">Avg Response</div>
               </div>
             </div>
           </motion.div>

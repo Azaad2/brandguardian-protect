@@ -60,7 +60,7 @@ const FAQSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions About BndBox</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto">
             Learn more about how our AI-powered platform connects brands, distributors, retailers, and online resellers through intelligent matchmaking.
           </p>
         </div>
@@ -75,7 +75,7 @@ const FAQSection = () => {
                 >
                   {item.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-600">
+                <AccordionContent className="text-gray-700">
                   {item.answer}
                 </AccordionContent>
               </AccordionItem>

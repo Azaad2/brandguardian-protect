@@ -16,7 +16,7 @@
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 16.3% 35%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
@@ -339,5 +339,23 @@
 .touch-optimized {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* High-contrast text utilities for WCAG AA compliance */
+.text-high-contrast {
+  @apply text-gray-900;
+}
+
+.text-medium-contrast {
+  @apply text-gray-700;
+}
+
+/* Accessible gradient text (high contrast) */
+.gradient-text-accessible {
+  @apply bg-gradient-to-r from-blue-700 via-purple-700 to-blue-800 bg-clip-text text-transparent;
+}
+
+.gradient-hero-accessible {
+  @apply bg-gradient-to-br from-blue-700 via-purple-600 to-indigo-700 bg-clip-text text-transparent;
 }
 

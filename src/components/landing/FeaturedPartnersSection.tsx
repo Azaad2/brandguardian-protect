@@ -89,7 +89,7 @@ export const FeaturedPartnersSection = () => {
           <h2 className="text-4xl font-bold mb-4">
             Trusted by Industry Leaders
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Connect with verified distributors and premium brands on our platform
           </p>
         </div>
