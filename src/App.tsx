@@ -57,6 +57,7 @@ import ResellerMessages from '@/components/reseller/ResellerMessages';
 import ResellerSettings from '@/components/reseller/ResellerSettings';
 import ResellerSubscription from '@/pages/reseller/ResellerSubscription';
 import EmailPreview from '@/pages/admin/EmailPreview';
+import { HelpButton } from '@/components/help/HelpButton';
 
 // Legacy admin pages
 import Admin from '@/pages/Admin';
@@ -105,6 +106,7 @@ const AppContent = () => {
   
   return (
     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <HelpButton />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Index />} />
