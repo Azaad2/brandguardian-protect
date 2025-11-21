@@ -15,14 +15,27 @@ import { useResellerAnalytics } from '@/hooks/use-reseller-analytics';
 import { useSubscription } from '@/hooks/use-subscription';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { OnboardingModal } from './onboarding/OnboardingModal';
+import { GettingStartedChecklist } from './onboarding/GettingStartedChecklist';
 
 const ResellerOverview = () => {
   const { user } = useAuth();
   const [timeRange, setTimeRange] = useState<'3m'|'6m'|'1y'>('3m');
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { orders, isLoading: isLoadingOrders } = useResellerOrders();
   const { brands, isLoading: isLoadingBrands } = useResellerBrands();
   const { analytics, isLoading: isLoadingAnalytics } = useResellerAnalytics(timeRange);
   const { subscription, isLoading: isLoadingSubscription } = useSubscription();
+
+  // Check if user has completed onboarding
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
+    if (!hasCompletedOnboarding) {
+      // Show onboarding after a short delay
+      const timer = setTimeout(() => setShowOnboarding(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   if (!user) {
     return (
@@ -61,14 +74,23 @@ const ResellerOverview = () => {
   const showUpgradeCTA = !isLoadingSubscription && (!subscription?.subscribed || subscription?.subscription_tier === 'free');
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to your wholesale purchasing portal.</p>
-      </div>
+    <>
+      <OnboardingModal 
+        open={showOnboarding} 
+        onClose={() => setShowOnboarding(false)} 
+      />
+      
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome to your wholesale purchasing portal.</p>
+        </div>
 
-      {/* Upgrade CTA Card */}
-      {showUpgradeCTA && (
+        {/* Getting Started Checklist */}
+        <GettingStartedChecklist />
+
+        {/* Upgrade CTA Card */}
+        {showUpgradeCTA && (
         <Card className="border-primary/50 bg-gradient-to-r from-primary/5 to-primary/10">
           <CardContent className="p-6">
             <div className="flex items-start justify-between gap-4">
@@ -446,7 +468,8 @@ const ResellerOverview = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
