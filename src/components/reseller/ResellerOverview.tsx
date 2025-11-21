@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, LineChart, Line, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, DollarSign, Package, ShoppingCart, Building, Loader2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, DollarSign, Package, ShoppingCart, Building, Loader2, Crown, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -12,6 +12,9 @@ import { useResellerOrders } from '@/hooks/use-reseller-orders';
 import { useResellerMessages } from '@/hooks/use-reseller-messages';
 import { useResellerBrands } from '@/hooks/use-reseller-brands';
 import { useResellerAnalytics } from '@/hooks/use-reseller-analytics';
+import { useSubscription } from '@/hooks/use-subscription';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const ResellerOverview = () => {
   const { user } = useAuth();
@@ -19,6 +22,7 @@ const ResellerOverview = () => {
   const { orders, isLoading: isLoadingOrders } = useResellerOrders();
   const { brands, isLoading: isLoadingBrands } = useResellerBrands();
   const { analytics, isLoading: isLoadingAnalytics } = useResellerAnalytics(timeRange);
+  const { subscription, isLoading: isLoadingSubscription } = useSubscription();
 
   if (!user) {
     return (
@@ -53,12 +57,57 @@ const ResellerOverview = () => {
     profit: `${Math.round(Math.random() * 10 + 15)}%` // Simulated profit margin
   }));
 
+  // Show upgrade CTA for free tier users
+  const showUpgradeCTA = !isLoadingSubscription && (!subscription?.subscribed || subscription?.subscription_tier === 'free');
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">Welcome to your wholesale purchasing portal.</p>
       </div>
+
+      {/* Upgrade CTA Card */}
+      {showUpgradeCTA && (
+        <Card className="border-primary/50 bg-gradient-to-r from-primary/5 to-primary/10">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-2 flex-1">
+                <div className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold">Unlock Premium Features</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Get unlimited brand applications, priority support, advanced analytics, and faster approvals with a premium subscription.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="flex items-center gap-1 text-xs bg-background/50 px-2 py-1 rounded">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span>Unlimited Applications</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs bg-background/50 px-2 py-1 rounded">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span>Priority Support</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs bg-background/50 px-2 py-1 rounded">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span>Advanced Analytics</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs bg-background/50 px-2 py-1 rounded">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span>Exclusive Brands</span>
+                  </div>
+                </div>
+              </div>
+              <Button asChild className="flex-shrink-0">
+                <Link to="/reseller/dashboard/subscription">
+                  View Plans
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Card>

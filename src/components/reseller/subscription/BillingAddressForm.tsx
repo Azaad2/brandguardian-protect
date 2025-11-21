@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Info, CheckCircle2, Circle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface BillingAddress {
   firstName: string;
@@ -30,6 +33,7 @@ interface BillingAddressFormProps {
 }
 
 export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }: BillingAddressFormProps) => {
+  const { user } = useAuth();
   const [address, setAddress] = useState<BillingAddress>({
     firstName: '',
     lastName: '',
@@ -41,6 +45,34 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
     zipCode: '',
     country: 'IN'
   });
+
+  // Pre-fill form data from reseller application
+  useEffect(() => {
+    const prefillData = async () => {
+      if (!user) return;
+
+      try {
+        // Get reseller application data
+        const { data: resellerApp, error } = await supabase
+          .from('reseller_applications')
+          .select('email, company_name, phone')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!error && resellerApp) {
+          setAddress(prev => ({
+            ...prev,
+            email: resellerApp.email || user.email || '',
+            phone: resellerApp.phone || '',
+          }));
+        }
+      } catch (error) {
+        console.error('Error prefilling data:', error);
+      }
+    };
+
+    prefillData();
+  }, [user]);
 
   const [errors, setErrors] = useState<Partial<BillingAddress>>({});
 
@@ -95,6 +127,24 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
+      {/* Progress Indicator */}
+      <div className="flex items-center justify-center gap-4 mb-8">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-5 w-5 text-green-500" />
+          <span className="text-sm font-medium">Plan Selected</span>
+        </div>
+        <div className="h-px w-12 bg-border" />
+        <div className="flex items-center gap-2">
+          <Circle className="h-5 w-5 text-primary fill-primary" />
+          <span className="text-sm font-medium text-primary">Billing Info</span>
+        </div>
+        <div className="h-px w-12 bg-border" />
+        <div className="flex items-center gap-2">
+          <Circle className="h-5 w-5 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Payment</span>
+        </div>
+      </div>
+
       <div className="mb-6">
         <Button
           variant="ghost"
@@ -123,7 +173,19 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="firstName">First Name *</Label>
+                <TooltipProvider>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>This will appear on your invoice</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TooltipProvider>
                 <Input
                   id="firstName"
                   value={address.firstName}
@@ -135,7 +197,7 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
               </div>
               
               <div>
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor="lastName" className="mb-2 block">Last Name *</Label>
                 <Input
                   id="lastName"
                   value={address.lastName}
@@ -148,7 +210,19 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
             </div>
 
             <div>
-              <Label htmlFor="email">Email Address *</Label>
+              <TooltipProvider>
+                <div className="flex items-center gap-2 mb-2">
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>We'll send your invoices and receipts here</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
               <Input
                 id="email"
                 type="email"
@@ -161,19 +235,32 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
             </div>
 
             <div>
-              <Label htmlFor="phone">Phone Number *</Label>
+              <Label htmlFor="phone" className="mb-2 block">Phone Number *</Label>
               <Input
                 id="phone"
                 value={address.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 className={errors.phone ? 'border-red-500' : ''}
                 disabled={isLoading}
+                placeholder="+1 234 567 8900"
               />
               {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
             </div>
 
             <div>
-              <Label htmlFor="address">Street Address *</Label>
+              <TooltipProvider>
+                <div className="flex items-center gap-2 mb-2">
+                  <Label htmlFor="address">Street Address *</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Required for payment verification and invoicing</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
               <Input
                 id="address"
                 value={address.address}
@@ -186,7 +273,7 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="city">City *</Label>
+                <Label htmlFor="city" className="mb-2 block">City *</Label>
                 <Input
                   id="city"
                   value={address.city}
@@ -198,7 +285,7 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
               </div>
               
               <div>
-                <Label htmlFor="state">State/Province *</Label>
+                <Label htmlFor="state" className="mb-2 block">State/Province *</Label>
                 <Input
                   id="state"
                   value={address.state}
@@ -210,7 +297,7 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
               </div>
               
               <div>
-                <Label htmlFor="zipCode">ZIP/Postal Code *</Label>
+                <Label htmlFor="zipCode" className="mb-2 block">ZIP/Postal Code *</Label>
                 <Input
                   id="zipCode"
                   value={address.zipCode}
@@ -223,7 +310,7 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
             </div>
 
             <div>
-              <Label htmlFor="country">Country *</Label>
+              <Label htmlFor="country" className="mb-2 block">Country *</Label>
               <Select
                 value={address.country}
                 onValueChange={(value) => handleInputChange('country', value)}
@@ -251,6 +338,9 @@ export const BillingAddressForm = ({ onSubmit, onBack, isLoading, selectedTier }
               >
                 {isLoading ? 'Processing...' : 'Continue to Payment'}
               </Button>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Secure payment powered by Razorpay
+              </p>
             </div>
           </form>
         </CardContent>
