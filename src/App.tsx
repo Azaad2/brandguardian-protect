@@ -106,122 +106,124 @@ const AppContent = () => {
   
   return (
     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
-      <HelpButton />
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<Index />} />
-        <Route path="/about" element={<LazyAbout />} />
-        <Route path="/blog" element={<LazyBlog />} />
-        <Route path="/search" element={<LazySearch />} />
-        <Route path="/reseller-hub" element={<LazyResellerHub />} />
-        <Route path="/shipping-delivery" element={<ShippingDelivery />} />
-        
-        
-        {/* Legal routes */}
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/cookies" element={<CookiePolicy />} />
-        <Route path="/cancellation-refund" element={<CancellationRefundPolicy />} />
-        
-        {/* Auth routes */}
-        <Route path="/admin/login" element={<AuthProvider><AdminLogin /></AuthProvider>} />
-        <Route path="/admin/signup" element={<AuthProvider><AdminSignup /></AuthProvider>} />
-        <Route path="/brand/login" element={<AuthProvider><BrandLogin /></AuthProvider>} />
-        <Route path="/brand/signup" element={<AuthProvider><BrandSignup /></AuthProvider>} />
-        <Route path="/reseller/login" element={<AuthProvider><ResellerLogin /></AuthProvider>} />
-        <Route path="/reseller/signup" element={<AuthProvider><ResellerSignup /></AuthProvider>} />
-        <Route path="/reset-password" element={<AuthProvider><PasswordReset /></AuthProvider>} />
-        <Route path="/reset-password/confirm" element={<AuthProvider><PasswordResetConfirm /></AuthProvider>} />
-        
-        {/* Blog routes with lazy loading */}
-        <Route path="/blog/amazon-wholesale-vs-private-label" element={<LazyAmazonWholesaleVsPrivateLabel />} />
-        <Route path="/blog/how-to-get-ungated-any-brand-amazon-2025-ultimate-guide" element={<LazyHowToGetUngatedAnyBrandAmazon2025 />} />
-        <Route path="/blog/master-amazon-reseller-business-strategies-profitability-sourcing-growth" element={<LazyMasterAmazonResellerBusiness />} />
-        <Route path="/blog/unlock-amazon-wholesale-success-bndbox-brand-approvals" element={<LazyUnlockAmazonWholesaleSuccess />} />
-        <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<LazyEnforceMAPPolicyPreventUnauthorizedSellers />} />
-        <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<LazyPreventUnauthorizedSellersAmazon />} />
-        <Route path="/blog/identify-remove-counterfeit-products" element={<LazyIdentifyRemoveCounterfeitProducts />} />
-        <Route path="/blog/amazon-brand-registry-benefits" element={<LazyAmazonBrandRegistryBenefits />} />
-        <Route path="/blog/outreach-thousand-brands-amazon-wholesale" element={<LazyOutreachThousandBrandsAmazonWholesale />} />
-        
-        {/* Protected dashboard routes with nested routing */}
-        <Route path="/admin/dashboard" element={
-          <ProtectedRoute requiredRole="admin">
-            <LazyAdminDashboard />
-          </ProtectedRoute>
-        }>
-          <Route index element={<AdminOverview />} />
-          <Route path="reseller-applications" element={<ResellerRegistration />} />
-          <Route path="reseller-approvals" element={<ResellerApprovalManager />} />
-          <Route path="brands-directory" element={<BrandsDirectory />} />
-          <Route path="distributors-directory" element={<DistributorsDirectory />} />
-          <Route path="catalog-approvals" element={<CatalogApprovals />} />
-          <Route path="user-management" element={
+      <>
+        <HelpButton />
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Index />} />
+          <Route path="/about" element={<LazyAbout />} />
+          <Route path="/blog" element={<LazyBlog />} />
+          <Route path="/search" element={<LazySearch />} />
+          <Route path="/reseller-hub" element={<LazyResellerHub />} />
+          <Route path="/shipping-delivery" element={<ShippingDelivery />} />
+          
+          
+          {/* Legal routes */}
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/cancellation-refund" element={<CancellationRefundPolicy />} />
+          
+          {/* Auth routes */}
+          <Route path="/admin/login" element={<AuthProvider><AdminLogin /></AuthProvider>} />
+          <Route path="/admin/signup" element={<AuthProvider><AdminSignup /></AuthProvider>} />
+          <Route path="/brand/login" element={<AuthProvider><BrandLogin /></AuthProvider>} />
+          <Route path="/brand/signup" element={<AuthProvider><BrandSignup /></AuthProvider>} />
+          <Route path="/reseller/login" element={<AuthProvider><ResellerLogin /></AuthProvider>} />
+          <Route path="/reseller/signup" element={<AuthProvider><ResellerSignup /></AuthProvider>} />
+          <Route path="/reset-password" element={<AuthProvider><PasswordReset /></AuthProvider>} />
+          <Route path="/reset-password/confirm" element={<AuthProvider><PasswordResetConfirm /></AuthProvider>} />
+          
+          {/* Blog routes with lazy loading */}
+          <Route path="/blog/amazon-wholesale-vs-private-label" element={<LazyAmazonWholesaleVsPrivateLabel />} />
+          <Route path="/blog/how-to-get-ungated-any-brand-amazon-2025-ultimate-guide" element={<LazyHowToGetUngatedAnyBrandAmazon2025 />} />
+          <Route path="/blog/master-amazon-reseller-business-strategies-profitability-sourcing-growth" element={<LazyMasterAmazonResellerBusiness />} />
+          <Route path="/blog/unlock-amazon-wholesale-success-bndbox-brand-approvals" element={<LazyUnlockAmazonWholesaleSuccess />} />
+          <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<LazyEnforceMAPPolicyPreventUnauthorizedSellers />} />
+          <Route path="/blog/prevent-unauthorized-sellers-amazon" element={<LazyPreventUnauthorizedSellersAmazon />} />
+          <Route path="/blog/identify-remove-counterfeit-products" element={<LazyIdentifyRemoveCounterfeitProducts />} />
+          <Route path="/blog/amazon-brand-registry-benefits" element={<LazyAmazonBrandRegistryBenefits />} />
+          <Route path="/blog/outreach-thousand-brands-amazon-wholesale" element={<LazyOutreachThousandBrandsAmazonWholesale />} />
+          
+          {/* Protected dashboard routes with nested routing */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute requiredRole="admin">
+              <LazyAdminDashboard />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminOverview />} />
+            <Route path="reseller-applications" element={<ResellerRegistration />} />
+            <Route path="reseller-approvals" element={<ResellerApprovalManager />} />
+            <Route path="brands-directory" element={<BrandsDirectory />} />
+            <Route path="distributors-directory" element={<DistributorsDirectory />} />
+            <Route path="catalog-approvals" element={<CatalogApprovals />} />
+            <Route path="user-management" element={
+              <ProtectedRoute requiredRole="admin">
+                <LazyUserManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="email-preview" element={
+              <ProtectedRoute requiredRole="admin">
+                <EmailPreview />
+              </ProtectedRoute>
+            } />
+          </Route>
+          
+          <Route path="/brand/dashboard" element={
+            <ProtectedRoute requiredRole="brand">
+              <LazyBrandDashboard />
+            </ProtectedRoute>
+          }>
+            <Route index element={<BrandOverview />} />
+            <Route path="inventory" element={<BrandInventory />} />
+            <Route path="resellers" element={<BrandResellers />} />
+            <Route path="orders" element={<BrandOrders />} />
+            <Route path="messages" element={<BrandMessages />} />
+            <Route path="analytics" element={<BrandAnalytics />} />
+            <Route path="settings" element={<BrandSettings />} />
+          </Route>
+          
+          <Route path="/reseller/dashboard" element={
+            <ProtectedRoute requiredRole="reseller">
+              <LazyResellerDashboard />
+            </ProtectedRoute>
+          }>
+            <Route index element={<ResellerOverview />} />
+            <Route path="brands" element={<ResellerBrands />} />
+            <Route path="orders" element={<ResellerOrders />} />
+            <Route path="messages" element={<ResellerMessages />} />
+            <Route path="subscription" element={<ResellerSubscription />} />
+            <Route path="settings" element={<ResellerSettings />} />
+          </Route>
+          
+          {/* Public portal routes */}
+          <Route path="/brand" element={<BrandPortal />} />
+          <Route path="/reseller" element={<ResellerPortal />} />
+          
+          {/* Protected admin routes */}
+          <Route path="/admin/users" element={
             <ProtectedRoute requiredRole="admin">
               <LazyUserManagement />
             </ProtectedRoute>
           } />
-          <Route path="email-preview" element={
+          <Route path="/admin/reseller-registration" element={
             <ProtectedRoute requiredRole="admin">
-              <EmailPreview />
+              <ResellerRegistration />
             </ProtectedRoute>
           } />
-        </Route>
-        
-        <Route path="/brand/dashboard" element={
-          <ProtectedRoute requiredRole="brand">
-            <LazyBrandDashboard />
-          </ProtectedRoute>
-        }>
-          <Route index element={<BrandOverview />} />
-          <Route path="inventory" element={<BrandInventory />} />
-          <Route path="resellers" element={<BrandResellers />} />
-          <Route path="orders" element={<BrandOrders />} />
-          <Route path="messages" element={<BrandMessages />} />
-          <Route path="analytics" element={<BrandAnalytics />} />
-          <Route path="settings" element={<BrandSettings />} />
-        </Route>
-        
-        <Route path="/reseller/dashboard" element={
-          <ProtectedRoute requiredRole="reseller">
-            <LazyResellerDashboard />
-          </ProtectedRoute>
-        }>
-          <Route index element={<ResellerOverview />} />
-          <Route path="brands" element={<ResellerBrands />} />
-          <Route path="orders" element={<ResellerOrders />} />
-          <Route path="messages" element={<ResellerMessages />} />
-          <Route path="subscription" element={<ResellerSubscription />} />
-          <Route path="settings" element={<ResellerSettings />} />
-        </Route>
-        
-        {/* Public portal routes */}
-        <Route path="/brand" element={<BrandPortal />} />
-        <Route path="/reseller" element={<ResellerPortal />} />
-        
-        {/* Protected admin routes */}
-        <Route path="/admin/users" element={
-          <ProtectedRoute requiredRole="admin">
-            <LazyUserManagement />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/reseller-registration" element={
-          <ProtectedRoute requiredRole="admin">
-            <ResellerRegistration />
-          </ProtectedRoute>
-        } />
-        {/* Redirects for old admin path */}
-        <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/admin-dashboard/*" element={<AdminDashboardRedirect />} />
-        
-        {/* Demo and legacy admin routes */}
-        <Route path="/demo-setup" element={<DemoSetup />} />
-        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-        <Route path="/role-updater" element={<RoleUpdater />} />
-        
-        {/* 404 route */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* Redirects for old admin path */}
+          <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin-dashboard/*" element={<AdminDashboardRedirect />} />
+          
+          {/* Demo and legacy admin routes */}
+          <Route path="/demo-setup" element={<DemoSetup />} />
+          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+          <Route path="/role-updater" element={<RoleUpdater />} />
+          
+          {/* 404 route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </>
     </Suspense>
   );
 };
