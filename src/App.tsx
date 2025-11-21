@@ -55,6 +55,7 @@ import ResellerBrands from '@/components/reseller/ResellerBrands';
 import ResellerOrders from '@/components/reseller/ResellerOrders';
 import ResellerMessages from '@/components/reseller/ResellerMessages';
 import ResellerSettings from '@/components/reseller/ResellerSettings';
+import ResellerSubscription from '@/pages/reseller/ResellerSubscription';
 import EmailPreview from '@/pages/admin/EmailPreview';
 
 // Legacy admin pages
@@ -188,6 +189,7 @@ const AppContent = () => {
           <Route path="brands" element={<ResellerBrands />} />
           <Route path="orders" element={<ResellerOrders />} />
           <Route path="messages" element={<ResellerMessages />} />
+          <Route path="subscription" element={<ResellerSubscription />} />
           <Route path="settings" element={<ResellerSettings />} />
         </Route>
         

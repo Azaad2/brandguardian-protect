@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { BillingAddress } from '@/components/reseller/subscription/BillingAddressForm';
+import { detectAdBlocker } from '@/utils/adBlockDetector';
 
 declare global {
   interface Window {
@@ -49,6 +50,23 @@ export const useRazorpay = () => {
     console.log('=== Starting Razorpay Checkout Process ===');
     
     try {
+      // Check for ad blocker before proceeding
+      const hasAdBlocker = await detectAdBlocker();
+      if (hasAdBlocker) {
+        toast({
+          title: 'Ad Blocker Detected',
+          description: 'Please disable your ad blocker to proceed with payment. This helps ensure a secure payment process.',
+          variant: 'destructive',
+        });
+        // Show alternative payment method
+        setTimeout(() => {
+          toast({
+            title: 'Need Help?',
+            description: 'If you continue having issues, contact support@bndbox.com and we can process your payment via bank transfer.',
+          });
+        }, 3000);
+      }
+
       console.log('Requested tier:', tier);
       
       // Get authenticated user
@@ -111,18 +129,34 @@ export const useRazorpay = () => {
         console.error('Error hint:', error.hint);
         console.error('Error code:', error.code);
         
-        // Enhanced error handling with more specific messages
-        let errorMessage = 'Payment setup failed. Please try again.';
+        // Enhanced error handling with specific, actionable messages
+        let errorMessage = 'Payment setup failed.';
+        let supportMessage = '';
         
         if (error.message) {
           if (error.message.includes('Edge Function returned a non-2xx status code')) {
-            errorMessage = 'Payment service error. Please check the console logs and contact support if the issue persists.';
+            errorMessage = 'Payment service is temporarily unavailable.';
+            supportMessage = 'Our team has been notified. Please try again in a few minutes or contact support@bndbox.com';
           } else if (error.message.includes('Failed to send a request to the Edge Function')) {
-            errorMessage = 'Unable to connect to payment service. Please check your internet connection and try again.';
+            errorMessage = 'Unable to connect to payment service.';
+            supportMessage = 'Please check your internet connection. If you\'re using a VPN, try disabling it.';
+          } else if (error.message.includes('timeout')) {
+            errorMessage = 'Request timed out.';
+            supportMessage = 'Please check your connection and try again.';
+          } else if (error.message.includes('authentication') || error.message.includes('unauthorized')) {
+            errorMessage = 'Session expired.';
+            supportMessage = 'Please refresh the page and log in again.';
           } else {
             errorMessage = error.message;
+            supportMessage = 'If this persists, contact support@bndbox.com with error code: ' + (error.code || 'UNKNOWN');
           }
         }
+        
+        toast({
+          title: errorMessage,
+          description: supportMessage,
+          variant: 'destructive',
+        });
         
         console.error('Processed error message:', errorMessage);
         throw new Error(errorMessage);
@@ -225,25 +259,24 @@ export const useRazorpay = () => {
       } catch (razorpayError: any) {
         console.error('Razorpay initialization error:', razorpayError);
         
-        // Check if it's a real blocking issue or just tracking
-        if (razorpayError.message && razorpayError.message.includes('blocked')) {
+        // Check if it's a blocking issue
+        if (razorpayError.message && (razorpayError.message.includes('blocked') || razorpayError.message.includes('blocker'))) {
           toast({
-            title: 'Payment System Blocked',
-            description: 'Your ad blocker is preventing the payment window from opening. Please disable your ad blocker for this site and try again.',
+            title: 'Payment Window Blocked',
+            description: 'Please disable your ad blocker for bndbox.com and refresh the page to complete payment.',
             variant: 'destructive',
           });
           
-          // Provide alternative instructions
+          // Show troubleshooting steps
           setTimeout(() => {
             toast({
-              title: 'Alternative Payment Method',
-              description: 'If the issue persists, please contact support at support@bndbox.com with your subscription request.',
+              title: 'Troubleshooting Steps',
+              description: '1. Disable ad blocker\n2. Refresh page\n3. Try payment again\n\nOr contact support@bndbox.com for manual payment processing',
             });
-          }, 3000);
+          }, 4000);
           
-          throw new Error('Payment system blocked by ad blocker.');
+          throw new Error('Payment blocked by browser extension.');
         } else {
-          // For other errors, just re-throw
           throw razorpayError;
         }
       }
@@ -254,19 +287,32 @@ export const useRazorpay = () => {
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
       
-      let errorMessage = 'Payment setup failed. Please try again.';
-      
-      if (error.message) {
-        errorMessage = error.message;
+      // Don't show toast if already shown
+      if (!error.message?.includes('blocked') && !error.message?.includes('blocker')) {
+        let errorMessage = 'Payment setup failed.';
+        let supportInfo = 'Please try again or contact support@bndbox.com';
+        
+        if (error.message) {
+          errorMessage = error.message;
+          
+          // Add specific help based on error type
+          if (error.message.includes('network') || error.message.includes('connection')) {
+            supportInfo = 'Check your internet connection and try again.';
+          } else if (error.message.includes('timeout')) {
+            supportInfo = 'Request took too long. Please check your connection and retry.';
+          } else if (error.message.includes('service')) {
+            supportInfo = 'Our payment service is experiencing issues. Please try again in a few minutes.';
+          }
+        }
+        
+        toast({
+          title: errorMessage,
+          description: supportInfo,
+          variant: 'destructive',
+        });
       }
       
-      toast({
-        title: 'Checkout Failed',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-      
-      throw error; // Re-throw to allow caller to handle if needed
+      throw error;
     } finally {
       setIsLoading(false);
     }
