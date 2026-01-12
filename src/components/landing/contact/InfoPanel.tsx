@@ -35,7 +35,7 @@ export const InfoPanel = () => {
           <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
           <div>
             <h3 className="font-medium text-lg">Our Office</h3>
-            <p className="text-white/80">1742 FANWOOD CT<br />SAN JOSE, CA 95133</p>
+            <p className="text-white/80">NJ, United States</p>
           </div>
         </div>
       </div>
