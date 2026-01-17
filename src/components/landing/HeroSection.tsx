@@ -230,7 +230,7 @@ const HeroSection = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
           >
             <motion.button
-              onClick={() => navigate('/reseller-hub')}
+              onClick={() => navigate('/partner-hub?type=brand')}
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
               className="group px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
@@ -243,14 +243,14 @@ const HeroSection = () => {
             </motion.button>
 
             <motion.button
-              onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => navigate('/partner-hub?type=distributor')}
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
               className="px-8 py-4 bg-background border-2 border-border rounded-xl font-semibold hover:border-primary/50 transition-all duration-300"
             >
               <div className="flex items-center justify-center gap-2">
                 <Zap className="w-5 h-5 text-primary" />
-                Join as Distributor / Retailer
+                Join as Distributor / Wholesaler
               </div>
             </motion.button>
           </motion.div>
