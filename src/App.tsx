@@ -80,6 +80,7 @@ import {
   LazyUnlockAmazonWholesaleSuccess,
   LazyOutreachThousandBrandsAmazonWholesale
 } from '@/components/LazyComponents';
+import PartnerHub from '@/pages/PartnerHub';
 
 
 import './App.css';
@@ -115,6 +116,10 @@ const AppContent = () => {
           <Route path="/blog" element={<LazyBlog />} />
           <Route path="/search" element={<LazySearch />} />
           <Route path="/reseller-hub" element={<LazyResellerHub />} />
+          <Route path="/partner-hub" element={<PartnerHub />} />
+          <Route path="/brand-hub" element={<Navigate to="/partner-hub?type=brand" replace />} />
+          <Route path="/distributor-hub" element={<Navigate to="/partner-hub?type=distributor" replace />} />
+          <Route path="/wholesaler-hub" element={<Navigate to="/partner-hub?type=wholesaler" replace />} />
           <Route path="/shipping-delivery" element={<ShippingDelivery />} />
           
           

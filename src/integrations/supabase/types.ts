@@ -621,6 +621,143 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_applications: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          annual_revenue: string | null
+          application_status: string | null
+          brand_name: string | null
+          brands_carried: string[] | null
+          business_type: string
+          certifications: string[] | null
+          city: string | null
+          company_name: string
+          contact_name: string | null
+          country: string | null
+          created_at: string
+          distribution_channels: string[] | null
+          document_path: string | null
+          document_verification_notes: string | null
+          document_verified: boolean | null
+          document_verified_at: string | null
+          document_verified_by: string | null
+          ein_number: string | null
+          email: string
+          id: string
+          linkedin: string | null
+          looking_for: string[] | null
+          marketplace_links: Json | null
+          min_order_value: number | null
+          monthly_sales_volume: string | null
+          partner_type: string
+          phone: string
+          postal_code: string | null
+          product_categories: string[] | null
+          product_count: string | null
+          shipping_regions: string[] | null
+          state: string | null
+          status: string | null
+          store_count: number | null
+          updated_at: string
+          user_id: string | null
+          warehouse_locations: string[] | null
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          annual_revenue?: string | null
+          application_status?: string | null
+          brand_name?: string | null
+          brands_carried?: string[] | null
+          business_type: string
+          certifications?: string[] | null
+          city?: string | null
+          company_name: string
+          contact_name?: string | null
+          country?: string | null
+          created_at?: string
+          distribution_channels?: string[] | null
+          document_path?: string | null
+          document_verification_notes?: string | null
+          document_verified?: boolean | null
+          document_verified_at?: string | null
+          document_verified_by?: string | null
+          ein_number?: string | null
+          email: string
+          id?: string
+          linkedin?: string | null
+          looking_for?: string[] | null
+          marketplace_links?: Json | null
+          min_order_value?: number | null
+          monthly_sales_volume?: string | null
+          partner_type: string
+          phone: string
+          postal_code?: string | null
+          product_categories?: string[] | null
+          product_count?: string | null
+          shipping_regions?: string[] | null
+          state?: string | null
+          status?: string | null
+          store_count?: number | null
+          updated_at?: string
+          user_id?: string | null
+          warehouse_locations?: string[] | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          annual_revenue?: string | null
+          application_status?: string | null
+          brand_name?: string | null
+          brands_carried?: string[] | null
+          business_type?: string
+          certifications?: string[] | null
+          city?: string | null
+          company_name?: string
+          contact_name?: string | null
+          country?: string | null
+          created_at?: string
+          distribution_channels?: string[] | null
+          document_path?: string | null
+          document_verification_notes?: string | null
+          document_verified?: boolean | null
+          document_verified_at?: string | null
+          document_verified_by?: string | null
+          ein_number?: string | null
+          email?: string
+          id?: string
+          linkedin?: string | null
+          looking_for?: string[] | null
+          marketplace_links?: Json | null
+          min_order_value?: number | null
+          monthly_sales_volume?: string | null
+          partner_type?: string
+          phone?: string
+          postal_code?: string | null
+          product_categories?: string[] | null
+          product_count?: string | null
+          shipping_regions?: string[] | null
+          state?: string | null
+          status?: string | null
+          store_count?: number | null
+          updated_at?: string
+          user_id?: string | null
+          warehouse_locations?: string[] | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_applications_document_verified_by_fkey"
+            columns: ["document_verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_uploads: {
         Row: {
           admin_notes: string | null
