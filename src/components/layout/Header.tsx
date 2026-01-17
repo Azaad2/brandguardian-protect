@@ -44,6 +44,7 @@ const Header = () => {
             <nav className="hidden md:flex items-center space-x-1">
               {[
                 { label: 'Home', path: '/' },
+                { label: 'Partner Hub', path: '/partner-hub' },
                 { label: 'Blog', path: '/blog' },
                 { label: 'About', path: '/about' }
               ].map((item, index) => (
@@ -130,6 +131,7 @@ const Header = () => {
             <nav className="container mx-auto px-4 py-6 space-y-2">
               {[
                 { label: 'Home', path: '/' },
+                { label: 'Partner Hub', path: '/partner-hub' },
                 { label: 'Blog', path: '/blog' },
                 { label: 'About', path: '/about' }
               ].map((item, index) => (

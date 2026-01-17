@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import BndBoxLogo from "@/components/branding/BndBoxLogo";
 
 const Footer = () => {
@@ -7,9 +7,9 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 border-t">
       <div className="container mx-auto py-16 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-12 gap-8">
           {/* Brand Section */}
-          <div className="md:col-span-2 lg:col-span-5">
+          <div className="md:col-span-2 lg:col-span-4">
             <div className="mb-6">
               <BndBoxLogo className="h-10" />
             </div>
@@ -35,8 +35,20 @@ const Footer = () => {
             </div>
           </div>
           
+          {/* Partner Programs Section */}
+          <div className="md:col-span-1 lg:col-span-2">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-6">Partner Programs</h3>
+            <ul className="space-y-4">
+              <li><Link to="/partner-hub?type=brand" className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200">Join as Brand</Link></li>
+              <li><Link to="/partner-hub?type=retailer" className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200">Join as Retailer</Link></li>
+              <li><Link to="/partner-hub?type=distributor" className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200">Join as Distributor</Link></li>
+              <li><Link to="/partner-hub?type=wholesaler" className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200">Join as Wholesaler</Link></li>
+              <li><Link to="/reseller-hub" className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200">Become a Reseller</Link></li>
+            </ul>
+          </div>
+          
           {/* Company Section */}
-          <div className="md:col-span-1 lg:col-span-3">
+          <div className="md:col-span-1 lg:col-span-2">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-6">Company</h3>
             <ul className="space-y-4">
               <li><a href="/about" className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200">About</a></li>
