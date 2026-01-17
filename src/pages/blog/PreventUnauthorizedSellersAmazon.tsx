@@ -33,8 +33,8 @@ const PreventUnauthorizedSellersAmazon = () => {
       "@type": "BlogPosting",
       "headline": "Complete Guide to Preventing Unauthorized Sellers on Amazon in 2025",
       "description": "Learn proven strategies to identify, remove, and prevent unauthorized sellers on Amazon. Protect your brand integrity with our comprehensive 2025 guide.",
-      "datePublished": "2025-05-24",
-      "dateModified": "2025-05-24",
+      "datePublished": "2025-01-18",
+      "dateModified": "2026-01-17",
       "author": {
         "@type": "Person",
         "name": "BndBox Team"
@@ -86,7 +86,8 @@ const PreventUnauthorizedSellersAmazon = () => {
             <div className="flex items-center gap-4 text-gray-600 mb-6">
               <span itemProp="author">BndBox Team</span>
               <span>•</span>
-              <time dateTime="2025-05-24" itemProp="datePublished">May 24, 2025</time>
+              <time dateTime="2025-01-18" itemProp="datePublished">January 18, 2025</time>
+              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Updated: January 17, 2026</span>
               <span>•</span>
               <span>18 min read</span>
             </div>

@@ -33,8 +33,8 @@ const IdentifyRemoveCounterfeitProducts = () => {
       "@type": "BlogPosting",
       "headline": "How to Identify and Remove Counterfeit Products on Amazon: Complete Brand Protection Guide",
       "description": "Learn proven methods to identify, report, and remove counterfeit products on Amazon. Protect your brand with our comprehensive 2025 guide.",
-      "datePublished": "2025-05-24",
-      "dateModified": "2025-05-24",
+      "datePublished": "2025-01-14",
+      "dateModified": "2026-01-17",
       "author": {
         "@type": "Person",
         "name": "BndBox Team"
@@ -86,7 +86,8 @@ const IdentifyRemoveCounterfeitProducts = () => {
             <div className="flex items-center gap-4 text-gray-600 mb-6">
               <span itemProp="author">BndBox Team</span>
               <span>•</span>
-              <time dateTime="2025-05-24" itemProp="datePublished">May 24, 2025</time>
+              <time dateTime="2025-01-14" itemProp="datePublished">January 14, 2025</time>
+              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Updated: January 17, 2026</span>
               <span>•</span>
               <span>17 min read</span>
             </div>

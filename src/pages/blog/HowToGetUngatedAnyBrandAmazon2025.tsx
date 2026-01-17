@@ -3,8 +3,8 @@ import EnhancedBlogPost from '@/components/blog/EnhancedBlogPost';
 
 const HowToGetUngatedAnyBrandAmazon2025 = () => {
   const blogPostData = {
-    title: "How To Get UNGATED In ANY Brand On Amazon In 2025: Your Ultimate Guide",
-    excerpt: "Master the complete ungating process on Amazon with proven strategies for 2025. Learn the invoice method, LOA process, distributor relationships, and automated solutions to unlock any brand and scale your FBA business.",
+    title: "How To Get UNGATED In ANY Brand On Amazon In 2025-2026: Your Ultimate Guide",
+    excerpt: "Master the complete ungating process on Amazon with proven strategies for 2025-2026. Learn the invoice method, LOA process, distributor relationships, and automated solutions to unlock any brand and scale your FBA business.",
     content: `
       <div class="prose prose-lg max-w-none">
         <p class="lead text-xl text-gray-600 mb-8">
@@ -341,8 +341,8 @@ const HowToGetUngatedAnyBrandAmazon2025 = () => {
       </div>
     `,
     author: "BndBox Team",
-    publishedDate: "2025-01-31",
-    lastModified: "2025-01-31", 
+    publishedDate: "January 20, 2025",
+    modifiedDate: "January 17, 2026",
     readTime: "25 min read",
     category: "Amazon Ungating",
     tags: ["Amazon Ungating", "Brand Approval", "FBA", "Wholesale", "Invoice Method", "LOA", "Amazon Reseller", "Brand Gating"],

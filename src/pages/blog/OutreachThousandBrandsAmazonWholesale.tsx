@@ -71,8 +71,8 @@ const OutreachThousandBrandsAmazonWholesale = () => {
         keywords="Amazon wholesale, brand outreach, BndBox, wholesale automation, Amazon FBA, brand applications, reseller business, wholesale sourcing"
         canonicalUrl="https://bndbox.com/blog/outreach-thousand-brands-amazon-wholesale"
         ogImage="https://bndbox.com/images/blog/outreach-brands-og.jpg"
-        publishedTime="2025-01-04T00:00:00Z"
-        modifiedTime="2025-01-04T00:00:00Z"
+        publishedTime="2025-01-22T00:00:00Z"
+        modifiedTime="2026-01-17T00:00:00Z"
         author="BndBox Team"
         category="Amazon Wholesale"
         readTime="12 min read"
@@ -85,8 +85,8 @@ const OutreachThousandBrandsAmazonWholesale = () => {
             "@type": "Person",
             "name": "BndBox Team"
           },
-          "datePublished": "2025-01-04",
-          "dateModified": "2025-01-04",
+          "datePublished": "2025-01-22",
+          "dateModified": "2026-01-17",
           "publisher": {
             "@type": "Organization",
             "name": "BndBox",

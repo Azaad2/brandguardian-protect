@@ -32,8 +32,8 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
       "@type": "BlogPosting",
       "headline": "How to Enforce MAP Policy and Prevent Unauthorized Sellers on Amazon in 2025",
       "description": "Comprehensive guide to MAP policy enforcement and unauthorized seller prevention. Learn how leading brands protect their reputation and pricing with proven strategies.",
-      "datePublished": "2025-05-24",
-      "dateModified": "2025-05-24",
+      "datePublished": "2025-01-15",
+      "dateModified": "2026-01-17",
       "author": {
         "@type": "Person",
         "name": "BndBox Team"
@@ -81,7 +81,8 @@ const EnforceMAPPolicyPreventUnauthorizedSellers = () => {
             <div className="flex items-center gap-4 text-gray-600 mb-6">
               <span itemProp="author">BndBox Team</span>
               <span>•</span>
-              <time dateTime="2025-05-24" itemProp="datePublished">May 24, 2025</time>
+              <time dateTime="2025-01-15" itemProp="datePublished">January 15, 2025</time>
+              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Updated: January 17, 2026</span>
               <span>•</span>
               <span>22 min read</span>
             </div>

@@ -291,8 +291,8 @@ const UnlockAmazonWholesaleSuccess = () => {
       </div>
     `,
     author: "BndBox Team",
-    publishedDate: "2024-12-26",
-    lastModified: "2024-12-26",
+    publishedDate: "January 12, 2025",
+    modifiedDate: "January 17, 2026",
     category: "Wholesale Success",
     tags: ["Amazon wholesale", "brand approvals", "BndBox", "reseller success", "wholesale directory"],
     readTime: "8 min read",
