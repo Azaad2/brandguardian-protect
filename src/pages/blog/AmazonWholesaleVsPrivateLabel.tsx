@@ -5,8 +5,8 @@ import EnhancedBlogPost from '@/components/blog/EnhancedBlogPost';
 import BlogReturnLink from '@/components/navigation/BlogReturnLink';
 
 const AmazonWholesaleVsPrivateLabel = () => {
-  const publishedTime = "2025-08-03T15:00:00.000Z";
-  const modifiedTime = "2025-08-03T15:00:00.000Z";
+  const publishedTime = "2025-01-10T15:00:00.000Z";
+  const modifiedTime = "2026-01-17T00:00:00.000Z";
   const readTime = "12 min read";
   
   const blogPostSchema = SchemaGenerator.generateBlogPostSchema(

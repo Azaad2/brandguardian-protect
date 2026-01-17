@@ -32,8 +32,8 @@ const AmazonBrandRegistryBenefits = () => {
       "@type": "BlogPosting",
       "headline": "Amazon Brand Registry Benefits: Complete Protection Guide for Brands",
       "description": "Discover all Amazon Brand Registry benefits, eligibility requirements, and advanced protection tools. Complete guide for brands in 2025.",
-      "datePublished": "2025-05-24",
-      "dateModified": "2025-05-24",
+      "datePublished": "2025-01-05",
+      "dateModified": "2026-01-17",
       "author": {
         "@type": "Person",
         "name": "BndBox Team"
@@ -81,7 +81,8 @@ const AmazonBrandRegistryBenefits = () => {
             <div className="flex items-center gap-4 text-gray-600 mb-6">
               <span itemProp="author">BndBox Team</span>
               <span>•</span>
-              <time dateTime="2025-05-24" itemProp="datePublished">May 24, 2025</time>
+              <time dateTime="2025-01-05" itemProp="datePublished">January 5, 2025</time>
+              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Updated: January 17, 2026</span>
               <span>•</span>
               <span>16 min read</span>
             </div>

@@ -207,13 +207,21 @@ const EnhancedBlogPost: React.FC<BlogPostProps> = ({
             </Button>
           </div>
 
-          {modifiedDate && (
-            <p className="text-sm text-muted-foreground">
-              Last updated: 
-              <time dateTime={new Date(modifiedDate).toISOString()} itemProp="dateModified">
-                {new Date(modifiedDate).toLocaleDateString()}
+          {modifiedDate && modifiedDate !== publishedDate && (
+            <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-accent/50 rounded-md w-fit">
+              <span className="text-sm font-medium text-accent-foreground">✨ Updated:</span>
+              <time 
+                dateTime={new Date(modifiedDate).toISOString()} 
+                itemProp="dateModified"
+                className="text-sm font-semibold text-accent-foreground"
+              >
+                {new Date(modifiedDate).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
               </time>
-            </p>
+            </div>
           )}
         </header>
 

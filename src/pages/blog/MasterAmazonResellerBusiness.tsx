@@ -5,7 +5,7 @@ import BlogReturnLink from '@/components/navigation/BlogReturnLink';
 const MasterAmazonResellerBusiness = () => {
   const blogPostData = {
     title: "Master Your Amazon Reseller Business: Strategies for Profitability, Sourcing, and Growth",
-    excerpt: "Discover advanced strategies to maximize profitability, optimize sourcing, and scale your Amazon FBA reseller business with expert insights on inventory management, growth hacks, and essential tools for 2025.",
+    excerpt: "Discover advanced strategies to maximize profitability, optimize sourcing, and scale your Amazon FBA reseller business with expert insights on inventory management, growth hacks, and essential tools for 2025-2026.",
     content: `
       <div class="prose prose-lg max-w-none">
         <p class="lead text-xl text-gray-600 mb-8">
@@ -210,8 +210,8 @@ const MasterAmazonResellerBusiness = () => {
       </div>
     `,
     author: "BndBox Team",
-    publishedDate: "2025-01-28",
-    lastModified: "2025-01-28",
+    publishedDate: "January 8, 2025",
+    modifiedDate: "January 17, 2026",
     readTime: "12 min read",
     category: "Amazon FBA",
     tags: ["Amazon FBA", "Reseller", "Wholesale", "Business Growth", "Sourcing", "Inventory Management", "Profitability"],
