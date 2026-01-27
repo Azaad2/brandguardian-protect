@@ -17,13 +17,13 @@ const PartnerHub = () => {
   const [selectedType, setSelectedType] = useState<PartnerType | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
-  // Check for pre-selected type from URL params whenever URL changes
+  // Check for pre-selected type from URL params on initial load
   useEffect(() => {
     const typeParam = searchParams.get('type');
     if (typeParam && ['brand', 'retailer', 'distributor', 'wholesaler'].includes(typeParam)) {
       setSelectedType(typeParam as PartnerType);
     }
-  }, [searchParams]);
+  }, []);
 
   const handleSubmissionSuccess = (email: string) => {
     setSubmittedEmail(email);
