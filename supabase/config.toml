@@ -80,3 +80,9 @@ verify_jwt = false
 
 [functions.send-message-notification]
 verify_jwt = false
+
+[functions.daily-outreach-emails]
+verify_jwt = false
+
+[functions.outreach-unsubscribe]
+verify_jwt = false
