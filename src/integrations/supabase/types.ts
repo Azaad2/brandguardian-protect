@@ -219,6 +219,42 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_outreach_log: {
+        Row: {
+          audience_type: string
+          campaign_date: string
+          created_at: string
+          email: string
+          id: string
+          resend_id: string | null
+          sent_at: string
+          subject: string | null
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          audience_type: string
+          campaign_date?: string
+          created_at?: string
+          email: string
+          id?: string
+          resend_id?: string | null
+          sent_at?: string
+          subject?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          audience_type?: string
+          campaign_date?: string
+          created_at?: string
+          email?: string
+          id?: string
+          resend_id?: string | null
+          sent_at?: string
+          subject?: string | null
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       distributors: {
         Row: {
           address: string | null
