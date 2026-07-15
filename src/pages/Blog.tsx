@@ -13,6 +13,18 @@ import InternalLinks from "@/components/seo/InternalLinks";
 const Blog = () => {
   const blogPosts = [
     {
+      id: 0,
+      title: "How to Get Approved for Amazon FBA in 2026: A Real, Step-by-Step Guide",
+      excerpt: "A no-fluff walkthrough of what it actually takes to get approved for Amazon FBA in 2026 — from the paperwork Amazon quietly expects, to the verification calls, video interviews, and the small mistakes that get most new sellers rejected.",
+      date: "July 15, 2026",
+      author: "BndBox Team",
+      slug: "how-to-get-approved-for-amazon-fba-2026",
+      image: "photo-1556740738-b6a63e27c4df",
+      alt: "New Amazon FBA seller preparing documents for 2026 seller account approval and video verification",
+      readTime: "14 min read",
+      category: "Amazon FBA"
+    },
+    {
       id: 1,
       title: "How to Outreach 1000 Brands in 10 Minutes for Your Amazon Wholesale Business?",
       excerpt: "Discover how to revolutionize your Amazon wholesale business by outreaching to thousands of brands in minutes instead of weeks. Learn the automated approach that transforms manual brand applications into a streamlined, efficient process using BndBox.",
