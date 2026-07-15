@@ -20,3 +20,4 @@ export const LazyMasterAmazonResellerBusiness = lazy(() => import('@/pages/blog/
 export const LazyPreventUnauthorizedSellersAmazon = lazy(() => import('@/pages/blog/PreventUnauthorizedSellersAmazon'));
 export const LazyUnlockAmazonWholesaleSuccess = lazy(() => import('@/pages/blog/UnlockAmazonWholesaleSuccess'));
 export const LazyOutreachThousandBrandsAmazonWholesale = lazy(() => import('@/pages/blog/OutreachThousandBrandsAmazonWholesale'));
+export const LazyHowToGetApprovedAmazonFBA2026 = lazy(() => import('@/pages/blog/HowToGetApprovedAmazonFBA2026'));
