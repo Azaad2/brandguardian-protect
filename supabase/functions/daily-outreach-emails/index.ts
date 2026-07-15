@@ -60,10 +60,10 @@ Tone: professional, direct, growth-oriented. Do NOT include any link, button, or
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-3.5-flash",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: "You write concise, high-converting B2B outreach email bodies in clean HTML." },
           { role: "user", content: prompt },
