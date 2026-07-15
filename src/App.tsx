@@ -78,7 +78,8 @@ import {
   LazyMasterAmazonResellerBusiness,
   LazyPreventUnauthorizedSellersAmazon,
   LazyUnlockAmazonWholesaleSuccess,
-  LazyOutreachThousandBrandsAmazonWholesale
+  LazyOutreachThousandBrandsAmazonWholesale,
+  LazyHowToGetApprovedAmazonFBA2026
 } from '@/components/LazyComponents';
 import PartnerHub from '@/pages/PartnerHub';
 
