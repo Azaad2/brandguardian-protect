@@ -42,7 +42,7 @@ const EnhancedBlogPost: React.FC<BlogPostProps> = ({
 
   useEffect(() => {
     const startTime = Date.now();
-    let scrollTimer: NodeJS.Timeout;
+    let scrollTimer: ReturnType<typeof setTimeout>;
 
     const updateScrollProgress = () => {
       const scrolled = window.scrollY;

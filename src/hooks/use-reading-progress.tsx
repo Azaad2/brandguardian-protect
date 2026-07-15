@@ -20,8 +20,8 @@ export const useReadingProgress = (contentSelector: string = 'article') => {
   const [maxScroll, setMaxScroll] = useState(0);
 
   useEffect(() => {
-    let scrollTimer: NodeJS.Timeout;
-    let engagementTimer: NodeJS.Timeout;
+    let scrollTimer: ReturnType<typeof setTimeout>;
+    let engagementTimer: ReturnType<typeof setTimeout>;
 
     const calculateProgress = () => {
       const scrolled = window.scrollY;

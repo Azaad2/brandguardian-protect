@@ -25,17 +25,17 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({
     fade: {
       initial: { opacity: 0, y: 20 },
       animate: { opacity: 1, y: 0 },
-      transition: { duration, delay, ease: "easeOut" }
+      transition: { duration, delay, ease: "easeOut" as const }
     },
     slide: {
       initial: { opacity: 0, x: -30 },
       animate: { opacity: 1, x: 0 },
-      transition: { duration, delay, ease: "easeOut" }
+      transition: { duration, delay, ease: "easeOut" as const }
     },
     typewriter: {
       initial: { width: 0 },
       animate: { width: "auto" },
-      transition: { duration: duration * 2, delay, ease: "linear" }
+      transition: { duration: duration * 2, delay, ease: "linear" as const }
     },
     gradient: {
       initial: { 
@@ -48,7 +48,7 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({
         y: 0,
         backgroundPosition: "0% center"
       },
-      transition: { duration, delay, ease: "easeOut" }
+      transition: { duration, delay, ease: "easeOut" as const }
     }
   };
 
