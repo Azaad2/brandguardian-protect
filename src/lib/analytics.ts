@@ -8,7 +8,7 @@ export const initializeAnalytics = () => {
       siteSpeedSampleRate: 100, // Measure site speed for 100% of users
     },
     // Configuration for improved SEO tracking
-    testMode: process.env.NODE_ENV !== 'production',
+    testMode: import.meta.env.MODE !== 'production',
   });
 };
 

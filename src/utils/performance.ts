@@ -88,7 +88,7 @@ export const checkPerformanceBudget = () => {
     };
 
     // Log budget violations in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.group('Performance Budget Check');
       console.log('Metrics:', metrics);
       console.groupEnd();
@@ -101,7 +101,7 @@ export const checkPerformanceBudget = () => {
 
 // Service Worker registration for caching
 export const registerServiceWorker = async () => {
-  if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('Service Worker registered:', registration);

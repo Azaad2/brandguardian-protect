@@ -111,7 +111,7 @@ idleCallback(() => {
   preloadCriticalResources();
   
   // Check performance budget in development
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     setTimeout(checkPerformanceBudget, 2000);
   }
   

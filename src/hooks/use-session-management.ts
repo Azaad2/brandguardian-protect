@@ -5,8 +5,8 @@ import { UserRole } from '@/types/auth';
 
 export const useSessionManagement = (userRole: UserRole | null) => {
   useEffect(() => {
-    let inactivityTimer: NodeJS.Timeout;
-    let warningTimer: NodeJS.Timeout;
+    let inactivityTimer: ReturnType<typeof setTimeout>;
+    let warningTimer: ReturnType<typeof setTimeout>;
     
     // Auto logout after 3.5 hours of inactivity
     const INACTIVITY_TIMEOUT = 3.5 * 60 * 60 * 1000; // 3.5 hours
