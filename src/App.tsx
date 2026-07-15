@@ -143,6 +143,7 @@ const AppContent = () => {
           {/* Blog routes with lazy loading */}
           <Route path="/blog/amazon-wholesale-vs-private-label" element={<LazyAmazonWholesaleVsPrivateLabel />} />
           <Route path="/blog/how-to-get-ungated-any-brand-amazon-2025-ultimate-guide" element={<LazyHowToGetUngatedAnyBrandAmazon2025 />} />
+          <Route path="/blog/how-to-get-approved-for-amazon-fba-2026" element={<LazyHowToGetApprovedAmazonFBA2026 />} />
           <Route path="/blog/master-amazon-reseller-business-strategies-profitability-sourcing-growth" element={<LazyMasterAmazonResellerBusiness />} />
           <Route path="/blog/unlock-amazon-wholesale-success-bndbox-brand-approvals" element={<LazyUnlockAmazonWholesaleSuccess />} />
           <Route path="/blog/enforce-map-policy-prevent-unauthorized-sellers" element={<LazyEnforceMAPPolicyPreventUnauthorizedSellers />} />
