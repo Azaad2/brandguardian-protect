@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { usePerformanceMonitoring } from '@/hooks/use-performance';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { useVisitTracker } from '@/hooks/useVisitTracker';
 
 
 // Core pages (only import essential landing pages directly)
@@ -105,6 +106,7 @@ const AdminDashboardRedirect = () => {
 const AppContent = () => {
   useAnalytics();
   usePerformanceMonitoring();
+  useVisitTracker();
   
   return (
     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>

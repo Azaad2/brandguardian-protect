@@ -508,6 +508,39 @@ export type Database = {
         }
         Relationships: []
       }
+      lifecycle_email_log: {
+        Row: {
+          email: string
+          id: string
+          journey: string
+          resend_id: string | null
+          sent_at: string
+          stage: string
+          subject: string | null
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          journey: string
+          resend_id?: string | null
+          sent_at?: string
+          stage: string
+          subject?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          journey?: string
+          resend_id?: string | null
+          sent_at?: string
+          stage?: string
+          subject?: string | null
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           brand_application_id: string | null
@@ -1081,6 +1114,33 @@ export type Database = {
           subscription_end?: string | null
           subscription_tier?: string | null
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_activity: {
+        Row: {
+          email: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          occurred_at: string
+          user_id: string | null
+        }
+        Insert: {
+          email?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          email?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          occurred_at?: string
           user_id?: string | null
         }
         Relationships: []
