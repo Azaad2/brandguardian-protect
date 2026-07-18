@@ -86,3 +86,12 @@ verify_jwt = false
 
 [functions.outreach-unsubscribe]
 verify_jwt = false
+
+[functions.track-visit]
+verify_jwt = false
+
+[functions.record-lifecycle-event]
+verify_jwt = false
+
+[functions.lifecycle-emails]
+verify_jwt = false
