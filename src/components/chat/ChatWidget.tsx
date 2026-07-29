@@ -207,9 +207,8 @@ const ChatWidget = () => {
               ) : (
                 messages.map((message) => (
                   <Message from={message.role} key={message.id}>
-                    <MessageContent
-                      variant={message.role === "user" ? "contained" : "flat"}
-                    >
+                    <MessageContent>
+
                       {message.parts.map((part, i) => {
                         if (part.type === "text") {
                           return (
