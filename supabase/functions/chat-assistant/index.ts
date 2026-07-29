@@ -229,7 +229,7 @@ Deno.serve(async (req) => {
     const result = streamText({
       model: lovable.responses("openai/gpt-5.6-sol"),
       system: CHAT_SYSTEM_PROMPT,
-      messages: convertToModelMessages(messages),
+      messages: await convertToModelMessages(messages),
       tools,
       stopWhen: stepCountIs(50),
       providerOptions: {
