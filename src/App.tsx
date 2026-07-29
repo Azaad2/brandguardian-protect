@@ -232,7 +232,9 @@ const AppContent = () => {
           {/* 404 route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <ChatWidget />
       </>
+
     </Suspense>
   );
 };
