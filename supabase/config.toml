@@ -95,3 +95,5 @@ verify_jwt = false
 
 [functions.lifecycle-emails]
 verify_jwt = false
+[functions.chat-assistant]
+verify_jwt = false
