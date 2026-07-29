@@ -8,6 +8,8 @@ import { Toaster as Sonner } from '@/components/ui/sonner';
 import { usePerformanceMonitoring } from '@/hooks/use-performance';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useVisitTracker } from '@/hooks/useVisitTracker';
+import ChatWidget from '@/components/chat/ChatWidget';
+
 
 
 // Core pages (only import essential landing pages directly)
