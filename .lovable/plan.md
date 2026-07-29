@@ -1,85 +1,78 @@
-# Lifecycle & Operational Emails
+## BndBox AI Chat Assistant (floating popup)
 
-Build a lifecycle email engine on top of the existing daily-outreach infrastructure (Resend + Lovable AI + `pg_cron`) that guides every known contact to the next step in their BndBox journey.
+A Lusha-style chat bubble in the bottom-right of every public page. Visitors open it and ask anything about BndBox — how reseller approvals work, what brands are available, pricing, who can join, how to apply — and get answers from an AI assistant that knows the product and can look up real data.
 
-## Audiences & journeys
+### What the visitor sees
 
-1. **Resellers — signed up, not subscribed** → push to pick a plan.
-2. **Resellers — subscribed but inactive** → surface new brands + pending application actions.
-3. **Brand / Distributor Partner Hub applicants** → activation nudges (complete profile, verify, first login).
-4. **Returning visitors (known email)** → warm re-engagement within hours of the return.
+```text
+                          ┌──────────────────────────┐
+                          │  BndBox Assistant     ✕  │
+                          ├──────────────────────────┤
+                          │  Hi 👋 Ask me anything   │
+                          │  about wholesale on      │
+                          │  BndBox.                 │
+                          │                          │
+                          │  [How do I get ungated?] │
+                          │  [Which brands?        ] │
+                          │  [Pricing             ]  │
+                          ├──────────────────────────┤
+                          │ Ask a question…      [→] │
+                          │ Talk to a human          │
+                          └──────────────────────────┘
+                                        ( 💬 )
+```
 
-## Triggers
+- Floating launcher button, unread-style pulse on first visit.
+- One ongoing conversation per visitor (no thread list), with a "New conversation" reset.
+- Suggested starter questions on the empty state.
+- Streaming replies with a "Thinking…" shimmer, markdown rendering.
+- "Talk to a human" opens a compact name/email/message form that files into your existing contact/lead flow.
 
-- **Dormant timers** at 7 / 14 / 30 days of inactivity (per audience, different message each stage).
-- **Step-completion nudges** fired when a user finishes an action (signup, application submitted, first brand applied to, checkout started) → email describes the immediate next step.
-- **Return-visit re-engagement** fired when a known email/user is seen on the site again after ≥3 days away.
+### What the assistant knows
 
-## Content per email
+1. **Knowledge base (system prompt)** — hand-written, covering: what BndBox is; the three portals (Brand, Reseller, Admin); how reseller approval and brand applications work; Amazon/Walmart/eBay requirements (LLC, EIN, resale certificate, invoices for ungating); Partner Hub for brands/distributors/wholesalers/retailers; subscription tiers; support and contact info; the NJ, United States office.
+2. **Live data tools** — the assistant can call:
+  - `search_brands` — looks up `brands_directory` by name/category/department, returns names, categories, approval rate, response time.
+  - `count_brands` — total active brands, and counts per category, for "how many brands do you have" questions.
+  - `search_distributors` — verified distributors by category/region from `distributors`.
+  - `capture_lead` — when the visitor shares an email, saves it so you can follow up.
+   Tools only expose public, non-sensitive fields (never contact emails of brands).
+3. **Escalation** — if it can't answer, it offers the human handoff instead of guessing.
 
-- **New brands added since last email** (from `brands_directory.created_at`, filtered to the reseller's allocations when applicable).
-- **Their pending applications / next best step** (from `brand_applications` + subscription state).
-- **AI-generated industry insight** (Lovable AI Gateway, same pattern as `daily-outreach-emails`, one generation per audience per day to keep costs low).
-- Every email ends with a single, audience-specific CTA + unsubscribe link (reuses `outreach-unsubscribe`).
+### Conversation storage
 
-## Data model
+Stored in the database so you can read what visitors ask.
 
-New tables (migration):
+- New table `chat_conversations`: visitor id (anonymous cookie), optional `user_id`, optional captured email/name, page the chat started on, timestamps.
+- New table `chat_messages`: conversation id, role, message parts (JSON), created_at.
+- Anonymous visitors get a long-lived `bndbox_chat_id` cookie so their one conversation restores on return.
+- Access rules: visitors can read/write only their own conversation (matched by visitor id passed to the edge function, which does the writing with service role); admins can read all. Nothing is publicly listable.
+- An admin view under Admin → "Chat Conversations" so you can browse transcripts and captured leads.
 
-- `user_activity` — `user_id uuid null, email text, event_type text, occurred_at timestamptz default now(), metadata jsonb`. Indexed on `(email, occurred_at desc)`. Captures: `login`, `page_view`, `application_submitted`, `checkout_started`, `subscription_activated`, `return_visit`.
-- `lifecycle_email_log` — `email text, journey text, stage text, sent_at timestamptz, resend_id text, unsubscribed_at timestamptz`. Unique on `(email, journey, stage)` so each stage fires at most once; global 3-day cooldown per email across all journeys.
+### Backend
 
-Standard `GRANT` block (service_role full, authenticated read-own for `user_activity`), RLS on both, no anon.
+- New Supabase edge function `chat-assistant`:
+  - Validates input, loads the conversation, runs the AI SDK with the system prompt + tools, streams the response back.
+  - Persists the user message and the completed assistant message.
+  - Surfaces rate-limit (429) and credit (402) errors as readable messages in the widget.
+- Uses Lovable AI Gateway with `openai/gpt-5.6-sol` via the Responses API, streaming.
+- Requires the `LOVABLE_API_KEY` secret — I'll provision it if missing.
 
-## Tracking return visits
+### Technical notes
 
-- Small client hook `useVisitTracker` posts to a new edge function `track-visit` on:
-  - authenticated app load (uses `auth.uid()` + email),
-  - anonymous load when an `bndbox_email` cookie exists (set when a known email submits any form — Partner Hub, lead magnet, contact, login).
-- `track-visit` inserts a `page_view` row and, if the last prior activity was ≥3 days ago, also inserts a `return_visit` row that the lifecycle engine picks up.
+- UI built from AI Elements primitives (`conversation`, `message`, `prompt-input`, `shimmer`, `tool`) installed into `src/components/ai-elements/`, wrapped in a `ChatWidget` mounted once in `App.tsx` so it appears on all public pages (hidden inside the dashboards).
+- Tool activity renders as a collapsed, domain-styled card ("Searched 1,240 brands").
+- Styling uses existing semantic tokens; assistant messages unstyled on surface, user messages in `primary`/`primary-foreground`.
+- Widget is lazy-loaded so it doesn't affect landing-page LCP or SEO.
+- The agent identity uses the existing BndBox logo mark, not a generic sparkle icon.
 
-## Sending engine
+### Build order
 
-New edge function `lifecycle-emails` (scheduled + on-demand):
-
-1. Pulls candidates for each journey/stage by joining `profiles` / `partner_applications` / `reseller_applications` / `brand_applications` / `subscribers` against `user_activity` and `lifecycle_email_log`.
-2. Generates the AI insight block per audience once per run (cached in memory).
-3. Renders one of 4 templates in `supabase/functions/_shared/email-templates/lifecycle-*.ts`:
-   - `lifecycle-reseller-activation.ts` (not subscribed)
-   - `lifecycle-reseller-winback.ts` (subscribed, inactive)
-   - `lifecycle-partner-activation.ts` (brand/distributor applicant)
-   - `lifecycle-return-visit.ts` (any known email who just came back)
-4. Sends via Resend (`noreply@bndbox.com`), logs to `lifecycle_email_log`, respects `outreach-unsubscribe` blocks.
-5. Hard cap: 100 lifecycle sends per run, 3-day per-recipient cooldown across all lifecycle journeys.
-
-## Scheduling
-
-`pg_cron` jobs (via `supabase--insert`, following the pattern already in the project):
-
-- `lifecycle-emails-hourly` — every hour, processes return-visit journey (needs to react fast).
-- `lifecycle-emails-daily` — 15:00 UTC, processes dormant + step-completion journeys.
-
-## Step-completion nudges
-
-Instead of DB triggers, existing edge functions that already fire on those events (e.g. Partner Hub submit, subscription checkout start, brand application submit) get a single added call to a new lightweight edge function `record-lifecycle-event` that writes to `user_activity`. The hourly cron then picks up any qualifying rows and sends the correct next-step email.
-
-## Admin
-
-- Add a "Lifecycle Emails" tab to the existing admin `EmailPreview` page to preview each of the 4 templates with sample data.
-- Add a small stats card: sends today / opens (from `email_routing_logs` if webhooked) / unsubscribes.
-
-## Out of scope
-
-- No changes to the existing `daily-outreach-emails` job — it keeps running independently for cold outreach.
-- No new payment logic.
-- No new marketing/newsletter list — this is transactional lifecycle only.
-
-## Files to add/change
-
-- Migration: `user_activity`, `lifecycle_email_log`, indexes, GRANTs, RLS.
-- Edge functions: `lifecycle-emails/`, `track-visit/`, `record-lifecycle-event/`.
-- Templates: `supabase/functions/_shared/email-templates/lifecycle-*.ts` (4 files).
-- Frontend: `src/hooks/useVisitTracker.ts`, mounted once in `App.tsx`; small cookie helper in `src/utils/`.
-- Hooks into existing submit flows: Partner Hub submission, reseller signup, subscription checkout, brand application submit → call `record-lifecycle-event`.
-- Admin preview additions in `src/pages/admin/EmailPreview.tsx`.
-- `pg_cron` schedule via `supabase--insert`.
+1. Migration: `chat_conversations` + `chat_messages` with grants and RLS.
+2. Edge function `chat-assistant` with knowledge base + tools.
+3. AI Elements install and `ChatWidget` UI + launcher.
+4. Human-handoff form wired to the existing contact/lead flow.
+5. Admin transcripts page.
+6. End-to-end check in the preview: ask a knowledge question, a brand-lookup question, reload to confirm the conversation restores.  
+  
+My indication: I want AI to answers ussers query rather than directly reaching to human being, yes if required whhen AI reach out of its knowledge. AI must know each and every detail of BNDBOX to answer any related to its own
