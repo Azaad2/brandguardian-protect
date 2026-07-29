@@ -219,6 +219,77 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          started_path: string | null
+          updated_at: string
+          user_id: string | null
+          visitor_email: string | null
+          visitor_id: string
+          visitor_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          started_path?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visitor_email?: string | null
+          visitor_id: string
+          visitor_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          started_path?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visitor_email?: string | null
+          visitor_id?: string
+          visitor_name?: string | null
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          parts: Json
+          role: string
+          text_content: string | null
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          parts?: Json
+          role: string
+          text_content?: string | null
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          parts?: Json
+          role?: string
+          text_content?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_outreach_log: {
         Row: {
           audience_type: string
