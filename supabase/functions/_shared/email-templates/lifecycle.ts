@@ -74,7 +74,7 @@ export function resellerWinbackEmail(name: string, stage: string, insightHtml: s
     preheader: "New brands, pending replies, and next steps inside",
     heading, bodyHtml: body,
     ctaLabel: "Open my dashboard",
-    ctaUrl: `${APP}/reseller-hub`,
+    ctaUrl: `${APP}/reseller/dashboard`,
     unsubUrl,
     footerNote: `Stage: ${stage}`,
   });
