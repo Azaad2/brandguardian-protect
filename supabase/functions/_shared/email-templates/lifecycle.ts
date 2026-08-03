@@ -58,7 +58,7 @@ export function resellerActivationEmail(name: string, stage: string, insightHtml
     preheader: "Pick a plan and start applying to brands today",
     heading, bodyHtml: body,
     ctaLabel: "Choose your plan",
-    ctaUrl: `${APP}/reseller-hub/subscription`,
+    ctaUrl: `${APP}/reseller/dashboard/subscription`,
     unsubUrl,
   });
 }
@@ -74,7 +74,7 @@ export function resellerWinbackEmail(name: string, stage: string, insightHtml: s
     preheader: "New brands, pending replies, and next steps inside",
     heading, bodyHtml: body,
     ctaLabel: "Open my dashboard",
-    ctaUrl: `${APP}/reseller-hub`,
+    ctaUrl: `${APP}/reseller/dashboard`,
     unsubUrl,
     footerNote: `Stage: ${stage}`,
   });
