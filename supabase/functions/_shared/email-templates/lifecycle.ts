@@ -58,7 +58,7 @@ export function resellerActivationEmail(name: string, stage: string, insightHtml
     preheader: "Pick a plan and start applying to brands today",
     heading, bodyHtml: body,
     ctaLabel: "Choose your plan",
-    ctaUrl: `${APP}/reseller-hub/subscription`,
+    ctaUrl: `${APP}/reseller/dashboard/subscription`,
     unsubUrl,
   });
 }
