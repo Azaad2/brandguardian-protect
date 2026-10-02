@@ -4,7 +4,7 @@ import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
 import { useEffect, useState } from 'react';
 import { usePublicAuth } from '@/hooks/use-public-auth';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { HelpCircle } from 'lucide-react';
@@ -13,15 +13,16 @@ import { AccountRecoveryDialog } from '@/components/auth/AccountRecoveryDialog';
 const ResellerLogin = () => {
   const { user, isLoading } = usePublicAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   
   // Redirect if already authenticated
   useEffect(() => {
     if (!isLoading && user) {
-      // Redirect authenticated resellers to their dashboard
-      navigate('/reseller/dashboard');
+      const destination = location.state?.from;
+      navigate(destination?.pathname ? `${destination.pathname}${destination.search || ''}${destination.hash || ''}` : '/reseller/dashboard');
     }
-  }, [user, navigate, isLoading]);
+  }, [user, navigate, isLoading, location.state]);
 
   return (
     <>

@@ -105,6 +105,14 @@ const AdminDashboardRedirect = () => {
   return <Navigate to={target} replace />;
 };
 
+// Keep links from older reseller emails and dashboard releases working.
+const ResellerPortalRedirect = () => {
+  const location = useLocation();
+  const suffix = location.pathname.replace(/^\/reseller-portal/, '');
+  const target = `/reseller/dashboard${suffix}` + (location.search || '') + (location.hash || '');
+  return <Navigate to={target} replace />;
+};
+
 const AppContent = () => {
   useAnalytics();
   usePerformanceMonitoring();
@@ -141,6 +149,7 @@ const AppContent = () => {
           <Route path="/brand/signup" element={<AuthProvider><BrandSignup /></AuthProvider>} />
           <Route path="/reseller/login" element={<AuthProvider><ResellerLogin /></AuthProvider>} />
           <Route path="/reseller/signup" element={<AuthProvider><ResellerSignup /></AuthProvider>} />
+          <Route path="/reseller/subscription" element={<Navigate to="/reseller/dashboard/subscription" replace />} />
           <Route path="/reset-password" element={<AuthProvider><PasswordReset /></AuthProvider>} />
           <Route path="/reset-password/confirm" element={<AuthProvider><PasswordResetConfirm /></AuthProvider>} />
           
@@ -210,6 +219,8 @@ const AppContent = () => {
           {/* Public portal routes */}
           <Route path="/brand" element={<BrandPortal />} />
           <Route path="/reseller" element={<ResellerPortal />} />
+          <Route path="/reseller-portal" element={<Navigate to="/reseller/dashboard" replace />} />
+          <Route path="/reseller-portal/*" element={<ResellerPortalRedirect />} />
           
           {/* Protected admin routes */}
           <Route path="/admin/users" element={
