@@ -73,9 +73,9 @@ const LoginForm = ({ userRole }: LoginFormProps) => {
 
       // Navigate based on intended destination or user role after successful login
       setTimeout(() => {
-        const from = location.state?.from?.pathname;
-        if (from && from !== '/') {
-          navigate(from);
+        const from = location.state?.from;
+        if (from?.pathname && from.pathname !== '/') {
+          navigate(`${from.pathname}${from.search || ''}${from.hash || ''}`);
         } else if (userRole === 'admin') {
           navigate('/admin/dashboard');
         } else if (userRole === 'brand') {

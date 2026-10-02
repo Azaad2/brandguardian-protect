@@ -30,7 +30,7 @@ export const GettingStartedChecklist = () => {
       title: 'Browse Available Brands',
       description: 'Explore our directory of wholesale suppliers',
       completed: hasAppliedToBrand,
-      action: () => navigate('/reseller-portal/brands'),
+      action: () => navigate('/reseller/dashboard/brands'),
       actionLabel: 'Browse Brands',
     },
     {
@@ -38,7 +38,7 @@ export const GettingStartedChecklist = () => {
       title: 'Apply to Your First Brand',
       description: 'Submit an application to start a partnership',
       completed: hasAppliedToBrand,
-      action: () => navigate('/reseller-portal/brands'),
+      action: () => navigate('/reseller/dashboard/brands'),
       actionLabel: 'Apply Now',
     },
     {
@@ -46,7 +46,7 @@ export const GettingStartedChecklist = () => {
       title: 'Upgrade to Premium (Optional)',
       description: 'Unlock advanced features and priority support',
       completed: hasUpgraded,
-      action: () => navigate('/reseller-portal/subscription'),
+      action: () => navigate('/reseller/dashboard/subscription'),
       actionLabel: 'View Plans',
       icon: Crown,
     },

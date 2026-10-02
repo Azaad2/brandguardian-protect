@@ -82,7 +82,7 @@ recommend best-fit partnerships. It also flags potential MAP and policy violatio
   - **Enterprise — custom pricing**: white-label solution, API access, custom integrations,
     dedicated support team, custom branding, advanced automation.
   Paid plans also raise the brand-application limit. Payments are processed securely; billing is
-  monthly and can be cancelled from the subscription page (/reseller/subscription).
+  monthly and can be cancelled from the subscription page (/reseller/dashboard/subscription).
 - Brands and distributors: subscription based on active partnerships and features needed —
   contact the team for a quote. Applying at the Partner Hub is free.
 
