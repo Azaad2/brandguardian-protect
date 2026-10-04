@@ -21,3 +21,4 @@ export const LazyPreventUnauthorizedSellersAmazon = lazy(() => import('@/pages/b
 export const LazyUnlockAmazonWholesaleSuccess = lazy(() => import('@/pages/blog/UnlockAmazonWholesaleSuccess'));
 export const LazyOutreachThousandBrandsAmazonWholesale = lazy(() => import('@/pages/blog/OutreachThousandBrandsAmazonWholesale'));
 export const LazyHowToGetApprovedAmazonFBA2026 = lazy(() => import('@/pages/blog/HowToGetApprovedAmazonFBA2026'));
+export const LazyDynamicBlogPost = lazy(() => import('@/pages/blog/DynamicBlogPost'));

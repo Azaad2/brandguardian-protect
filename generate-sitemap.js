@@ -146,12 +146,12 @@ const routes = [
   }
 ];
 
-function generateSitemap() {
+function generateSitemap(dynamicRoutes = []) {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
   xml += '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n\n';
 
-  routes.forEach(route => {
+  [...routes, ...dynamicRoutes].forEach(route => {
     xml += '  <url>\n';
     xml += `    <loc>${baseUrl}${route.path}</loc>\n`;
     xml += `    <lastmod>${route.lastmod}</lastmod>\n`;
@@ -172,6 +172,25 @@ function generateSitemap() {
   return xml;
 }
 
+async function loadPublishedBlogRoutes() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) return [];
+
+  const response = await fetch(`${url}/rest/v1/blog_posts?select=slug,updated_at&status=eq.published&published_at=lte.${encodeURIComponent(new Date().toISOString())}&order=published_at.desc`, {
+    headers: { apikey: key, Authorization: `Bearer ${key}` }
+  });
+  if (!response.ok) throw new Error(`Blog sitemap request returned ${response.status}`);
+  const posts = await response.json();
+  return posts.map(post => ({
+    path: `/blog/${post.slug}`,
+    changefreq: 'monthly',
+    priority: 0.7,
+    lastmod: post.updated_at.split('T')[0]
+  }));
+}
+
+async function main() {
 try {
   const publicDir = path.join(__dirname, 'public');
   
@@ -181,14 +200,18 @@ try {
   }
   
   const sitemapPath = path.join(publicDir, 'sitemap.xml');
-  const sitemap = generateSitemap();
+  const dynamicRoutes = await loadPublishedBlogRoutes();
+  const sitemap = generateSitemap(dynamicRoutes);
   
   fs.writeFileSync(sitemapPath, sitemap, 'utf8');
   console.log('✅ Sitemap generated successfully at public/sitemap.xml');
-  console.log(`📊 Total URLs: ${routes.length}`);
+  console.log(`📊 Total URLs: ${routes.length + dynamicRoutes.length}`);
   console.log(`📅 Generated on: ${currentDate}`);
 } catch (error) {
   console.warn('⚠️  Sitemap generation failed:', error.message);
   console.log('Build will continue with existing sitemap...');
   process.exit(0); // Exit successfully to not block build
 }
+}
+
+main();

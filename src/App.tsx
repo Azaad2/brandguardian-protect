@@ -82,7 +82,8 @@ import {
   LazyPreventUnauthorizedSellersAmazon,
   LazyUnlockAmazonWholesaleSuccess,
   LazyOutreachThousandBrandsAmazonWholesale,
-  LazyHowToGetApprovedAmazonFBA2026
+  LazyHowToGetApprovedAmazonFBA2026,
+  LazyDynamicBlogPost
 } from '@/components/LazyComponents';
 import PartnerHub from '@/pages/PartnerHub';
 
@@ -164,6 +165,7 @@ const AppContent = () => {
           <Route path="/blog/identify-remove-counterfeit-products" element={<LazyIdentifyRemoveCounterfeitProducts />} />
           <Route path="/blog/amazon-brand-registry-benefits" element={<LazyAmazonBrandRegistryBenefits />} />
           <Route path="/blog/outreach-thousand-brands-amazon-wholesale" element={<LazyOutreachThousandBrandsAmazonWholesale />} />
+          <Route path="/blog/:slug" element={<LazyDynamicBlogPost />} />
           
           {/* Protected dashboard routes with nested routing */}
           <Route path="/admin/dashboard" element={
