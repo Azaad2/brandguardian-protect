@@ -68,6 +68,7 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
   let lockToken: string | null = null;
   let runId: string | null = null;
+  let generationRunId: string | null = null;
   let topic: Topic | null = null;
 
   try {
@@ -77,6 +78,18 @@ Deno.serve(async (req) => {
     if (!lockToken) return json({ status: "skipped", reason: "Job is paused, disabled, or already running." });
 
     const today = new Date().toISOString().slice(0, 10);
+    const { data: existingRun } = await supabase
+      .from("blog_generation_runs")
+      .select("id, status")
+      .eq("run_date", today)
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existingRun) {
+      await supabase.rpc("release_daily_blog_publisher", { _lock_token: lockToken, _advance_audience: false });
+      return json({ status: "skipped", reason: `Today's run is already ${existingRun.status}.` });
+    }
+
     const { data: existingPost } = await supabase
       .from("blog_posts")
       .select("id, slug")
@@ -146,6 +159,7 @@ Deno.serve(async (req) => {
       .select("id")
       .single();
     if (runError) throw runError;
+    generationRunId = run.id;
 
     const runIdFetch = createLovableAiGatewayRunIdFetch();
     const lovable = createOpenAI({
@@ -161,7 +175,7 @@ Deno.serve(async (req) => {
     const result = streamText({
       model: lovable.responses("openai/gpt-6-astra"),
       output: Output.object({ schema: ArticleSchema, name: "bndbox_blog_article" }),
-      maxRetries: 0,
+      maxRetries: 2,
       system: `You are the senior editor for BndBox, a B2B marketplace connecting brands, distributors, wholesalers, retailers, and resellers. Write practical, accurate, human-sounding articles in plain English. Never invent statistics, quotes, laws, platform policies, or BndBox capabilities. Avoid hype, filler, and robotic phrases. Explain unfamiliar terms. Use short paragraphs and useful examples. The article must be evergreen unless the topic explicitly requires a year.`,
       prompt: `Write one complete article for a ${topic.audience} reader.
 
@@ -216,7 +230,7 @@ Requirements:
         error_message: reason,
         gateway_run_id: runId,
         completed_at: new Date().toISOString(),
-      }).eq("id", run.id);
+      }).eq("id", generationRunId);
       await supabase.rpc("release_daily_blog_publisher", { _lock_token: lockToken, _advance_audience: false });
       return json({ status: "rejected", reason }, 422);
     }
@@ -249,7 +263,7 @@ Requirements:
       post_id: post.id,
       gateway_run_id: runId,
       completed_at: new Date().toISOString(),
-    }).eq("id", run.id);
+    }).eq("id", generationRunId);
     await supabase.rpc("release_daily_blog_publisher", { _lock_token: lockToken, _advance_audience: true });
     return json({ status: "published", slug: post.slug, qualityScore: validation.score });
   } catch (error) {
@@ -261,15 +275,19 @@ Requirements:
     const status = terminal ? "denied" : rateLimited ? "paused" : "failed";
 
     if (topic) await supabase.from("blog_topic_queue").update({ status: "queued", selected_at: null }).eq("id", topic.id);
-    await supabase.from("blog_generation_runs").insert({
-      run_date: today,
+    const failedRun = {
       status,
       topic_id: topic?.id ?? null,
       audience: topic?.audience ?? null,
       error_message: details.message,
       gateway_run_id: runId,
       completed_at: new Date().toISOString(),
-    });
+    };
+    if (generationRunId) {
+      await supabase.from("blog_generation_runs").update(failedRun).eq("id", generationRunId);
+    } else {
+      await supabase.from("blog_generation_runs").insert({ run_date: today, ...failedRun });
+    }
     if (terminal || rateLimited) {
       await supabase.from("blog_automation_state").update({ paused_reason: details.message }).eq("job_name", "daily-blog-publisher");
     }

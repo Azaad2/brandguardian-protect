@@ -241,7 +241,7 @@ const Blog = () => {
         },
         "image": {
           "@type": "ImageObject",
-          "url": `https://images.unsplash.com/${post.image}?w=800&auto=format`,
+            "url": post.imageUrl || `https://images.unsplash.com/${post.image}?w=800&auto=format`,
           "height": 800,
           "width": 1200
         },
