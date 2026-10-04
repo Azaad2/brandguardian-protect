@@ -97,3 +97,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.chat-assistant]
 verify_jwt = false
+
+[functions.daily-blog-publisher]
+verify_jwt = false
