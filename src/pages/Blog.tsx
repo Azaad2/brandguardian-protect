@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BreadcrumbNav from "@/components/navigation/BreadcrumbNav";
@@ -9,9 +9,12 @@ import { SchemaGenerator } from "@/components/seo/SchemaGenerator";
 import { Badge } from "@/components/ui/badge";
 import { Clock, TrendingUp, Calendar } from "lucide-react";
 import InternalLinks from "@/components/seo/InternalLinks";
+import { getPublishedBlogPosts } from "@/lib/blog";
+import type { DynamicBlogSummary } from "@/types/blog";
 
 const Blog = () => {
-  const blogPosts = [
+  const [generatedPosts, setGeneratedPosts] = useState<DynamicBlogSummary[]>([]);
+  const staticBlogPosts = [
     {
       id: 0,
       title: "How to Get Approved for Amazon FBA in 2026: A Real, Step-by-Step Guide",
@@ -144,6 +147,36 @@ const Blog = () => {
       readTime: "12 min read",
       category: "Wholesale Success"
     },
+  ];
+
+  useEffect(() => {
+    let active = true;
+    getPublishedBlogPosts().then((posts) => {
+      if (active) setGeneratedPosts(posts);
+    }).catch(() => {
+      // Keep the hand-written article library available if the live feed is unavailable.
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const generatedSlugs = new Set(generatedPosts.map((post) => post.slug));
+  const blogPosts = [
+    ...generatedPosts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      excerpt: post.excerpt,
+      date: new Date(post.published_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+      author: post.author,
+      slug: post.slug,
+      image: "",
+      imageUrl: post.image_url,
+      alt: post.image_alt,
+      readTime: post.read_time,
+      category: post.category,
+    })),
+    ...staticBlogPosts.filter((post) => !generatedSlugs.has(post.slug)).map((post) => ({ ...post, imageUrl: "" })),
   ];
 
   // Track page view with enhanced analytics and Core Web Vitals
@@ -286,7 +319,7 @@ const Blog = () => {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span className="text-sm font-medium">Updated Weekly</span>
+              <span className="text-sm font-medium">Updated Daily</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
@@ -329,7 +362,7 @@ const Blog = () => {
                 </div>
                 <div className="aspect-video lg:aspect-square overflow-hidden rounded-lg">
                   <img
-                    src={`https://images.unsplash.com/${blogPosts[0].image}?w=400&h=400&auto=format`}
+                    src={blogPosts[0].imageUrl || `https://images.unsplash.com/${blogPosts[0].image}?w=400&h=400&auto=format`}
                     alt={blogPosts[0].alt}
                     className="w-full h-full object-cover"
                     loading="eager"
@@ -349,7 +382,7 @@ const Blog = () => {
             <article key={post.id} className="group border rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1" itemScope itemType="https://schema.org/BlogPosting">
               <div className="aspect-video bg-gray-100 overflow-hidden">
                 <img 
-                  src={`https://images.unsplash.com/${post.image}?w=600&h=400&auto=format`}
+                  src={post.imageUrl || `https://images.unsplash.com/${post.image}?w=600&h=400&auto=format`}
                   alt={post.alt}
                   loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
