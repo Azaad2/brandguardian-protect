@@ -105,15 +105,12 @@ const EnhancedBlogPost: React.FC<BlogPostProps> = ({
   };
 
   const generateTOC = () => {
-    // Extract headings from content (this would be more sophisticated in real implementation)
-    const headings = [
-      { id: 'introduction', title: 'Introduction', level: 1 },
-      { id: 'key-strategies', title: 'Key Strategies', level: 1 },
-      { id: 'implementation', title: 'Implementation Guide', level: 1 },
-      { id: 'best-practices', title: 'Best Practices', level: 1 },
-      { id: 'conclusion', title: 'Conclusion', level: 1 }
-    ];
-    return headings;
+    const document = new DOMParser().parseFromString(content, 'text/html');
+    return Array.from(document.querySelectorAll('h2, h3')).map((heading, index) => ({
+      id: heading.id || `article-section-${index + 1}`,
+      title: heading.textContent?.trim() || `Section ${index + 1}`,
+      level: heading.tagName === 'H2' ? 1 : 2,
+    }));
   };
 
   const canonicalUrl = `https://bndbox.com/blog/${slug}`;
